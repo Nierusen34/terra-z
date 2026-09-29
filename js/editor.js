@@ -10,6 +10,7 @@ var showConfirm = core.showConfirm;
 
 /* ===== MODO EDIÇÃO ===== */
 var editMode = false, fallbackEditCounter = 0;
+var publishedBaseline = {};
 var EDITS_KEY = 'terraZ_v1_edits';
 var EDITS_BACKUP_FORMAT = 'terra-z-edits';
 var EDITS_BACKUP_VERSION = 2;
@@ -41,13 +42,55 @@ function toggleEdit(){
   else { saveEdits(true); showToast('Edições salvas automaticamente', 'success'); }
 }
 
-function saveEdits(silent){
+function captureCurrentEdits(){
   initEditables();
   var data = {};
   getAll().forEach(function(el){ data[el.dataset.editId] = el.innerHTML; });
+  return data;
+}
+
+function applyPublishedOverrides(){
+  var data = (window.TerraZData && window.TerraZData.contentOverrides) || {};
+  initEditables();
+
+  getAll().forEach(function(el){
+    var id = el.dataset.editId;
+    if(data[id] !== undefined) el.innerHTML = data[id];
+  });
+
+  publishedBaseline = captureCurrentEdits();
+}
+
+function getPendingChanges(){
+  var current = captureCurrentEdits();
+  var pending = {};
+
+  Object.keys(current).forEach(function(id){
+    if(publishedBaseline[id] !== current[id]) pending[id] = current[id];
+  });
+
+  return pending;
+}
+
+function notifyEditsChanged(){
+  document.dispatchEvent(new CustomEvent('terra-z:edits-changed', {
+    detail: { count:Object.keys(getPendingChanges()).length }
+  }));
+}
+
+function markPublished(changes){
+  changes = changes || {};
+  Object.keys(changes).forEach(function(id){ publishedBaseline[id] = changes[id]; });
+  try { localStorage.removeItem(EDITS_KEY); } catch(e){}
+  notifyEditsChanged();
+}
+
+function saveEdits(silent){
+  var data = captureCurrentEdits();
   try {
     localStorage.setItem(EDITS_KEY, JSON.stringify(data));
-    if(!silent) showToast('Edições salvas com sucesso', 'success');
+    if(!silent) showToast('Rascunho salvo neste navegador', 'success');
+    notifyEditsChanged();
   } catch(e){ showToast('Erro ao salvar: ' + e.message, 'error'); }
 }
 
@@ -80,6 +123,7 @@ function loadEdits(){
       localStorage.setItem(EDITS_KEY, JSON.stringify(migratedData));
       showToast('Edições antigas migradas para o novo formato', 'info', 3500);
     }
+    notifyEditsChanged();
   } catch(e){ console.error(e); }
 }
 
@@ -307,7 +351,9 @@ setInterval(function(){ if(editMode) autoBackup(); }, 5 * 60 * 1000);
 
 
 initEditables();
+applyPublishedOverrides();
 loadEdits();
+notifyEditsChanged();
 
 window.toggleEdit = toggleEdit;
 window.saveEdits = saveEdits;
@@ -323,7 +369,11 @@ window.TerraZApp.editor = {
   exportEdits: exportEdits,
   exportHtml: exportHtml,
   importEdits: importEdits,
-  reset: resetEdits
+  reset: resetEdits,
+  getCurrentEdits: captureCurrentEdits,
+  getPendingChanges: getPendingChanges,
+  markPublished: markPublished,
+  refreshPending: notifyEditsChanged
 };
 
 })();
