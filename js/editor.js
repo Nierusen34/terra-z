@@ -80,9 +80,21 @@ function notifyEditsChanged(){
 
 function markPublished(changes){
   changes = changes || {};
+  var current = captureCurrentEdits();
+
   Object.keys(changes).forEach(function(id){ publishedBaseline[id] = changes[id]; });
-  try { localStorage.removeItem(EDITS_KEY); } catch(e){}
+
+  var remaining = Object.keys(current).filter(function(id){
+    return publishedBaseline[id] !== current[id];
+  });
+
+  try {
+    if(remaining.length) localStorage.setItem(EDITS_KEY, JSON.stringify(current));
+    else localStorage.removeItem(EDITS_KEY);
+  } catch(e){ console.error(e); }
+
   notifyEditsChanged();
+  return remaining.length;
 }
 
 function saveEdits(silent){

@@ -65,7 +65,7 @@ function closeFichaModal(){
 }
 
 function attachFichaHandlers(){
-  document.querySelectorAll('.card-grid .card').forEach(function(card){
+  document.querySelectorAll('#sub-tz-personagens .card-grid .card').forEach(function(card){
     var h4 = card.querySelector('h4');
     if(!h4) return;
     var title = h4.textContent.replace(/^[^\w]*\s*/,'').trim();

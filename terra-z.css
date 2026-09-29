@@ -614,3 +614,7 @@ button.session-chip:hover{border-color:var(--accent);color:var(--accent)}
 [data-map-district]{cursor:pointer;transition:opacity .2s,filter .2s}
 [data-map-district]:hover{opacity:.82;filter:brightness(1.25)}
 .district-focus{outline:2px solid var(--accent);outline-offset:4px;box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent)}
+
+
+/* Hotspots do mapa: textos não bloqueiam clique nas áreas de distrito */
+#sub-mapa-detalhado svg text{pointer-events:none}

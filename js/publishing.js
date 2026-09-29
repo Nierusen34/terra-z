@@ -80,7 +80,7 @@ function buildPayload(){
 }
 
 async function waitForDeployment(statusUrl){
-  if(!statusUrl) return true;
+  if(!statusUrl) return null;
 
   for(var attempt = 0; attempt < 30; attempt++){
     await new Promise(function(resolve){ setTimeout(resolve, 2000); });
@@ -132,6 +132,11 @@ async function publish(){
     setStatus('Commit criado. Aguardando publicação…', 'working');
 
     var published = await waitForDeployment(result.status_url || result.statusUrl);
+    if(published === null){
+      setStatus('Commit criado. Aguardando o GitHub Pages…', 'working');
+      showToast('Commit criado. O rascunho local foi preservado até o deploy ser confirmado.', 'info', 6000);
+      return;
+    }
     if(!published){
       setStatus('Commit criado; deploy ainda está processando.', 'working');
       showToast('Commit criado. O deploy ainda está em andamento.', 'info', 5000);
@@ -139,9 +144,9 @@ async function publish(){
     }
 
     var editor = getEditor();
-    if(editor && editor.markPublished) editor.markPublished(changes);
-    setStatus('Publicado com sucesso', 'success');
-    showToast('Alterações publicadas no Terra Z', 'success', 5000);
+    var remaining = (editor && editor.markPublished) ? editor.markPublished(changes) : 0;
+    setStatus(remaining ? 'Publicado; há novas alterações locais' : 'Publicado com sucesso', 'success');
+    showToast(remaining ? 'Publicação concluída. Alterações feitas durante o deploy foram preservadas.' : 'Alterações publicadas no Terra Z', 'success', 5000);
 
     setTimeout(function(){ location.reload(); }, 1200);
   } catch(err){
