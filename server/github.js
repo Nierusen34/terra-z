@@ -91,6 +91,10 @@ async function commitFiles(files, message, token){
 
   const tree = [];
   for(const file of files){
+    if(file.delete){
+      tree.push({path:file.path,mode:"100644",type:"blob",sha:null});
+      continue;
+    }
     const blob = await git("/git/blobs", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
