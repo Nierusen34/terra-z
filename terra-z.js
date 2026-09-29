@@ -490,14 +490,73 @@ function closeFandomModal(){
   }, 100);
 }
 
+function normalizeWikiUrl(raw, base){
+  if(!raw) return null;
+  var value = String(raw).trim();
+  if(!value) return null;
+
+  // Âncoras locais são permitidas sem conversão.
+  if(value.charAt(0) === '#') return value;
+
+  try {
+    var url = new URL(value, base || 'https://dc.fandom.com/');
+    if(url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+    return url.href;
+  } catch(e){
+    return null;
+  }
+}
+
 function sanitizeWikiHtml(html){
   var temp = document.createElement('div');
   temp.innerHTML = html;
-  temp.querySelectorAll('script, style, link, iframe, meta, .mw-editsection, .noprint, .navbox, .metadata, .toc, .reference, sup.reference, .mw-collapsible-toggle, .messagebox, .ambox, .dablink, .hatnote').forEach(function(el){ el.remove(); });
+
+  temp.querySelectorAll([
+    'script','style','link','iframe','meta','base','object','embed',
+    'form','input','button','textarea','select','option',
+    '.mw-editsection','.noprint','.navbox','.metadata','.toc',
+    '.reference','sup.reference','.mw-collapsible-toggle',
+    '.messagebox','.ambox','.dablink','.hatnote'
+  ].join(',')).forEach(function(el){ el.remove(); });
+
   temp.querySelectorAll('*').forEach(function(el){
-    Array.from(el.attributes).forEach(function(attr){ if(attr.name.startsWith('on')) el.removeAttribute(attr.name); });
+    Array.from(el.attributes).forEach(function(attr){
+      var name = attr.name.toLowerCase();
+      if(
+        name.indexOf('on') === 0 ||
+        name === 'style' ||
+        name === 'srcdoc' ||
+        name === 'formaction' ||
+        name === 'action' ||
+        name === 'ping' ||
+        name === 'nonce' ||
+        name === 'integrity'
+      ){
+        el.removeAttribute(attr.name);
+      }
+    });
   });
-  temp.querySelectorAll('a.new').forEach(function(a){ a.removeAttribute('href'); });
+
+  temp.querySelectorAll('a[href]').forEach(function(a){
+    if(a.classList.contains('new')){
+      a.removeAttribute('href');
+      return;
+    }
+    var safeHref = normalizeWikiUrl(a.getAttribute('href'), 'https://dc.fandom.com/');
+    if(!safeHref) a.removeAttribute('href');
+    else a.setAttribute('href', safeHref);
+  });
+
+  temp.querySelectorAll('img').forEach(function(img){
+    ['src','data-src','data-image-src'].forEach(function(attr){
+      var value = img.getAttribute(attr);
+      if(!value) return;
+      var safe = normalizeWikiUrl(value, 'https://dc.fandom.com/');
+      if(!safe) img.removeAttribute(attr);
+      else img.setAttribute(attr, safe);
+    });
+  });
+
   var parserOutput = temp.querySelector('.mw-parser-output');
   return (parserOutput || temp).innerHTML;
 }
@@ -506,25 +565,28 @@ function processWikiContent(root){
   root.querySelectorAll('img').forEach(function(img){
     var dataSrc = img.getAttribute('data-src');
     var realSrc = dataSrc || img.getAttribute('data-image-src') || img.getAttribute('src');
-    if(!realSrc){ img.remove(); return; }
-    if(realSrc.startsWith('data:image/gif') && !dataSrc){
-      var srcset = img.getAttribute('srcset') || img.getAttribute('data-srcset');
-      if(srcset) realSrc = srcset.split(',')[0].trim().split(' ')[0];
-      else { img.remove(); return; }
+
+    if(!realSrc){
+      var srcsetFallback = img.getAttribute('srcset') || img.getAttribute('data-srcset');
+      if(srcsetFallback) realSrc = srcsetFallback.split(',')[0].trim().split(/\s+/)[0];
     }
-    if(realSrc.startsWith('//')) realSrc = 'https:' + realSrc;
-    else if(realSrc.startsWith('/')) realSrc = 'https://dc.fandom.com' + realSrc;
-    else if(!realSrc.match(/^https?:/)) realSrc = 'https://dc.fandom.com/wiki/' + realSrc;
-    img.setAttribute('src', realSrc);
-    ['data-src','data-srcset','srcset','loading','decoding'].forEach(function(a){ img.removeAttribute(a); });
+
+    var safeSrc = normalizeWikiUrl(realSrc, 'https://dc.fandom.com/');
+    if(!safeSrc){ img.remove(); return; }
+
+    img.setAttribute('src', safeSrc);
+    ['data-src','data-image-src','data-srcset','srcset','loading','decoding'].forEach(function(a){ img.removeAttribute(a); });
     img.classList.remove('lazyload','lazyloading');
   });
+
   root.querySelectorAll('a[href]').forEach(function(a){
-    var href = a.getAttribute('href');
-    if(!href) return;
-    if(href.startsWith('/wiki/')) href = 'https://dc.fandom.com' + href;
-    else if(href.startsWith('//')) href = 'https:' + href;
-    a.setAttribute('href', href);
+    var safeHref = normalizeWikiUrl(a.getAttribute('href'), 'https://dc.fandom.com/');
+    if(!safeHref){
+      a.removeAttribute('href');
+      return;
+    }
+
+    a.setAttribute('href', safeHref);
     a.removeAttribute('target');
     a.removeAttribute('rel');
   });
