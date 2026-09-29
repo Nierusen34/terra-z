@@ -19,6 +19,25 @@ if(!window.TerraZData || !window.TerraZData.defaultGraph){
 }
 
 var graphData = null;
+var relationFilter = 'all';
+var nodeCharacterMap = {
+  oliver:'Oliver Queen',
+  dinah:'Dinah Lance',
+  tristan:'Tristan Queen',
+  connor:'Connor Hawke',
+  bruce:'Bruce Wayne',
+  damian:'Damian Wayne',
+  jason:'Jason Todd',
+  dick:'Dick Grayson',
+  tim:'Tim Drake',
+  mgann:"M'gann M'orzz",
+  conner2:'Conner Kent',
+  mark:"M'ark",
+  jonn:"J'onn J'onzz",
+  lobo:'Lobo',
+  riot:'Riot',
+  kendra:'Kendra Saunders'
+};
 function loadGraph(){
   try { var saved = localStorage.getItem(GRAPH_KEY); if(saved) return JSON.parse(saved); } catch(e){ console.error(e); }
   return JSON.parse(JSON.stringify(defaultGraph));
@@ -38,13 +57,17 @@ function renderGraph(){
   if(!svg || !graphData) return;
   var html = '';
   html += '<defs><filter id="glowNode"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+
   graphData.quadrants.forEach(function(q){
     html += '<rect x="' + q.x + '" y="' + q.y + '" width="' + q.w + '" height="' + q.h + '" rx="8" fill="' + q.bg + '" stroke="' + q.color + '" stroke-width="1.5"/>';
     html += '<text x="' + (q.x + q.w/2) + '" y="' + (q.y + 28) + '" font-family="Oswald,sans-serif" font-size="16" fill="' + q.color + '" text-anchor="middle" letter-spacing="3" font-weight="700">' + escapeHtml(q.title) + '</text>';
   });
+
   var nodeMap = {};
   graphData.nodes.forEach(function(n){ nodeMap[n.id] = n; });
+
   graphData.edges.forEach(function(e){
+    if(relationFilter !== 'all' && e.type !== relationFilter) return;
     var a = nodeMap[e.from], b = nodeMap[e.to];
     if(!a || !b) return;
     var stroke = edgeColor(e.type);
@@ -56,11 +79,58 @@ function renderGraph(){
     var offX = -dy / len * 14, offY = dx / len * 14;
     html += '<text x="' + (mx + offX) + '" y="' + (my + offY) + '" font-family="Share Tech Mono,monospace" font-size="9" fill="' + stroke + '" text-anchor="middle" style="paint-order:stroke;stroke:var(--paper3);stroke-width:4px;stroke-linejoin:round">' + escapeHtml(e.label) + '</text>';
   });
+
   graphData.nodes.forEach(function(n){
+    var character = nodeCharacterMap[n.id] || '';
+    var localCharacter = character && window.TerraZData && window.TerraZData.characters && window.TerraZData.characters[character];
+    html += '<g class="graph-node' + (localCharacter ? ' interactive' : '') + '" data-node-id="' + escapeAttr(n.id) + '"' +
+      (localCharacter ? ' data-character="' + escapeAttr(character) + '" role="button" tabindex="0"' : '') + '>';
     html += '<circle cx="' + n.x + '" cy="' + n.y + '" r="' + n.r + '" fill="' + n.color + '" stroke="#fff" stroke-width="3" filter="url(#glowNode)"/>';
-    html += '<text x="' + n.x + '" y="' + (n.y + Math.round(n.r * 0.13)) + '" font-family="Oswald,sans-serif" font-size="' + Math.max(10, Math.round(n.r * 0.37)) + '" fill="#fff" text-anchor="middle" font-weight="700">' + escapeHtml(n.label) + '</text>';
+    html += '<text x="' + n.x + '" y="' + (n.y + Math.round(n.r * 0.13)) + '" font-family="Oswald,sans-serif" font-size="' + Math.max(10, Math.round(n.r * 0.37)) + '" fill="#fff" text-anchor="middle" font-weight="700" pointer-events="none">' + escapeHtml(n.label) + '</text>';
+    html += '</g>';
   });
+
   svg.innerHTML = html;
+}
+
+function openGraphCharacter(group){
+  if(!group) return;
+  var character = group.getAttribute('data-character');
+  if(!character) return;
+
+  if(window.TerraZApp.characters) window.TerraZApp.characters.open(character);
+  else showToast('Ficha indisponível para ' + character, 'warning');
+}
+
+function setupGraphExploreEvents(){
+  var svg = document.getElementById('graphSvg');
+  if(svg && !svg.dataset.exploreBound){
+    svg.dataset.exploreBound = '1';
+
+    svg.addEventListener('click', function(e){
+      var group = e.target.closest('.graph-node.interactive');
+      if(group) openGraphCharacter(group);
+    });
+
+    svg.addEventListener('keydown', function(e){
+      if(e.key !== 'Enter' && e.key !== ' ') return;
+      var group = e.target.closest('.graph-node.interactive');
+      if(group){
+        e.preventDefault();
+        openGraphCharacter(group);
+      }
+    });
+  }
+
+  var filter = document.getElementById('graphRelationFilter');
+  if(filter && !filter.dataset.bound){
+    filter.dataset.bound = '1';
+    filter.value = relationFilter;
+    filter.addEventListener('change', function(){
+      relationFilter = filter.value || 'all';
+      renderGraph();
+    });
+  }
 }
 
 function openGraphEditor(){
@@ -228,6 +298,7 @@ try {
   graphData = loadGraph();
   renderGraph();
   setupGraphEditorEvents();
+  setupGraphExploreEvents();
 } catch(e){
   console.error('Terra Z graph:', e);
 }
