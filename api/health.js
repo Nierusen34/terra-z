@@ -12,12 +12,22 @@ export default async function handler(req,res){
   const githubAppReady = !!(process.env.GITHUB_APP_ID && process.env.GITHUB_INSTALLATION_ID && process.env.GITHUB_PRIVATE_KEY);
   const tokenReady = !!process.env.GITHUB_TOKEN;
   const editorReady = !!(process.env.EDITOR_AUTH_SECRET && (process.env.EDITOR_PASSWORD_HASH || process.env.EDITOR_PASSWORD));
+  let masterContent = "missing";
+  if(process.env.MASTER_CONTENT_JSON){
+    try {
+      JSON.parse(process.env.MASTER_CONTENT_JSON);
+      masterContent = "ready";
+    } catch {
+      masterContent = "invalid";
+    }
+  }
 
   return res.status(200).json({
     ok:true,
     editor_auth:editorReady,
     github_write:githubAppReady || tokenReady,
     github_mode:githubAppReady ? "app" : (tokenReady ? "token" : "none"),
+    master_content:masterContent,
     ...githubConfig()
   });
 }

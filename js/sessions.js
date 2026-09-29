@@ -26,6 +26,9 @@ function render(){
     return;
   }
 
+  var b = window.TerraZApp && window.TerraZApp.backend;
+  var canEdit = !!(b && b.isConfigured && b.isConfigured() && b.isAuthenticated && b.isAuthenticated());
+
   var ordered = sessions.slice().sort(function(a,b){
     return String(b.realDate || '').localeCompare(String(a.realDate || ''));
   });
@@ -38,7 +41,9 @@ function render(){
     if(session.realDate) html += '<span>' + escapeHtml(session.realDate) + '</span>';
     if(session.inWorldDate) html += '<span>· ' + escapeHtml(session.inWorldDate) + '</span>';
     html += '</div>';
-    html += '<h3>' + escapeHtml(session.title || 'Sessão sem título') + '</h3>';
+    html += '<div class="session-title-row"><h3>' + escapeHtml(session.title || 'Sessão sem título') + '</h3>';
+    if(canEdit) html += '<button class="session-edit-btn" data-session-edit="' + escapeHtml(session.id || '') + '">✏️ Editar</button>';
+    html += '</div>';
     if(session.summary) html += '<p class="session-summary">' + escapeHtml(session.summary) + '</p>';
 
     if(Array.isArray(session.characters) && session.characters.length){
@@ -64,6 +69,13 @@ function render(){
 
   root.innerHTML = html;
 
+  root.querySelectorAll('[data-session-edit]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.getAttribute('data-session-edit');
+      if(window.TerraZApp.sessionEditor) window.TerraZApp.sessionEditor.open(id);
+    });
+  });
+
   root.querySelectorAll('[data-character]').forEach(function(btn){
     btn.addEventListener('click', function(){
       var name = btn.getAttribute('data-character');
@@ -73,6 +85,8 @@ function render(){
 
   if(window.TerraZApp.visibility) window.TerraZApp.visibility.apply();
 }
+
+document.addEventListener('terra-z:auth-changed', render);
 
 render();
 
