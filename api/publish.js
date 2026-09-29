@@ -1,5 +1,6 @@
 "use strict";
 
+const sanitizeHtml = require("sanitize-html");
 const { json, applyCors, requireEditor } = require("../server/auth");
 const { installationToken, getFile, putFile, OWNER, REPO, BRANCH } = require("../server/github");
 
@@ -14,7 +15,15 @@ function normalizeChanges(changes){
     if(!/^tz-\d{4}$/.test(id)) throw new Error("ID de edição inválido: " + id);
     const value = String(changes[id]);
     if(Buffer.byteLength(value,"utf8") > 100000) throw new Error("Conteúdo excessivamente grande: " + id);
-    out[id] = value;
+    out[id] = sanitizeHtml(value, {
+      allowedTags:["strong","br","div","span"],
+      allowedAttributes:{
+        div:["class"],
+        span:["class"]
+      },
+      allowedSchemes:[],
+      disallowedTagsMode:"discard"
+    });
   });
   return out;
 }
