@@ -1048,11 +1048,7 @@ document.addEventListener('DOMContentLoaded', function(){
   try { buildGlobalSidebar(); } catch(e){ console.error('buildGlobalSidebar:', e); }
   try { initEditables(); } catch(e){ console.error('initEditables:', e); }
   try { loadEdits(); } catch(e){ console.error('loadEdits:', e); }
-  try { attachFichaHandlers(); } catch(e){ console.error('attachFichaHandlers:', e); }
-  try { attachFavoriteButtons(); } catch(e){ console.error('attachFavoriteButtons:', e); }
-  try { initFavoritesPanel(); } catch(e){ console.error('initFavoritesPanel:', e); }
-  try { setupModalBodyDelegation(); } catch(e){ console.error('setupModalBodyDelegation:', e); }
-  try { initInteractiveTimeline(); } catch(e){ console.error('initInteractiveTimeline:', e); }
+  try { attachFichaHandlers(); } catch(e){ console.error('attachFichaHandlers:', e); }  try { initInteractiveTimeline(); } catch(e){ console.error('initInteractiveTimeline:', e); }
   try { graphData = loadGraph(); renderGraph(); } catch(e){ console.error('graph:', e); }
   try { setupGraphEditorEvents(); } catch(e){ console.error('graph events:', e); }
   try { syncGlobalSidebar('tab-home', null); } catch(e){ console.error('syncGlobalSidebar:', e); }
