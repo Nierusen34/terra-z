@@ -95,7 +95,7 @@ var globalStructure = [
   ]},
   { id:'tab-terraz', icon:'🌌', label:'Universo', subs:[
     {id:'sub-universo-visao', label:'Visão Geral'},{id:'sub-tz-personagens', label:'Personagens'},
-    {id:'sub-tz-timeline', label:'Linha do Tempo'},{id:'sub-tz-equipes', label:'Equipes'},{id:'sub-tz-relacoes', label:'Relações'}
+    {id:'sub-tz-timeline', label:'Linha do Tempo'},{id:'sub-tz-equipes', label:'Equipes'},{id:'sub-tz-sessoes', label:'Sessões'},{id:'sub-tz-relacoes', label:'Relações'}
   ]}
 ];
 
