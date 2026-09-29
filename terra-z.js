@@ -1085,6 +1085,8 @@ function attachFichaHandlers(){
 /* ===== MODO EDIÇÃO ===== */
 var editMode = false, fallbackEditCounter = 0;
 var EDITS_KEY = 'terraZ_v1_edits';
+var EDITS_BACKUP_FORMAT = 'terra-z-edits';
+var EDITS_BACKUP_VERSION = 2;
 var SEL = 'h1,h2,h3,h4,h5,h6,p,td,th,li,.timeline-year,.timeline-text,.card p,.info-box,.stat-num,.stat-label,.mast-subtitle,.home-hero .lead,.pull-quote,.event-item .title,.event-item .desc,.photo figcaption,.fc-value,.fc-desc';
 
 function getAll(){ return document.querySelectorAll('.container ' + SEL); }
@@ -1262,35 +1264,95 @@ function exportHtml(){
   showToast('HTML exportado como "index.html"', 'success', 4500);
 }
 
+function isValidEditsMap(data){
+  if(!data || typeof data !== 'object' || Array.isArray(data)) return false;
+  var keys = Object.keys(data);
+  if(keys.length === 0) return true;
+
+  return keys.every(function(key){
+    var validKey = /^(?:tz-\d{4}|tz-runtime-\d{4}|e_\d+)$/.test(key);
+    return validKey && typeof data[key] === 'string';
+  });
+}
+
+function parseEditsBackup(raw){
+  var parsed = JSON.parse(raw);
+
+  // Formato atual, versionado.
+  if(parsed && typeof parsed === 'object' && !Array.isArray(parsed) && parsed.format !== undefined){
+    if(parsed.format !== EDITS_BACKUP_FORMAT) throw new Error('Formato de backup não reconhecido.');
+    if(parsed.version !== EDITS_BACKUP_VERSION) throw new Error('Versão de backup não suportada.');
+    if(!isValidEditsMap(parsed.edits)) throw new Error('Conteúdo de edições inválido.');
+    return parsed.edits;
+  }
+
+  // Compatibilidade com backups antigos, que continham diretamente o mapa de edições.
+  if(isValidEditsMap(parsed)) return parsed;
+
+  throw new Error('Estrutura do backup inválida.');
+}
+
 function exportEdits(){
   saveEdits(true);
   var s = localStorage.getItem(EDITS_KEY);
   if(!s){ showToast('Nada para exportar', 'warning'); return; }
-  var blob = new Blob([s], {type:'application/json'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'terra-z-backup-' + new Date().toISOString().slice(0,10) + '.json';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-  showToast('Backup JSON exportado', 'success');
+
+  try {
+    var edits = JSON.parse(s);
+    if(!isValidEditsMap(edits)) throw new Error('As edições salvas estão em formato inválido.');
+
+    var payload = {
+      format: EDITS_BACKUP_FORMAT,
+      version: EDITS_BACKUP_VERSION,
+      createdAt: new Date().toISOString(),
+      edits: edits
+    };
+
+    var blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'terra-z-backup-' + new Date().toISOString().slice(0,10) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Backup JSON exportado', 'success');
+  } catch(err){
+    showToast('Erro ao exportar backup: ' + err.message, 'error');
+  }
 }
 
 function importEdits(){
   var inp = document.createElement('input');
-  inp.type = 'file'; inp.accept = '.json';
+  inp.type = 'file';
+  inp.accept = '.json,application/json';
+
   inp.onchange = function(e){
-    var f = e.target.files[0]; if(!f) return;
+    var f = e.target.files[0];
+    if(!f) return;
+
+    // Evita carregar arquivos evidentemente inadequados antes mesmo do parse.
+    if(f.size > 5 * 1024 * 1024){
+      showToast('Backup muito grande. Limite: 5 MB.', 'error');
+      return;
+    }
+
     var r = new FileReader();
     r.onload = function(ev){
       try {
-        JSON.parse(ev.target.result);
-        localStorage.setItem(EDITS_KEY, ev.target.result);
-        showToast('Backup importado! Recarregando...', 'success');
+        var edits = parseEditsBackup(ev.target.result);
+        localStorage.setItem(EDITS_KEY, JSON.stringify(edits));
+        showToast('Backup validado e importado! Recarregando...', 'success');
         setTimeout(function(){ location.reload(); }, 1200);
-      } catch(err){ showToast('Arquivo inválido: ' + err.message, 'error'); }
+      } catch(err){
+        showToast('Backup inválido: ' + err.message, 'error', 5000);
+      }
     };
+    r.onerror = function(){ showToast('Não foi possível ler o arquivo de backup.', 'error'); };
     r.readAsText(f);
   };
+
   inp.click();
 }
 
