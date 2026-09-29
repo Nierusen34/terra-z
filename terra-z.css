@@ -568,3 +568,20 @@ body.reading-mode .photo img{cursor:default}
   .character-portrait.small{width:64px;height:78px}
   .character-portrait.large{width:96px;height:120px}
 }
+
+
+/* ===== DESCOBERTA DE PERSONAGENS ===== */
+.character-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0 18px;padding:10px;background:var(--paper3);border:1px solid var(--line2)}
+.character-tools input,.character-tools select{background:var(--paper2);border:1px solid var(--line);color:var(--ink);padding:9px 11px;font-family:var(--font-body);font-size:12px}
+.character-tools input{flex:1;min-width:210px}
+.character-tools select{min-width:145px}
+#characterCount{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--ink3);margin-left:auto;white-space:nowrap}
+.card[hidden]{display:none!important}
+.fh-actions{display:flex;gap:8px;align-items:center}
+.ficha-header .fh-link{background:transparent;border:1px solid var(--line);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:13px;color:var(--ink2);transition:all .3s}
+.ficha-header .fh-link:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+@media(max-width:600px){
+  .character-tools{align-items:stretch}
+  .character-tools input,.character-tools select{width:100%}
+  #characterCount{margin-left:0}
+}
