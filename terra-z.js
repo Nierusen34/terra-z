@@ -1129,19 +1129,107 @@ function exportHtml(){
   var docClone = document.documentElement.cloneNode(true);
   var origEls = document.querySelectorAll('.container ' + SEL);
   var cloneEls = docClone.querySelectorAll('.container ' + SEL);
+
+  // Consolida no clone o conteúdo atualmente editado, mas remove estado de edição.
   origEls.forEach(function(el, idx){ if(cloneEls[idx]) cloneEls[idx].innerHTML = el.innerHTML; });
-  cloneEls.forEach(function(el){ el.classList.remove('edit-active'); el.removeAttribute('contenteditable'); });
-  ['.search-panel.show', '#fandomModal.show', '#fichaModal.show', '#confirmModal.show', '#lightbox.show', '#toastContainer', '#presentationModal.show', '#favoritesPanel.show', '#graphEditorModal.show'].forEach(function(sel){
-    cloneEls.forEach(function(el){ if(el.matches && el.matches(sel)) el.remove(); });
+  cloneEls.forEach(function(el){
+    el.classList.remove('edit-active');
+    el.removeAttribute('contenteditable');
+    el.removeAttribute('data-edit-id');
   });
+
+  // O HTML exportado deve abrir em um estado neutro, independentemente do que
+  // estava aberto no momento da exportação.
+  var cloneBody = docClone.querySelector('body');
+  if(cloneBody){
+    cloneBody.classList.remove('reading-mode', 'sidebar-collapsed');
+    cloneBody.style.overflow = '';
+  }
+
+  var globalSidebarClone = docClone.querySelector('#globalSidebar');
+  if(globalSidebarClone) globalSidebarClone.classList.remove('collapsed');
+  docClone.querySelectorAll('.sidebar.open').forEach(function(el){ el.classList.remove('open'); });
+
+  ['searchPanel','fandomModal','fichaModal','confirmModal','lightbox','presentationModal','favoritesPanel','graphEditorModal','drawerOverlay','editNotice'].forEach(function(id){
+    var el = docClone.querySelector('#' + id);
+    if(el) el.classList.remove('show');
+  });
+
+  // Remove conteúdo gerado em runtime que perderia seus listeners ao ser
+  // serializado. Na próxima abertura, a inicialização normal reconstrói tudo.
+  docClone.querySelectorAll('.fav-btn').forEach(function(el){ el.remove(); });
+
+  var favoritesPanelClone = docClone.querySelector('#favoritesPanel');
+  if(favoritesPanelClone) favoritesPanelClone.innerHTML = '';
+
+  var globalSidebarContent = docClone.querySelector('#globalSidebar');
+  if(globalSidebarContent) globalSidebarContent.innerHTML = '';
+
+  var toastContainerClone = docClone.querySelector('#toastContainer');
+  if(toastContainerClone) toastContainerClone.innerHTML = '';
+
+  var searchResultsClone = docClone.querySelector('#searchResults');
+  if(searchResultsClone) searchResultsClone.innerHTML = '';
+  var searchInfoClone = docClone.querySelector('#searchInfo');
+  if(searchInfoClone) searchInfoClone.textContent = 'Digite ao menos 2 caracteres';
+
+  var modalBodyClone = docClone.querySelector('#modalBody');
+  if(modalBodyClone) modalBodyClone.innerHTML = '';
+  var modalTitleClone = docClone.querySelector('#modalTitle');
+  if(modalTitleClone) modalTitleClone.textContent = 'Título';
+  var modalSourceClone = docClone.querySelector('#modalSource');
+  if(modalSourceClone) modalSourceClone.textContent = '📚 dc.fandom.com';
+  var modalBackClone = docClone.querySelector('#modalBackBtn');
+  if(modalBackClone){
+    modalBackClone.style.display = 'none';
+    modalBackClone.textContent = '← Voltar';
+  }
+  var modalExternalClone = docClone.querySelector('#modalExternal');
+  if(modalExternalClone) modalExternalClone.setAttribute('href', '#');
+
+  var fichaHeaderClone = docClone.querySelector('#fichaHeader');
+  if(fichaHeaderClone) fichaHeaderClone.innerHTML = '';
+  var fichaBodyClone = docClone.querySelector('#fichaBody');
+  if(fichaBodyClone) fichaBodyClone.innerHTML = '';
+
+  var presInnerClone = docClone.querySelector('#presentationModal .pres-inner');
+  if(presInnerClone) presInnerClone.innerHTML = '';
+  var presCounterClone = docClone.querySelector('#presentationModal .pres-counter');
+  if(presCounterClone) presCounterClone.textContent = '1 / 1';
+
+  var geNodesClone = docClone.querySelector('#geNodesBody');
+  if(geNodesClone) geNodesClone.innerHTML = '';
+  var geEdgesClone = docClone.querySelector('#geEdgesBody');
+  if(geEdgesClone) geEdgesClone.innerHTML = '';
+
+  var lightboxImgClone = docClone.querySelector('#lightboxImg');
+  if(lightboxImgClone) lightboxImgClone.setAttribute('src', '');
+
+  var editBtnClone = docClone.querySelector('#editBtn');
+  if(editBtnClone){
+    editBtnClone.classList.remove('active');
+    editBtnClone.textContent = '✏️ Editar';
+  }
+
+  // Destaques de busca são apenas estado visual temporário.
+  docClone.querySelectorAll('mark.search-hit').forEach(function(mark){
+    var parent = mark.parentNode;
+    if(!parent) return;
+    while(mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+    parent.removeChild(mark);
+    parent.normalize();
+  });
+
   var html = '<!DOCTYPE html>\n' + docClone.outerHTML;
   var blob = new Blob([html], {type:'text/html;charset=utf-8'});
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
-  var date = new Date().toISOString().slice(0,10);
   a.href = url;
   a.download = 'index.html';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
   showToast('HTML exportado como "index.html"', 'success', 4500);
 }
 
