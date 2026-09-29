@@ -4,7 +4,9 @@ Este repositório contém funções serverless compatíveis com Vercel para tran
 
 ## Endpoints
 
-- `POST /api/publish` — publica alterações de `data-edit-id` em `data/content-overrides.js`.
+- `POST /api/publish` — publica alterações de `data-edit-id` em `data/content-overrides.js`;
+- `POST /api/media` — envia/substitui retratos e atualiza `data/character-media.js` no mesmo commit;
+- `POST /api/sessions` — cria ou atualiza sessões em `data/sessions.js`;
 - `GET /api/status?sha=<commit>` — acompanha o workflow do GitHub Pages.
 
 ## Variáveis de ambiente
@@ -48,6 +50,28 @@ Nenhuma chave privada deve ser adicionada ao Git.
 
 ## Segurança
 
-A chave de editor é comparada no servidor e nunca fica no repositório.
+A chave de editor é comparada no servidor com comparação resistente a timing e nunca fica no repositório. No navegador ela é mantida somente em `sessionStorage`, portanto some ao encerrar a sessão do navegador ou ao usar **Esquecer**.
+
+Conteúdo HTML do editor passa por sanitização server-side antes do commit.
 
 A chave privada da GitHub App existe apenas como variável de ambiente no provedor serverless.
+
+Uploads aceitos: PNG, JPEG ou WebP, até 3 MB.
+
+## Ativação do cliente
+
+Depois do deploy serverless, atualizar `config.js`:
+
+```js
+window.TerraZConfig.publishing = {
+  enabled: true,
+  endpoint: "https://SEU-PROJETO.vercel.app/api/publish",
+  mediaEndpoint: "https://SEU-PROJETO.vercel.app/api/media",
+  sessionsEndpoint: "https://SEU-PROJETO.vercel.app/api/sessions",
+  statusEndpoint: "https://SEU-PROJETO.vercel.app/api/status",
+  repository: "Nierusen34/terra-z",
+  branch: "main"
+};
+```
+
+Somente depois dessa alteração os controles remotos ficam operacionais.
