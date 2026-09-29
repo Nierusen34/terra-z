@@ -598,8 +598,8 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2
 <div data-edit-id="tz-0596" data-legacy-edit-id="e_595" class="info-box gold"><div class="label">📌 Como ler</div>Cada cor representa um tipo de vínculo. Use o botão <strong>✏️ Editar Grafo</strong> abaixo para alterar nomes, posições, cores e conexões. Tudo é salvo automaticamente.</div>
 
 <div class="graph-toolbar">
-<button class="primary" onclick="openGraphEditor()">✏️ Editar Grafo</button>
-<button onclick="resetGraph()">🔄 Restaurar Padrão</button>
+<button class="primary" id="graphOpenBtn">✏️ Editar Grafo</button>
+<button id="graphResetBtn">🔄 Restaurar Padrão</button>
 </div>
 
 <div class="graph-wrap">
@@ -677,7 +677,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <thead><tr><th>ID</th><th>Nome</th><th>X</th><th>Y</th><th>Raio</th><th>Cor</th><th></th></tr></thead>
 <tbody id="geNodesBody"></tbody>
 </table>
-<button class="ge-btn-add" onclick="addGraphNode()">+ Adicionar Nó</button>
+<button class="ge-btn-add" id="graphAddNodeBtn">+ Adicionar Nó</button>
 </div>
 <div class="graph-editor-section">
 <h3>🔗 Conexões</h3>
@@ -685,13 +685,13 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <thead><tr><th>De</th><th>Para</th><th>Rótulo</th><th>Tipo</th><th></th></tr></thead>
 <tbody id="geEdgesBody"></tbody>
 </table>
-<button class="ge-btn-add" onclick="addGraphEdge()">+ Adicionar Conexão</button>
+<button class="ge-btn-add" id="graphAddEdgeBtn">+ Adicionar Conexão</button>
 </div>
 </div>
 <div class="graph-editor-footer">
-<button class="danger" onclick="cancelGraphEditor()">Cancelar</button>
-<button onclick="restoreGraphFromBackup()">Restaurar Anterior</button>
-<button class="primary" onclick="saveGraphEditor()">💾 Salvar Alterações</button>
+<button class="danger" id="graphCancelBtn">Cancelar</button>
+<button id="graphRestoreBtn">Restaurar Anterior</button>
+<button class="primary" id="graphSaveBtn">💾 Salvar Alterações</button>
 </div>
 </div>
 </div>
@@ -736,9 +736,8 @@ document.addEventListener('DOMContentLoaded', function(){
       var panel = document.getElementById('favoritesPanel');
       if(panel.classList.contains('show')) window.closeFavoritesPanel();
       else window.showFavoritesPanel();
-    },
-    graphEditorClose: function(){ window.closeGraphEditor(); }
-  };
+    }
+};
   Object.keys(btnMap).forEach(function(id){
     var el = document.getElementById(id);
     if(el) el.addEventListener('click', btnMap[id]);
