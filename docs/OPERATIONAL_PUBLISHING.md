@@ -173,3 +173,27 @@ GitHub Pages
    ↓
 Site recarrega
 ```
+
+
+## Migração final dos segredos para o backend privado
+
+O painel **Publicar** possui uma seção **Conteúdo Mestre privado** para concluir a Fase 8 com segurança.
+
+Fluxo:
+
+1. entre como editor;
+2. clique em **Copiar JSON Mestre**;
+3. na Vercel, crie/atualize `MASTER_CONTENT_JSON` com o valor copiado;
+4. faça um novo deploy da Vercel;
+5. volte ao painel Publicar;
+6. quando o status indicar que o JSON está válido, clique em **Remover segredos públicos**.
+
+O endpoint de finalização compara o conteúdo privado com os segredos ainda presentes em `data/characters.js`. A remoção é bloqueada se houver qualquer personagem ausente ou conteúdo diferente.
+
+Endpoints envolvidos:
+
+- `GET /api/master-template` — autenticado; gera a cópia privada;
+- `POST /api/master-finalize` — autenticado; valida e remove os arrays públicos;
+- `GET /api/health` — informa `master_content: missing | ready | invalid`.
+
+Depois da finalização, usuários públicos deixam de receber esses segredos no JavaScript. Editores autenticados continuam recebendo-os por `/api/master`.
