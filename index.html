@@ -750,8 +750,6 @@ document.addEventListener('DOMContentLoaded', function(){
   if(fm) fm.addEventListener('click', function(e){ if(e.target === fm) window.closeFichaModal(); });
   var pm = document.getElementById('presentationModal');
   if(pm) pm.addEventListener('click', function(e){ if(e.target === pm) window.togglePresentation(); });
-  var gm = document.getElementById('graphEditorModal');
-  if(gm) gm.addEventListener('click', function(e){ if(e.target === gm) window.closeGraphEditor(); });
   var cm = document.getElementById('confirmModal');
   if(cm) cm.addEventListener('click', function(e){
     if(e.target === cm){ cm.classList.remove('show'); document.body.style.overflow = ''; }
