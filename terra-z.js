@@ -1083,11 +1083,20 @@ function attachFichaHandlers(){
 }
 
 /* ===== MODO EDIÇÃO ===== */
-var editMode = false, counter = 0;
+var editMode = false, fallbackEditCounter = 0;
+var EDITS_KEY = 'terraZ_v1_edits';
 var SEL = 'h1,h2,h3,h4,h5,h6,p,td,th,li,.timeline-year,.timeline-text,.card p,.info-box,.stat-num,.stat-label,.mast-subtitle,.home-hero .lead,.pull-quote,.event-item .title,.event-item .desc,.photo figcaption,.fc-value,.fc-desc';
 
 function getAll(){ return document.querySelectorAll('.container ' + SEL); }
-function initEditables(){ getAll().forEach(function(el){ if(!el.dataset.editId) el.dataset.editId = 'e_' + (counter++); }); }
+
+function initEditables(){
+  getAll().forEach(function(el){
+    if(el.dataset.editId) return;
+    fallbackEditCounter++;
+    el.dataset.editId = 'tz-runtime-' + String(fallbackEditCounter).padStart(4, '0');
+    console.warn('Terra Z: elemento editável sem data-edit-id permanente.', el);
+  });
+}
 
 function toggleEdit(){
   initEditables();
@@ -1109,18 +1118,40 @@ function saveEdits(silent){
   var data = {};
   getAll().forEach(function(el){ data[el.dataset.editId] = el.innerHTML; });
   try {
-    localStorage.setItem('terraZ_v1_edits', JSON.stringify(data));
+    localStorage.setItem(EDITS_KEY, JSON.stringify(data));
     if(!silent) showToast('Edições salvas com sucesso', 'success');
   } catch(e){ showToast('Erro ao salvar: ' + e.message, 'error'); }
 }
 
 function loadEdits(){
-  var s = localStorage.getItem('terraZ_v1_edits');
+  var s = localStorage.getItem(EDITS_KEY);
   if(!s) return;
   try {
     var data = JSON.parse(s);
+    var migratedLegacy = false;
     initEditables();
-    getAll().forEach(function(el){ if(data[el.dataset.editId] !== undefined) el.innerHTML = data[el.dataset.editId]; });
+
+    getAll().forEach(function(el){
+      var stableId = el.dataset.editId;
+      var legacyId = el.dataset.legacyEditId;
+
+      if(data[stableId] !== undefined){
+        el.innerHTML = data[stableId];
+        return;
+      }
+
+      if(legacyId && data[legacyId] !== undefined){
+        el.innerHTML = data[legacyId];
+        migratedLegacy = true;
+      }
+    });
+
+    if(migratedLegacy){
+      var migratedData = {};
+      getAll().forEach(function(el){ migratedData[el.dataset.editId] = el.innerHTML; });
+      localStorage.setItem(EDITS_KEY, JSON.stringify(migratedData));
+      showToast('Edições antigas migradas para o novo formato', 'info', 3500);
+    }
   } catch(e){ console.error(e); }
 }
 
@@ -1134,9 +1165,7 @@ function exportHtml(){
   origEls.forEach(function(el, idx){ if(cloneEls[idx]) cloneEls[idx].innerHTML = el.innerHTML; });
   cloneEls.forEach(function(el){
     el.classList.remove('edit-active');
-    el.removeAttribute('contenteditable');
-    el.removeAttribute('data-edit-id');
-  });
+    el.removeAttribute('contenteditable');  });
 
   // O HTML exportado deve abrir em um estado neutro, independentemente do que
   // estava aberto no momento da exportação.
@@ -1235,7 +1264,7 @@ function exportHtml(){
 
 function exportEdits(){
   saveEdits(true);
-  var s = localStorage.getItem('terraZ_v1_edits');
+  var s = localStorage.getItem(EDITS_KEY);
   if(!s){ showToast('Nada para exportar', 'warning'); return; }
   var blob = new Blob([s], {type:'application/json'});
   var url = URL.createObjectURL(blob);
@@ -1255,7 +1284,7 @@ function importEdits(){
     r.onload = function(ev){
       try {
         JSON.parse(ev.target.result);
-        localStorage.setItem('terraZ_v1_edits', ev.target.result);
+        localStorage.setItem(EDITS_KEY, ev.target.result);
         showToast('Backup importado! Recarregando...', 'success');
         setTimeout(function(){ location.reload(); }, 1200);
       } catch(err){ showToast('Arquivo inválido: ' + err.message, 'error'); }
@@ -1267,7 +1296,7 @@ function importEdits(){
 
 function resetEdits(){
   showConfirm('Confirmar Reset', 'Todas as edições salvas serão apagadas. Deseja continuar?', function(){
-    localStorage.removeItem('terraZ_v1_edits');
+    localStorage.removeItem(EDITS_KEY);
     showToast('Edições apagadas. Recarregando...', 'info');
     setTimeout(function(){ location.reload(); }, 1000);
   }, 'Resetar');
@@ -1275,7 +1304,7 @@ function resetEdits(){
 
 var AUTO_BACKUP_KEY = 'terraZ_v1_backups';
 function autoBackup(){
-  var current = localStorage.getItem('terraZ_v1_edits');
+  var current = localStorage.getItem(EDITS_KEY);
   if(!current) return;
   try {
     var backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY) || '[]');
