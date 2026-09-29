@@ -48,7 +48,9 @@
 <button id="presentationBtn">▶ Apresentação</button>
 <button id="favoritesBtn">⭐ Favoritos</button>
 <button id="editBtn">✏️ Editar</button>
-<button id="saveBtn">💾 Salvar</button>
+<button id="saveBtn">💾 Salvar rascunho</button>
+<button id="publishBtn">🚀 Publicar</button>
+<span id="publishStatus" class="publish-status" data-state="idle"></span>
 <button id="exportHtmlBtn">📥 Exportar HTML</button>
 <button id="exportBtn">📤 Backup JSON</button>
 <button id="importBtn">📂 Importar</button>
@@ -637,6 +639,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 
 <button id="backTop">↑</button>
 
+<script src="data/config.js" defer></script>
 <script src="data/characters.js" defer></script>
 <script src="data/relations.js" defer></script>
 <script src="data/locations.js" defer></script>
@@ -644,9 +647,11 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="data/timeline.js" defer></script>
 <script src="data/cities.js" defer></script>
 <script src="data/teams.js" defer></script>
+<script src="data/content-overrides.js" defer></script>
 <script src="terra-z.js" defer></script>
 <script src="js/data-renderer.js" defer></script>
 <script src="js/editor.js" defer></script>
+<script src="js/publishing.js" defer></script>
 <script src="js/media.js" defer></script>
 <script src="js/navigation.js" defer></script>
 <script src="js/search.js" defer></script>
