@@ -25,6 +25,7 @@ function toggleFavorite(name, event){
   updateAllCardFavorites();
   var panel = document.getElementById('favoritesPanel');
   if(panel && panel.classList.contains('show')) showFavoritesPanel();
+  document.dispatchEvent(new CustomEvent('terraz:favoriteschange'));
 }
 
 function updateAllCardFavorites(){
