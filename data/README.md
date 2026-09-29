@@ -34,6 +34,18 @@ Expõe `window.TerraZData.timeline`.
 
 Contém os grupos e itens da linha do tempo do universo, preservando os IDs estáveis de ano e descrição.
 
+### `cities.js`
+
+Expõe `window.TerraZData.externalCities`.
+
+Contém as 15 cidades externas de referência e suas distâncias/tempos de viagem a partir de Vanguard Bay.
+
+### `teams.js`
+
+Expõe `window.TerraZData.teams`.
+
+Contém a lista histórica de equipes e a tabela de membros da Liga da Justiça usada pelo dossiê.
+
 ## Renderização
 
 `terra-z.js` transforma esses dados em HTML antes de registrar os listeners que dependem deles.
@@ -63,8 +75,6 @@ Os arquivos desta pasta devem:
 
 ## Próximos candidatos
 
-A separação futura deve considerar, em etapas independentes:
+A separação futura pode considerar outros conjuntos tabulares de lore com fonte canônica clara, mas deve evitar transformar toda a prosa editorial do site em dados apenas por uniformidade.
 
-- equipes;
-- cidades externas;
-- outros conjuntos tabulares de lore que tenham fonte canônica clara.
+A partir deste ponto, a maior dívida estrutural deixa de ser a localização dos dados principais e passa a ser a concentração de comportamento em `terra-z.js`.
