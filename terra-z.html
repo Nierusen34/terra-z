@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light" data-paper="farol">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Universo Terra Z – Vanguard Bay e Universo DC alternativo">
+<meta name="theme-color" content="#8b1a1a">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📰</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="terra-z.css">
+<title>Universo Terra Z – Dossiê de Jornais v1.3</title>
+</head>
+<body>
+
+<aside id="globalSidebar"></aside>
+<button id="sidebarToggle" title="Alternar índice">◀</button>
+<button id="menuBtn" title="Menu">☰</button>
+<button id="readingExit" title="Sair do Modo Leitura">✕ Sair do Modo Leitura</button>
+<div id="drawerOverlay"></div>
+<div id="toastContainer"></div>
+
+<div class="container">
+
+<div class="masthead">
+<div class="mast-top">
+<span>✦ Edição Especial ✦</span>
+<span>Fundação 1882 · Cidade Dourada</span>
+<span>Nº 145 · Jan/2027</span>
+</div>
+<h1 class="mast-title" id="mastTitle">O Farol de <span class="city">Vanguard</span></h1>
+<div class="mast-subtitle" id="mastSubtitle">"A verdade ilumina a Cidade Dourada"</div>
+<div class="mast-rules">
+<span class="rule"></span><span class="dot"></span>
+<span id="mastSection">Dossiê Completo Universo</span>
+<span class="dot"></span><span class="rule"></span>
+</div>
+</div>
+
+<div class="topbar">
+<div class="search-wrap">
+<input type="text" id="searchInput" placeholder="🔍 Buscar no documento ou na DC Wiki..." autocomplete="off">
+<button id="searchBtn">Buscar</button>
+</div>
+<div class="topbar-actions">
+<button id="readingBtn">📖 Modo Leitura</button>
+<button id="presentationBtn">▶ Apresentação</button>
+<button id="favoritesBtn">⭐ Favoritos</button>
+<button id="editBtn">✏️ Editar</button>
+<button id="saveBtn">💾 Salvar</button>
+<button id="exportHtmlBtn">📥 Exportar HTML</button>
+<button id="exportBtn">📤 Backup JSON</button>
+<button id="importBtn">📂 Importar</button>
+<button id="resetBtn">🔄 Resetar</button>
+<button id="themeToggle">🌙 Modo Escuro</button>
+</div>
+</div>
+
+<div class="search-panel" id="searchPanel">
+<div class="search-head">
+<div class="search-tabs">
+<button class="search-tab active" data-mode="local" onclick="switchSearchMode('local')">📄 Local</button>
+<button class="search-tab" data-mode="fandom" onclick="switchSearchMode('fandom')">📚 DC Wiki</button>
+</div>
+<div class="info" id="searchInfo">Digite ao menos 2 caracteres</div>
+<button class="search-close" id="searchClose" title="Fechar">✕</button>
+</div>
+<div id="searchResults" class="search-results"></div>
+</div>
+
+<div id="favoritesPanel"></div>
+
+<div id="editNotice">✏️ Modo de edição ativo — clique em qualquer texto para editar • Ctrl+S para salvar</div>
+
+<div class="tabs-nav">
+<button class="tab-btn active" data-tab="tab-home" data-paper="farol">📰 Capa</button>
+<button class="tab-btn" data-tab="tab-city" data-paper="farol">🏛️ Cidade</button>
+<button class="tab-btn" data-tab="tab-maps" data-paper="vbn">🗺️ Mapas</button>
+<button class="tab-btn" data-tab="tab-transport" data-paper="cais">🚋 Transporte</button>
+<button class="tab-btn" data-tab="tab-terraz" data-paper="sentinela">🌌 Universo</button>
+</div>
+
+<!-- ============ CAPA ============ -->
+<div class="tab-content active" id="tab-home">
+<div class="home-hero">
+<div class="home-badge">✦ Caderno Especial ✦</div>
+<h2>Bem-vindo à <span class="accent">Terra Z</span></h2>
+<p class="lead">Onde os heróis vão para desaparecer — e os monstros vão para se esconder. Uma realidade alternativa do multiverso DC, onde a nova geração enfrenta os fantasmas de seus pais.</p>
+<div class="dateline">Vanguard Bay · Flórida · Janeiro de 2027</div>
+</div>
+<div class="stats-row">
+<div class="stat-card"><span class="stat-num">2.06M</span><span class="stat-label">Habitantes</span></div>
+<div class="stat-card"><span class="stat-num">7</span><span class="stat-label">Distritos</span></div>
+<div class="stat-card"><span class="stat-num">145</span><span class="stat-label">Anos de História</span></div>
+<div class="stat-card"><span class="stat-num">12</span><span class="stat-label">Personagens-Chave</span></div>
+<div class="stat-card"><span class="stat-num">7</span><span class="stat-label">Segredos Ativos</span></div>
+<div class="stat-card"><span class="stat-num">2072</span><span class="stat-label">O Prazo</span></div>
+</div>
+
+<div class="feature-row">
+<div class="feature-card">
+<div class="fc-label">Última Atualização</div>
+<div class="fc-value">Janeiro de 2027</div>
+<div class="fc-desc">Documento revisado e publicado. Versão 1.3.</div>
+</div>
+<div class="feature-card warning">
+<div class="fc-label">Próximo Evento</div>
+<div class="fc-value">Dinah &amp; Oliver</div>
+<div class="fc-desc">Investigam a anomalia em Gotham. Ligada à Fenda de Vanguard Bay.</div>
+</div>
+<div class="feature-card warning">
+<div class="fc-label">Status da Fenda</div>
+<div class="fc-value">⚠ Instável</div>
+<div class="fc-desc">Energia do Rei Ômega distorce a realidade local. Nível 3 de 5.</div>
+</div>
+</div>
+
+<div class="home-body">
+<div class="main-col">
+<p><strong>Vanguard Bay</strong> é a cidade dourada da costa sul da Flórida — uma metrópole dividida entre o brilho dos arranha-céus corporativos e a escuridão do seu porto operário. Fundada em 1882 por Silas Vanguard, a cidade cresceu sobre um pântano drenado, um símbolo de ambição que sempre cobrou seu preço em sangue.</p>
+<p>Aqui, os super-heróis não têm uma família como em Gotham ou Metrópolis. Não há um Batman vigiando os telhados, nem um Superman voando sobre os céus. Há apenas um <strong>vácuo heroico</strong> — e é nesse vácuo que uma nova geração de renegados, fugitivos e filhos esquecidos está tentando sobreviver.</p>
+<p>Este documento reúne toda a informação conhecida sobre a cidade: seus <strong>distritos</strong>, seus <strong>mapas</strong>, seu <strong>sistema de transporte</strong> e o <strong>dossiê completo dos personagens</strong> que estão moldando o destino do Universo Terra Z.</p>
+<div class="pull-quote">"A cidade não perdoa. A cidade não esquece. A cidade apenas espera — até você cometer o erro de confiar nela."</div>
+<p>Do brilho de <strong>A Muralha</strong> à decadência do <strong>Emaranhado</strong>, da elegância do <strong>Distrito Solar</strong> ao perigo da <strong>Fenda</strong>, Vanguard Bay é um organismo vivo que respira tanto esperança quanto medo. E, em janeiro de 2027, três jovens fugitivos acabam de se encontrar em suas ruas.</p>
+</div>
+<div class="side-col">
+<div class="section-label">📌 Em Destaque</div>
+<div class="event-item"><span class="date">Janeiro de 2027</span><div class="title">O Encontro</div><div class="desc">Tristan, Riot e M'ark se encontram pela primeira vez em Vanguard Bay.</div></div>
+<div class="event-item"><span class="date">2026</span><div class="title">Rei Ômega</div><div class="desc">Superman derrota Darkseid e ascende. A energia distorce a Fenda.</div></div>
+<div class="event-item"><span class="date">2022</span><div class="title">A Promessa de Lobo</div><div class="desc">Lobo dá 50 anos ao clone. Em 2072, voltará para caçá-lo.</div></div>
+<div class="event-item"><span class="date">2019</span><div class="title">A Tragédia de Gotham</div><div class="desc">Bárbara baleada. Jason morto. A família Wayne nunca mais foi a mesma.</div></div>
+</div>
+</div>
+<div class="page-footer">
+O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3
+<div class="seal">Confidencial</div>
+</div>
+</div>
+
+<!-- ============ CIDADE ============ -->
+<div class="tab-content" id="tab-city">
+<div class="breadcrumbs">O Farol de Vanguard › <span class="current">Caderno Cidade</span></div>
+<div class="with-sidebar">
+<div class="sidebar">
+<button class="sidebar-item active" data-sub="sub-visao"><span class="ico">📋</span>Visão Geral</button>
+<button class="sidebar-item" data-sub="sub-distritos"><span class="ico">🏘️</span>Distritos</button>
+<button class="sidebar-item" data-sub="sub-historia"><span class="ico">🏛️</span>História</button>
+<button class="sidebar-item" data-sub="sub-cultura"><span class="ico">🎭</span>Cultura</button>
+<button class="sidebar-item" data-sub="sub-eventos"><span class="ico">🎉</span>Eventos</button>
+</div>
+<div class="content-area">
+
+<div class="sub-content active" id="sub-visao">
+<div class="section-title">🌆 Visão Geral</div>
+<figure class="photo photo-hero">
+<img src="vista-aerea-dia.png" alt="Vista aérea diurna de Vanguard Bay, com o continente à esquerda e a Ilha Solara à direita, ligados por duas pontes sobre a baía" loading="lazy" decoding="async" onerror="this.parentElement.classList.add('missing')">
+<figcaption>Vista aérea de Vanguard Bay ao anoitecer — o continente e a Ilha Solara ligados por duas pontes.</figcaption>
+</figure>
+<div class="card-grid">
+<div class="card"><h4>📍 Localização</h4><p>Costa sul da Flórida (EUA). Divisão: Continente + Ilha Solara.</p></div>
+<div class="card"><h4>🌡️ Clima</h4><p>Verões longos e quentes; invernos amenos; furacões (jun–nov).</p></div>
+<div class="card"><h4>💰 Economia</h4><p>Turismo, finanças, tecnologia, indústria pesada, pesca.</p></div>
+<div class="card"><h4>🎓 Educação</h4><p>UVB (Ilha Solara). VBPI (Downtown).</p></div>
+<div class="card"><h4>🏝️ Geografia</h4><p>Cidade insular e peninsular. Baía a leste. Emaranhado a oeste.</p></div>
+<div class="card"><h4>🏛️ Governo</h4><p>Paço Municipal Silas Vanguard (Downtown). Prefeita: Reyes.</p></div>
+<div class="card"><h4>🎭 Herói Local</h4><p><strong>Nenhum atualmente.</strong> A cidade não possui equipe heroica fixa. Antigamente, o <strong>Zenit</strong> (Alden Mitchell) — hoje um senhor idoso, aposentado há décadas.</p></div>
+</div>
+<div class="info-box gold"><div class="label">📌 Ordem de Norte para Sul</div>A Muralha → Coral Gate → Downtown → O Dique → A Fenda</div>
+</div>
+
+<div class="sub-content" id="sub-distritos">
+<div class="section-title">🏘️ Distritos</div>
+<figure class="photo"><img src="a-muralha.png" alt="Distrito corporativo de A Muralha ao anoitecer, com a Shaw Spire iluminada em azul e drones sobrevoando a avenida" loading="lazy" decoding="async" onerror="this.parentElement.classList.add('missing')"><figcaption>A Muralha — o centro corporativo, com a Shaw Spire dominando o horizonte.</figcaption></figure>
+<div class="card"><h4>💎 A Muralha</h4><p><strong>Tipo:</strong> Centro Corporativo<br><strong>Locais:</strong> Shaw Spire, Vanguard-Stagg, Banco Central, Farol, The Ledger, O Comutador, A Pira.</p></div>
+<figure class="photo"><img src="la-ventanita.png" alt="Esquina movimentada de Coral Gate ao pôr do sol, com o letreiro do café La Ventanita, clientes em mesas externas e músicos tocando" loading="lazy" decoding="async" onerror="this.parentElement.classList.add('missing')"><figcaption>Coral Gate — a La Ventanita, coração pulsante do bairro latino.</figcaption></figure>
+<div class="card"><h4>🌴 Coral Gate</h4><p><strong>Tipo:</strong> Bairro Latino<br><strong>Locais:</strong> Parque, Aquário, La Ventanita, El Malecón, Botânica, Clínica, Rumba Room.</p></div>
+<figure class="photo"><img src="downtown.png" alt="Praça cívica de Downtown ao anoitecer, com o Paço Municipal, o Fórum e o Grande Teatro Vanguard iluminados" loading="lazy" decoding="async" onerror="this.parentElement.classList.add('missing')"><figcaption>Downtown — Paço Municipal, Fórum e Grande Teatro Vanguard.</figcaption></figure>
+<div class="card"><h4>🏛️ Downtown</h4><p><strong>Tipo:</strong> Centro Cívico<br><strong>Locais:</strong> Paço Municipal, V-BPD, VBPI, Distrito Teatral, Museu, Pequena Markóvia.</p></div>
+<figure class="photo"><img src="bar-urso-polar.png" alt="Docas de O Dique à noite, com contêineres, guindastes e o letreiro de neon do Bar Urso Polar em vermelho" loading="lazy" decoding="async" onerror="this.parentElement.classList.add('missing')"><figcaption>O Dique — o Bar Urso Polar, quartel-general da Bratva Volkov.</figcaption></figure>
+<div class="card"><h4>⚓ O Dique</h4><p><strong>Tipo:</strong> Operário / Docas<br><strong>Locais:</strong> Docas Sul, Mercado, Bar Urso Polar, Catedral, 7º DP.</p></div>
+<figure class="photo"><img src="distrito-solar.png" alt="Complexo de luxo do Distrito Solar na Ilha Solara, com piscinas à beira-mar, palmeiras e mega-iates ancorados na marina" loading="lazy" decoding="async" onerror="this.parentElement.classList.add('missing')"><figcaption>Distrito Solar — a Ilha Solara, com piscinas de borda infinita e mega-iates.</figcaption></figure>
+<div class="card"><h4>🏝️ Distrito Solar</h4><p><strong>Tipo:</strong> Elite / Luxo<br><strong>Locais:</strong> Avenida Oceânica, Alameda Neon, Starlight, Galerie, UVB.</p></div>
+<figure class="photo"><img src="emaranhado.png" alt="Pântano do Emaranhado de Vanguard sob a lua cheia, com árvores retorcidas, neblina e luzes fantasmagóricas na água" loading="lazy" decoding="async" onerror="this.parentElement.classList.add('missing')"><figcaption>Emaranhado de Vanguard — o pântano ancestral.</figcaption></figure>
+<div class="card"><h4>🌿 Emaranhado</h4><p><strong>Tipo:</strong> Pântano<br><strong>Locais:</strong> Rio Serpente, Bosques. Convergência do Verde e do Cinza.</p></div>
+<figure class="photo"><img src="a-fenda.png" alt="Vórtice dimensional roxo e vermelho em zona industrial abandonada de A Fenda, com destroços flutuantes e figuras encapuzadas ao redor" loading="lazy" decoding="async" onerror="this.parentElement.classList.add('missing')"><figcaption>A Fenda — instabilidade dimensional no coração industrial abandonado.</figcaption></figure>
+<div class="card"><h4>⚠️ A Fenda</h4><p><strong>Tipo:</strong> Área Industrial<br><strong>Locais:</strong> Instabilidade dimensional (anos 70).</p></div>
+</div>
+
+<div class="sub-content" id="sub-historia">
+<div class="section-title">🏛️ História</div>
+<div class="timeline">
+<div class="timeline-item"><div class="timeline-year">1882–1888</div><div class="timeline-text">Silas Vanguard drena o Emaranhado e funda a cidade.</div></div>
+<div class="timeline-item"><div class="timeline-year">1912</div><div class="timeline-text">Fundação da UVB.</div></div>
+<div class="timeline-item"><div class="timeline-year">1928</div><div class="timeline-text">Grande Furacão – reconstrução com diques.</div></div>
+<div class="timeline-item"><div class="timeline-year">1930–1940</div><div class="timeline-text">Era de Ouro local: surge o Zenit.</div></div>
+<div class="timeline-item"><div class="timeline-year">1988</div><div class="timeline-text">Crise do Leviatã – salva pelo Gavião-Negro.</div></div>
+<div class="timeline-item"><div class="timeline-year">Século XXI</div><div class="timeline-text">Boom de meta-humanos pelo mundo — mas Vanguard Bay permanece sem equipe heroica fixa. O vácuo heroico se consolida.</div></div>
+</div>
+</div>
+
+<div class="sub-content" id="sub-cultura">
+<div class="section-title">🎭 Cultura e Sociedade</div>
+<div class="card-grid">
+<div class="card"><h4>🍽️ Culinária</h4><p>Coral Gate: pratos cubanos. O Dique: influência do Leste Europeu.</p></div>
+<div class="card"><h4>🎵 Música</h4><p>Salsa e rumba em Coral Gate. Jazz no Distrito Teatral.</p></div>
+<div class="card"><h4>🗣️ Idiomas</h4><p>Inglês, espanhol, russo, markóvio.</p></div>
+<div class="card"><h4>🎨 Arte</h4><p>Museu de Arte Contemporânea, Galerie Vanguard.</p></div>
+</div>
+<div class="subsection-title">📊 Dados Demográficos</div>
+<table>
+<thead><tr><th>Distrito</th><th>População</th><th>Perfil</th></tr></thead>
+<tbody>
+<tr><td>A Muralha</td><td>~350.000</td><td>Executivos, classe média alta</td></tr>
+<tr><td>Coral Gate</td><td>~520.000</td><td>Imigrantes latinos</td></tr>
+<tr><td>Downtown</td><td>~480.000</td><td>Classe média, estudantes</td></tr>
+<tr><td>O Dique</td><td>~410.000</td><td>Operários, Leste Europeu</td></tr>
+<tr><td>Distrito Solar</td><td>~280.000</td><td>Elite, turistas</td></tr>
+<tr><td>Emaranhado</td><td>~15.000</td><td>Comunidades isoladas</td></tr>
+<tr><td>A Fenda</td><td>~5.000</td><td>Fora da lei, cultistas</td></tr>
+<tr class="highlight-row"><td>TOTAL</td><td>~2.060.000</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="sub-content" id="sub-eventos">
+<div class="section-title">🎉 Eventos Anuais</div>
+<table>
+<thead><tr><th>Evento</th><th>Mês</th><th>Descrição</th></tr></thead>
+<tbody>
+<tr><td>Dia de Ouro</td><td>Janeiro</td><td>Homenagem ao Zenit.</td></tr>
+<tr><td>Carnaval de Coral Gate</td><td>Março</td><td>Festival de rua.</td></tr>
+<tr><td>Maratona de Vanguard Bay</td><td>Abril</td><td>Percurso pelas pontes.</td></tr>
+<tr><td>Disputa das Regatas</td><td>Junho</td><td>Competição de barcos a vela.</td></tr>
+<tr><td>Festival das Luzes Náuticas</td><td>Dezembro</td><td>Desfile de barcos.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ============ MAPAS ============ -->
+<div class="tab-content" id="tab-maps">
+<div class="breadcrumbs">VBN · Vanguard Broadcasting › <span class="current">Mapas</span> · 🔴 AO VIVO</div>
+<div class="with-sidebar">
+<div class="sidebar">
+<button class="sidebar-item active" data-sub="sub-mapa-detalhado"><span class="ico">🗺️</span>Mapa</button>
+<button class="sidebar-item" data-sub="sub-mapa-criminal"><span class="ico">⚠️</span>Criminalidade</button>
+<button class="sidebar-item" data-sub="sub-mapa-transporte"><span class="ico">🚇</span>Transporte</button>
+</div>
+<div class="content-area">
+
+<div class="sub-content active" id="sub-mapa-detalhado">
+<div class="section-title">🗺️ Mapa Detalhado</div>
+<figure class="photo photo-hero">
+<img src="vista-aerea-noite.png" alt="Vista aérea noturna de Vanguard Bay, com os arranha-céus iluminados do centro e os portos operários acesos à beira-mar" loading="lazy" decoding="async" onerror="this.parentElement.classList.add('missing')">
+<figcaption>Vista noturna · Transmissão VBN · Fonte: Satélite V-BPD · Jan 2027</figcaption>
+</figure>
+<div style="background:#0a1420;border:1px solid #2a3a4a;padding:18px;margin:18px 0;overflow-x:auto">
+<svg viewBox="0 0 1000 900" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;min-width:600px;display:block">
+<defs>
+<linearGradient id="gBay" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a1a2e"/><stop offset="100%" stop-color="#061220"/></linearGradient>
+<linearGradient id="gCont" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#1a2535"/><stop offset="100%" stop-color="#0f1520"/></linearGradient>
+<linearGradient id="gIsl" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1a3328"/><stop offset="100%" stop-color="#0f2018"/></linearGradient>
+<linearGradient id="gSwp" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1a2a1a"/><stop offset="100%" stop-color="#0d1a0d"/></linearGradient>
+<linearGradient id="gRif" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2a0a0a"/><stop offset="100%" stop-color="#1a0505"/></linearGradient>
+</defs>
+<rect width="1000" height="900" fill="url(#gBay)"/>
+<text x="500" y="40" font-family="Bebas Neue,sans-serif" font-size="28" font-weight="900" fill="#0064a8" text-anchor="middle" letter-spacing="6">VANGUARD BAY</text>
+<text x="500" y="62" font-family="Inter,sans-serif" font-size="11" fill="#5a7a9a" text-anchor="middle">🔴 AO VIVO · VBN MAPAS · Jan 2027</text>
+<path d="M 30 200 Q 100 180 180 220 Q 220 280 200 380 Q 180 480 220 580 Q 200 700 150 780 Q 80 800 30 750 Z" fill="url(#gSwp)" stroke="#4a9e4a" stroke-width="2"/>
+<text x="110" y="440" font-family="Bebas Neue,sans-serif" font-size="15" fill="#4a9e4a" text-anchor="middle" letter-spacing="2">EMARANHADO</text>
+<path d="M 230 100 L 780 100 L 780 850 L 230 850 Q 200 750 220 580 Q 240 480 220 380 Q 200 280 230 100 Z" fill="url(#gCont)" stroke="#2a3a4a" stroke-width="2"/>
+<rect x="260" y="120" width="500" height="150" rx="4" fill="rgba(0,100,168,0.15)" stroke="#0064a8" stroke-width="2"/>
+<text x="510" y="175" font-family="Bebas Neue,sans-serif" font-size="18" fill="#0064a8" text-anchor="middle" letter-spacing="4">A MURALHA</text>
+<rect x="260" y="290" width="500" height="150" rx="4" fill="rgba(255,215,0,0.08)" stroke="#ffd700" stroke-width="2"/>
+<text x="510" y="345" font-family="Bebas Neue,sans-serif" font-size="18" fill="#ffd700" text-anchor="middle" letter-spacing="4">CORAL GATE</text>
+<rect x="260" y="460" width="500" height="150" rx="4" fill="rgba(122,122,255,0.08)" stroke="#7a7aff" stroke-width="2"/>
+<text x="510" y="515" font-family="Bebas Neue,sans-serif" font-size="18" fill="#7a7aff" text-anchor="middle" letter-spacing="4">DOWNTOWN</text>
+<rect x="260" y="630" width="500" height="130" rx="4" fill="rgba(255,68,68,0.08)" stroke="#ff6666" stroke-width="2"/>
+<text x="510" y="685" font-family="Bebas Neue,sans-serif" font-size="18" fill="#ff6666" text-anchor="middle" letter-spacing="4">O DIQUE</text>
+<ellipse cx="510" cy="820" rx="140" ry="40" fill="url(#gRif)" stroke="#ff4444" stroke-width="2" stroke-dasharray="5,3"/>
+<text x="510" y="818" font-family="Bebas Neue,sans-serif" font-size="15" fill="#ff4444" text-anchor="middle">⚠ A FENDA ⚠</text>
+<path d="M 810 200 Q 870 180 950 220 Q 980 320 970 450 Q 960 580 940 680 Q 900 780 840 790 Q 800 750 795 650 Q 790 500 795 350 Q 800 250 810 200 Z" fill="url(#gIsl)" stroke="#00ff88" stroke-width="2"/>
+<text x="880" y="440" font-family="Bebas Neue,sans-serif" font-size="15" fill="#00ff88" text-anchor="middle" transform="rotate(90,880,440)">DISTRITO SOLAR</text>
+<line x1="760" y1="200" x2="810" y2="220" stroke="#0064a8" stroke-width="4"/>
+<line x1="760" y1="530" x2="800" y2="540" stroke="#0064a8" stroke-width="4"/>
+</svg>
+</div>
+</div>
+
+<div class="sub-content" id="sub-mapa-criminal">
+<div class="section-title">⚠️ Criminalidade</div>
+<table>
+<thead><tr><th>Distrito</th><th>Índice</th><th>Observação</th></tr></thead>
+<tbody>
+<tr><td>A Muralha</td><td>5/10</td><td>Baixa violência, alta corrupção</td></tr>
+<tr><td>Coral Gate</td><td>7/10</td><td>Tráfico, gangues</td></tr>
+<tr><td>Downtown</td><td>6/10</td><td>Crime organizado</td></tr>
+<tr class="highlight-row"><td>O Dique</td><td>9/10</td><td>Contrabando, armas</td></tr>
+<tr><td>Distrito Solar</td><td>2/10</td><td>Mais seguro</td></tr>
+<tr class="highlight-row"><td>Emaranhado</td><td>10/10</td><td>Zona sem lei</td></tr>
+<tr class="highlight-row"><td>A Fenda</td><td>10/10</td><td>Perigo extremo</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="sub-content" id="sub-mapa-transporte">
+<div class="section-title">🚇 Malha de Transporte</div>
+<div style="background:#0a1420;border:1px solid #2a3a4a;padding:18px;margin:18px 0;overflow-x:auto">
+<svg viewBox="0 0 1000 950" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;min-width:700px;display:block">
+<defs>
+<linearGradient id="gBayT" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a1a2e"/><stop offset="100%" stop-color="#061220"/></linearGradient>
+<linearGradient id="gContT" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#1a2535"/><stop offset="100%" stop-color="#0f1520"/></linearGradient>
+<linearGradient id="gIslT" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1a3328"/><stop offset="100%" stop-color="#0f2018"/></linearGradient>
+</defs>
+<rect width="1000" height="950" fill="url(#gBayT)"/>
+<text x="500" y="35" font-family="Bebas Neue,sans-serif" font-size="22" font-weight="900" fill="#0064a8" text-anchor="middle" letter-spacing="6">VANGUARD BAY</text>
+<text x="500" y="57" font-family="Inter,sans-serif" font-size="10" fill="#5a7a9a" text-anchor="middle">MALHA DE TRANSPORTE · VBN</text>
+<path d="M 230 90 L 780 90 L 780 830 L 230 830 Q 200 730 220 570 Q 240 470 220 375 Q 200 275 230 90 Z" fill="url(#gContT)" stroke="#2a3a4a" stroke-width="2" opacity="0.6"/>
+<path d="M 810 180 Q 870 160 950 200 Q 980 300 970 430 Q 960 560 940 660 Q 900 760 840 770 Q 800 730 795 630 Q 790 480 795 330 Q 800 230 810 180 Z" fill="url(#gIslT)" stroke="#00ff88" stroke-width="2" opacity="0.6"/>
+<path d="M 510 90 L 510 830" stroke="#00b4d8" stroke-width="6" opacity="0.4"/>
+<path d="M 380 165 L 380 685" stroke="#ffd700" stroke-width="5"/>
+<circle cx="380" cy="165" r="9" fill="#ffd700" stroke="#0f1520" stroke-width="2"/>
+<text x="370" y="160" font-family="Inter,sans-serif" font-size="8" fill="#ffd700" text-anchor="end">1A MURALHA-N</text>
+<circle cx="380" cy="340" r="11" fill="#fff" stroke="#0f1520" stroke-width="2"/>
+<text x="370" y="335" font-family="Inter,sans-serif" font-size="8" fill="#fff" text-anchor="end">1C CORAL GATE</text>
+<circle cx="380" cy="515" r="11" fill="#fff" stroke="#0f1520" stroke-width="2"/>
+<text x="370" y="510" font-family="Inter,sans-serif" font-size="8" fill="#fff" text-anchor="end">1E DOWNTOWN</text>
+<circle cx="380" cy="685" r="9" fill="#ffd700" stroke="#0f1520" stroke-width="2"/>
+<text x="370" y="680" font-family="Inter,sans-serif" font-size="8" fill="#ffd700" text-anchor="end">1G DIQUE</text>
+<path d="M 640 340 L 720 340 L 720 515 L 640 515" stroke="#00ff88" stroke-width="5"/>
+<circle cx="720" cy="430" r="9" fill="#00ff88" stroke="#0f1520" stroke-width="2"/>
+<text x="730" y="425" font-family="Inter,sans-serif" font-size="8" fill="#00ff88">2C CANAL</text>
+<path d="M 290 165 L 290 515" stroke="#ff6666" stroke-width="5"/>
+<circle cx="290" cy="515" r="11" fill="#fff" stroke="#0f1520" stroke-width="2"/>
+<text x="280" y="510" font-family="Inter,sans-serif" font-size="8" fill="#fff" text-anchor="end">3E PAÇO</text>
+<path d="M 870 230 L 870 720" stroke="#ffd700" stroke-width="6"/>
+<circle cx="870" cy="320" r="9" fill="#ffd700" stroke="#0f1520" stroke-width="2"/>
+<text x="885" y="324" font-family="Inter,sans-serif" font-size="8" fill="#ffd700">V2 UVB</text>
+<circle cx="870" cy="620" r="9" fill="#ffd700" stroke="#0f1520" stroke-width="2"/>
+<text x="885" y="624" font-family="Inter,sans-serif" font-size="8" fill="#ffd700">V5 GALERIE</text>
+<path d="M 760 190 L 810 210" stroke="#00b4d8" stroke-width="4"/>
+<text x="785" y="185" font-family="Inter,sans-serif" font-size="8" fill="#00b4d8" text-anchor="middle">SOLAR 501</text>
+<text x="510" y="120" font-family="Bebas Neue,sans-serif" font-size="14" fill="#0064a8" text-anchor="middle" letter-spacing="3">A MURALHA</text>
+<text x="510" y="300" font-family="Bebas Neue,sans-serif" font-size="14" fill="#ffd700" text-anchor="middle" letter-spacing="3">CORAL GATE</text>
+<text x="510" y="475" font-family="Bebas Neue,sans-serif" font-size="14" fill="#7a7aff" text-anchor="middle" letter-spacing="3">DOWNTOWN</text>
+<text x="510" y="645" font-family="Bebas Neue,sans-serif" font-size="14" fill="#ff6666" text-anchor="middle" letter-spacing="3">O DIQUE</text>
+<text x="880" y="450" font-family="Bebas Neue,sans-serif" font-size="12" fill="#00ff88" text-anchor="middle" transform="rotate(90,880,450)">ILHA SOLARA</text>
+<ellipse cx="510" cy="790" rx="110" ry="28" fill="none" stroke="#ff4444" stroke-width="2" stroke-dasharray="5,3"/>
+<text x="510" y="793" font-family="Inter,sans-serif" font-size="9" fill="#ff4444" text-anchor="middle">SEM TRANSPORTE PÚBLICO</text>
+<g transform="translate(30,870)">
+<text font-family="Bebas Neue,sans-serif" font-size="10" fill="#0064a8" letter-spacing="2">LEGENDA:</text>
+<line x1="0" y1="15" x2="35" y2="15" stroke="#00b4d8" stroke-width="4"/>
+<text x="45" y="19" font-family="Inter,sans-serif" font-size="9" fill="#8aa8c8">Via Expressa</text>
+<line x1="0" y1="32" x2="35" y2="32" stroke="#ffd700" stroke-width="4"/>
+<text x="45" y="36" font-family="Inter,sans-serif" font-size="9" fill="#8aa8c8">Metrô L1</text>
+<line x1="0" y1="49" x2="35" y2="49" stroke="#00ff88" stroke-width="4"/>
+<text x="45" y="53" font-family="Inter,sans-serif" font-size="9" fill="#8aa8c8">Metrô L2</text>
+<line x1="0" y1="66" x2="35" y2="66" stroke="#ff6666" stroke-width="4"/>
+<text x="45" y="70" font-family="Inter,sans-serif" font-size="9" fill="#8aa8c8">Metrô L3</text>
+</g>
+</svg>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ============ TRANSPORTE ============ -->
+<div class="tab-content" id="tab-transport">
+<div class="breadcrumbs">O Diário do Cais › <span class="current">Transporte</span></div>
+<div class="with-sidebar">
+<div class="sidebar">
+<button class="sidebar-item active" data-sub="sub-dist-internas"><span class="ico">📏</span>Internas</button>
+<button class="sidebar-item" data-sub="sub-cidades-externas"><span class="ico">🌎</span>Externas</button>
+<button class="sidebar-item" data-sub="sub-sistema-transporte"><span class="ico">🚇</span>Sistema</button>
+</div>
+<div class="content-area">
+
+<div class="sub-content active" id="sub-dist-internas">
+<div class="section-title">📏 Distâncias Internas (km)</div>
+<table>
+<thead><tr><th>De/Para</th><th>A Muralha</th><th>Coral Gate</th><th>Downtown</th><th>O Dique</th><th>Dist. Solar</th><th>Emaranhado</th><th>A Fenda</th></tr></thead>
+<tbody>
+<tr><td>A Muralha</td><td>—</td><td>8</td><td>18</td><td>30</td><td>12</td><td>25</td><td>35</td></tr>
+<tr><td>Coral Gate</td><td>8</td><td>—</td><td>10</td><td>22</td><td>15</td><td>20</td><td>27</td></tr>
+<tr><td>Downtown</td><td>18</td><td>10</td><td>—</td><td>12</td><td>10</td><td>15</td><td>17</td></tr>
+<tr class="highlight-row"><td>O Dique</td><td>30</td><td>22</td><td>12</td><td>—</td><td>20</td><td>18</td><td>5</td></tr>
+<tr><td>Distrito Solar</td><td>12</td><td>15</td><td>10</td><td>20</td><td>—</td><td>28</td><td>25</td></tr>
+<tr><td>Emaranhado</td><td>25</td><td>20</td><td>15</td><td>18</td><td>28</td><td>—</td><td>22</td></tr>
+<tr><td>A Fenda</td><td>35</td><td>27</td><td>17</td><td>5</td><td>25</td><td>22</td><td>—</td></tr>
+</tbody>
+</table>
+<div class="subsection-title">🚦 Tempos de Deslocamento</div>
+<table>
+<thead><tr><th>Trecho</th><th>Dist.</th><th>🚶 A Pé</th><th>🚗 Carro</th><th>🚇 Metrô</th><th>⛴️ Balsa</th><th>🚌 Ônibus</th></tr></thead>
+<tbody>
+<tr><td>A Muralha ↔ Coral Gate</td><td>8 km</td><td>1h36</td><td>12 min</td><td>8 min</td><td>24 min</td><td>16 min</td></tr>
+<tr><td>A Muralha ↔ Downtown</td><td>18 km</td><td>3h36</td><td>27 min</td><td>18 min</td><td>54 min</td><td>36 min</td></tr>
+<tr><td>Coral Gate ↔ Downtown</td><td>10 km</td><td>2h00</td><td>15 min</td><td>10 min</td><td>30 min</td><td>20 min</td></tr>
+<tr><td>Downtown ↔ O Dique</td><td>12 km</td><td>2h24</td><td>18 min</td><td>12 min</td><td>36 min</td><td>24 min</td></tr>
+<tr class="highlight-row"><td>O Dique ↔ A Fenda</td><td>5 km</td><td>1h00</td><td>8 min</td><td>5 min</td><td>15 min</td><td>10 min</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="sub-content" id="sub-cidades-externas">
+<div class="section-title">🌎 Cidades Externas</div>
+<table>
+<thead><tr><th>Cidade</th><th>Voo km</th><th>Voo h</th><th>Carro km</th><th>Carro h</th></tr></thead>
+<tbody>
+<tr><td>Gotham City</td><td>~1.750</td><td>~2h45</td><td>~2.050</td><td>~23h</td></tr>
+<tr><td>Metrópolis</td><td>~1.600</td><td>~2h30</td><td>~1.850</td><td>~21h</td></tr>
+<tr><td>Blüdhaven</td><td>~1.600</td><td>~2h30</td><td>~1.900</td><td>~21h</td></tr>
+<tr><td>Star City</td><td>~4.200</td><td>~5h30</td><td>~4.800</td><td>~53h</td></tr>
+<tr><td>Coast City</td><td>~4.000</td><td>~5h15</td><td>~4.600</td><td>~51h</td></tr>
+<tr><td>Central City</td><td>~2.000</td><td>~3h00</td><td>~2.300</td><td>~26h</td></tr>
+<tr><td>Keystone City</td><td>~2.000</td><td>~3h00</td><td>~2.300</td><td>~26h</td></tr>
+<tr><td>Fawcett City</td><td>~2.050</td><td>~3h00</td><td>~2.400</td><td>~27h</td></tr>
+<tr><td>Ivy Town</td><td>~1.880</td><td>~2h50</td><td>~2.200</td><td>~24h</td></tr>
+<tr><td>Opal City</td><td>~1.540</td><td>~2h25</td><td>~1.800</td><td>~20h</td></tr>
+<tr><td>Midway City</td><td>~1.860</td><td>~2h45</td><td>~2.150</td><td>~24h</td></tr>
+<tr><td>Midvale</td><td>~1.600</td><td>~2h30</td><td>~1.850</td><td>~21h</td></tr>
+<tr><td>Gateway City</td><td>~4.200</td><td>~5h30</td><td>~4.800</td><td>~53h</td></tr>
+<tr><td>Jump City</td><td>~3.775</td><td>~5h00</td><td>~4.300</td><td>~48h</td></tr>
+<tr><td>Smallville</td><td>~2.190</td><td>~3h15</td><td>~2.500</td><td>~28h</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="sub-content" id="sub-sistema-transporte">
+<div class="section-title">🚇 Sistema</div>
+<table>
+<thead><tr><th>Modalidade</th><th>Descrição</th></tr></thead>
+<tbody>
+<tr><td>✈️ Aeroporto</td><td>Porta de entrada da cidade.</td></tr>
+<tr><td>🛣️ Via Expressa Vanguard</td><td>Corta a cidade N-S.</td></tr>
+<tr><td>🚝 Vantrilho Dourado</td><td>Monotrilho de luxo.</td></tr>
+<tr><td>🚌 Ônibus Solares</td><td>Elétricos, elite.</td></tr>
+<tr><td>🚌 Ônibus Circulação</td><td>Frotas antigas.</td></tr>
+<tr><td>🌊 Canais de Luz</td><td>Gôndolas elétricas.</td></tr>
+<tr><td>⛴️ Balsas</td><td>Travessia Dourada.</td></tr>
+<tr><td>🚤 Táxis Aquáticos</td><td>Lancha (e "pirata").</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ============ UNIVERSO ============ -->
+<div class="tab-content" id="tab-terraz">
+<div class="breadcrumbs">A Sentinela Dourada › <span class="current">Universo</span> · 🔥 EXCLUSIVO</div>
+<div class="with-sidebar">
+<div class="sidebar">
+<button class="sidebar-item active" data-sub="sub-universo-visao"><span class="ico">👁️</span>Visão Geral</button>
+<button class="sidebar-item" data-sub="sub-tz-personagens"><span class="ico">👥</span>Personagens</button>
+<button class="sidebar-item" data-sub="sub-tz-timeline"><span class="ico">📅</span>Linha do Tempo</button>
+<button class="sidebar-item" data-sub="sub-tz-equipes"><span class="ico">🦸</span>Equipes</button>
+<button class="sidebar-item" data-sub="sub-tz-relacoes"><span class="ico">🔗</span>Relações</button>
+</div>
+<div class="content-area">
+
+<div class="sub-content active" id="sub-universo-visao">
+<div class="section-title">🌌 Universo Terra Z</div>
+<div class="info-box gold"><div class="label">📌 O que é a Terra Z</div>Uma realidade alternativa do multiverso DC, coexistindo com as fases <strong>DC All In</strong> (2024–2026), <strong>DC KO</strong> (2025–2026) e <strong>DC Next Level</strong> (2026+). Compartilha eventos-chave com a Terra Principal, mas com variações cruciais.</div>
+
+<div class="card-grid">
+<div class="card"><h4>🎭 Tom Geral</h4><p>Traumas familiares, rebeldia juvenil e o confronto entre heranças heroicas e escolhas próprias. Um universo de "segundas chances" que nem sempre são aproveitadas.</p></div>
+<div class="card"><h4>👑 Divergência Principal</h4><p>Superman derrotou Darkseid em 2026 e ascendeu como <strong>Rei Ômega</strong>. A energia liberada criou "ecos" pelo multiverso, afetando diretamente a Fenda de Vanguard Bay.</p></div>
+<div class="card"><h4>🦸 Liga da Justiça Sem Limites</h4><p>Em 2024, a Liga expandiu o recrutamento. Membros históricos e novos heróis coexistem — gerando atritos e alianças improváveis.</p></div>
+<div class="card"><h4>📍 Palco Central</h4><p><strong>Vanguard Bay</strong>, a Cidade Dourada da Flórida. Sem uma família heroica fixa, tornou-se o refúgio perfeito para renegados e fugitivos.</p></div>
+<div class="card"><h4>⏳ O Prazo de 2072</h4><p>Lobo prometeu caçar o clone Riot em 2072. Cinquenta anos se passaram desde o resgate. Kendra e Riot sabem — mas nenhum dos dois revelou ao outro.</p></div>
+<div class="card"><h4>🔐 O Grande Segredo</h4><p>M'ark, filho de M'gann, é apresentado publicamente como um Marciano Verde sobrevivente de uma colônia perdida. Na verdade, é Branco — e filho do estupro de Armek.</p></div>
+</div>
+
+<div class="info-box"><div class="label">📌 Navegação</div>Clique em qualquer <strong>card de personagem</strong> para abrir a ficha completa, com histórico, relações e <strong>segredos reveláveis</strong>. Use a <strong>busca no topo</strong> para alternar entre <strong>Busca Local</strong> (destaca termos no documento) e <strong>DC Wiki</strong> (consulta artigos externos). Pressione <strong>Esc</strong> para fechar qualquer janela.</div>
+
+<div class="subsection-title">🔐 Quem Sabe o Quê</div>
+<table>
+<thead><tr><th>Segredo</th><th>Quem Sabe</th></tr></thead>
+<tbody>
+<tr><td>M'gann é Marciana Branca</td><td>J'onn, Conner, Dick, Garfield, Raven</td></tr>
+<tr><td>M'ark existe</td><td>Apenas J'onn, M'gann e Conner</td></tr>
+<tr><td>M'ark é filho do estupro de Armek</td><td>Apenas J'onn, M'gann e Conner</td></tr>
+<tr><td>J'onn matou Armek</td><td>Apenas J'onn, M'gann e Conner</td></tr>
+<tr><td>M'ark é Marciano Branco (não Verde)</td><td>Apenas J'onn, M'gann e Conner</td></tr>
+<tr class="highlight-row"><td>Promessa de Lobo (2072)</td><td>Kendra, Lobo <strong>e Riot</strong> — mas Riot não contou a Kendra que sabe</td></tr>
+<tr><td>Jason Todd está vivo</td><td>Batman, Dick, Tim, M'gann, Conner, Tristan</td></tr>
+</tbody>
+</table>
+
+<div class="subsection-title">📋 Tabela Consolidada de Personagens</div>
+<table>
+<thead><tr><th>Personagem</th><th>Codinome</th><th>Idade (2027)</th><th>Papel</th><th>Local</th></tr></thead>
+<tbody>
+<tr><td>Tristan Queen</td><td>Ranger</td><td>20</td><td>Vigilante renegado</td><td>Vanguard Bay – O Dique</td></tr>
+<tr><td>Riot</td><td>—</td><td>Aparência 20 (cron. 5)</td><td>Clone czarniano</td><td>Vanguard Bay – O Dique / Fenda</td></tr>
+<tr><td>M'ark</td><td>—</td><td>23</td><td>Filho de M'gann</td><td>Vanguard Bay – Emaranhado</td></tr>
+<tr><td>Oliver Queen</td><td>O Queen</td><td>47</td><td>Agente da JLU</td><td>Gotham</td></tr>
+<tr><td>Dinah Lance</td><td>Canário Negro</td><td>40</td><td>Aves de Rapina</td><td>Gotham</td></tr>
+<tr><td>Connor Hawke</td><td>Arqueiro Verde</td><td>25</td><td>Herói de Star City</td><td>Star City</td></tr>
+<tr><td>Jason Todd</td><td>Capuz Vermelho</td><td>23</td><td>Líder dos Novos Titãs</td><td>Gotham</td></tr>
+<tr><td>Kendra Saunders</td><td>Hawkgirl</td><td>~32</td><td>Mãe adotiva de Riot</td><td>Vanguard Bay</td></tr>
+<tr><td>M'gann M'orzz</td><td>Miss Martian</td><td>~39</td><td>Mãe de M'ark</td><td>A caminho</td></tr>
+<tr><td>Conner Kent</td><td>Superboy</td><td>~29</td><td>Figura paterna de M'ark</td><td>A caminho</td></tr>
+<tr><td>Lobo</td><td>O Maioral</td><td>400+</td><td>Czarniano imortal</td><td>Desconhecido</td></tr>
+<tr><td>J'onn J'onzz</td><td>Caçador de Marte</td><td>~227</td><td>Último Marciano Verde</td><td>Torre de Vigia</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="sub-content" id="sub-tz-personagens">
+<div class="section-title">👥 Personagens</div>
+<div class="info-box"><div class="label">👆 Toque para expandir</div>Clique em qualquer card para ver a <strong>ficha completa</strong> com história, relações e segredos reveláveis. Passe o mouse para revelar o botão ⭐ de favoritos.</div>
+<div class="card-grid">
+<div class="card"><h4>🏹 Tristan Queen</h4><p><strong>Codinome:</strong> Ranger<br><strong>Idade:</strong> 20 (2007)<br><strong>Pais:</strong> Oliver e Dinah<br><strong>Local:</strong> O Dique</p></div>
+<div class="card"><h4>💀 Riot</h4><p><strong>Origem:</strong> Clone da Cadmus<br><strong>Idade:</strong> Aparência 20 (cron. 5)<br><strong>Local:</strong> O Dique / Fenda<br><strong>Prazo:</strong> Caçado em 2072</p></div>
+<div class="card"><h4>🟢 M'ark</h4><p><strong>Idade:</strong> 23 (2004)<br><strong>Pai:</strong> Armek<br><strong>Mãe:</strong> M'gann<br><strong>Local:</strong> Emaranhado</p></div>
+<div class="card"><h4>🏹 Oliver Queen</h4><p><strong>Idade:</strong> 47 (1980)<br><strong>Papel:</strong> Agente da JLU<br><strong>Status:</strong> Ressuscitado em 2022</p></div>
+<div class="card"><h4>🐤 Dinah Lance</h4><p><strong>Idade:</strong> 40 (1987)<br><strong>Papel:</strong> Em Gotham<br><strong>Problema:</strong> Poderes falhando</p></div>
+<div class="card"><h4>🏹 Connor Hawke</h4><p><strong>Idade:</strong> 25 (2002)<br><strong>Papel:</strong> Arqueiro Verde de Star City</p></div>
+<div class="card"><h4>🦇 Jason Todd</h4><p><strong>Idade:</strong> 23 (2004)<br><strong>Papel:</strong> Treinou Tristan. Líder dos Novos Titãs</p></div>
+<div class="card"><h4>🦅 Kendra Saunders</h4><p><strong>Idade:</strong> ~32<br><strong>Papel:</strong> Mãe adotiva de Riot</p></div>
+<div class="card"><h4>🟢 M'gann M'orzz</h4><p><strong>Idade:</strong> ~39<br><strong>Origem:</strong> Marciana Branca<br><strong>Papel:</strong> Mãe de M'ark</p></div>
+<div class="card"><h4>🦸 Conner Kent</h4><p><strong>Idade:</strong> ~29<br><strong>Origem:</strong> Clone Superman/Luthor<br><strong>Papel:</strong> Figura paterna de M'ark</p></div>
+<div class="card"><h4>💀 Lobo</h4><p><strong>Idade:</strong> 400+<br><strong>Espécie:</strong> Czarniano<br><strong>Promessa:</strong> Caçar Riot em 2072</p></div>
+<div class="card"><h4>🟢 J'onn J'onzz</h4><p><strong>Idade:</strong> ~227<br><strong>Espécie:</strong> Marciano Verde (último)</p></div>
+</div>
+</div>
+
+<div class="sub-content" id="sub-tz-timeline">
+<div class="section-title">📅 Linha do Tempo</div>
+<div class="info-box"><div class="label">👆 Toque nos itens</div>Clique em qualquer item da timeline para recolher ou expandir o texto.</div>
+<div class="subsection-title">Séculos Atrás – Marte</div>
+<div class="timeline">
+<div class="timeline-item"><div class="timeline-year">Milênios atrás</div><div class="timeline-text">Coexistência e Conflito entre Marcianos Verdes e Brancos.</div></div>
+<div class="timeline-item"><div class="timeline-year">Era Antiga</div><div class="timeline-text">Guerra Civil Marciana. Verdes vencem.</div></div>
+<div class="timeline-item"><div class="timeline-year">Anos depois</div><div class="timeline-text">Maldição de H'ronmeer. J'onn perde esposa e filha.</div></div>
+</div>
+<div class="subsection-title">1950–2008 – Chegada e Tragédia</div>
+<div class="timeline">
+<div class="timeline-item"><div class="timeline-year">~1950–1960</div><div class="timeline-text">J'onn J'onzz chega à Terra.</div></div>
+<div class="timeline-item"><div class="timeline-year">~2000–2002</div><div class="timeline-text">M'gann M'orzz chega à Terra.</div></div>
+<div class="timeline-item"><div class="timeline-year">2003–2004</div><div class="timeline-text">M'gann é violentada por Armek.</div></div>
+<div class="timeline-item"><div class="timeline-year">2004</div><div class="timeline-text">J'onn mata Armek. M'ark nasce.</div></div>
+</div>
+<div class="subsection-title">2010–2027 – Heróis e Tragédias</div>
+<div class="timeline">
+<div class="timeline-item"><div class="timeline-year">~2010–2012</div><div class="timeline-text">M'gann nos Jovens Titãs. Conhece Conner Kent.</div></div>
+<div class="timeline-item"><div class="timeline-year">2019</div><div class="timeline-text">Bárbara baleada. Jason Todd morto. Dinah vai para Gotham. M'gann termina com Conner.</div></div>
+<div class="timeline-item"><div class="timeline-year">2020</div><div class="timeline-text">Oliver "morre". Connor assume o manto.</div></div>
+<div class="timeline-item"><div class="timeline-year">2021</div><div class="timeline-text">Jason ressuscita. Conner descobre M'ark e reata com M'gann.</div></div>
+<div class="timeline-item"><div class="timeline-year">2022</div><div class="timeline-text">Oliver resgatado. Kendra resgata Riot. Lobo faz promessa (2072). Alfred morto por Bane.</div></div>
+<div class="timeline-item"><div class="timeline-year">2024</div><div class="timeline-text">Jovens Titãs mudam para "Titãs".</div></div>
+<div class="timeline-item"><div class="timeline-year">2026</div><div class="timeline-text">Superman torna-se Rei Ômega. M'ark apresentado como Marciano Verde.</div></div>
+<div class="timeline-item"><div class="timeline-year">Jan 2027</div><div class="timeline-text">Encontro em Vanguard Bay: Tristan, Riot e M'ark.</div></div>
+<div class="timeline-item"><div class="timeline-year">2072</div><div class="timeline-text">Fim do Prazo de Lobo.</div></div>
+</div>
+</div>
+
+<div class="sub-content" id="sub-tz-equipes">
+<div class="section-title">🦸 Equipes</div>
+<table>
+<thead><tr><th>Equipe</th><th>Ano</th><th>Líder</th><th>Membros</th></tr></thead>
+<tbody>
+<tr><td>Sociedade da Justiça</td><td>1940</td><td>Jay Garrick</td><td>SJA clássica</td></tr>
+<tr><td>Liga da Justiça</td><td>~2005</td><td>Superman, Batman</td><td>Fundadores + J'onn</td></tr>
+<tr><td>Jovens Titãs (1ª)</td><td>~2010–2012</td><td>Dick Grayson</td><td>Dick, Ravena, Mutano, Cyborg, M'gann</td></tr>
+<tr><td>Titãs</td><td>2024</td><td>Dick Grayson</td><td>Membros originais</td></tr>
+<tr><td>Aves de Rapina</td><td>2019</td><td>Dinah Lance</td><td>Dinah, Bárbara, Helena, Zinda</td></tr>
+<tr><td>Novos Titãs (2ª)</td><td>2026</td><td>Jason Todd</td><td>Fairplay, Cheshire Cat, Flatline, Proxy, Wildcard</td></tr>
+</tbody>
+</table>
+
+<div class="subsection-title">🦸 Membros da Liga da Justiça</div>
+<table>
+<thead><tr><th>Personagem</th><th>Codinome</th><th>Nasc.</th><th>Idade (2027)</th></tr></thead>
+<tbody>
+<tr><td>Bruce Wayne</td><td>Batman</td><td>1981</td><td>46</td></tr>
+<tr><td>Clark Kent</td><td>Superman</td><td>1979</td><td>48</td></tr>
+<tr><td>Diana Prince</td><td>Mulher-Maravilha</td><td>~1980</td><td>~47</td></tr>
+<tr><td>Barry Allen</td><td>Flash</td><td>1990</td><td>37</td></tr>
+<tr><td>Hal Jordan</td><td>Lanterna Verde</td><td>1985</td><td>42</td></tr>
+<tr><td>Arthur Curry</td><td>Aquaman</td><td>1985</td><td>42</td></tr>
+<tr><td>Victor Stone</td><td>Cyborg</td><td>1995</td><td>32</td></tr>
+<tr><td>Barbara Gordon</td><td>Oráculo</td><td>1995</td><td>32</td></tr>
+<tr><td>Dick Grayson</td><td>Asa Noturna</td><td>1998</td><td>29</td></tr>
+<tr><td>Tim Drake</td><td>Robin (ex)</td><td>2007</td><td>20</td></tr>
+<tr><td>Jay Garrick</td><td>Flash (original)</td><td>1918</td><td>109</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="sub-content" id="sub-tz-relacoes">
+<div class="section-title">🔗 Grafo de Relacionamentos</div>
+<div class="info-box gold"><div class="label">📌 Como ler</div>Cada cor representa um tipo de vínculo. Passe o mouse sobre os nós para ver o nome do personagem.</div>
+
+<div class="graph-wrap">
+<svg viewBox="0 0 1000 700" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Grafo de relacionamentos entre personagens">
+<defs>
+<filter id="glowNode"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+
+<!-- QUADRANTE 1: FAMÍLIA QUEEN -->
+<rect x="20" y="20" width="470" height="320" rx="8" fill="rgba(196,90,28,.06)" stroke="#c45a1c" stroke-width="1.5"/>
+<text x="255" y="48" font-family="Oswald,sans-serif" font-size="16" fill="#c45a1c" text-anchor="middle" letter-spacing="3" font-weight="700">FAMÍLIA QUEEN</text>
+
+<line x1="150" y1="130" x2="260" y2="130" stroke="#c4186f" stroke-width="2"/>
+<line x1="150" y1="130" x2="150" y2="240" stroke="#c4186f" stroke-width="2"/>
+<line x1="150" y1="240" x2="290" y2="240" stroke="#c4186f" stroke-width="2"/>
+<line x1="260" y1="130" x2="370" y2="200" stroke="#0064a8" stroke-width="2" stroke-dasharray="4,3"/>
+<line x1="150" y1="240" x2="260" y2="130" stroke="#c4186f" stroke-width="2"/>
+
+<circle cx="150" cy="130" r="30" fill="#c45a1c" stroke="#fff" stroke-width="3" filter="url(#glowNode)"/>
+<text x="150" y="135" font-family="Oswald,sans-serif" font-size="12" fill="#fff" text-anchor="middle" font-weight="700">OLIVER</text>
+
+<circle cx="150" cy="240" r="30" fill="#8b1a1a" stroke="#fff" stroke-width="3"/>
+<text x="150" y="245" font-family="Oswald,sans-serif" font-size="12" fill="#fff" text-anchor="middle" font-weight="700">DINAH</text>
+
+<circle cx="290" cy="240" r="30" fill="#c45a1c" stroke="#fff" stroke-width="3"/>
+<text x="290" y="245" font-family="Oswald,sans-serif" font-size="12" fill="#fff" text-anchor="middle" font-weight="700">TRISTAN</text>
+
+<circle cx="370" cy="200" r="30" fill="#3a3028" stroke="#fff" stroke-width="3"/>
+<text x="370" y="205" font-family="Oswald,sans-serif" font-size="12" fill="#fff" text-anchor="middle" font-weight="700">CONNOR</text>
+
+<text x="205" y="122" font-family="Share Tech Mono,monospace" font-size="9" fill="#c4186f" text-anchor="middle">casal</text>
+<text x="205" y="232" font-family="Share Tech Mono,monospace" font-size="9" fill="#c4186f" text-anchor="middle">pais</text>
+<text x="330" y="160" font-family="Share Tech Mono,monospace" font-size="9" fill="#0064a8" text-anchor="middle">mentor</text>
+
+<!-- QUADRANTE 2: FAMÍLIA WAYNE -->
+<rect x="510" y="20" width="470" height="320" rx="8" fill="rgba(0,100,168,.06)" stroke="#0064a8" stroke-width="1.5"/>
+<text x="745" y="48" font-family="Oswald,sans-serif" font-size="16" fill="#0064a8" text-anchor="middle" letter-spacing="3" font-weight="700">FAMÍLIA WAYNE</text>
+
+<line x1="650" y1="130" x2="650" y2="240" stroke="#cc2222" stroke-width="2" stroke-dasharray="4,3"/>
+<line x1="650" y1="130" x2="800" y2="200" stroke="#c4186f" stroke-width="2"/>
+<line x1="650" y1="130" x2="530" y2="200" stroke="#c4186f" stroke-width="2"/>
+
+<circle cx="650" cy="130" r="30" fill="#1a1512" stroke="#fff" stroke-width="3" filter="url(#glowNode)"/>
+<text x="650" y="135" font-family="Oswald,sans-serif" font-size="12" fill="#fff" text-anchor="middle" font-weight="700">BRUCE</text>
+
+<circle cx="650" cy="240" r="30" fill="#8b1a1a" stroke="#fff" stroke-width="3"/>
+<text x="650" y="245" font-family="Oswald,sans-serif" font-size="12" fill="#fff" text-anchor="middle" font-weight="700">JASON</text>
+
+<circle cx="800" cy="200" r="30" fill="#8b1a1a" stroke="#fff" stroke-width="3"/>
+<text x="800" y="205" font-family="Oswald,sans-serif" font-size="12" fill="#fff" text-anchor="middle" font-weight="700">DICK</text>
+
+<circle cx="530" cy="200" r="30" fill="#8b1a1a" stroke="#fff" stroke-width="3"/>
+<text x="530" y="205" font-family="Oswald,sans-serif" font-size="12" fill="#fff" text-anchor="middle" font-weight="700">TIM</text>
+
+<text x="660" y="188" font-family="Share Tech Mono,monospace" font-size="9" fill="#cc2222" text-anchor="start">distante</text>
+<text x="725" y="150" font-family="Share Tech Mono,monospace" font-size="9" fill="#c4186f">adotivo</text>
+
+<!-- QUADRANTE 3: NÚCLEO MARCIANO -->
+<rect x="20" y="360" width="470" height="320" rx="8" fill="rgba(10,138,74,.06)" stroke="#0a8a4a" stroke-width="1.5"/>
+<text x="255" y="388" font-family="Oswald,sans-serif" font-size="16" fill="#0a8a4a" text-anchor="middle" letter-spacing="3" font-weight="700">NÚCLEO MARCIANO</text>
+
+<line x1="120" y1="480" x2="240" y2="480" stroke="#c4186f" stroke-width="2"/>
+<line x1="240" y1="480" x2="240" y2="590" stroke="#c4186f" stroke-width="2"/>
+<line x1="120" y1="480" x2="380" y2="480" stroke="#0064a8" stroke-width="2" stroke-dasharray="4,3"/>
+<line x1="380" y1="480" x2="240" y2="590" stroke="#0064a8" stroke-width="2" stroke-dasharray="4,3"/>
+<line x1="120" y1="480" x2="120" y2="590" stroke="#0064a8" stroke-width="2"/>
+
+<circle cx="120" cy="480" r="30" fill="#0a8a4a" stroke="#fff" stroke-width="3" filter="url(#glowNode)"/>
+<text x="120" y="485" font-family="Oswald,sans-serif" font-size="11" fill="#fff" text-anchor="middle" font-weight="700">M'GANN</text>
+
+<circle cx="240" cy="480" r="30" fill="#3a3028" stroke="#fff" stroke-width="3"/>
+<text x="240" y="485" font-family="Oswald,sans-serif" font-size="11" fill="#fff" text-anchor="middle" font-weight="700">ARMEK</text>
+
+<circle cx="380" cy="480" r="30" fill="#0064a8" stroke="#fff" stroke-width="3"/>
+<text x="380" y="485" font-family="Oswald,sans-serif" font-size="11" fill="#fff" text-anchor="middle" font-weight="700">CONNER</text>
+
+<circle cx="240" cy="590" r="30" fill="#0a8a4a" stroke="#fff" stroke-width="3"/>
+<text x="240" y="595" font-family="Oswald,sans-serif" font-size="11" fill="#fff" text-anchor="middle" font-weight="700">M'ARK</text>
+
+<circle cx="120" cy="590" r="30" fill="#0a8a4a" stroke="#fff" stroke-width="3"/>
+<text x="120" y="595" font-family="Oswald,sans-serif" font-size="11" fill="#fff" text-anchor="middle" font-weight="700">J'ONN</text>
+
+<text x="180" y="472" font-family="Share Tech Mono,monospace" font-size="9" fill="#cc2222" text-anchor="middle">vítima</text>
+<text x="260" y="535" font-family="Share Tech Mono,monospace" font-size="9" fill="#c4186f">pai</text>
+<text x="310" y="472" font-family="Share Tech Mono,monospace" font-size="9" fill="#0064a8" text-anchor="middle">casal</text>
+
+<!-- QUADRANTE 4: PRAZO DE LOBO -->
+<rect x="510" y="360" width="470" height="320" rx="8" fill="rgba(122,74,255,.06)" stroke="#7a4aff" stroke-width="1.5"/>
+<text x="745" y="388" font-family="Oswald,sans-serif" font-size="16" fill="#7a4aff" text-anchor="middle" letter-spacing="3" font-weight="700">PRAZO DE LOBO</text>
+
+<line x1="650" y1="480" x2="650" y2="590" stroke="#7a4aff" stroke-width="3" stroke-dasharray="6,4"/>
+<line x1="650" y1="480" x2="780" y2="590" stroke="#c4186f" stroke-width="2"/>
+
+<circle cx="650" cy="480" r="35" fill="#3a3028" stroke="#fff" stroke-width="3" filter="url(#glowNode)"/>
+<text x="650" y="485" font-family="Oswald,sans-serif" font-size="13" fill="#fff" text-anchor="middle" font-weight="700">LOBO</text>
+
+<circle cx="650" cy="590" r="35" fill="#3a3028" stroke="#fff" stroke-width="3"/>
+<text x="650" y="595" font-family="Oswald,sans-serif" font-size="13" fill="#fff" text-anchor="middle" font-weight="700">RIOT</text>
+
+<circle cx="780" cy="590" r="30" fill="#8b1a1a" stroke="#fff" stroke-width="3"/>
+<text x="780" y="595" font-family="Oswald,sans-serif" font-size="11" fill="#fff" text-anchor="middle" font-weight="700">KENDRA</text>
+
+<text x="665" y="545" font-family="Share Tech Mono,monospace" font-size="10" fill="#7a4aff" font-weight="700">caça em 2072</text>
+<text x="720" y="545" font-family="Share Tech Mono,monospace" font-size="10" fill="#c4186f">mãe</text>
+</svg>
+
+<div class="graph-legend">
+<span><span class="line family"></span> Família / Pais</span>
+<span><span class="line ally"></span> Aliado / Mentor</span>
+<span><span class="line tension"></span> Tensão / Distante</span>
+<span><span class="line clone"></span> Clone / Caça</span>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<div class="page-footer" id="footerText">
+O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3 · Jan 2027
+<div class="changelog">
+<button class="changelog-toggle" onclick="toggleChangelog()">📜 Histórico de Versões</button>
+<div class="changelog-content" id="changelogContent">
+<div class="changelog-item"><span class="version">v1.3</span><span class="date">Janeiro de 2027</span><p><strong>Novidades:</strong> Modo Apresentação (tela cheia); Grafo de Relacionamentos (4 quadrantes); Linha do Tempo interativa.</p></div>
+<div class="changelog-item"><span class="version">v1.2</span><span class="date">Janeiro de 2027</span><p><strong>Novidades:</strong> Busca local com destaque de termos; Favoritos (⭐) nos cards com painel dedicado; Alt texts descritivos nas imagens.</p></div>
+<div class="changelog-item"><span class="version">v1.1</span><span class="date">Janeiro de 2027</span><p><strong>Correções:</strong> Aurora Dourada removida do cânone; Zenit neutralizado como herói aposentado (sem spoilers). <strong>Novidades:</strong> Data fixa da lore; Tabela consolidada de personagens; este Changelog.</p></div>
+<div class="changelog-item"><span class="version">v1.0</span><span class="date">Janeiro de 2027</span><p>Versão de lançamento. 12 fichas de personagens; 15 cidades externas; busca integrada na DC Fandom; modo leitura; modo edição; tema claro/escuro; drawer mobile; índice global.</p></div>
+</div>
+</div>
+</div>
+
+</div>
+
+<div id="fandomModal">
+<div class="fandom-modal-inner">
+<div class="fandom-modal-header">
+<div style="flex:1;min-width:0">
+<div class="mh-title" id="modalTitle">Título</div>
+<div class="mh-source" id="modalSource">📚 dc.fandom.com</div>
+</div>
+<div class="mh-actions">
+<button id="modalBackBtn" style="display:none">← Voltar</button>
+<a id="modalExternal" href="#" target="_blank" rel="noopener" class="primary">🔗 Wiki Original</a>
+<button id="modalCloseBtn">✕ Fechar</button>
+</div>
+</div>
+<div class="fandom-modal-body" id="modalBody"></div>
+</div>
+</div>
+
+<div id="fichaModal">
+<div class="ficha-inner">
+<div class="ficha-header" id="fichaHeader"></div>
+<div class="ficha-body" id="fichaBody"></div>
+</div>
+</div>
+
+<div id="presentationModal">
+<div class="pres-counter">1 / 1</div>
+<button class="pres-close" id="presClose">✕</button>
+<div class="pres-inner"></div>
+</div>
+
+<div id="confirmModal">
+<div class="confirm-inner">
+<h3 id="confirmTitle">Confirmar</h3>
+<p id="confirmMsg">Deseja continuar?</p>
+<div class="actions">
+<button id="confirmCancel">Cancelar</button>
+<button id="confirmOk" class="danger">Confirmar</button>
+</div>
+</div>
+</div>
+
+<div id="lightbox">
+<button class="close-lb" id="lightboxClose">✕</button>
+<img id="lightboxImg" src="" alt="">
+</div>
+
+<button id="backTop">↑</button>
+
+<script src="terra-z.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var btnMap = {
+    editBtn: function(){ window.toggleEdit(); },
+    saveBtn: function(){ window.saveEdits(); },
+    exportHtmlBtn: function(){ window.exportHtml(); },
+    exportBtn: function(){ window.exportEdits(); },
+    importBtn: function(){ window.importEdits(); },
+    resetBtn: function(){ window.resetEdits(); },
+    searchBtn: function(){ window.executeSearch(); },
+    searchClose: function(){ window.closeSearchPanel(); },
+    modalCloseBtn: function(){ window.closeFandomModal(); },
+    modalBackBtn: function(){ window.goBackFandom(); },
+    readingBtn: function(){ window.toggleReadingMode(); },
+    readingExit: function(){ window.toggleReadingMode(); },
+    presentationBtn: function(){ window.togglePresentation(); },
+    presClose: function(){ window.togglePresentation(); },
+    favoritesBtn: function(){
+      var panel = document.getElementById('favoritesPanel');
+      if(panel.classList.contains('show')) window.closeFavoritesPanel();
+      else window.showFavoritesPanel();
+    }
+  };
+  Object.keys(btnMap).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.addEventListener('click', btnMap[id]);
+  });
+  var lb = document.getElementById('lightbox');
+  var lbClose = document.getElementById('lightboxClose');
+  if(lb) lb.addEventListener('click', window.closeLightbox);
+  if(lbClose) lbClose.addEventListener('click', function(e){ e.stopPropagation(); window.closeLightbox(); });
+  var fm = document.getElementById('fichaModal');
+  if(fm) fm.addEventListener('click', function(e){
+    if(e.target === fm) window.closeFichaModal();
+  });
+  var pm = document.getElementById('presentationModal');
+  if(pm) pm.addEventListener('click', function(e){
+    if(e.target === pm) window.togglePresentation();
+  });
+  var cm = document.getElementById('confirmModal');
+  if(cm) cm.addEventListener('click', function(e){
+    if(e.target === cm){
+      cm.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+  });
+});
+</script>
+</body>
+</html>
