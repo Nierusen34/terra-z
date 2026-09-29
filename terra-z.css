@@ -522,3 +522,29 @@ body.reading-mode .photo img{cursor:default}
   .ge-table{font-size:11px}
   .ge-table input,.ge-table select{font-size:11px}
 }
+
+
+/* ===== PUBLICAÇÃO / CMS ===== */
+.publish-panel{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:220;display:none;align-items:center;justify-content:center;padding:24px}
+.publish-panel.show{display:flex}
+.publish-card{width:min(620px,100%);background:var(--paper2);border:1px solid var(--line);box-shadow:0 24px 80px rgba(0,0,0,.45);padding:24px;color:var(--ink)}
+.publish-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;border-bottom:1px solid var(--line2);padding-bottom:14px;margin-bottom:16px}
+.publish-head h3{font-family:var(--font-title);font-size:24px;color:var(--accent);margin:2px 0 0}
+.publish-eyebrow{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1.8px;color:var(--ink3)}
+.publish-close{border:none;background:transparent;color:var(--ink2);font-size:20px;cursor:pointer}
+.publish-copy{font-size:13px;color:var(--ink2);margin-bottom:16px}
+.publish-summary{display:flex;align-items:baseline;gap:8px;background:var(--paper3);border-left:4px solid var(--accent);padding:12px 14px;margin-bottom:16px}
+.publish-summary strong{font-family:var(--font-title);font-size:28px;color:var(--accent)}
+.publish-summary span{font-size:12px;color:var(--ink2)}
+.publish-label{display:block;font-family:var(--font-title);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.publish-message{width:100%;background:var(--paper);border:1px solid var(--line);color:var(--ink);padding:11px 12px;font:inherit;margin-bottom:12px}
+.publish-status{font-family:'Share Tech Mono',monospace;font-size:11px;padding:10px 12px;border:1px solid var(--line2);background:var(--paper3);margin-bottom:16px}
+.publish-status[data-state="ready"],.publish-status[data-state="success"]{border-left:4px solid #3a8f5b}
+.publish-status[data-state="working"]{border-left:4px solid var(--accent2)}
+.publish-status[data-state="error"]{border-left:4px solid #b33}
+.publish-status[data-state="setup"]{border-left:4px solid var(--accent2)}
+.publish-actions{display:flex;justify-content:flex-end;gap:10px}
+.publish-actions button{padding:9px 14px;cursor:pointer}
+.publish-actions .primary{background:var(--accent);color:#fff;border:1px solid var(--accent)}
+.publish-actions .primary:disabled{opacity:.45;cursor:not-allowed}
+.publish-note{font-size:10px;color:var(--ink3);margin-top:12px;line-height:1.45}
