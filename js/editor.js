@@ -41,13 +41,43 @@ function toggleEdit(){
   else { saveEdits(true); showToast('Edições salvas automaticamente', 'success'); }
 }
 
-function saveEdits(silent){
+function readCurrentEdits(){
   initEditables();
   var data = {};
   getAll().forEach(function(el){ data[el.dataset.editId] = el.innerHTML; });
+  return data;
+}
+
+function applyEditsMap(data){
+  if(!data || typeof data !== 'object') return;
+  initEditables();
+  getAll().forEach(function(el){
+    var stableId = el.dataset.editId;
+    var legacyId = el.dataset.legacyEditId;
+    if(data[stableId] !== undefined) el.innerHTML = data[stableId];
+    else if(legacyId && data[legacyId] !== undefined) el.innerHTML = data[legacyId];
+  });
+}
+
+var publishedState = { version:'initial', edits:{} };
+var publishedSnapshot = {};
+
+function loadPublishedEdits(){
+  var source = (window.TerraZData && window.TerraZData.contentOverrides) || {};
+  publishedState = {
+    version: source.version || 'initial',
+    edits: (source.edits && typeof source.edits === 'object') ? source.edits : {}
+  };
+  applyEditsMap(publishedState.edits);
+  publishedSnapshot = readCurrentEdits();
+}
+
+function saveEdits(silent){
+  var data = readCurrentEdits();
   try {
     localStorage.setItem(EDITS_KEY, JSON.stringify(data));
-    if(!silent) showToast('Edições salvas com sucesso', 'success');
+    document.dispatchEvent(new CustomEvent('terraz:draftchange', { detail:{ pending:getPendingCount() } }));
+    if(!silent) showToast('Rascunho salvo neste navegador', 'success');
   } catch(e){ showToast('Erro ao salvar: ' + e.message, 'error'); }
 }
 
@@ -75,13 +105,48 @@ function loadEdits(){
     });
 
     if(migratedLegacy){
-      var migratedData = {};
-      getAll().forEach(function(el){ migratedData[el.dataset.editId] = el.innerHTML; });
-      localStorage.setItem(EDITS_KEY, JSON.stringify(migratedData));
+      localStorage.setItem(EDITS_KEY, JSON.stringify(readCurrentEdits()));
       showToast('Edições antigas migradas para o novo formato', 'info', 3500);
     }
   } catch(e){ console.error(e); }
 }
+
+function getPendingChanges(){
+  var current = readCurrentEdits();
+  var changes = {};
+  Object.keys(current).forEach(function(id){
+    if(current[id] !== publishedSnapshot[id]) changes[id] = current[id];
+  });
+  return changes;
+}
+
+function getPendingCount(){
+  return Object.keys(getPendingChanges()).length;
+}
+
+function getPublishedVersion(){
+  return publishedState.version || 'initial';
+}
+
+function suggestCommitMessage(changes){
+  var count = Object.keys(changes || {}).length;
+  return 'content: publicar ' + count + (count === 1 ? ' alteração pelo editor' : ' alterações pelo editor');
+}
+
+function markPublished(changes, version){
+  Object.keys(changes || {}).forEach(function(id){
+    publishedSnapshot[id] = changes[id];
+    publishedState.edits[id] = changes[id];
+  });
+  publishedState.version = version || publishedState.version;
+
+  var remaining = getPendingCount();
+  if(remaining === 0) localStorage.removeItem(EDITS_KEY);
+  else localStorage.setItem(EDITS_KEY, JSON.stringify(readCurrentEdits()));
+
+  document.dispatchEvent(new CustomEvent('terraz:draftchange', { detail:{ pending:remaining } }));
+}
+
 
 function exportHtml(){
   saveEdits(true);
@@ -307,6 +372,7 @@ setInterval(function(){ if(editMode) autoBackup(); }, 5 * 60 * 1000);
 
 
 initEditables();
+loadPublishedEdits();
 loadEdits();
 
 window.toggleEdit = toggleEdit;
@@ -323,7 +389,12 @@ window.TerraZApp.editor = {
   exportEdits: exportEdits,
   exportHtml: exportHtml,
   importEdits: importEdits,
-  reset: resetEdits
+  reset: resetEdits,
+  getPendingChanges: getPendingChanges,
+  getPendingCount: getPendingCount,
+  getPublishedVersion: getPublishedVersion,
+  suggestCommitMessage: suggestCommitMessage,
+  markPublished: markPublished
 };
 
 })();
