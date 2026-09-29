@@ -618,3 +618,32 @@ button.session-chip:hover{border-color:var(--accent);color:var(--accent)}
 
 /* Hotspots do mapa: textos não bloqueiam clique nas áreas de distrito */
 #sub-mapa-detalhado svg text{pointer-events:none}
+
+
+/* ===== AUTENTICAÇÃO DO EDITOR ===== */
+.publish-auth{margin:0 0 14px;padding:12px;background:var(--paper3);border:1px solid var(--line2)}
+.publish-login-row{display:flex;gap:8px;align-items:center}
+.publish-login-row .publish-message{margin:0;flex:1}
+.publish-login-row button,#publishLoggedIn button{white-space:nowrap;padding:9px 12px;cursor:pointer}
+#publishLoggedIn{display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--ink2)}
+#publishLoggedIn[hidden],#publishLoggedOut[hidden]{display:none!important}
+
+
+/* ===== EDITOR DE SESSÃO ===== */
+.campaign-toolbar{align-items:center;gap:12px}
+.campaign-add-btn{margin-left:auto;padding:8px 11px;border:1px solid var(--line);background:var(--paper2);color:var(--ink);cursor:pointer}
+.campaign-add-btn:disabled{opacity:.45;cursor:not-allowed}
+.session-editor-panel{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.72);z-index:225}
+.session-editor-panel.show{display:flex}
+.session-editor-card{width:min(760px,100%);max-height:90vh;overflow:auto;background:var(--paper2);border:1px solid var(--line);box-shadow:0 24px 80px rgba(0,0,0,.45);padding:22px}
+.session-editor-head{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line2);padding-bottom:12px;margin-bottom:16px}
+.session-editor-head h3{font-family:var(--font-title);color:var(--accent);margin:0}
+.session-editor-head button{border:none;background:transparent;color:var(--ink2);font-size:18px;cursor:pointer}
+.session-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.session-form-grid label{display:flex;flex-direction:column;gap:6px;font-family:var(--font-title);font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--ink3)}
+.session-form-grid input,.session-form-grid select,.session-form-grid textarea{width:100%;padding:10px 11px;background:var(--paper);border:1px solid var(--line);color:var(--ink);font:inherit;text-transform:none;letter-spacing:0}
+.session-wide{grid-column:1/-1}
+.session-editor-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+.session-editor-actions button{padding:9px 14px;cursor:pointer}
+.session-editor-actions .primary{background:var(--accent);color:#fff;border:1px solid var(--accent)}
+@media(max-width:650px){.session-form-grid{grid-template-columns:1fr}.session-wide{grid-column:auto}}

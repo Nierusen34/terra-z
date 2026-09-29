@@ -23,14 +23,20 @@ function openFichaModal(characterName){
   var portrait = (window.TerraZApp.characterMedia)
     ? window.TerraZApp.characterMedia.renderPortraitHtml(characterName, 'large')
     : '';
-  header.innerHTML = portrait + '<div class="fh-info"><div class="fh-eyebrow">' + escapeHtml(ficha.eyebrow) + '</div><h2>' + escapeHtml(characterName) + '</h2></div><div class="fh-actions"><button class="fh-link" id="fichaCopyLinkBtn" title="Copiar link direto">🔗</button><button class="fh-close" id="fichaCloseBtn">✕</button></div>';
+  var canUploadPortrait = window.TerraZApp.mediaManager && window.TerraZApp.mediaManager.canUpload();
+  var uploadBtn = canUploadPortrait ? '<button class="fh-link" id="fichaUploadPortraitBtn" title="Atualizar retrato">🖼️</button>' : '';
+  header.innerHTML = portrait + '<div class="fh-info"><div class="fh-eyebrow">' + escapeHtml(ficha.eyebrow) + '</div><h2>' + escapeHtml(characterName) + '</h2></div><div class="fh-actions">' + uploadBtn + '<button class="fh-link" id="fichaCopyLinkBtn" title="Copiar link direto">🔗</button><button class="fh-close" id="fichaCloseBtn">✕</button></div>';
   var bodyHtml = '';
+  var privateSecrets = (window.TerraZApp.privateContent && window.TerraZApp.privateContent.getCharacterSecrets)
+    ? window.TerraZApp.privateContent.getCharacterSecrets(characterName)
+    : null;
+  var secrets = Array.isArray(privateSecrets) ? privateSecrets : ficha.secrets;
   ficha.sections.forEach(function(sec){
     bodyHtml += '<div class="ficha-section"><h3>' + sec.title + '</h3>' + sec.content + '</div>';
   });
-  if(ficha.secrets && ficha.secrets.length > 0){
-    bodyHtml += '<div class="ficha-secrets" id="fichaSecretsBox" data-visibility="master"><button class="ficha-secrets-toggle" id="fichaSecretsToggle"><span>🔒 Mostrar Segredos (' + ficha.secrets.length + ')</span><span class="arrow">▶</span></button><div class="ficha-secrets-content"><ul>';
-    ficha.secrets.forEach(function(s){ bodyHtml += '<li>' + escapeHtml(s) + '</li>'; });
+  if(secrets && secrets.length > 0){
+    bodyHtml += '<div class="ficha-secrets" id="fichaSecretsBox" data-visibility="master"><button class="ficha-secrets-toggle" id="fichaSecretsToggle"><span>🔒 Mostrar Segredos (' + secrets.length + ')</span><span class="arrow">▶</span></button><div class="ficha-secrets-content"><ul>';
+    secrets.forEach(function(s){ bodyHtml += '<li>' + escapeHtml(s) + '</li>'; });
     bodyHtml += '</ul></div></div>';
   }
   bodyHtml += '<div style="text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid var(--line2)"><button id="fichaSearchBtn" style="background:var(--accent);color:#fff;border:none;padding:10px 22px;border-radius:20px;font-family:\'Share Tech Mono\',monospace;font-size:11px;letter-spacing:1px;cursor:pointer;text-transform:uppercase">🔍 Buscar na DC Wiki</button></div>';
@@ -40,6 +46,10 @@ function openFichaModal(characterName){
   if(window.TerraZApp.characterMedia) window.TerraZApp.characterMedia.hydrate(header);
   if(window.TerraZApp.visibility) window.TerraZApp.visibility.apply();
   document.getElementById('fichaCloseBtn').addEventListener('click', closeFichaModal);
+  var uploadPortraitBtn = document.getElementById('fichaUploadPortraitBtn');
+  if(uploadPortraitBtn) uploadPortraitBtn.addEventListener('click', function(){
+    if(window.TerraZApp.mediaManager) window.TerraZApp.mediaManager.choose(characterName);
+  });
   var copyBtn = document.getElementById('fichaCopyLinkBtn');
   if(copyBtn) copyBtn.addEventListener('click', function(){
     if(window.TerraZApp.router) window.TerraZApp.router.copyCurrentLink();
@@ -53,7 +63,7 @@ function openFichaModal(characterName){
       box.classList.toggle('open');
       var label = secretsToggle.querySelector('span:first-child');
       var isOpen = box.classList.contains('open');
-      if(label) label.textContent = (isOpen ? '🔓 Ocultar Segredos' : '🔒 Mostrar Segredos') + ' (' + ficha.secrets.length + ')';
+      if(label) label.textContent = (isOpen ? '🔓 Ocultar Segredos' : '🔒 Mostrar Segredos') + ' (' + secrets.length + ')';
     });
   }
 }

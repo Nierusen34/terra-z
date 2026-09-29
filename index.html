@@ -84,6 +84,19 @@
     </div>
     <p class="publish-copy">O rascunho continua salvo somente neste navegador até ser publicado. A publicação remota criará um commit no GitHub e aguardará o deploy do GitHub Pages.</p>
     <div class="publish-summary"><strong id="publishCount">0</strong><span>alterações pendentes</span></div>
+    <div class="publish-auth">
+      <div id="publishLoggedOut">
+        <label class="publish-label" for="publishPassword">Acesso do editor</label>
+        <div class="publish-login-row">
+          <input id="publishPassword" class="publish-message" type="password" autocomplete="current-password" placeholder="Senha do editor">
+          <button id="publishLoginBtn">Entrar</button>
+        </div>
+      </div>
+      <div id="publishLoggedIn" hidden>
+        <span>✅ Editor autenticado nesta sessão</span>
+        <button id="publishLogoutBtn">Sair</button>
+      </div>
+    </div>
     <label class="publish-label" for="publishMessage">Mensagem do commit</label>
     <input id="publishMessage" class="publish-message" type="text" maxlength="120" placeholder="Ex.: content: atualizar ficha de Tristan Queen">
     <div id="publishStatus" class="publish-status" data-state="idle">Verificando configuração…</div>
@@ -583,7 +596,10 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2
 <div class="sub-content" id="sub-tz-sessoes">
 <div class="section-title">📓 Diário da Campanha</div>
 <div class="info-box"><div class="label">🗂 Histórico vivo</div>Registre sessões reais da campanha com personagens, locais e consequências. Esta área começa vazia para não transformar acontecimentos de lore em sessões sem confirmação.</div>
-<div class="campaign-toolbar"><span id="campaignSessionCount">0 sessões registradas</span></div>
+<div class="campaign-toolbar">
+  <span id="campaignSessionCount">0 sessões registradas</span>
+  <button id="addSessionBtn" class="campaign-add-btn" disabled>＋ Registrar sessão</button>
+</div>
 <div id="campaignSessions"></div>
 </div>
 
@@ -623,6 +639,29 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 </div>
 </div>
 <div class="fandom-modal-body" id="modalBody"></div>
+</div>
+</div>
+
+<div class="session-editor-panel" id="sessionEditorPanel" role="dialog" aria-modal="true" aria-labelledby="sessionEditorTitle">
+<div class="session-editor-card">
+<div class="session-editor-head">
+<h3 id="sessionEditorTitle">📓 Registrar sessão</h3>
+<button id="sessionEditorClose">✕</button>
+</div>
+<div class="session-form-grid">
+<label>Título<input id="sessionTitle" type="text" maxlength="160" placeholder="Ex.: Ecos da Fenda"></label>
+<label>Data real<input id="sessionRealDate" type="date"></label>
+<label>Data no universo<input id="sessionWorldDate" type="text" maxlength="120" placeholder="Ex.: Janeiro de 2027"></label>
+<label>Visibilidade<select id="sessionVisibility"><option value="public">Público</option><option value="rumor">Rumor</option><option value="restricted">Restrito</option><option value="master">Mestre</option></select></label>
+<label class="session-wide">Resumo<textarea id="sessionSummary" rows="5" placeholder="O que aconteceu nesta sessão?"></textarea></label>
+<label class="session-wide">Personagens<input id="sessionCharacters" type="text" placeholder="Tristan Queen, Riot, M'ark"></label>
+<label class="session-wide">Locais<input id="sessionLocations" type="text" placeholder="A Fenda, O Dique"></label>
+<label class="session-wide">Consequências<textarea id="sessionConsequences" rows="4" placeholder="Uma consequência por linha"></textarea></label>
+</div>
+<div class="session-editor-actions">
+<button id="sessionCancelBtn">Cancelar</button>
+<button id="sessionSaveBtn" class="primary">💾 Registrar sessão</button>
+</div>
 </div>
 </div>
 
@@ -704,10 +743,13 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="terra-z.js" defer></script>
 <script src="js/data-renderer.js" defer></script>
 <script src="js/editor.js" defer></script>
+<script src="js/backend-client.js" defer></script>
+<script src="js/private-content.js" defer></script>
 <script src="js/publishing.js" defer></script>
 <script src="js/visibility.js" defer></script>
 <script src="js/media.js" defer></script>
 <script src="js/character-media.js" defer></script>
+<script src="js/media-manager.js" defer></script>
 <script src="js/navigation.js" defer></script>
 <script src="js/search.js" defer></script>
 <script src="js/characters.js" defer></script>
@@ -717,6 +759,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="js/character-filters.js" defer></script>
 <script src="js/router.js" defer></script>
 <script src="js/sessions.js" defer></script>
+<script src="js/session-editor.js" defer></script>
 <script src="js/world-links.js" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
