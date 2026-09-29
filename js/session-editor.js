@@ -6,6 +6,7 @@ var core = window.TerraZCore;
 if(!core) throw new Error('Terra Z: núcleo não carregado antes de js/session-editor.js');
 
 var showToast = core.showToast;
+var currentId = '';
 
 function el(id){ return document.getElementById(id); }
 function backend(){ return window.TerraZApp && window.TerraZApp.backend; }
@@ -27,13 +28,34 @@ function refresh(){
   btn.title = ready ? 'Registrar nova sessão' : 'Entre como editor em Publicar para registrar sessões';
 }
 
-function open(){
+function fill(session){
+  session = session || {};
+  currentId = session.id || '';
+  el('sessionTitle').value = session.title || '';
+  el('sessionRealDate').value = session.realDate || '';
+  el('sessionWorldDate').value = session.inWorldDate || '';
+  el('sessionSummary').value = session.summary || '';
+  el('sessionCharacters').value = Array.isArray(session.characters) ? session.characters.join(', ') : '';
+  el('sessionLocations').value = Array.isArray(session.locations) ? session.locations.join(', ') : '';
+  el('sessionConsequences').value = Array.isArray(session.consequences) ? session.consequences.join('\n') : '';
+  el('sessionVisibility').value = session.visibility || 'public';
+  var title = el('sessionEditorTitle');
+  if(title) title.textContent = currentId ? '📓 Editar sessão' : '📓 Registrar sessão';
+  var saveBtn = el('sessionSaveBtn');
+  if(saveBtn) saveBtn.textContent = currentId ? '💾 Atualizar sessão' : '💾 Registrar sessão';
+}
+
+function open(id){
   var b = backend();
   if(!b || !b.isConfigured() || !b.isAuthenticated()){
     showToast('Entre como editor no painel Publicar para registrar sessões.','warning',5000);
     if(window.TerraZApp.publishing) window.TerraZApp.publishing.open();
     return;
   }
+  var all = (window.TerraZData && window.TerraZData.sessions) || [];
+  var session = id ? all.find(function(item){ return item && item.id === id; }) : null;
+  fill(session || {});
+
   var panel = el('sessionEditorPanel');
   if(panel){
     panel.classList.add('show');
@@ -42,6 +64,7 @@ function open(){
 }
 
 function close(){
+  currentId = '';
   var panel = el('sessionEditorPanel');
   if(panel) panel.classList.remove('show');
   document.body.style.overflow = '';
@@ -67,6 +90,7 @@ async function save(){
       method:'POST',
       body:{
         session:{
+          id:currentId,
           title:title,
           realDate:el('sessionRealDate').value,
           inWorldDate:el('sessionWorldDate').value.trim(),
@@ -79,12 +103,12 @@ async function save(){
       }
     });
 
-    showToast('Sessão registrada. Aguardando GitHub Pages…','info',5000);
+    showToast(currentId ? 'Sessão atualizada. Aguardando GitHub Pages…' : 'Sessão registrada. Aguardando GitHub Pages…','info',5000);
 
     if(window.TerraZApp.publishing && result.status_url){
       var published = await window.TerraZApp.publishing.waitForDeployment(result.status_url);
       if(published){
-        showToast('Sessão publicada com sucesso','success',5000);
+        showToast(currentId ? 'Sessão atualizada com sucesso' : 'Sessão publicada com sucesso','success',5000);
         setTimeout(function(){ location.reload(); },1000);
         return;
       }
@@ -97,7 +121,7 @@ async function save(){
     showToast(err.message || 'Falha ao registrar sessão','error',6000);
   } finally {
     button.disabled = false;
-    button.textContent = '💾 Registrar sessão';
+    button.textContent = currentId ? '💾 Atualizar sessão' : '💾 Registrar sessão';
   }
 }
 
@@ -108,7 +132,7 @@ function setup(){
   var saveBtn = el('sessionSaveBtn');
   var panel = el('sessionEditorPanel');
 
-  if(openBtn) openBtn.addEventListener('click',open);
+  if(openBtn) openBtn.addEventListener('click',function(){ open(''); });
   if(closeBtn) closeBtn.addEventListener('click',close);
   if(cancelBtn) cancelBtn.addEventListener('click',close);
   if(saveBtn) saveBtn.addEventListener('click',save);
