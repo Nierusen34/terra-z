@@ -8,15 +8,15 @@ Depois dos arquivos em `data/`, o site carrega:
 
 1. `terra-z.js` — núcleo compartilhado e bootstrap
 2. `js/data-renderer.js` — transforma dados canônicos em DOM
-3. `js/navigation.js` — navegação, temas, jornais, drawers, lightbox e timeline interativa
-4. `js/search.js` — busca local e integração com DC Wiki
-5. `js/characters.js` — fichas e modal de personagens
-6. `js/favorites.js` — favoritos
-7. `js/presentation.js` — modo apresentação
-8. `js/editor.js` — edição, exportação e backups
+3. `js/editor.js` — hidrata edições salvas, edição, exportação e backups
+4. `js/navigation.js` — navegação, temas, jornais, drawers, lightbox e timeline interativa
+5. `js/search.js` — busca local e integração com DC Wiki
+6. `js/characters.js` — fichas e modal de personagens
+7. `js/favorites.js` — favoritos
+8. `js/presentation.js` — modo apresentação
 9. `js/graph.js` — grafo de relações e editor
 
-A ordem importa. Módulos de interface dependem de `TerraZCore`; editor e navegação também dependem do DOM já renderizado pela camada de dados.
+A ordem importa. A camada de dados é renderizada primeiro e o editor hidrata as edições salvas antes de módulos como personagens e favoritos lerem o texto do DOM. Os módulos de interface dependem de `TerraZCore`.
 
 ## Núcleo
 
