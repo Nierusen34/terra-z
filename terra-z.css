@@ -575,3 +575,11 @@ body.reading-mode .photo img{cursor:default}
 .campaign-meta{display:flex;gap:12px;flex-wrap:wrap;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:1px}
 .campaign-tags{font-size:11px;color:var(--ink2);margin-top:10px}
 .campaign-consequences{margin:12px 0 0 18px;color:var(--ink2);font-size:12px}
+
+.graph-filter-label{display:inline-flex;align-items:center;gap:7px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:1px}
+.graph-filter-label select{background:var(--paper2);border:1px solid var(--line);color:var(--ink);padding:7px 9px;font-family:var(--font-body);font-size:11px}
+.graph-hint{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--ink3);margin-left:auto}
+.graph-node.interactive{cursor:pointer;outline:none}
+.graph-node.interactive circle{transition:stroke .2s,stroke-width .2s,filter .2s}
+.graph-node.interactive:hover circle,.graph-node.interactive:focus circle{stroke:var(--accent2);stroke-width:5px}
+@media(max-width:700px){.graph-hint{width:100%;margin-left:0}}
