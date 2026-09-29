@@ -84,6 +84,19 @@
     </div>
     <p class="publish-copy">O rascunho continua salvo somente neste navegador até ser publicado. A publicação remota criará um commit no GitHub e aguardará o deploy do GitHub Pages.</p>
     <div class="publish-summary"><strong id="publishCount">0</strong><span>alterações pendentes</span></div>
+    <div class="publish-auth">
+      <div id="publishLoggedOut">
+        <label class="publish-label" for="publishPassword">Acesso do editor</label>
+        <div class="publish-login-row">
+          <input id="publishPassword" class="publish-message" type="password" autocomplete="current-password" placeholder="Senha do editor">
+          <button id="publishLoginBtn">Entrar</button>
+        </div>
+      </div>
+      <div id="publishLoggedIn" hidden>
+        <span>✅ Editor autenticado nesta sessão</span>
+        <button id="publishLogoutBtn">Sair</button>
+      </div>
+    </div>
     <label class="publish-label" for="publishMessage">Mensagem do commit</label>
     <input id="publishMessage" class="publish-message" type="text" maxlength="120" placeholder="Ex.: content: atualizar ficha de Tristan Queen">
     <div id="publishStatus" class="publish-status" data-state="idle">Verificando configuração…</div>
@@ -704,6 +717,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="terra-z.js" defer></script>
 <script src="js/data-renderer.js" defer></script>
 <script src="js/editor.js" defer></script>
+<script src="js/backend-client.js" defer></script>
 <script src="js/publishing.js" defer></script>
 <script src="js/visibility.js" defer></script>
 <script src="js/media.js" defer></script>
