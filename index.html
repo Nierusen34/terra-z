@@ -97,6 +97,15 @@
         <button id="publishLogoutBtn">Sair</button>
       </div>
     </div>
+    <div class="master-migration" id="masterMigrationBox" hidden>
+      <div class="master-migration-title">🔐 Conteúdo Mestre privado</div>
+      <div id="masterMigrationStatus" class="publish-status" data-state="idle">Verificando…</div>
+      <div class="master-migration-actions">
+        <button id="masterCopyBtn" type="button">📋 Copiar JSON Mestre</button>
+        <button id="masterFinalizeBtn" type="button" class="danger" disabled>🔒 Remover segredos públicos</button>
+      </div>
+      <div class="publish-note">A remoção só é permitida quando a cópia privada da Vercel contém exatamente os mesmos segredos que ainda estão públicos.</div>
+    </div>
     <label class="publish-label" for="publishMessage">Mensagem do commit</label>
     <input id="publishMessage" class="publish-message" type="text" maxlength="120" placeholder="Ex.: content: atualizar ficha de Tristan Queen">
     <div id="publishStatus" class="publish-status" data-state="idle">Verificando configuração…</div>
@@ -746,6 +755,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="js/backend-client.js" defer></script>
 <script src="js/private-content.js" defer></script>
 <script src="js/publishing.js" defer></script>
+<script src="js/master-migration.js" defer></script>
 <script src="js/visibility.js" defer></script>
 <script src="js/media.js" defer></script>
 <script src="js/character-media.js" defer></script>
