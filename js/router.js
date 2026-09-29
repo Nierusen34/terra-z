@@ -70,6 +70,7 @@ function applyHash(){
 function setSection(tab, sub){
   var params = parseHash();
   params.delete('personagem');
+  params.delete('distrito');
   if(tab) params.set('secao', tab); else params.delete('secao');
   if(sub) params.set('sub', sub); else params.delete('sub');
   writeHash(params, false);
@@ -77,6 +78,7 @@ function setSection(tab, sub){
 
 function setCharacter(name){
   var params = parseHash();
+  params.delete('distrito');
   params.set('secao', 'tab-terraz');
   params.set('sub', 'sub-tz-personagens');
   params.set('personagem', slugify(name));
