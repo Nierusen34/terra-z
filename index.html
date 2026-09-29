@@ -503,6 +503,16 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2
 <div class="sub-content" id="sub-tz-personagens">
 <div class="section-title">👥 Personagens</div>
 <div data-edit-id="tz-0462" data-legacy-edit-id="e_461" class="info-box"><div class="label">👆 Toque para expandir</div>Clique em qualquer card para ver a <strong>ficha completa</strong>. Passe o mouse para revelar o botão ⭐ de favoritos.</div>
+<div class="character-tools">
+  <input id="characterFilter" type="search" placeholder="🔎 Filtrar personagens..." autocomplete="off">
+  <select id="characterViewFilter" aria-label="Filtrar personagens por estado">
+    <option value="all">Todos</option>
+    <option value="favorites">Favoritos</option>
+    <option value="with-image">Com retrato</option>
+    <option value="without-image">Sem retrato</option>
+  </select>
+  <span id="characterCount"></span>
+</div>
 <div class="card-grid">
 <div class="card"><h4 data-edit-id="tz-0463" data-legacy-edit-id="e_462">🏹 Tristan Queen</h4><p data-edit-id="tz-0464" data-legacy-edit-id="e_463"><strong>Codinome:</strong> Ranger<br><strong>Idade:</strong> 20 (2007)<br><strong>Pais:</strong> Oliver e Dinah<br><strong>Local:</strong> O Dique</p></div>
 <div class="card"><h4 data-edit-id="tz-0465" data-legacy-edit-id="e_464">💀 Riot</h4><p data-edit-id="tz-0466" data-legacy-edit-id="e_465"><strong>Origem:</strong> Clone da Cadmus<br><strong>Idade:</strong> Aparência 20 (cron. 5)<br><strong>Local:</strong> O Dique / Fenda<br><strong>Prazo:</strong> Caçado em 2072</p></div>
@@ -682,6 +692,8 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="js/favorites.js" defer></script>
 <script src="js/presentation.js" defer></script>
 <script src="js/graph.js" defer></script>
+<script src="js/character-filters.js" defer></script>
+<script src="js/router.js" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   var btnMap = {
