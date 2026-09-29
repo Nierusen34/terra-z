@@ -84,6 +84,11 @@
     </div>
     <p class="publish-copy">O rascunho continua salvo somente neste navegador até ser publicado. A publicação remota criará um commit no GitHub e aguardará o deploy do GitHub Pages.</p>
     <div class="publish-summary"><strong id="publishCount">0</strong><span>alterações pendentes</span></div>
+    <label class="publish-label" for="publishEditorKey">Chave de editor</label>
+    <div class="publish-key-row">
+      <input id="publishEditorKey" class="publish-message" type="password" autocomplete="current-password" placeholder="Somente nesta sessão">
+      <button id="publishForgetKey" type="button">Esquecer</button>
+    </div>
     <label class="publish-label" for="publishMessage">Mensagem do commit</label>
     <input id="publishMessage" class="publish-message" type="text" maxlength="120" placeholder="Ex.: content: atualizar ficha de Tristan Queen">
     <div id="publishStatus" class="publish-status" data-state="idle">Verificando configuração…</div>
@@ -708,6 +713,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="js/visibility.js" defer></script>
 <script src="js/media.js" defer></script>
 <script src="js/character-media.js" defer></script>
+<script src="js/media-manager.js" defer></script>
 <script src="js/navigation.js" defer></script>
 <script src="js/search.js" defer></script>
 <script src="js/characters.js" defer></script>
