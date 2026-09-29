@@ -72,6 +72,14 @@ function getPendingChanges(){
   return pending;
 }
 
+function getPublishedBaseline(ids){
+  var out = {};
+  (ids || Object.keys(publishedBaseline)).forEach(function(id){
+    if(publishedBaseline[id] !== undefined) out[id] = publishedBaseline[id];
+  });
+  return out;
+}
+
 function notifyEditsChanged(){
   document.dispatchEvent(new CustomEvent('terra-z:edits-changed', {
     detail: { count:Object.keys(getPendingChanges()).length }
@@ -384,6 +392,7 @@ window.TerraZApp.editor = {
   reset: resetEdits,
   getCurrentEdits: captureCurrentEdits,
   getPendingChanges: getPendingChanges,
+  getPublishedBaseline: getPublishedBaseline,
   markPublished: markPublished,
   refreshPending: notifyEditsChanged
 };
