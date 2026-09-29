@@ -38,7 +38,7 @@ function render(){
     if(session.realDate) html += '<span>' + escapeHtml(session.realDate) + '</span>';
     if(session.inWorldDate) html += '<span>· ' + escapeHtml(session.inWorldDate) + '</span>';
     html += '</div>';
-    html += '<h3>' + escapeHtml(session.title || 'Sessão sem título') + '</h3>';
+    html += '<div class="session-title-row"><h3>' + escapeHtml(session.title || 'Sessão sem título') + '</h3><button class="session-edit-btn" data-session-edit="' + escapeHtml(session.id || '') + '">✏️ Editar</button></div>';
     if(session.summary) html += '<p class="session-summary">' + escapeHtml(session.summary) + '</p>';
 
     if(Array.isArray(session.characters) && session.characters.length){
