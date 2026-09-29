@@ -548,3 +548,23 @@ body.reading-mode .photo img{cursor:default}
 .publish-actions .primary{background:var(--accent);color:#fff;border:1px solid var(--accent)}
 .publish-actions .primary:disabled{opacity:.45;cursor:not-allowed}
 .publish-note{font-size:10px;color:var(--ink3);margin-top:12px;line-height:1.45}
+
+
+/* ===== RETRATOS DE PERSONAGENS ===== */
+.character-card{display:grid;grid-template-columns:78px minmax(0,1fr);column-gap:12px;align-items:start;min-height:112px}
+.character-card>.character-portrait{grid-column:1;grid-row:1 / span 8}
+.character-card>h4,.character-card>p{grid-column:2}
+.character-portrait{position:relative;overflow:hidden;border:1px solid var(--line);background:var(--paper3);flex:0 0 auto}
+.character-portrait.small{width:78px;height:92px}
+.character-portrait.large{width:132px;height:164px}
+.character-portrait img{width:100%;height:100%;object-fit:cover;display:block}
+.character-portrait.placeholder{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--paper3),var(--paper));color:var(--accent);font-family:var(--font-title);font-weight:900;letter-spacing:1px}
+.character-portrait.placeholder::after{content:'SEM RETRATO';position:absolute;left:0;right:0;bottom:5px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:1px;color:var(--ink3)}
+.character-portrait.small.placeholder span{font-size:24px}
+.character-portrait.large.placeholder span{font-size:38px}
+.ficha-header>.character-portrait{margin-right:4px}
+@media(max-width:700px){
+  .character-card{grid-template-columns:64px minmax(0,1fr)}
+  .character-portrait.small{width:64px;height:78px}
+  .character-portrait.large{width:96px;height:120px}
+}
