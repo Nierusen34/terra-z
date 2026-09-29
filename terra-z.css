@@ -583,3 +583,10 @@ body.reading-mode .photo img{cursor:default}
 .graph-node.interactive circle{transition:stroke .2s,stroke-width .2s,filter .2s}
 .graph-node.interactive:hover circle,.graph-node.interactive:focus circle{stroke:var(--accent2);stroke-width:5px}
 @media(max-width:700px){.graph-hint{width:100%;margin-left:0}}
+
+.map-explorer-panel{margin:14px 0 20px;padding:14px;border:1px solid var(--line);background:var(--paper3)}
+.map-explorer-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
+.map-district-links{display:flex;gap:8px;flex-wrap:wrap}
+.map-district-links button{background:var(--paper2);border:1px solid var(--line);color:var(--ink2);padding:8px 10px;font-family:var(--font-body);font-size:11px;cursor:pointer;transition:all .2s}
+.map-district-links button:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+.district-focus{outline:3px solid var(--accent2);outline-offset:3px;transition:outline .2s}
