@@ -1552,31 +1552,38 @@ function renderGraphEditorForm(){
   var nodesBody = document.getElementById('geNodesBody');
   var edgesBody = document.getElementById('geEdgesBody');
   if(!nodesBody || !edgesBody) return;
+
   var html = '';
   graphData.nodes.forEach(function(n, i){
     html += '<tr data-index="' + i + '">';
-    html += '<td><input type="text" value="' + escapeAttr(n.id) + '" onchange="updateGraphNode(' + i + ',\'id\',this.value)"></td>';
-    html += '<td><input type="text" value="' + escapeAttr(n.label) + '" onchange="updateGraphNode(' + i + ',\'label\',this.value)"></td>';
-    html += '<td><input type="number" value="' + n.x + '" onchange="updateGraphNode(' + i + ',\'x\',parseFloat(this.value))"></td>';
-    html += '<td><input type="number" value="' + n.y + '" onchange="updateGraphNode(' + i + ',\'y\',parseFloat(this.value))"></td>';
-    html += '<td><input type="number" value="' + n.r + '" onchange="updateGraphNode(' + i + ',\'r\',parseFloat(this.value))"></td>';
-    html += '<td><input type="color" value="' + n.color + '" onchange="updateGraphNode(' + i + ',\'color\',this.value)"></td>';
-    html += '<td><button class="ge-btn-remove" onclick="removeGraphNode(' + i + ')">🗑</button></td></tr>';
+    html += '<td><input type="text" value="' + escapeAttr(n.id) + '" data-graph-kind="node" data-index="' + i + '" data-field="id"></td>';
+    html += '<td><input type="text" value="' + escapeAttr(n.label) + '" data-graph-kind="node" data-index="' + i + '" data-field="label"></td>';
+    html += '<td><input type="number" value="' + n.x + '" data-graph-kind="node" data-index="' + i + '" data-field="x" data-value-type="number"></td>';
+    html += '<td><input type="number" value="' + n.y + '" data-graph-kind="node" data-index="' + i + '" data-field="y" data-value-type="number"></td>';
+    html += '<td><input type="number" value="' + n.r + '" data-graph-kind="node" data-index="' + i + '" data-field="r" data-value-type="number"></td>';
+    html += '<td><input type="color" value="' + escapeAttr(n.color) + '" data-graph-kind="node" data-index="' + i + '" data-field="color"></td>';
+    html += '<td><button class="ge-btn-remove" data-graph-action="remove-node" data-index="' + i + '">🗑</button></td></tr>';
   });
   nodesBody.innerHTML = html;
-  var nodeOptions = graphData.nodes.map(function(n){ return '<option value="' + escapeAttr(n.id) + '">' + escapeHtml(n.label) + '</option>'; }).join('');
+
+  function nodeOptions(selectedId){
+    return graphData.nodes.map(function(n){
+      return '<option value="' + escapeAttr(n.id) + '"' + (n.id === selectedId ? ' selected' : '') + '>' + escapeHtml(n.label) + '</option>';
+    }).join('');
+  }
+
   var htmlE = '';
   graphData.edges.forEach(function(e, i){
     htmlE += '<tr data-index="' + i + '">';
-    htmlE += '<td><select onchange="updateGraphEdge(' + i + ',\'from\',this.value)">' + nodeOptions.replace('value="' + e.from + '"', 'value="' + e.from + '" selected') + '</select></td>';
-    htmlE += '<td><select onchange="updateGraphEdge(' + i + ',\'to\',this.value)">' + nodeOptions.replace('value="' + e.to + '"', 'value="' + e.to + '" selected') + '</select></td>';
-    htmlE += '<td><input type="text" value="' + escapeAttr(e.label) + '" onchange="updateGraphEdge(' + i + ',\'label\',this.value)"></td>';
-    htmlE += '<td><select onchange="updateGraphEdge(' + i + ',\'type\',this.value)">';
+    htmlE += '<td><select data-graph-kind="edge" data-index="' + i + '" data-field="from">' + nodeOptions(e.from) + '</select></td>';
+    htmlE += '<td><select data-graph-kind="edge" data-index="' + i + '" data-field="to">' + nodeOptions(e.to) + '</select></td>';
+    htmlE += '<td><input type="text" value="' + escapeAttr(e.label) + '" data-graph-kind="edge" data-index="' + i + '" data-field="label"></td>';
+    htmlE += '<td><select data-graph-kind="edge" data-index="' + i + '" data-field="type">';
     ['family','ally','tension','clone'].forEach(function(t){
       htmlE += '<option value="' + t + '"' + (e.type === t ? ' selected' : '') + '>' + t + '</option>';
     });
     htmlE += '</select></td>';
-    htmlE += '<td><button class="ge-btn-remove" onclick="removeGraphEdge(' + i + ')">🗑</button></td></tr>';
+    htmlE += '<td><button class="ge-btn-remove" data-graph-action="remove-edge" data-index="' + i + '">🗑</button></td></tr>';
   });
   edgesBody.innerHTML = htmlE;
 }
@@ -1625,6 +1632,69 @@ function restoreGraphFromBackup(){
     renderGraphEditorForm();
     showToast('Backup carregado no editor. Clique em Salvar para confirmar.', 'info', 4000);
   } catch(e){ showToast('Erro ao restaurar backup', 'error'); }
+}
+
+function setupGraphEditorEvents(){
+  var staticActions = {
+    graphOpenBtn: openGraphEditor,
+    graphResetBtn: resetGraph,
+    graphEditorClose: closeGraphEditor,
+    graphAddNodeBtn: addGraphNode,
+    graphAddEdgeBtn: addGraphEdge,
+    graphCancelBtn: cancelGraphEditor,
+    graphRestoreBtn: restoreGraphFromBackup,
+    graphSaveBtn: saveGraphEditor
+  };
+
+  Object.keys(staticActions).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.addEventListener('click', staticActions[id]);
+  });
+
+  var modal = document.getElementById('graphEditorModal');
+  if(modal){
+    modal.addEventListener('click', function(e){
+      if(e.target === modal) closeGraphEditor();
+    });
+  }
+
+  function handleFieldChange(e){
+    var el = e.target.closest('[data-graph-kind][data-index][data-field]');
+    if(!el) return;
+
+    var index = parseInt(el.getAttribute('data-index'), 10);
+    var field = el.getAttribute('data-field');
+    var kind = el.getAttribute('data-graph-kind');
+    var value = el.value;
+
+    if(el.getAttribute('data-value-type') === 'number'){
+      value = parseFloat(value);
+      if(!Number.isFinite(value)) return;
+    }
+
+    if(kind === 'node') updateGraphNode(index, field, value);
+    else if(kind === 'edge') updateGraphEdge(index, field, value);
+  }
+
+  var nodesBody = document.getElementById('geNodesBody');
+  if(nodesBody){
+    nodesBody.addEventListener('change', handleFieldChange);
+    nodesBody.addEventListener('click', function(e){
+      var btn = e.target.closest('[data-graph-action="remove-node"]');
+      if(!btn) return;
+      removeGraphNode(parseInt(btn.getAttribute('data-index'), 10));
+    });
+  }
+
+  var edgesBody = document.getElementById('geEdgesBody');
+  if(edgesBody){
+    edgesBody.addEventListener('change', handleFieldChange);
+    edgesBody.addEventListener('click', function(e){
+      var btn = e.target.closest('[data-graph-action="remove-edge"]');
+      if(!btn) return;
+      removeGraphEdge(parseInt(btn.getAttribute('data-index'), 10));
+    });
+  }
 }
 
 /* ===== TECLADO ===== */
@@ -1677,18 +1747,6 @@ window.toggleFavorite = toggleFavorite;
 window.showFavoritesPanel = showFavoritesPanel;
 window.closeFavoritesPanel = closeFavoritesPanel;
 window.togglePresentation = togglePresentation;
-window.openGraphEditor = openGraphEditor;
-window.closeGraphEditor = closeGraphEditor;
-window.cancelGraphEditor = cancelGraphEditor;
-window.saveGraphEditor = saveGraphEditor;
-window.addGraphNode = addGraphNode;
-window.removeGraphNode = removeGraphNode;
-window.updateGraphNode = updateGraphNode;
-window.addGraphEdge = addGraphEdge;
-window.removeGraphEdge = removeGraphEdge;
-window.updateGraphEdge = updateGraphEdge;
-window.resetGraph = resetGraph;
-window.restoreGraphFromBackup = restoreGraphFromBackup;
 
 /* ===== INICIALIZAÇÃO ===== */
 document.addEventListener('DOMContentLoaded', function(){
@@ -1701,6 +1759,7 @@ document.addEventListener('DOMContentLoaded', function(){
   try { setupModalBodyDelegation(); } catch(e){ console.error('setupModalBodyDelegation:', e); }
   try { initInteractiveTimeline(); } catch(e){ console.error('initInteractiveTimeline:', e); }
   try { graphData = loadGraph(); renderGraph(); } catch(e){ console.error('graph:', e); }
+  try { setupGraphEditorEvents(); } catch(e){ console.error('graph events:', e); }
   try { syncGlobalSidebar('tab-home', null); } catch(e){ console.error('syncGlobalSidebar:', e); }
   try {
     if(localStorage.getItem('terraZ_reading') === '1'){
