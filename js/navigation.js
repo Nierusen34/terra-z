@@ -53,6 +53,9 @@ document.querySelectorAll('.tab-btn').forEach(function(btn){
     document.querySelectorAll('.tab-content').forEach(function(c){ c.classList.remove('active'); });
     btn.classList.add('active');
     var el = document.getElementById(t); if(el) el.classList.add('active');
+    if(el && window.TerraZApp && window.TerraZApp.media){
+      window.TerraZApp.media.hydrate(el.querySelector('.sub-content.active') || el);
+    }
     applyPaper(p);
     syncGlobalSidebar(t, null);
     closeDrawer();
@@ -68,6 +71,7 @@ document.querySelectorAll('.sidebar-item').forEach(function(item){
     parent.querySelectorAll('.sub-content').forEach(function(c){ c.classList.remove('active'); });
     item.classList.add('active');
     var el = document.getElementById(t); if(el) el.classList.add('active');
+    if(el && window.TerraZApp && window.TerraZApp.media) window.TerraZApp.media.hydrate(el);
     var crumb = parent.querySelector('.breadcrumbs .current');
     if(crumb) crumb.textContent = item.textContent.replace(/[^\w\sÀ-ÿ]/g,'').trim();
     syncGlobalSidebar(parent.id, t);
