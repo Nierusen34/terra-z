@@ -737,10 +737,10 @@ var fichasPersonagens = {
     eyebrow: "🏹 Ranger · Filho de Arqueiros",
     sections: [
       { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> Tristan Queen<br><strong>Codinome:</strong> Ranger<br><strong>Idade:</strong> 20 anos (nascido em 2007)<br><strong>Pais:</strong> Oliver Queen e Dinah Lance<br><strong>Local:</strong> Vanguard Bay – O Dique</p>" },
-      { title:"📖 História", content:"<p>Filho biológico de Oliver e Dinah, Tristan cresceu em Star City até os 15 anos. Após a suposta morte do pai em 2020 e a ausência da mãe, foi criado pelo meio-irmão Connor Hawke.</p><p>Em 2022, aos 15 anos, fugiu para Gotham para treinar com Jason Todd, tornando-se um vigilante frio e calculista. Adotou o codinome <em>Ranger</em> e se isolou em Vanguard Bay em 2026.</p>" },
-      { title:"🎯 Personalidade", content:"<p>Frio, calculista e independente. Carrega mágoa profunda do pai e culpa silenciosa pela mãe. Tem no irmão Connor o único elo real com a família.</p>" },
-      { title:"⚔️ Habilidades", content:"<ul><li>Arco e flecha tático</li><li>Pistolas e explosivos</li><li>Combate corpo a corpo letal</li><li>Flechas sônicas, flechas de garra</li></ul>" },
-      { title:"🔗 Relações", content:"<ul><li><strong>Oliver:</strong> Mágoa profunda</li><li><strong>Dinah:</strong> Culpa silenciosa</li><li><strong>Connor:</strong> Irmãos próximos</li><li><strong>Jason Todd:</strong> Mentor</li></ul>" }
+      { title:"📖 História", content:"<p>Filho biológico de Oliver e Dinah, Tristan cresceu em Star City até os 15 anos. Após a suposta morte do pai em 2020 e a ausência da mãe (que estava em Gotham com as Aves de Rapina), foi criado pelo meio-irmão Connor Hawke.</p><p>Em 2022, aos 15 anos, fugiu para Gotham para treinar com Jason Todd, tornando-se um vigilante frio e calculista. Adotou o codinome <em>Ranger</em> e se isolou em Vanguard Bay em 2026.</p>" },
+      { title:"🎯 Personalidade", content:"<p>Frio, calculista e independente. Carrega mágoa profunda do pai (por ter \\\"sumido\\\" em 2020) e culpa silenciosa pela mãe. Evita falar de Oliver. Tem no irmão Connor o único elo real com a família.</p>" },
+      { title:"⚔️ Habilidades", content:"<ul><li>Arco e flecha tático (nível Oliver/Connor)</li><li>Pistolas e explosivos (estilo Jason Todd)</li><li>Combate corpo a corpo letal</li><li>Flechas sônicas, flechas de garra</li></ul>" },
+      { title:"🔗 Relações", content:"<ul><li><strong>Oliver:</strong> Mágoa profunda, evita contato</li><li><strong>Dinah:</strong> Culpa silenciosa, mantém contato mínimo</li><li><strong>Connor:</strong> Irmãos próximos — elo de comunicação</li><li><strong>Jason Todd:</strong> Mentor, figura paterna distorcida</li></ul>" }
     ],
     secrets: [
       "Não sabe que Dinah tentou reconectar várias vezes nos últimos anos.",
@@ -751,10 +751,11 @@ var fichasPersonagens = {
   "Riot": {
     eyebrow: "💀 Clone Czarniano · Filho Adotivo de Kendra",
     sections: [
-      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> Riot<br><strong>Idade:</strong> Aparência 20 anos (cronológico: 5)<br><strong>Origem:</strong> Clone da Cadmus, resgatado em 2022<br><strong>Mãe adotiva:</strong> Kendra Saunders<br><strong>Local:</strong> Vanguard Bay – O Dique / A Fenda</p>" },
-      { title:"📖 História", content:"<p>Criado por cientistas demitidos da Cadmus. Seria descartado, mas foi resgatado por Kendra em 2022 na Tower of Fate. Durante o resgate, o clone bebê mordeu Lobo — e o Czarniano prometeu dar 50 anos antes de caçá-lo. <strong>Prazo: 2072.</strong></p>" },
-      { title:"🎯 Personalidade", content:"<p>Rebelde, impulsivo e leal. Carrega o peso de saber o próprio destino — e ninguém mais sabe que ele sabe.</p>" },
-      { title:"⚔️ Habilidades", content:"<ul><li>Força czarniana nível Lobo</li><li>Resistência sobre-humana</li><li>Regeneração acelerada</li><li>Crescimento acelerado</li></ul>" }
+      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> Riot<br><strong>Idade:</strong> Aparência 20 anos (cronológico: 5)<br><strong>Origem:</strong> Clone da Cadmus, resgatado em 2022<br><strong>Mãe adotiva:</strong> Kendra Saunders (Hawkgirl)<br><strong>Local:</strong> Vanguard Bay – O Dique / A Fenda</p>" },
+      { title:"📖 História", content:"<p>Criado por cientistas demitidos da Cadmus como parte de um experimento de clonagem do Lobo. Seria descartado, mas foi resgatado por Kendra Saunders em 2022 na Tower of Fate.</p><p>Durante o resgate, o clone bebê <strong>mordeu Lobo</strong> — e o Czarniano, divertido, prometeu dar <strong>50 anos</strong> antes de caçá-lo e matá-lo. O prazo termina em <strong>2072</strong>. Kendra o criou por 5 anos até sua fuga para Vanguard Bay em 2027.</p>" },
+      { title:"🎯 Personalidade", content:"<p>Rebelde, impulsivo e leal. Adora brigar e odeia regras, especialmente a superproteção de Kendra. Carrega o peso de saber o próprio destino — e ninguém mais sabe que ele sabe.</p>" },
+      { title:"⚔️ Habilidades", content:"<ul><li>Força czarniana nível Lobo</li><li>Resistência sobre-humana</li><li>Regeneração acelerada (levemente mais lenta que o original)</li><li>Crescimento acelerado</li></ul>" },
+      { title:"🔗 Relações", content:"<ul><li><strong>Kendra:</strong> Mãe adotiva. Relação de amor e tensão — ele a ama, mas odeia a superproteção</li><li><strong>Lobo:</strong> \\\"Doador\\\" genético. O caçador futuro (2072)</li><li><strong>Tristan e M'ark:</strong> Aliados emergentes em Vanguard Bay</li></ul>" }
     ],
     secrets: [
       "SABE da promessa de Lobo (2072) — descobriu por conta própria e nunca contou a Kendra.",
@@ -765,24 +766,27 @@ var fichasPersonagens = {
   "M'ark": {
     eyebrow: "🟢 Híbrido Marciano · Filho de M'gann",
     sections: [
-      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> M'ark<br><strong>Idade:</strong> 23 anos (nascido em 2004)<br><strong>Mãe:</strong> M'gann M'orzz<br><strong>Pai:</strong> Armek (falecido)<br><strong>Local:</strong> Vanguard Bay – Emaranhado</p>" },
-      { title:"📖 História", content:"<p>Concebido em 2003-2004, quando Armek enganou e violentou M'gann. J'onn descobriu e matou Armek antes que ele soubesse da gravidez. Criado em segredo por M'gann e J'onn.</p>" },
-      { title:"🎯 Personalidade", content:"<p>Estóico, quieto, com medo profundo de sua herança marciana branca. Vive sob o peso de uma mentira pública.</p>" },
-      { title:"⚔️ Habilidades", content:"<ul><li>Telepatia e telecinese</li><li>Intangibilidade e invisibilidade</li><li>Regeneração limitada</li><li>Disfarce marciano</li></ul>" }
+      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> M'ark (\\\"Mark\\\" para humanos)<br><strong>Idade:</strong> 23 anos (nascido em 2004)<br><strong>Mãe:</strong> M'gann M'orzz<br><strong>Pai:</strong> Armek (falecido)<br><strong>Local:</strong> Vanguard Bay – Emaranhado</p>" },
+      { title:"📖 História", content:"<p>Concebido em 2003-2004, quando Armek — um Marciano Branco cruel — enganou e violentou M'gann na Terra. J'onn descobriu e matou Armek antes que ele soubesse da gravidez.</p><p>Criado em segredo por M'gann e J'onn. Em 2021, Conner descobriu sua existência e passou a ser figura paterna.</p>" },
+      { title:"🎯 Personalidade", content:"<p>Estóico, quieto, com medo profundo de sua herança marciana branca. Vive sob o peso de uma mentira: apresentado publicamente como Marciano Verde, mas na verdade é Branco.</p>" },
+      { title:"⚔️ Habilidades", content:"<ul><li>Telepatia e telecinese</li><li>Intangibilidade e invisibilidade</li><li>Regeneração limitada (bloqueada por trauma emocional)</li><li>Disfarce marciano</li></ul>" },
+      { title:"🔗 Relações", content:"<ul><li><strong>M'gann:</strong> Mãe. Relação complexa — ele a ama, mas sofre com a superproteção e com os segredos</li><li><strong>J'onn:</strong> Mentor e figura paterna. Matou seu pai biológico — fato que M'ark ainda não sabe</li><li><strong>Conner:</strong> Figura paterna adotiva. O ensinou a controlar os poderes</li><li><strong>Armek:</strong> Pai biológico (trauma). Nunca o conheceu</li><li><strong>Tristan e Riot:</strong> Aliados emergentes em Vanguard Bay</li></ul>" }
     ],
     secrets: [
       "É Marciano Branco, não Verde — o público não sabe.",
       "É filho do estupro de Armek.",
-      "J'onn matou seu pai biológico antes que ele nascesse."
+      "J'onn matou seu pai biológico antes que ele nascesse.",
+      "Sua existência era secreta até 2021."
     ]
   },
   "Kendra Saunders": {
     eyebrow: "🦅 Reencarnação de Shiera Hall",
     sections: [
-      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> Kendra Shiera Saunders<br><strong>Codinome:</strong> Hawkgirl<br><strong>Idade:</strong> ~32 anos<br><strong>Local:</strong> Vanguard Bay</p>" },
-      { title:"📖 História", content:"<p>Juventude conturbada: perdeu os pais, teve uma filha aos 16 que entregou para adoção, tentou suicídio aos 17. Ao morrer, sua alma foi substituída pela de Shiera Hall. Adotou Riot em 2022.</p>" },
-      { title:"⚔️ Habilidades", content:"<ul><li>Voo com asas de Nth Metal</li><li>Maça de Nth Metal</li><li>Fator de cura</li><li>Memórias de vidas passadas</li></ul>" },
-      { title:"🎯 Personalidade", content:"<p>Forte, resiliente e bem-humorada. Carrega o peso de saber que Lobo virá buscar Riot em 2072.</p>" }
+      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> Kendra Shiera Saunders<br><strong>Codinome:</strong> Hawkgirl<br><strong>Idade:</strong> ~32 anos<br><strong>Origem:</strong> Humana com alma de Shiera Hall<br><strong>Local:</strong> Vanguard Bay (procurando Riot)</p>" },
+      { title:"📖 História", content:"<p>Juventude conturbada: perdeu os pais, teve uma filha aos 16 que entregou para adoção, tentou suicídio aos 17. Ao morrer, sua alma foi substituída pela de Shiera Hall.</p><p>Adotou Riot em 2022 após o resgate na Tower of Fate. É uma das únicas pessoas que sabe da promessa de Lobo.</p>" },
+      { title:"🎯 Personalidade", content:"<p>Forte, resiliente e bem-humorada. Rejeita o destino romântico com Carter Hall. Independente e protetora. Carrega o peso silencioso de saber que, em 2072, Lobo virá buscar Riot.</p>" },
+      { title:"⚔️ Habilidades", content:"<ul><li>Voo com asas e cinto de Nth Metal</li><li>Maça de Nth Metal (arma principal)</li><li>Fator de cura acelerado</li><li>Memórias fragmentadas de vidas passadas</li></ul>" },
+      { title:"🔗 Relações", content:"<ul><li><strong>Riot:</strong> Filho adotivo. Relação de amor e preocupação — sabe do prazo de 2072</li><li><strong>Lobo:</strong> Ameaça futura. Fez a promessa na frente dela em 2022</li><li><strong>Carter Hall:</strong> Rejeita o destino romântico</li></ul>" }
     ],
     secrets: [
       "Sabe da promessa de Lobo — mas não sabe que Riot também descobriu.",
@@ -793,10 +797,11 @@ var fichasPersonagens = {
   "Lobo": {
     eyebrow: "💀 O Maioral · Czarniano Imortal",
     sections: [
-      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> Lobo<br><strong>Idade:</strong> 400+ anos<br><strong>Espécie:</strong> Czarniano<br><strong>Local:</strong> Desconhecido</p>" },
-      { title:"📖 História", content:"<p>Nascido em Czárnia. Aos 16 matou metade da população; aos 17, criou uma praga que matou o restante. Em 2022, foi mordido pelo clone bebê Riot e prometeu 50 anos antes de caçá-lo. <strong>Prazo: 2072.</strong></p>" },
-      { title:"⚔️ Habilidades", content:"<ul><li>Superforça nível Superman</li><li>Super-velocidade</li><li>Regeneração</li><li>Imortalidade</li><li>Olfato superdesenvolvido</li></ul>" },
-      { title:"🎯 Personalidade", content:"<p>Cruel, sujo, violento. Gosta da ideia de caçar mais do que matar.</p>" }
+      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> Lobo (verdadeiro nome desconhecido)<br><strong>Idade:</strong> 400+ anos (imortal)<br><strong>Espécie:</strong> Czarniano<br><strong>Local:</strong> Desconhecido (observa Riot de longe)</p>" },
+      { title:"📖 História", content:"<p>Nascido em Czárnia. Aos 16 anos matou metade da população; aos 17, criou uma praga que matou o restante. É o único sobrevivente da sua raça. Foi expulso do céu e do inferno, condenado à imortalidade.</p><p>Em 2022, durante o resgate do clone de Riot, foi mordido pelo bebê e — divertido — prometeu 50 anos de vida antes de caçá-lo. <strong>Prazo: 2072.</strong></p>" },
+      { title:"🎯 Personalidade", content:"<p>Cruel, sujo, violento. Tem humor ácido e código de ética próprio (cumpre a palavra dada — geralmente com destruição). Gosta da ideia de <em>caçar</em> mais do que matar. Ver Riot se tornar forte o deixa ansioso para o confronto de 2072.</p>" },
+      { title:"⚔️ Habilidades", content:"<ul><li>Superforça nível Superman</li><li>Super-velocidade e durabilidade</li><li>Regeneração acelerada</li><li>Imortalidade</li><li>Olfato superdesenvolvido</li></ul>" },
+      { title:"🔗 Relações", content:"<ul><li><strong>Riot:</strong> \\\"Filhote\\\" que pretende caçar em 2072</li><li><strong>Kendra:</strong> Guardiã do clone. Ele observa de longe</li><li><strong>Ravena (Titãs):</strong> Contato ocasional no submundo</li></ul>" }
     ],
     secrets: [
       "Sabe que Riot está crescendo e observa de longe.",
@@ -807,10 +812,11 @@ var fichasPersonagens = {
   "M'gann M'orzz": {
     eyebrow: "🟢 Miss Martian · Marciana Branca",
     sections: [
-      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> M'gann M'orzz<br><strong>Idade:</strong> ~39 anos<br><strong>Origem:</strong> Marciana Branca fugitiva<br><strong>Local:</strong> Buscando M'ark</p>" },
-      { title:"📖 História", content:"<p>Chegou à Terra em 2000-2002, fugindo do genocídio em Marte. Em 2003-2004 foi enganada e violentada por Armek. Criou M'ark em segredo por 20 anos. Em 2019 terminou com Conner Kent. Em 2021, quando Conner descobriu M'ark, reataram.</p>" },
-      { title:"🎯 Personalidade", content:"<p>Carrega múltiplos traumas: a violência de Armek, a mentira sobre sua raça, o segredo de seu filho.</p>" },
-      { title:"⚔️ Habilidades", content:"<ul><li>Telepatia e telecinese</li><li>Metamorfose</li><li>Intangibilidade</li><li>Voo</li></ul>" }
+      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> M'gann M'orzz (Megan Morse na Terra)<br><strong>Idade:</strong> ~39 anos<br><strong>Origem:</strong> Marciana Branca fugitiva<br><strong>Local:</strong> Buscando M'ark</p>" },
+      { title:"📖 História", content:"<p>Chegou à Terra em 2000-2002, fugindo do genocídio em Marte. Foi acolhida por J'onn, que a ajudou a se passar por uma Marciana Verde. Em 2003-2004 foi enganada e violentada por Armek.</p><p>Criou M'ark em segredo por 20 anos. Em 2019 terminou com Conner Kent (sem explicar o motivo). Em 2021, quando Conner descobriu M'ark, reataram.</p>" },
+      { title:"🎯 Personalidade", content:"<p>Carrega múltiplos traumas: a violência de Armek, a mentira sobre sua raça, o segredo de seu filho. Vive em constante medo de que a verdade sobre M'ark venha à tona e destrua tudo o que construiu.</p>" },
+      { title:"⚔️ Habilidades", content:"<ul><li>Telepatia e telecinese</li><li>Metamorfose (qualquer forma)</li><li>Intangibilidade e invisibilidade</li><li>Voo</li></ul>" },
+      { title:"🔗 Relações", content:"<ul><li><strong>J'onn:</strong> Mentor e figura paterna. O ajudou a criar M'ark em segredo</li><li><strong>M'ark:</strong> Filho. Criado em segredo por 20 anos</li><li><strong>Conner Kent:</strong> Namorado. Reataram em 2021 após ele descobrir sobre M'ark</li><li><strong>Armek:</strong> Estuprador (trauma). Morto por J'onn</li></ul>" }
     ],
     secrets: [
       "É Marciana Branca — apenas J'onn, Conner, Dick, Garfield e Raven sabem.",
@@ -822,10 +828,11 @@ var fichasPersonagens = {
   "J'onn J'onzz": {
     eyebrow: "🟢 Caçador de Marte · Último Marciano Verde",
     sections: [
-      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> J'onn J'onzz<br><strong>Codinome:</strong> Caçador de Marte<br><strong>Idade:</strong> ~227 anos<br><strong>Local:</strong> Torre de Vigia</p>" },
-      { title:"📖 História", content:"<p>Sobreviveu à Maldição de H'ronmeer. Perdeu esposa e filha. Chegou à Terra nos anos 1950-1960. Em 2006-2007, ao descobrir o que Armek fez com M'gann, viajou a Marte e o matou.</p>" },
-      { title:"🎯 Personalidade", content:"<p>Filósofo, pacifista e protetor. Carrega a culpa de ter matado Armek.</p>" },
-      { title:"⚔️ Habilidades", content:"<ul><li>Telepatia planetária</li><li>Metamorfose</li><li>Intangibilidade</li><li>Regeneração</li><li>Voo</li></ul>" }
+      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> J'onn J'onzz<br><strong>Codinome:</strong> Caçador de Marte<br><strong>Idade:</strong> ~227 anos<br><strong>Espécie:</strong> Marciano Verde (último sobrevivente)<br><strong>Local:</strong> Torre de Vigia</p>" },
+      { title:"📖 História", content:"<p>Sobreviveu à Maldição de H'ronmeer, que dizimou quase toda a raça marciana verde. Perdeu esposa e filha. Chegou à Terra nos anos 1950-1960. Torna-se membro fundador da Liga da Justiça.</p><p>Em 2006-2007, ao descobrir o que Armek fez com M'gann, viajou a Marte e o matou em vingança — ato que carrega como peso em sua alma pacifista.</p>" },
+      { title:"🎯 Personalidade", content:"<p>Filósofo, pacifista e protetor. Torna-se mentor e figura paterna de M'gann e M'ark. Carrega a culpa de ter matado Armek — mesmo sabendo que era necessário.</p>" },
+      { title:"⚔️ Habilidades", content:"<ul><li>Telepatia e telecinese de escala planetária</li><li>Metamorfose (qualquer forma)</li><li>Intangibilidade e invisibilidade</li><li>Regeneração</li><li>Voo</li></ul>" },
+      { title:"🔗 Relações", content:"<ul><li><strong>M'gann:</strong> Filha adotiva. A acolheu ao chegar à Terra</li><li><strong>M'ark:</strong> Neto adotivo. Ajudou a criar em segredo</li><li><strong>Liga da Justiça:</strong> Membro fundador e pilar do grupo</li><li><strong>Ma'alefa'ak:</strong> Irmão gêmeo inimigo. Criador da Maldição de H'ronmeer</li></ul>" }
     ],
     secrets: [
       "Matou Armek em vingança — ato que nunca contou a M'ark.",
@@ -836,66 +843,76 @@ var fichasPersonagens = {
   "Oliver Queen": {
     eyebrow: "🏹 O Queen · Agente da JLU",
     sections: [
-      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> Oliver Jonas Queen<br><strong>Codinome:</strong> O Queen (ex-Arqueiro Verde)<br><strong>Idade:</strong> 47 anos (nascido em 1980)<br><strong>Status:</strong> Vivo — ressuscitado em 2022<br><strong>Papel:</strong> Agente da Liga da Justiça Sem Limites<br><strong>Local:</strong> Gotham</p>" },
-      { title:"📖 História", content:"<p>Fundador do manto do Arqueiro Verde em Star City. Em 2020, uma explosão o sugou para um bolsão dimensional. Dado como morto por dois anos, foi resgatado por Cyborg e Flash em 2022. Ao voltar, descobriu que seu filho Connor havia assumido o manto — e decidiu não retomá-lo.</p>" },
-      { title:"🔗 Relações", content:"<ul><li><strong>Dinah Lance:</strong> Esposa</li><li><strong>Tristan:</strong> Filho distante</li><li><strong>Connor:</strong> Filho que assumiu o manto</li><li><strong>Jason Todd:</strong> Treinou Tristan — Oliver não aprova</li></ul>" }
+      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> Oliver Jonas Queen<br><strong>Codinome:</strong> O Queen (ex-Arqueiro Verde)<br><strong>Idade:</strong> 47 anos (nascido em 1980)<br><strong>Status:</strong> Vivo — ressuscitado em 2022<br><strong>Papel:</strong> Agente da Liga da Justiça Sem Limites<br><strong>Local:</strong> Gotham (investigando anomalia)</p>" },
+      { title:"📖 História", content:"<p>Fundador do manto do Arqueiro Verde em Star City. Foi o herói titular por décadas até 2020, quando uma explosão em um depósito de armas o sugou para um bolsão dimensional.</p><p>Dado como morto por dois anos, foi resgatado por Cyborg e Flash em 2022. Ao voltar, descobriu que seu filho Connor havia assumido o manto — e decidiu não retomá-lo. Tornou-se agente da JLU, atuando em missões discretas.</p>" },
+      { title:"🎯 Personalidade", content:"<p>Mais calmo do que na juventude, mas carrega o trauma do isolamento no bolsão dimensional. Superprotetor com Dinah e Tristan. Carrega culpa por não ter estado presente quando \"morreu\" e por Connor ter assumido seu lugar.</p>" },
+      { title:"⚔️ Habilidades", content:"<ul><li>Arco e flecha mestre (nível olímpico)</li><li>Táticas de combate e guerrilha urbana</li><li>Combate corpo a corpo</li><li>Liderança e estratégia</li></ul>" },
+      { title:"🔗 Relações", content:"<ul><li><strong>Dinah Lance:</strong> Esposa. Reatou após o resgate. Ambos carregam culpas do passado</li><li><strong>Tristan Queen:</strong> Filho distante. Relação fraturada após 2020</li><li><strong>Connor Hawke:</strong> Filho que assumiu o manto. Relação de respeito mútuo</li><li><strong>Jason Todd:</strong> Treinou Tristan em 2022–2025. Oliver não aprova</li></ul>" }
     ],
     secrets: [
-      "Durante o isolamento no bolsão dimensional, teve visões do futuro da família.",
+      "Durante o isolamento no bolsão dimensional, teve visões do futuro da família — e nunca contou a ninguém.",
       "Sente culpa por não ter conseguido impedir Dinah de ir para Gotham em 2019.",
-      "Reconhece que Connor é um arqueiro melhor do que ele jamais foi."
+      "Reconhece que Connor é um arqueiro melhor do que ele jamais foi — mas nunca disse isso em voz alta."
     ]
   },
   "Dinah Lance": {
     eyebrow: "🐤 Canário Negro · Líder das Aves de Rapina",
     sections: [
-      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> Dinah Laurel Lance<br><strong>Codinome:</strong> Canário Negro<br><strong>Idade:</strong> 40 anos<br><strong>Status:</strong> Viva<br><strong>Papel:</strong> Fundadora das Aves de Rapina<br><strong>Problema:</strong> Poderes (Grito Canário) falhando</p>" },
-      { title:"📖 História", content:"<p>Em 2019, viajou para Gotham para ajudar Bárbara Gordon e fundou as Aves de Rapina. Estava em Gotham quando Oliver \"morreu\" em 2020. Desde então, tenta reconciliar a família.</p>" },
-      { title:"🔗 Relações", content:"<ul><li><strong>Oliver Queen:</strong> Marido</li><li><strong>Tristan:</strong> Filho — relação fraturada</li><li><strong>Bárbara Gordon:</strong> Melhor amiga</li><li><strong>Connor:</strong> Gratidão</li></ul>" }
+      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> Dinah Laurel Lance<br><strong>Codinome:</strong> Canário Negro<br><strong>Idade:</strong> 40 anos (nascida em 1987)<br><strong>Status:</strong> Viva<br><strong>Papel:</strong> Fundadora das Aves de Rapina. Atualmente em Gotham<br><strong>Problema:</strong> Poderes (Grito Canário) falhando</p>" },
+      { title:"📖 História", content:"<p>Em 2019, após o tiro em Bárbara Gordon e a morte de Jason Todd, viajou para Gotham para ajudar sua amiga — e fundou as Aves de Rapina com Bárbara, Helena Bertinelli e Zinda Blake.</p><p>Estava em Gotham quando Oliver \"morreu\" em 2020. Voltou para o velório e descobriu que Connor já assumia o manto e cuidava de Tristan. Desde então, tenta reconciliar a família — sem sucesso.</p>" },
+      { title:"🎯 Personalidade", content:"<p>Resiliente, mas abalada pela falha nos poderes e pela culpa maternal. Sente que Tristan a culpa pela ausência em 2019. Determinada a reconciliar a família, mas sem saber como.</p>" },
+      { title:"⚔️ Habilidades", content:"<ul><li>Grito Canário (atualmente instável)</li><li>Artes marciais de alto nível</li><li>Combate com bastão</li><li>Liderança das Aves de Rapina</li></ul>" },
+      { title:"🔗 Relações", content:"<ul><li><strong>Oliver Queen:</strong> Marido. Amor sólido, mas culpas compartilhadas pelo afastamento de Tristan</li><li><strong>Tristan Queen:</strong> Filho. Relação fraturada — ele a culpa pela ausência em 2019</li><li><strong>Bárbara Gordon:</strong> Melhor amiga e aliada nas Aves de Rapina</li><li><strong>Connor Hawke:</strong> Gratidão — ele cuidou de Tristan quando ela não pôde</li></ul>" }
     ],
     secrets: [
-      "Seus poderes estão falhando por causa da distorção do Rei Ômega.",
-      "Sente que Tristan a culpa pela \"morte\" de Oliver.",
-      "Considera deixar as Aves de Rapina para focar na família."
+      "Seus poderes estão falhando por causa da distorção do Rei Ômega — mas ela esconde a gravidade real do problema.",
+      "Sente que Tristan a culpa pela \"morte\" de Oliver tanto quanto ela mesma.",
+      "Considera deixar as Aves de Rapina para focar na família — mas ainda não tomou coragem."
     ]
   },
   "Connor Hawke": {
     eyebrow: "🏹 Arqueiro Verde · Herói de Star City",
     sections: [
-      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> Connor Hawke<br><strong>Codinome:</strong> Arqueiro Verde (atual)<br><strong>Idade:</strong> 25 anos (nascido em 2002)<br><strong>Papel:</strong> Herói principal de Star City<br><strong>Assumiu o manto:</strong> 2020</p>" },
-      { title:"📖 História", content:"<p>Filho biológico de Oliver Queen com Sandra Hawke. Em 2020, quando Oliver \"morreu\", assumiu o manto com o apoio de Dinah. Cuidou de Tristan durante o luto.</p>" },
-      { title:"🔗 Relações", content:"<ul><li><strong>Oliver:</strong> Pai</li><li><strong>Tristan:</strong> Irmão mais novo — elo de comunicação</li><li><strong>Dinah:</strong> Madrasta</li></ul>" }
+      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> Connor Hawke<br><strong>Codinome:</strong> Arqueiro Verde (atual)<br><strong>Idade:</strong> 25 anos (nascido em 2002)<br><strong>Papel:</strong> Herói principal de Star City<br><strong>Assumiu o manto:</strong> 2020, aos 17/18 anos</p>" },
+      { title:"📖 História", content:"<p>Filho biológico de Oliver Queen com Sandra Hawke — fruto de um relacionamento anterior ao casamento com Dinah. Cresceu longe do pai, mas se aproximou da família ao longo dos anos.</p><p>Em 2020, quando Oliver \"morreu\", assumiu o manto do Arqueiro Verde com o apoio de Dinah — que na época estava em Gotham. Cuidou de Tristan durante o luto. Mantém o título até hoje, mesmo após o retorno do pai.</p>" },
+      { title:"🎯 Personalidade", content:"<p>Calmo, equilibrado e pacífico — o \"pilar\" da família. Assumiu responsabilidades cedo demais, mas nunca reclamou. Sente que Oliver ainda o vê como \"substituto\", e não como herdeiro legítimo.</p>" },
+      { title:"⚔️ Habilidades", content:"<ul><li>Arco e flecha mestre (considerado superior a Oliver)</li><li>Artes marciais de alto nível</li><li>Equilíbrio emocional e liderança</li><li>Combate corpo a corpo</li></ul>" },
+      { title:"🔗 Relações", content:"<ul><li><strong>Oliver Queen:</strong> Pai. Relação respeitosa, mas com tensão não resolvida</li><li><strong>Tristan Queen:</strong> Irmão mais novo. O elo de comunicação entre Tristan e a família</li><li><strong>Dinah Lance:</strong> Madrasta. Gratidão por ela ter apoiado sua ascensão ao manto</li><li><strong>Jason Todd:</strong> Treinou Tristan. Connor mantém contato por causa do irmão</li></ul>" }
     ],
     secrets: [
       "Nunca contou a Tristan que estava com Oliver no dia da explosão de 2020.",
-      "Sente que Oliver ainda o vê como \"substituto\".",
-      "Considera passar o manto adiante em alguns anos."
+      "Sente que Oliver ainda o vê como \"substituto\" — e não como herdeiro legítimo.",
+      "Considera passar o manto adiante em alguns anos para focar em ajudar Tristan."
     ]
   },
   "Jason Todd": {
     eyebrow: "🦇 Capuz Vermelho · Líder dos Novos Titãs",
     sections: [
       { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> Jason Peter Todd<br><strong>Codinome:</strong> Capuz Vermelho<br><strong>Idade:</strong> 23 anos (nascido em 2004)<br><strong>Status:</strong> Vivo — ressuscitado em 2021<br><strong>Papel:</strong> Treinou Tristan (2022–2025). Líder dos Novos Titãs<br><strong>Local:</strong> Gotham</p>" },
-      { title:"📖 História", content:"<p>Segundo Robin, morto pelo Coringa em 2019 aos 15 anos. Ressuscitado em 2021 pela Pérola de Lázaro. Em 2022, aceitou treinar Tristan Queen em Gotham. Em 2026, foi escolhido para liderar os Novos Titãs.</p>" },
-      { title:"🔗 Relações", content:"<ul><li><strong>Tristan:</strong> Ex-aluno, figura paterna distorcida</li><li><strong>Bruce:</strong> Relação complexa</li><li><strong>Tim Drake:</strong> Irmão adotivo</li></ul>" }
+      { title:"📖 História", content:"<p>Segundo Robin, morto pelo Coringa em 2019 aos 15 anos. Ressuscitado em 2021 pela Pérola de Lázaro (artefato obtido por Talia al-Ghul). Tornou-se o anti-herói Capuz Vermelho.</p><p>Em 2022, aceitou treinar Tristan Queen em Gotham — o que o marcou profundamente. Em 2026, foi escolhido para liderar a nova geração dos Novos Titãs, ao lado de Fairplay, Cheshire Cat, Flatline, Proxy e Wildcard.</p>" },
+      { title:"🎯 Personalidade", content:"<p>Cínico, duro e protetor à sua maneira. Ensina os alunos a serem frios, mas leais. Carrega pesadelos com a própria morte (2019) — nunca admitiu isso a ninguém. Pretende deixar Gotham quando Tristan estiver pronto.</p>" },
+      { title:"⚔️ Habilidades", content:"<ul><li>Combate corpo a corpo letal</li><li>Pistolas e explosivos</li><li>Táticas militares</li><li>Treinamento de Batman e da Liga dos Assassinos</li></ul>" },
+      { title:"🔗 Relações", content:"<ul><li><strong>Tristan Queen:</strong> Ex-aluno. Figura paterna distorcida — o ensinou a ser frio, mas leal</li><li><strong>Bruce Wayne:</strong> Relação complexa. Distante desde a ressurreição</li><li><strong>Tim Drake:</strong> Irmão adotivo. Um dos únicos que ele ainda respeita</li><li><strong>Novos Titãs:</strong> Líder relutante, mas eficaz</li></ul>" }
     ],
     secrets: [
       "Nunca contou a Tristan que a Pérola de Lázaro foi obtida por Talia al-Ghul.",
-      "Ainda tem pesadelos com a morte de 2019.",
-      "Pretende deixar Gotham permanentemente quando Tristan estiver pronto."
+      "Ainda tem pesadelos com a morte de 2019 — mas nunca admitiu isso a ninguém.",
+      "Pretende deixar Gotham permanentemente quando Tristan estiver pronto para se defender sozinho."
     ]
   },
   "Conner Kent": {
     eyebrow: "🦸 Superboy · Clone de Superman e Lex Luthor",
     sections: [
-      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> Conner Kent (Kon-El)<br><strong>Codinome:</strong> Superboy<br><strong>Idade:</strong> ~29 anos<br><strong>Origem:</strong> Clone híbrido de Superman e Lex Luthor<br><strong>Papel:</strong> Figura paterna de M'ark</p>" },
-      { title:"📖 História", content:"<p>Criado em laboratório. Conheceu M'gann nos Jovens Titãs. Em 2019, M'gann terminou com ele sem explicação. Em 2021, investigou o término e descobriu M'ark. Reataram e assumiu papel de figura paterna.</p>" },
-      { title:"🔗 Relações", content:"<ul><li><strong>M'gann:</strong> Namorada</li><li><strong>M'ark:</strong> Filho adotivo de fato</li><li><strong>Superman:</strong> Doador genético</li><li><strong>Lex Luthor:</strong> Doador genético (odeia)</li></ul>" }
+      { title:"📋 Ficha Básica", content:"<p><strong>Nome:</strong> Conner Kent (Kon-El)<br><strong>Codinome:</strong> Superboy<br><strong>Idade:</strong> ~29 anos (clone)<br><strong>Origem:</strong> Clone híbrido de Superman e Lex Luthor<br><strong>Papel:</strong> Figura paterna de M'ark. Namorado de M'gann (reataram em 2021)</p>" },
+      { title:"📖 História", content:"<p>Criado em laboratório como clone híbrido de Superman e Lex Luthor. Passou anos lutando contra a ideia de que poderia se tornar um vilão — como seu \"doador\" Luthor.</p><p>Conheceu M'gann nos Jovens Titãs por volta de 2010-2012. Em 2019, M'gann terminou com ele sem explicação. Em 2021, Conner investigou o término e descobriu M'ark — e toda a verdade sobre Armek. Reataram e assumiu papel de figura paterna para o garoto.</p>" },
+      { title:"🎯 Personalidade", content:"<p>Protetor, leal e caloroso. Carrega a insegurança de ser um clone de Luthor — e teme, em silêncio, que M'ark possa herdar a crueldade de Armek. Considera pedir para ser chamado de \"pai\", mas tem medo da resposta.</p>" },
+      { title:"⚔️ Habilidades", content:"<ul><li>Superforça e durabilidade kryptonianas</li><li>Voo e super-velocidade</li><li>Visão de calor e visão raio-X</li><li>Fator de cura acelerado</li></ul>" },
+      { title:"🔗 Relações", content:"<ul><li><strong>M'gann M'orzz:</strong> Namorada. Relação baseada em confiança total após 2021</li><li><strong>M'ark:</strong> Filho adotivo de fato. O ensinou a controlar os poderes</li><li><strong>Superman:</strong> \"Doador\" genético. Relação cordial, mas distante</li><li><strong>Lex Luthor:</strong> \"Doador\" genético. Odeia e teme se tornar como ele</li></ul>" }
     ],
     secrets: [
       "Ainda teme, em silêncio, que M'ark possa herdar a crueldade de Armek.",
       "Nunca contou a M'gann sobre os pesadelos com Lex Luthor.",
-      "Considera pedir a M'ark para chamá-lo de \"pai\"."
+      "Considera pedir a M'ark para chamá-lo de \"pai\" — mas tem medo da resposta."
     ]
   }
 };
