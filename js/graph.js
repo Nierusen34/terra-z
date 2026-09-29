@@ -19,6 +19,25 @@ if(!window.TerraZData || !window.TerraZData.defaultGraph){
 }
 
 var graphData = null;
+var graphRelationFilter = 'all';
+var graphCharacterMap = {
+  oliver:'Oliver Queen',
+  dinah:'Dinah Lance',
+  tristan:'Tristan Queen',
+  connor:'Connor Hawke',
+  bruce:'Bruce Wayne',
+  damian:'Damian Wayne',
+  jason:'Jason Todd',
+  dick:'Dick Grayson',
+  tim:'Tim Drake',
+  mgann:"M'gann M'orzz",
+  conner2:'Conner Kent',
+  mark:"M'ark",
+  jonn:"J'onn J'onzz",
+  lobo:'Lobo',
+  riot:'Riot',
+  kendra:'Kendra Saunders'
+};
 function loadGraph(){
   try { var saved = localStorage.getItem(GRAPH_KEY); if(saved) return JSON.parse(saved); } catch(e){ console.error(e); }
   return JSON.parse(JSON.stringify(defaultGraph));
@@ -159,6 +178,16 @@ function restoreGraphFromBackup(){
   } catch(e){ showToast('Erro ao restaurar backup', 'error'); }
 }
 
+function setupGraphFilters(){
+  var select = document.getElementById('graphRelationFilter');
+  if(!select) return;
+  select.value = graphRelationFilter;
+  select.addEventListener('change', function(){
+    graphRelationFilter = select.value || 'all';
+    renderGraph();
+  });
+}
+
 function setupGraphEditorEvents(){
   var staticActions = {
     graphOpenBtn: openGraphEditor,
@@ -227,6 +256,7 @@ function setupGraphEditorEvents(){
 try {
   graphData = loadGraph();
   renderGraph();
+  setupGraphFilters();
   setupGraphEditorEvents();
 } catch(e){
   console.error('Terra Z graph:', e);
