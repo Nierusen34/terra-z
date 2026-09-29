@@ -276,7 +276,7 @@ document.querySelectorAll('.sidebar-item').forEach(function(item){
     syncGlobalSidebar(parent.id, t);
     closeDrawer();
     window.scrollTo({top:0, behavior:'smooth'});
-    if(t === 'sub-tz-relacoes' && graphData) renderGraph();
+    if(t === 'sub-tz-relacoes' && window.TerraZApp && window.TerraZApp.graph) window.TerraZApp.graph.render();
   });
 });
 
@@ -498,7 +498,8 @@ function attachFichaHandlers(){
 document.addEventListener('keydown', function(e){
   if((e.ctrlKey || e.metaKey) && e.key === 's'){
     e.preventDefault();
-    if(editMode) saveEdits();
+    var editor = window.TerraZApp && window.TerraZApp.editor;
+    if(editor && editor.isEditing()) editor.save();
     else showToast('Ative o modo de edição primeiro (✏️)', 'warning');
   }
   if(e.altKey && e.key === 'ArrowLeft'){
