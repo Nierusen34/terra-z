@@ -151,10 +151,72 @@ function renderTimelineData(){
   root.innerHTML = html;
 }
 
+function renderExternalCitiesData(){
+  var body = document.getElementById('externalCitiesBody');
+  if(!body || body.children.length > 0) return;
+
+  var cities = window.TerraZData && window.TerraZData.externalCities;
+  if(!Array.isArray(cities)){
+    console.error('Terra Z: data/cities.js não foi carregado.');
+    return;
+  }
+
+  var html = '';
+  cities.forEach(function(city){
+    html += '<tr>';
+    html += '<td' + editAttrs(city.edit.city) + '>' + escapeHtml(city.city) + '</td>';
+    html += '<td' + editAttrs(city.edit.flightKm) + '>' + escapeHtml(city.flightKm) + '</td>';
+    html += '<td' + editAttrs(city.edit.flightTime) + '>' + escapeHtml(city.flightTime) + '</td>';
+    html += '<td' + editAttrs(city.edit.driveKm) + '>' + escapeHtml(city.driveKm) + '</td>';
+    html += '<td' + editAttrs(city.edit.driveTime) + '>' + escapeHtml(city.driveTime) + '</td>';
+    html += '</tr>';
+  });
+  body.innerHTML = html;
+}
+
+function renderTeamsData(){
+  var teamsBody = document.getElementById('teamsBody');
+  var leagueBody = document.getElementById('justiceLeagueBody');
+  var data = window.TerraZData && window.TerraZData.teams;
+
+  if(!data || !Array.isArray(data.teams) || !Array.isArray(data.justiceLeagueMembers)){
+    console.error('Terra Z: data/teams.js não foi carregado.');
+    return;
+  }
+
+  if(teamsBody && teamsBody.children.length === 0){
+    var teamsHtml = '';
+    data.teams.forEach(function(team){
+      teamsHtml += '<tr>';
+      teamsHtml += '<td' + editAttrs(team.edit.name) + '>' + escapeHtml(team.name) + '</td>';
+      teamsHtml += '<td' + editAttrs(team.edit.year) + '>' + escapeHtml(team.year) + '</td>';
+      teamsHtml += '<td' + editAttrs(team.edit.leader) + '>' + escapeHtml(team.leader) + '</td>';
+      teamsHtml += '<td' + editAttrs(team.edit.members) + '>' + escapeHtml(team.members) + '</td>';
+      teamsHtml += '</tr>';
+    });
+    teamsBody.innerHTML = teamsHtml;
+  }
+
+  if(leagueBody && leagueBody.children.length === 0){
+    var leagueHtml = '';
+    data.justiceLeagueMembers.forEach(function(member){
+      leagueHtml += '<tr>';
+      leagueHtml += '<td' + editAttrs(member.edit.character) + '>' + escapeHtml(member.character) + '</td>';
+      leagueHtml += '<td' + editAttrs(member.edit.codename) + '>' + escapeHtml(member.codename) + '</td>';
+      leagueHtml += '<td' + editAttrs(member.edit.born) + '>' + escapeHtml(member.born) + '</td>';
+      leagueHtml += '<td' + editAttrs(member.edit.age2027) + '>' + escapeHtml(member.age2027) + '</td>';
+      leagueHtml += '</tr>';
+    });
+    leagueBody.innerHTML = leagueHtml;
+  }
+}
+
 function renderCanonicalData(){
   renderDistrictData();
   renderAnnualEventsData();
   renderTimelineData();
+  renderExternalCitiesData();
+  renderTeamsData();
 }
 
 // Scripts são carregados com defer; neste ponto o HTML já foi analisado.
