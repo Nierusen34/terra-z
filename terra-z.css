@@ -618,3 +618,12 @@ button.session-chip:hover{border-color:var(--accent);color:var(--accent)}
 
 /* Hotspots do mapa: textos não bloqueiam clique nas áreas de distrito */
 #sub-mapa-detalhado svg text{pointer-events:none}
+
+
+/* ===== AUTENTICAÇÃO DO EDITOR ===== */
+.publish-auth{margin:0 0 14px;padding:12px;background:var(--paper3);border:1px solid var(--line2)}
+.publish-login-row{display:flex;gap:8px;align-items:center}
+.publish-login-row .publish-message{margin:0;flex:1}
+.publish-login-row button,#publishLoggedIn button{white-space:nowrap;padding:9px 12px;cursor:pointer}
+#publishLoggedIn{display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--ink2)}
+#publishLoggedIn[hidden],#publishLoggedOut[hidden]{display:none!important}
