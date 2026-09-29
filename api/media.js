@@ -3,7 +3,7 @@ import { requireEditor } from "./_lib/auth.js";
 import { getHead, readTextFile, commitFiles } from "./_lib/github.js";
 import { parseDataAssignment, renderCharacterMedia } from "./_lib/data-files.js";
 
-const MAX_BYTES = 3 * 1024 * 1024;
+const MAX_BYTES = 2 * 1024 * 1024;
 const EXTENSIONS = {
   "image/png":"png",
   "image/jpeg":"jpg",
@@ -57,7 +57,7 @@ export default async function handler(req,res){
 
     const buffer = Buffer.from(encoded,"base64");
     if(!buffer.length || buffer.length > MAX_BYTES){
-      return res.status(413).json({error:"image_too_large",message:"A imagem deve ter no máximo 3 MB."});
+      return res.status(413).json({error:"image_too_large",message:"A imagem deve ter no máximo 2 MB."});
     }
     if(!validMagic(buffer,mime)){
       return res.status(400).json({error:"invalid_image",message:"O conteúdo do arquivo não corresponde ao formato informado."});
