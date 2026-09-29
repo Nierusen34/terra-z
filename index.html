@@ -528,6 +528,16 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2
 </table>
 </div>
 
+<div class="sub-content" id="sub-tz-sessoes">
+<div class="section-title">📓 Diário da Campanha</div>
+<div class="info-box"><div class="label">🗂️ Histórico vivo</div>Registro estruturado de sessões reais, acontecimentos, personagens envolvidos, locais e consequências. Nenhum evento é criado automaticamente.</div>
+<div class="campaign-tools">
+  <input id="campaignSearch" type="search" placeholder="🔎 Buscar no diário..." autocomplete="off">
+  <span id="campaignCount"></span>
+</div>
+<div id="campaignJournal"></div>
+</div>
+
 <div class="sub-content" id="sub-tz-relacoes">
 <div class="section-title">🔗 Grafo de Relacionamentos</div>
 <div data-edit-id="tz-0596" data-legacy-edit-id="e_595" class="info-box gold"><div class="label">📌 Como ler</div>Cada cor representa um tipo de vínculo. Use o botão <strong>✏️ Editar Grafo</strong> abaixo para alterar nomes, posições, cores e conexões. Tudo é salvo automaticamente.</div>
@@ -658,6 +668,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="data/timeline.js" defer></script>
 <script src="data/cities.js" defer></script>
 <script src="data/teams.js" defer></script>
+<script src="data/sessions.js" defer></script>
 <script src="data/content-overrides.js" defer></script>
 <script src="terra-z.js" defer></script>
 <script src="js/data-renderer.js" defer></script>
@@ -672,6 +683,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="js/presentation.js" defer></script>
 <script src="js/graph.js" defer></script>
 <script src="js/character-filters.js" defer></script>
+<script src="js/campaign.js" defer></script>
 <script src="js/router.js" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
