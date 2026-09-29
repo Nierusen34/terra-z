@@ -23,7 +23,9 @@ function openFichaModal(characterName){
   var portrait = (window.TerraZApp.characterMedia)
     ? window.TerraZApp.characterMedia.renderPortraitHtml(characterName, 'large')
     : '';
-  header.innerHTML = portrait + '<div class="fh-info"><div class="fh-eyebrow">' + escapeHtml(ficha.eyebrow) + '</div><h2>' + escapeHtml(characterName) + '</h2></div><div class="fh-actions"><button class="fh-link" id="fichaCopyLinkBtn" title="Copiar link direto">🔗</button><button class="fh-close" id="fichaCloseBtn">✕</button></div>';
+  var canUploadPortrait = window.TerraZApp.mediaManager && window.TerraZApp.mediaManager.canUpload();
+  var uploadBtn = canUploadPortrait ? '<button class="fh-link" id="fichaUploadPortraitBtn" title="Atualizar retrato">🖼️</button>' : '';
+  header.innerHTML = portrait + '<div class="fh-info"><div class="fh-eyebrow">' + escapeHtml(ficha.eyebrow) + '</div><h2>' + escapeHtml(characterName) + '</h2></div><div class="fh-actions">' + uploadBtn + '<button class="fh-link" id="fichaCopyLinkBtn" title="Copiar link direto">🔗</button><button class="fh-close" id="fichaCloseBtn">✕</button></div>';
   var bodyHtml = '';
   ficha.sections.forEach(function(sec){
     bodyHtml += '<div class="ficha-section"><h3>' + sec.title + '</h3>' + sec.content + '</div>';
@@ -40,6 +42,10 @@ function openFichaModal(characterName){
   if(window.TerraZApp.characterMedia) window.TerraZApp.characterMedia.hydrate(header);
   if(window.TerraZApp.visibility) window.TerraZApp.visibility.apply();
   document.getElementById('fichaCloseBtn').addEventListener('click', closeFichaModal);
+  var uploadPortraitBtn = document.getElementById('fichaUploadPortraitBtn');
+  if(uploadPortraitBtn) uploadPortraitBtn.addEventListener('click', function(){
+    if(window.TerraZApp.mediaManager) window.TerraZApp.mediaManager.choose(characterName);
+  });
   var copyBtn = document.getElementById('fichaCopyLinkBtn');
   if(copyBtn) copyBtn.addEventListener('click', function(){
     if(window.TerraZApp.router) window.TerraZApp.router.copyCurrentLink();
