@@ -32,7 +32,7 @@ async function upload(character,file){
 
   if(!file) throw new Error('Selecione uma imagem.');
   if(!['image/png','image/jpeg','image/webp'].includes(file.type)) throw new Error('Use PNG, JPEG ou WebP.');
-  if(file.size > 3 * 1024 * 1024) throw new Error('A imagem deve ter no máximo 3 MB.');
+  if(file.size > 2 * 1024 * 1024) throw new Error('A imagem deve ter no máximo 2 MB.');
 
   var dataUrl = await readDataUrl(file);
   var result = await b.request('/api/media',{
