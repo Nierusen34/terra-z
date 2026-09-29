@@ -43,6 +43,7 @@ function findCharacterBySlug(slug){
 function applyHash(){
   var params = parseHash();
   var characterSlug = params.get('personagem');
+  var district = params.get('distrito');
   var tab = params.get('secao');
   var sub = params.get('sub');
 
@@ -52,6 +53,14 @@ function applyHash(){
     if(name && window.TerraZApp.characters){
       setTimeout(function(){ window.TerraZApp.characters.open(name, {fromRouter:true}); }, 0);
     }
+    return;
+  }
+
+  if(district){
+    navigate('tab-city', 'sub-distritos');
+    setTimeout(function(){
+      if(window.TerraZApp.mapExplorer) window.TerraZApp.mapExplorer.focus(district);
+    }, 0);
     return;
   }
 
@@ -80,6 +89,19 @@ function clearCharacter(){
   if(!params.get('secao')) params.set('secao', 'tab-terraz');
   if(!params.get('sub')) params.set('sub', 'sub-tz-personagens');
   writeHash(params, false);
+}
+
+function setDistrict(id){
+  var params = parseHash();
+  params.delete('personagem');
+  params.set('secao', 'tab-city');
+  params.set('sub', 'sub-distritos');
+  params.set('distrito', id);
+  writeHash(params, false);
+  navigate('tab-city', 'sub-distritos');
+  setTimeout(function(){
+    if(window.TerraZApp.mapExplorer) window.TerraZApp.mapExplorer.focus(id);
+  }, 0);
 }
 
 async function copyCurrentLink(){
@@ -118,6 +140,7 @@ window.TerraZApp.router = {
   setSection: setSection,
   setCharacter: setCharacter,
   clearCharacter: clearCharacter,
+  setDistrict: setDistrict,
   copyCurrentLink: copyCurrentLink
 };
 
