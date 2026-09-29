@@ -602,3 +602,15 @@ body.reading-mode .photo img{cursor:default}
 button.session-chip{cursor:pointer}
 button.session-chip:hover{border-color:var(--accent);color:var(--accent)}
 .session-block ul{margin-left:18px;color:var(--ink2);font-size:12px}
+
+
+/* ===== GRAFO E MAPA INTERATIVOS ===== */
+.graph-filter-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--ink3);margin-left:auto}
+#graphRelationFilter{background:var(--paper2);border:1px solid var(--line);color:var(--ink);padding:7px 9px;font-size:11px}
+.graph-node-clickable{cursor:pointer}
+.graph-node-clickable circle,.graph-node-clickable text{transition:opacity .2s,filter .2s}
+.graph-node-clickable:hover circle{filter:url(#glowNode) brightness(1.2)}
+.graph-node-clickable:hover text{text-decoration:underline}
+[data-map-district]{cursor:pointer;transition:opacity .2s,filter .2s}
+[data-map-district]:hover{opacity:.82;filter:brightness(1.25)}
+.district-focus{outline:2px solid var(--accent);outline-offset:4px;box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent)}
