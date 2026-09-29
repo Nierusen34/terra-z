@@ -1,4 +1,737 @@
+(function(){
+"use strict";
 
+/* ===== CONFIGURAÇÃO DOS JORNAIS ===== */
+var paperConfig = {
+  "farol":{title:'O Farol de <span class="city">Vanguard</span>',subtitle:'"A verdade ilumina a Cidade Dourada"',section:'Dossiê Completo Universo',footer:'O FAROL DE VANGUARD · Dossiê Especial · v1.3.2 · Jan 2027'},
+  "vbn":{title:'VBN · Vanguard <span class="city">Broadcasting</span>',subtitle:'🔴 AO VIVO · Informação em Tempo Real',section:'VBN Mapas · Transmissão Contínua',footer:'VBN – VANGUARD BROADCASTING NETWORK · Dossiê Especial · Jan 2027'},
+  "cais":{title:'O Diário do <span class="city">Cais</span>',subtitle:'"O jornal do povo trabalhador"',section:'Caderno Cotidiano · Transporte & Serviço',footer:'O DIÁRIO DO CAIS · Caderno de Serviço · v1.3.2 · Jan 2027'},
+  "sentinela":{title:'A Sentinela <span class="city">Dourada</span>',subtitle:'🔥 Nada escapa do nosso radar',section:'🔥 EXCLUSIVO · O que ninguém quer que você saiba',footer:'A SENTINELA DOURADA · Edição Especial · v1.3.2 · Jan 2027'}
+};
+
+function applyPaper(k){
+  if(!paperConfig[k]) return;
+  document.documentElement.setAttribute('data-paper', k);
+  var c = paperConfig[k];
+  var mt = document.getElementById('mastTitle');
+  var ms = document.getElementById('mastSubtitle');
+  var msec = document.getElementById('mastSection');
+  var ft = document.getElementById('footerText');
+  if(mt) mt.innerHTML = c.title;
+  if(ms) ms.textContent = c.subtitle;
+  if(msec) msec.textContent = c.section;
+  if(ft) ft.textContent = c.footer;
+}
+
+function showToast(msg, type, duration){
+  type = type || 'info';
+  duration = duration || 3000;
+  var container = document.getElementById('toastContainer');
+  if(!container) return;
+  var icons = { success:'✅', error:'❌', info:'ℹ️', warning:'⚠️' };
+  var toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.innerHTML = '<span class="icon">' + (icons[type]||'ℹ️') + '</span><span class="msg">' + escapeHtml(msg) + '</span>';
+  container.appendChild(toast);
+  setTimeout(function(){
+    toast.classList.add('leaving');
+    setTimeout(function(){ if(toast.parentElement) toast.remove(); }, 300);
+  }, duration);
+}
+
+function showConfirm(title, msg, onConfirm, confirmLabel){
+  var modal = document.getElementById('confirmModal');
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmOk').textContent = confirmLabel || 'Confirmar';
+  modal.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  var okBtn = document.getElementById('confirmOk');
+  var cancelBtn = document.getElementById('confirmCancel');
+  function cleanup(){
+    modal.classList.remove('show');
+    document.body.style.overflow = '';
+    okBtn.removeEventListener('click', onOk);
+    cancelBtn.removeEventListener('click', onCancel);
+  }
+  function onOk(){ cleanup(); if(onConfirm) onConfirm(); }
+  function onCancel(){ cleanup(); }
+  okBtn.addEventListener('click', onOk);
+  cancelBtn.addEventListener('click', onCancel);
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+function escapeAttr(s){ return String(s).replace(/"/g, '&quot;'); }
+function escapeRegex(s){ return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+var readingMode = false;
+function toggleReadingMode(){
+  readingMode = !readingMode;
+  document.body.classList.toggle('reading-mode', readingMode);
+  localStorage.setItem('terraZ_reading', readingMode ? '1' : '0');
+  if(readingMode) showToast('Modo Leitura ativado — pressione ESC para sair', 'info', 3500);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function toggleChangelog(){
+  var el = document.getElementById('changelogContent');
+  if(el) el.classList.toggle('open');
+}
+
+document.querySelectorAll('.tab-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var t = btn.getAttribute('data-tab');
+    var p = btn.getAttribute('data-paper') || 'farol';
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.tab-content').forEach(function(c){ c.classList.remove('active'); });
+    btn.classList.add('active');
+    var el = document.getElementById(t); if(el) el.classList.add('active');
+    applyPaper(p);
+    syncGlobalSidebar(t, null);
+    closeDrawer();
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+
+document.querySelectorAll('.sidebar-item').forEach(function(item){
+  item.addEventListener('click', function(){
+    var parent = item.closest('.tab-content'); if(!parent) return;
+    var t = item.getAttribute('data-sub');
+    parent.querySelectorAll('.sidebar-item').forEach(function(i){ i.classList.remove('active'); });
+    parent.querySelectorAll('.sub-content').forEach(function(c){ c.classList.remove('active'); });
+    item.classList.add('active');
+    var el = document.getElementById(t); if(el) el.classList.add('active');
+    var crumb = parent.querySelector('.breadcrumbs .current');
+    if(crumb) crumb.textContent = item.textContent.replace(/[^\w\sÀ-ÿ]/g,'').trim();
+    syncGlobalSidebar(parent.id, t);
+    closeDrawer();
+    window.scrollTo({top:0, behavior:'smooth'});
+    if(t === 'sub-tz-relacoes' && graphData) renderGraph();
+  });
+});
+
+var globalStructure = [
+  { id:'tab-home', icon:'📰', label:'Capa', subs:[] },
+  { id:'tab-city', icon:'🏛️', label:'Cidade', subs:[
+    {id:'sub-visao', label:'Visão Geral'},{id:'sub-distritos', label:'Distritos'},
+    {id:'sub-historia', label:'História'},{id:'sub-cultura', label:'Cultura'},{id:'sub-eventos', label:'Eventos'}
+  ]},
+  { id:'tab-maps', icon:'🗺️', label:'Mapas', subs:[
+    {id:'sub-mapa-detalhado', label:'Mapa'},{id:'sub-mapa-criminal', label:'Criminalidade'},{id:'sub-mapa-transporte', label:'Transporte'}
+  ]},
+  { id:'tab-transport', icon:'🚋', label:'Transporte', subs:[
+    {id:'sub-dist-internas', label:'Internas'},{id:'sub-cidades-externas', label:'Externas'},{id:'sub-sistema-transporte', label:'Sistema'}
+  ]},
+  { id:'tab-terraz', icon:'🌌', label:'Universo', subs:[
+    {id:'sub-universo-visao', label:'Visão Geral'},{id:'sub-tz-personagens', label:'Personagens'},
+    {id:'sub-tz-timeline', label:'Linha do Tempo'},{id:'sub-tz-equipes', label:'Equipes'},{id:'sub-tz-relacoes', label:'Relações'}
+  ]}
+];
+
+function buildGlobalSidebar(){
+  var sidebar = document.getElementById('globalSidebar');
+  if(!sidebar) return;
+  var html = '<div class="gs-title">📑 Índice</div>';
+  globalStructure.forEach(function(group){
+    html += '<div class="gs-group" data-group="' + group.id + '">';
+    html += '<button class="gs-group-btn" data-tab="' + group.id + '"><span style="margin-right:6px">' + group.icon + '</span>' + group.label + '</button>';
+    if(group.subs.length > 0){
+      html += '<div class="gs-sub">';
+      group.subs.forEach(function(sub){
+        html += '<button class="gs-sub-btn" data-tab="' + group.id + '" data-sub="' + sub.id + '">' + sub.label + '</button>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+  html += '<div class="gs-footer">Universo Terra Z · v1.3.2<br>Jan 2027</div>';
+  sidebar.innerHTML = html;
+  sidebar.querySelectorAll('.gs-group-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var tab = btn.getAttribute('data-tab');
+      var tabBtn = document.querySelector('.tab-btn[data-tab="' + tab + '"]');
+      if(tabBtn) tabBtn.click();
+    });
+  });
+  sidebar.querySelectorAll('.gs-sub-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var tab = btn.getAttribute('data-tab');
+      var sub = btn.getAttribute('data-sub');
+      var tabBtn = document.querySelector('.tab-btn[data-tab="' + tab + '"]');
+      if(tabBtn) tabBtn.click();
+      setTimeout(function(){
+        var subBtn = document.querySelector('.sidebar-item[data-sub="' + sub + '"]');
+        if(subBtn) subBtn.click();
+      }, 120);
+    });
+  });
+}
+
+function syncGlobalSidebar(activeTab, activeSub){
+  var sidebar = document.getElementById('globalSidebar');
+  if(!sidebar) return;
+  sidebar.querySelectorAll('.gs-group-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-tab') === activeTab); });
+  sidebar.querySelectorAll('.gs-group').forEach(function(g){ g.classList.toggle('expanded', g.getAttribute('data-group') === activeTab); });
+  sidebar.querySelectorAll('.gs-sub-btn').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-sub') === activeSub && b.getAttribute('data-tab') === activeTab);
+  });
+}
+
+var sidebarToggle = document.getElementById('sidebarToggle');
+if(sidebarToggle){
+  sidebarToggle.addEventListener('click', function(){
+    var sb = document.getElementById('globalSidebar');
+    sb.classList.toggle('collapsed');
+    document.body.classList.toggle('sidebar-collapsed');
+    sidebarToggle.textContent = sb.classList.contains('collapsed') ? '📑' : '◀';
+  });
+}
+
+var menuBtn = document.getElementById('menuBtn');
+var overlay = document.getElementById('drawerOverlay');
+function openDrawer(){
+  var activeTab = document.querySelector('.tab-content.active');
+  if(!activeTab) return;
+  var sidebar = activeTab.querySelector('.sidebar');
+  if(!sidebar) return;
+  sidebar.classList.add('open');
+  if(overlay) overlay.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeDrawer(){
+  document.querySelectorAll('.sidebar.open').forEach(function(s){ s.classList.remove('open'); });
+  if(overlay) overlay.classList.remove('show');
+  document.body.style.overflow = '';
+}
+if(menuBtn) menuBtn.addEventListener('click', openDrawer);
+if(overlay) overlay.addEventListener('click', closeDrawer);
+
+var themeBtn = document.getElementById('themeToggle');
+if(themeBtn){
+  themeBtn.addEventListener('click', function(){
+    var root = document.documentElement;
+    var next = (root.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    themeBtn.textContent = (next === 'dark') ? '☀️ Modo Claro' : '🌙 Modo Escuro';
+    localStorage.setItem('terraZ_theme', next);
+  });
+  var savedTheme = localStorage.getItem('terraZ_theme');
+  if(savedTheme){
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeBtn.textContent = (savedTheme === 'dark') ? '☀️ Modo Claro' : '🌙 Modo Escuro';
+  }
+}
+
+var bt = document.getElementById('backTop');
+if(bt){
+  window.addEventListener('scroll', function(){
+    if(window.pageYOffset > 300) bt.classList.add('show');
+    else bt.classList.remove('show');
+  }, {passive:true});
+  bt.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+}
+
+document.querySelectorAll('.photo img').forEach(function(img){
+  img.addEventListener('click', function(){
+    document.getElementById('lightboxImg').src = img.src;
+    document.getElementById('lightbox').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  });
+});
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+/* ===== BUSCA ===== */
+var searchInput = document.getElementById('searchInput');
+var searchDebounce = null;
+var fandomCache = {};
+var fandomHistory = [];
+var currentFandomTitle = null;
+var searchMode = 'local';
+
+if(searchInput){
+  searchInput.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ e.preventDefault(); executeSearch(); }
+  });
+  searchInput.addEventListener('input', function(){
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(executeSearch, 450);
+  });
+}
+
+function switchSearchMode(mode){
+  searchMode = mode;
+  document.querySelectorAll('.search-tab').forEach(function(t){
+    t.classList.toggle('active', t.getAttribute('data-mode') === mode);
+  });
+  var q = searchInput ? searchInput.value.trim() : '';
+  if(q.length >= 2) executeSearch();
+  else document.getElementById('searchPanel').classList.remove('show');
+}
+
+function executeSearch(){
+  var query = searchInput.value.trim();
+  if(query.length < 2){
+    document.getElementById('searchPanel').classList.remove('show');
+    clearLocalHighlights();
+    return;
+  }
+  document.getElementById('searchPanel').classList.add('show');
+  if(searchMode === 'local') searchLocalDocument(query);
+  else {
+    document.getElementById('searchInfo').textContent = 'Buscando por "' + query + '"...';
+    document.getElementById('searchResults').innerHTML = '<div class="search-loading">Consultando DC Wiki...</div>';
+    searchFandom(query);
+  }
+}
+
+function clearLocalHighlights(){
+  document.querySelectorAll('mark.search-hit').forEach(function(m){
+    var parent = m.parentNode;
+    parent.replaceChild(document.createTextNode(m.textContent), m);
+    parent.normalize();
+  });
+}
+
+function searchLocalDocument(query){
+  clearLocalHighlights();
+  var skipSelectors = '#globalSidebar, #searchPanel, .masthead, .topbar, .tabs-nav, .page-footer, .sidebar, .breadcrumbs, #fandomModal, #fichaModal, #confirmModal, #lightbox, #presentationModal, #favoritesPanel, #graphEditorModal, .changelog, #toastContainer';
+  var regex = new RegExp(escapeRegex(query), 'gi');
+  var walker = document.createTreeWalker(document.querySelector('.container'), NodeFilter.SHOW_TEXT, {
+    acceptNode: function(node){
+      if(!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var parent = node.parentElement;
+      while(parent && parent !== document.body){
+        if(parent.matches && parent.matches(skipSelectors)) return NodeFilter.FILTER_REJECT;
+        parent = parent.parentElement;
+      }
+      if(node.parentElement && node.parentElement.isContentEditable) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  var textNodes = [];
+  while(walker.nextNode()) textNodes.push(walker.currentNode);
+  var totalMatches = 0;
+  textNodes.forEach(function(node){
+    var text = node.nodeValue;
+    regex.lastIndex = 0;
+    if(!regex.test(text)) return;
+    regex.lastIndex = 0;
+    var frag = document.createDocumentFragment();
+    var lastIndex = 0;
+    var match;
+    while((match = regex.exec(text)) !== null){
+      if(match.index > lastIndex) frag.appendChild(document.createTextNode(text.substring(lastIndex, match.index)));
+      var mark = document.createElement('mark');
+      mark.className = 'search-hit';
+      mark.textContent = match[0];
+      frag.appendChild(mark);
+      lastIndex = regex.lastIndex;
+      totalMatches++;
+      if(regex.lastIndex === match.index) regex.lastIndex++;
+    }
+    if(lastIndex < text.length) frag.appendChild(document.createTextNode(text.substring(lastIndex)));
+    node.parentNode.replaceChild(frag, node);
+  });
+  document.getElementById('searchInfo').textContent = totalMatches + ' ocorrência(s) de "' + query + '"';
+  var results = document.getElementById('searchResults');
+  var highlights = document.querySelectorAll('mark.search-hit');
+  if(highlights.length === 0){
+    results.innerHTML = '<div class="search-empty">Nenhuma ocorrência encontrada no documento.</div>';
+    return;
+  }
+  var grouped = {};
+  highlights.forEach(function(h, idx){
+    var tab = h.closest('.tab-content');
+    var sub = h.closest('.sub-content');
+    var tabBtn = tab ? tab.querySelector('.tab-btn.active') : null;
+    var tabName = tabBtn ? tabBtn.textContent.replace(/[^\w\sÀ-ÿ]/g,'').trim() : 'Documento';
+    var subBtn = sub ? sub.parentElement.querySelector('.sidebar-item.active') : null;
+    var subName = subBtn ? subBtn.textContent.replace(/[^\w\sÀ-ÿ]/g,'').trim() : '';
+    var key = tabName + '|' + subName;
+    if(!grouped[key]) grouped[key] = { tabName: tabName, subName: subName, count: 0, firstIdx: idx };
+    grouped[key].count++;
+  });
+  var html = '';
+  Object.keys(grouped).forEach(function(key){
+    var g = grouped[key];
+    var label = g.tabName + (g.subName ? ' › ' + g.subName : '');
+    html += '<div class="search-result-item"><div class="r-info"><span class="r-title" data-jump="' + g.firstIdx + '">' + escapeHtml(label) + '</span><div class="r-snippet">' + g.count + ' ocorrência(s) nesta seção</div></div><div class="r-actions"><button class="primary" data-jump="' + g.firstIdx + '">→ Ir</button></div></div>';
+  });
+  results.innerHTML = html;
+  results.querySelectorAll('[data-jump]').forEach(function(el){
+    el.addEventListener('click', function(){
+      var idx = parseInt(el.getAttribute('data-jump'), 10);
+      var hs = document.querySelectorAll('mark.search-hit');
+      if(!hs[idx]) return;
+      var target = hs[idx];
+      var tab = target.closest('.tab-content');
+      if(tab){
+        var tabBtn = document.querySelector('.tab-btn[data-tab="' + tab.id + '"]');
+        if(tabBtn) tabBtn.click();
+      }
+      setTimeout(function(){
+        target.scrollIntoView({behavior:'smooth', block:'center'});
+        var origBg = target.style.background;
+        target.style.transition = 'background .5s ease';
+        target.style.background = 'rgba(255,215,0,.9)';
+        setTimeout(function(){ target.style.background = origBg; }, 1200);
+      }, 150);
+    });
+  });
+}
+
+function searchFandom(query){
+  if(fandomCache[query]){ renderFandomResults(fandomCache[query], query); return; }
+  var url = 'https://dc.fandom.com/api.php?action=opensearch&search=' + encodeURIComponent(query) + '&limit=12&namespace=0&format=json&origin=*';
+  fetch(url).then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(data){
+      var result = { titles: data[1] || [], descriptions: data[2] || [], urls: data[3] || [] };
+      fandomCache[query] = result;
+      renderFandomResults(result, query);
+    })
+    .catch(function(err){
+      console.error('Erro Fandom:', err);
+      document.getElementById('searchResults').innerHTML = '<div class="search-empty">❌ Não foi possível consultar a DC Wiki.<br><small style="opacity:.7">Verifique sua conexão e tente novamente.</small></div>';
+      document.getElementById('searchInfo').textContent = 'Erro na busca';
+      showToast('Falha ao consultar DC Wiki', 'error');
+    });
+}
+
+function renderFandomResults(data, query){
+  var titles = data.titles || [];
+  var descriptions = data.descriptions || [];
+  document.getElementById('searchInfo').textContent = titles.length + ' resultado(s) para "' + query + '"';
+  if(titles.length === 0){
+    document.getElementById('searchResults').innerHTML = '<div class="search-empty">Nenhum resultado encontrado na DC Wiki.</div>';
+    return;
+  }
+  var html = '';
+  for(var i = 0; i < titles.length; i++){
+    var title = titles[i], desc = descriptions[i] || '';
+    html += '<div class="search-result-item"><div class="r-info"><a class="r-title" href="#" data-title="' + escapeAttr(title) + '">' + escapeHtml(title) + '</a>';
+    if(desc) html += '<div class="r-snippet">' + escapeHtml(desc) + '</div>';
+    html += '<div class="r-source">📚 dc.fandom.com</div></div><div class="r-actions"><button class="primary" data-title="' + escapeAttr(title) + '">📖 Ler aqui</button></div></div>';
+  }
+  document.getElementById('searchResults').innerHTML = html;
+  document.querySelectorAll('#searchResults [data-title]').forEach(function(el){
+    el.addEventListener('click', function(e){
+      e.preventDefault();
+      var title = el.getAttribute('data-title');
+      fandomHistory = []; currentFandomTitle = null;
+      openFandomModal(title);
+    });
+  });
+}
+
+function openFandomModal(title){
+  var modal = document.getElementById('fandomModal');
+  var body = document.getElementById('modalBody');
+  var modalTitle = document.getElementById('modalTitle');
+  var modalSource = document.getElementById('modalSource');
+  var externalLink = document.getElementById('modalExternal');
+  if(currentFandomTitle && currentFandomTitle !== title) fandomHistory.push(currentFandomTitle);
+  currentFandomTitle = title;
+  modalTitle.textContent = title;
+  modalSource.textContent = '📚 dc.fandom.com/wiki/' + title.replace(/ /g,'_');
+  externalLink.href = 'https://dc.fandom.com/wiki/' + encodeURIComponent(title.replace(/ /g,'_'));
+  body.innerHTML = '<div class="fandom-loading">Carregando artigo da DC Wiki...</div>';
+  modal.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  closeSearchPanel();
+  updateFandomBackButton();
+  var url = 'https://dc.fandom.com/api.php?action=parse&page=' + encodeURIComponent(title) + '&format=json&prop=text&origin=*';
+  fetch(url).then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(data){
+      if(data.error){ body.innerHTML = '<div class="fandom-error">❌ ' + escapeHtml(data.error.info || 'Artigo não encontrado.') + '</div>'; return; }
+      var html = data.parse.text['*'] || '';
+      body.innerHTML = sanitizeWikiHtml(html);
+      processWikiContent(body);
+      body.scrollTop = 0;
+    })
+    .catch(function(err){
+      console.error('Erro ao carregar artigo:', err);
+      body.innerHTML = '<div class="fandom-error">❌ Não foi possível carregar o artigo.<br><small style="opacity:.7">' + escapeHtml(err.message) + '</small><br><br><a href="' + externalLink.href + '" target="_blank" style="color:var(--accent)">Abrir na wiki original →</a></div>';
+    });
+}
+
+function goBackFandom(){
+  if(fandomHistory.length === 0) return;
+  var previousTitle = fandomHistory.pop();
+  var savedHistory = fandomHistory.slice();
+  currentFandomTitle = null;
+  openFandomModal(previousTitle);
+  fandomHistory = savedHistory;
+  updateFandomBackButton();
+}
+
+function updateFandomBackButton(){
+  var backBtn = document.getElementById('modalBackBtn');
+  if(!backBtn) return;
+  if(fandomHistory.length > 0){
+    backBtn.style.display = 'inline-block';
+    backBtn.textContent = '← Voltar (' + fandomHistory.length + ')';
+  } else backBtn.style.display = 'none';
+}
+
+function closeFandomModal(){
+  document.getElementById('fandomModal').classList.remove('show');
+  document.body.style.overflow = '';
+  setTimeout(function(){
+    if(!document.getElementById('fandomModal').classList.contains('show')){
+      fandomHistory = []; currentFandomTitle = null; updateFandomBackButton();
+    }
+  }, 100);
+}
+
+function sanitizeWikiHtml(html){
+  var temp = document.createElement('div');
+  temp.innerHTML = html;
+  temp.querySelectorAll('script, style, link, iframe, meta, .mw-editsection, .noprint, .navbox, .metadata, .toc, .reference, sup.reference, .mw-collapsible-toggle, .messagebox, .ambox, .dablink, .hatnote').forEach(function(el){ el.remove(); });
+  temp.querySelectorAll('*').forEach(function(el){
+    Array.from(el.attributes).forEach(function(attr){ if(attr.name.startsWith('on')) el.removeAttribute(attr.name); });
+  });
+  temp.querySelectorAll('a.new').forEach(function(a){ a.removeAttribute('href'); });
+  var parserOutput = temp.querySelector('.mw-parser-output');
+  return (parserOutput || temp).innerHTML;
+}
+
+function processWikiContent(root){
+  root.querySelectorAll('img').forEach(function(img){
+    var dataSrc = img.getAttribute('data-src');
+    var realSrc = dataSrc || img.getAttribute('data-image-src') || img.getAttribute('src');
+    if(!realSrc){ img.remove(); return; }
+    if(realSrc.startsWith('data:image/gif') && !dataSrc){
+      var srcset = img.getAttribute('srcset') || img.getAttribute('data-srcset');
+      if(srcset) realSrc = srcset.split(',')[0].trim().split(' ')[0];
+      else { img.remove(); return; }
+    }
+    if(realSrc.startsWith('//')) realSrc = 'https:' + realSrc;
+    else if(realSrc.startsWith('/')) realSrc = 'https://dc.fandom.com' + realSrc;
+    else if(!realSrc.match(/^https?:/)) realSrc = 'https://dc.fandom.com/wiki/' + realSrc;
+    img.setAttribute('src', realSrc);
+    ['data-src','data-srcset','srcset','loading','decoding'].forEach(function(a){ img.removeAttribute(a); });
+    img.classList.remove('lazyload','lazyloading');
+  });
+  root.querySelectorAll('a[href]').forEach(function(a){
+    var href = a.getAttribute('href');
+    if(!href) return;
+    if(href.startsWith('/wiki/')) href = 'https://dc.fandom.com' + href;
+    else if(href.startsWith('//')) href = 'https:' + href;
+    a.setAttribute('href', href);
+    a.removeAttribute('target');
+    a.removeAttribute('rel');
+  });
+}
+
+function setupModalBodyDelegation(){
+  var modalBody = document.getElementById('modalBody');
+  if(!modalBody) return;
+  modalBody.addEventListener('click', function(e){
+    var link = e.target.closest('a');
+    if(!link) return;
+    var href = link.getAttribute('href');
+    if(!href) return;
+    var isInternalWiki = /^https?:\/\/dc\.fandom\.com\/wiki\//.test(href);
+    if(isInternalWiki){
+      e.preventDefault(); e.stopPropagation();
+      var titleEncoded = href.replace(/^https?:\/\/dc\.fandom\.com\/wiki\//, '');
+      titleEncoded = titleEncoded.split('#')[0].split('?')[0];
+      var title = decodeURIComponent(titleEncoded).replace(/_/g, ' ');
+      if(title) openFandomModal(title);
+    } else if(href.match(/^https?:\/\//)){
+      e.preventDefault();
+      window.open(href, '_blank', 'noopener');
+    }
+  });
+}
+
+function closeSearchPanel(){
+  document.getElementById('searchPanel').classList.remove('show');
+  clearLocalHighlights();
+}
+
+/* ===== FAVORITOS ===== */
+var FAV_KEY = 'terraZ_favorites';
+function getFavorites(){ try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch(e){ return []; } }
+function saveFavorites(list){ try { localStorage.setItem(FAV_KEY, JSON.stringify(list)); } catch(e){ console.error(e); } }
+function isFavorite(name){ return getFavorites().indexOf(name) !== -1; }
+
+function toggleFavorite(name, event){
+  if(event){ event.stopPropagation(); event.preventDefault(); }
+  var favs = getFavorites();
+  var idx = favs.indexOf(name);
+  if(idx === -1){ favs.push(name); showToast('⭐ "' + name + '" adicionado aos favoritos', 'success', 2000); }
+  else { favs.splice(idx, 1); showToast('"' + name + '" removido dos favoritos', 'info', 2000); }
+  saveFavorites(favs);
+  updateAllCardFavorites();
+  var panel = document.getElementById('favoritesPanel');
+  if(panel && panel.classList.contains('show')) showFavoritesPanel();
+}
+
+function updateAllCardFavorites(){
+  document.querySelectorAll('.card').forEach(function(card){
+    var name = getCardName(card);
+    if(!name) return;
+    if(isFavorite(name)) card.classList.add('is-favorite');
+    else card.classList.remove('is-favorite');
+    var btn = card.querySelector('.fav-btn');
+    if(btn) btn.textContent = isFavorite(name) ? '★' : '☆';
+  });
+}
+
+function getCardName(card){
+  var h4 = card.querySelector('h4');
+  if(!h4) return null;
+  var t = h4.textContent.replace(/^[^\w]*\s*/,'').trim();
+  t = t.replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s⭐]+/u,'').trim();
+  return t;
+}
+
+function attachFavoriteButtons(){
+  document.querySelectorAll('.card').forEach(function(card){
+    var name = getCardName(card);
+    if(!name) return;
+    if(card.querySelector('.fav-btn')) return;
+    var btn = document.createElement('button');
+    btn.className = 'fav-btn';
+    btn.setAttribute('aria-label', 'Marcar como favorito');
+    btn.textContent = isFavorite(name) ? '★' : '☆';
+    btn.addEventListener('click', function(e){ toggleFavorite(name, e); });
+    card.appendChild(btn);
+  });
+  updateAllCardFavorites();
+}
+
+function showFavoritesPanel(){
+  var panel = document.getElementById('favoritesPanel');
+  var favs = getFavorites();
+  var body = panel.querySelector('.fav-body') || panel;
+  var html = '';
+  if(favs.length === 0){
+    html = '<div class="fav-empty">Nenhum favorito ainda. Clique na ☆ de qualquer card para adicionar.</div>';
+  } else {
+    favs.forEach(function(name){
+      html += '<div class="fav-item"><span class="fav-name" data-open="' + escapeAttr(name) + '">' + escapeHtml(name) + '</span><div class="fav-actions"><button data-remove="' + escapeAttr(name) + '">🗑 Remover</button></div></div>';
+    });
+  }
+  body.innerHTML = html;
+  body.querySelectorAll('[data-open]').forEach(function(el){
+    el.addEventListener('click', function(){
+      var name = el.getAttribute('data-open');
+      var card = findCardByName(name);
+      if(card){
+        closeFavoritesPanel();
+        var ficha = card.getAttribute('data-ficha');
+        if(ficha) openFichaModal(ficha);
+        else {
+          card.scrollIntoView({behavior:'smooth', block:'center'});
+          card.style.transition = 'box-shadow .3s';
+          card.style.boxShadow = '0 0 0 4px var(--accent2)';
+          setTimeout(function(){ card.style.boxShadow = ''; }, 1500);
+        }
+      } else showToast('Card não encontrado. Talvez esteja em outra aba.', 'warning');
+    });
+  });
+  body.querySelectorAll('[data-remove]').forEach(function(el){
+    el.addEventListener('click', function(){ toggleFavorite(el.getAttribute('data-remove')); });
+  });
+  panel.classList.add('show');
+}
+
+function closeFavoritesPanel(){ document.getElementById('favoritesPanel').classList.remove('show'); }
+
+function findCardByName(name){
+  var found = null;
+  document.querySelectorAll('.card').forEach(function(card){
+    if(found) return;
+    if(getCardName(card) === name) found = card;
+  });
+  return found;
+}
+
+function initFavoritesPanel(){
+  var panel = document.getElementById('favoritesPanel');
+  if(!panel || panel.querySelector('.fav-head')) return;
+  var head = document.createElement('div');
+  head.className = 'fav-head';
+  head.innerHTML = '<span class="title">⭐ Favoritos</span><button class="search-close" id="favClose">✕</button>';
+  panel.appendChild(head);
+  var body = document.createElement('div');
+  body.className = 'fav-body';
+  panel.appendChild(body);
+  document.getElementById('favClose').addEventListener('click', closeFavoritesPanel);
+}
+
+/* ===== APRESENTAÇÃO ===== */
+var presCards = [], presIndex = 0;
+function togglePresentation(){
+  var modal = document.getElementById('presentationModal');
+  if(modal.classList.contains('show')) closePresentation();
+  else openPresentation();
+}
+
+function openPresentation(){
+  var activeTab = document.querySelector('.tab-content.active');
+  if(!activeTab){ showToast('Nenhuma seção ativa', 'warning'); return; }
+  presCards = [];
+  activeTab.querySelectorAll('.sub-content').forEach(function(sub){
+    if(!sub.classList.contains('active')) return;
+    sub.querySelectorAll('.card').forEach(function(card){
+      var h4 = card.querySelector('h4'), p = card.querySelector('p');
+      if(h4) presCards.push({ title: h4.textContent.replace(/^[^\w]*\s*/,'').trim(), content: p ? p.innerHTML : '' });
+    });
+  });
+  if(presCards.length === 0){
+    activeTab.querySelectorAll('.card').forEach(function(card){
+      var h4 = card.querySelector('h4'), p = card.querySelector('p');
+      if(h4) presCards.push({ title: h4.textContent.replace(/^[^\w]*\s*/,'').trim(), content: p ? p.innerHTML : '' });
+    });
+  }
+  if(presCards.length === 0){ showToast('Nenhum card para apresentar nesta seção', 'warning'); return; }
+  presIndex = 0;
+  document.getElementById('presentationModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+  renderPresentation();
+}
+
+function renderPresentation(){
+  var modal = document.getElementById('presentationModal');
+  var inner = modal.querySelector('.pres-inner');
+  if(!inner) return;
+  if(presCards.length === 0){ inner.innerHTML = '<div class="pres-empty">Nenhum card disponível.</div>'; return; }
+  var card = presCards[presIndex];
+  var counter = modal.querySelector('.pres-counter');
+  if(counter) counter.textContent = (presIndex + 1) + ' / ' + presCards.length;
+  inner.innerHTML = '<div class="pres-card"><h4>' + escapeHtml(card.title) + '</h4><p>' + card.content + '</p></div><div class="pres-nav"><button id="presPrev"' + (presIndex === 0 ? ' disabled' : '') + '>← Anterior</button><button id="presNext"' + (presIndex === presCards.length - 1 ? ' disabled' : '') + '>Próximo →</button></div><div class="pres-hint">Use ← → para navegar • ESC para sair</div>';
+  var prevBtn = document.getElementById('presPrev');
+  var nextBtn = document.getElementById('presNext');
+  if(prevBtn) prevBtn.addEventListener('click', presPrev);
+  if(nextBtn) nextBtn.addEventListener('click', presNext);
+}
+function presNext(){ if(presIndex < presCards.length - 1){ presIndex++; renderPresentation(); } }
+function presPrev(){ if(presIndex > 0){ presIndex--; renderPresentation(); } }
+function closePresentation(){ document.getElementById('presentationModal').classList.remove('show'); document.body.style.overflow = ''; }
+
+function initInteractiveTimeline(){
+  document.querySelectorAll('.timeline').forEach(function(tl){
+    tl.classList.add('interactive');
+    tl.querySelectorAll('.timeline-item').forEach(function(item){
+      item.addEventListener('click', function(e){
+        if(e.target.tagName === 'A') return;
+        item.classList.toggle('collapsed');
+      });
+    });
+  });
+}
+
+/* ===== FICHAS DE PERSONAGENS ===== */
 var fichasPersonagens = {
   "Tristan Queen": {
     eyebrow: "🏹 Ranger · Filho de Arqueiros",
@@ -239,6 +972,7 @@ function attachFichaHandlers(){
   });
 }
 
+/* ===== MODO EDIÇÃO ===== */
 var editMode = false, counter = 0;
 var SEL = 'h1,h2,h3,h4,h5,h6,p,td,th,li,.timeline-year,.timeline-text,.card p,.info-box,.stat-num,.stat-label,.mast-subtitle,.home-hero .lead,.pull-quote,.event-item .title,.event-item .desc,.photo figcaption,.fc-value,.fc-desc';
 
@@ -355,9 +1089,9 @@ function autoBackup(){
 }
 setInterval(function(){ if(editMode) autoBackup(); }, 5 * 60 * 1000);
 
-/* ===== GRAFO ===== */
-var GRAPH_KEY = 'terraZ_graph_v1';
-var GRAPH_BACKUP_KEY = 'terraZ_graph_backup';
+/* ===== GRAFO DE RELAÇÕES ===== */
+var GRAPH_KEY = 'terraZ_graph_v2';
+var GRAPH_BACKUP_KEY = 'terraZ_graph_backup_v2';
 var defaultGraph = {
   quadrants: [
     { id:'queen', title:'FAMÍLIA QUEEN', x:20, y:20, w:470, h:340, color:'#c45a1c', bg:'rgba(196,90,28,.06)' },
@@ -542,6 +1276,7 @@ function restoreGraphFromBackup(){
   } catch(e){ showToast('Erro ao restaurar backup', 'error'); }
 }
 
+/* ===== TECLADO ===== */
 document.addEventListener('keydown', function(e){
   if((e.ctrlKey || e.metaKey) && e.key === 's'){
     e.preventDefault();
@@ -568,6 +1303,7 @@ document.addEventListener('keydown', function(e){
   }
 });
 
+/* ===== EXPOR FUNÇÕES ===== */
 window.toggleEdit = toggleEdit;
 window.saveEdits = saveEdits;
 window.exportEdits = exportEdits;
@@ -603,23 +1339,25 @@ window.updateGraphEdge = updateGraphEdge;
 window.resetGraph = resetGraph;
 window.restoreGraphFromBackup = restoreGraphFromBackup;
 
+/* ===== INICIALIZAÇÃO ===== */
 document.addEventListener('DOMContentLoaded', function(){
-  buildGlobalSidebar();
-  initEditables();
-  loadEdits();
-  attachFichaHandlers();
-  attachFavoriteButtons();
-  initFavoritesPanel();
-  setupModalBodyDelegation();
-  initInteractiveTimeline();
-  graphData = loadGraph();
-  renderGraph();
-  syncGlobalSidebar('tab-home', null);
-  if(localStorage.getItem('terraZ_reading') === '1'){
-    readingMode = true;
-    document.body.classList.add('reading-mode');
-  }
-  showToast('Universo Terra Z · v1.3.1', 'info', 3500);
+  try { buildGlobalSidebar(); } catch(e){ console.error('buildGlobalSidebar:', e); }
+  try { initEditables(); } catch(e){ console.error('initEditables:', e); }
+  try { loadEdits(); } catch(e){ console.error('loadEdits:', e); }
+  try { attachFichaHandlers(); } catch(e){ console.error('attachFichaHandlers:', e); }
+  try { attachFavoriteButtons(); } catch(e){ console.error('attachFavoriteButtons:', e); }
+  try { initFavoritesPanel(); } catch(e){ console.error('initFavoritesPanel:', e); }
+  try { setupModalBodyDelegation(); } catch(e){ console.error('setupModalBodyDelegation:', e); }
+  try { initInteractiveTimeline(); } catch(e){ console.error('initInteractiveTimeline:', e); }
+  try { graphData = loadGraph(); renderGraph(); } catch(e){ console.error('graph:', e); }
+  try { syncGlobalSidebar('tab-home', null); } catch(e){ console.error('syncGlobalSidebar:', e); }
+  try {
+    if(localStorage.getItem('terraZ_reading') === '1'){
+      readingMode = true;
+      document.body.classList.add('reading-mode');
+    }
+  } catch(e){ console.error('reading:', e); }
+  showToast('Universo Terra Z · v1.3.2', 'info', 3500);
 });
 
 })();
