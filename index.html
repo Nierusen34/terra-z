@@ -48,7 +48,8 @@
 <button id="presentationBtn">▶ Apresentação</button>
 <button id="favoritesBtn">⭐ Favoritos</button>
 <button id="editBtn">✏️ Editar</button>
-<button id="saveBtn">💾 Salvar</button>
+<button id="saveBtn">💾 Salvar rascunho</button>
+<button id="publishBtn">🚀 Publicar</button>
 <button id="exportHtmlBtn">📥 Exportar HTML</button>
 <button id="exportBtn">📤 Backup JSON</button>
 <button id="importBtn">📂 Importar</button>
@@ -70,6 +71,28 @@
 </div>
 
 <div id="favoritesPanel"></div>
+
+<div class="publish-panel" id="publishPanel" role="dialog" aria-modal="true" aria-labelledby="publishTitle">
+  <div class="publish-card">
+    <div class="publish-head">
+      <div>
+        <div class="publish-eyebrow">EDITOR TERRA Z</div>
+        <h3 id="publishTitle">🚀 Publicar alterações</h3>
+      </div>
+      <button id="publishClose" class="publish-close" title="Fechar">✕</button>
+    </div>
+    <p class="publish-copy">O rascunho continua salvo somente neste navegador até ser publicado. A publicação remota criará um commit no GitHub e aguardará o deploy do GitHub Pages.</p>
+    <div class="publish-summary"><strong id="publishCount">0</strong><span>alterações pendentes</span></div>
+    <label class="publish-label" for="publishMessage">Mensagem do commit</label>
+    <input id="publishMessage" class="publish-message" type="text" maxlength="120" placeholder="Ex.: content: atualizar ficha de Tristan Queen">
+    <div id="publishStatus" class="publish-status" data-state="idle">Verificando configuração…</div>
+    <div class="publish-actions">
+      <button id="publishCancelBtn">Cancelar</button>
+      <button id="publishSubmitBtn" class="primary">🚀 Publicar agora</button>
+    </div>
+    <div class="publish-note">A credencial de escrita nunca fica neste site. O botão só é ativado quando um endpoint seguro estiver configurado.</div>
+  </div>
+</div>
 
 <div id="editNotice">✏️ Modo de edição ativo — clique em qualquer texto para editar • Ctrl+S para salvar</div>
 
@@ -644,9 +667,12 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="data/timeline.js" defer></script>
 <script src="data/cities.js" defer></script>
 <script src="data/teams.js" defer></script>
+<script src="data/content-overrides.js" defer></script>
+<script src="config.js" defer></script>
 <script src="terra-z.js" defer></script>
 <script src="js/data-renderer.js" defer></script>
 <script src="js/editor.js" defer></script>
+<script src="js/publishing.js" defer></script>
 <script src="js/media.js" defer></script>
 <script src="js/navigation.js" defer></script>
 <script src="js/search.js" defer></script>
