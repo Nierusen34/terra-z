@@ -29,7 +29,7 @@ function openFichaModal(characterName){
     bodyHtml += '<div class="ficha-section"><h3>' + sec.title + '</h3>' + sec.content + '</div>';
   });
   if(ficha.secrets && ficha.secrets.length > 0){
-    bodyHtml += '<div class="ficha-secrets" id="fichaSecretsBox"><button class="ficha-secrets-toggle" id="fichaSecretsToggle"><span>🔒 Mostrar Segredos (' + ficha.secrets.length + ')</span><span class="arrow">▶</span></button><div class="ficha-secrets-content"><ul>';
+    bodyHtml += '<div class="ficha-secrets" id="fichaSecretsBox" data-visibility="master"><button class="ficha-secrets-toggle" id="fichaSecretsToggle"><span>🔒 Mostrar Segredos (' + ficha.secrets.length + ')</span><span class="arrow">▶</span></button><div class="ficha-secrets-content"><ul>';
     ficha.secrets.forEach(function(s){ bodyHtml += '<li>' + escapeHtml(s) + '</li>'; });
     bodyHtml += '</ul></div></div>';
   }
@@ -38,6 +38,7 @@ function openFichaModal(characterName){
   modal.classList.add('show');
   document.body.style.overflow = 'hidden';
   if(window.TerraZApp.characterMedia) window.TerraZApp.characterMedia.hydrate(header);
+  if(window.TerraZApp.visibility) window.TerraZApp.visibility.apply();
   document.getElementById('fichaCloseBtn').addEventListener('click', closeFichaModal);
   var copyBtn = document.getElementById('fichaCopyLinkBtn');
   if(copyBtn) copyBtn.addEventListener('click', function(){
