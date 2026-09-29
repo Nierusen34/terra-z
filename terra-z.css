@@ -522,3 +522,10 @@ body.reading-mode .photo img{cursor:default}
   .ge-table{font-size:11px}
   .ge-table input,.ge-table select{font-size:11px}
 }
+
+.publish-status{display:inline-flex;align-items:center;min-height:28px;padding:0 8px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--ink3);white-space:nowrap}
+.publish-status[data-state="pending"]{color:var(--accent2)}
+.publish-status[data-state="working"]{color:var(--accent)}
+.publish-status[data-state="success"]{color:#4a9e4a}
+.publish-status[data-state="error"]{color:#d44242}
+#publishBtn.publish-disabled{opacity:.45;cursor:not-allowed}
