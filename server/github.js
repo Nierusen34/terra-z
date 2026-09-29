@@ -80,4 +80,47 @@ async function recentRuns(token){
   return api("/repos/" + OWNER + "/" + REPO + "/actions/runs?branch=" + encodeURIComponent(BRANCH) + "&per_page=20", {method:"GET"}, token);
 }
 
-module.exports = { OWNER, REPO, BRANCH, installationToken, getFile, putFile, recentRuns };
+async function git(path, options, token){
+  return api("/repos/" + OWNER + "/" + REPO + path, options, token);
+}
+
+async function commitFiles(files, message, token){
+  const ref = await git("/git/ref/heads/" + encodeURIComponent(BRANCH), {method:"GET"}, token);
+  const parentSha = ref.object.sha;
+  const parentCommit = await git("/git/commits/" + parentSha, {method:"GET"}, token);
+
+  const tree = [];
+  for(const file of files){
+    const blob = await git("/git/blobs", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        content:file.encoding === "base64" ? file.content : Buffer.from(file.content,"utf8").toString("base64"),
+        encoding:"base64"
+      })
+    }, token);
+    tree.push({path:file.path,mode:"100644",type:"blob",sha:blob.sha});
+  }
+
+  const newTree = await git("/git/trees", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({base_tree:parentCommit.tree.sha,tree})
+  }, token);
+
+  const commit = await git("/git/commits", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({message,tree:newTree.sha,parents:[parentSha]})
+  }, token);
+
+  await git("/git/refs/heads/" + encodeURIComponent(BRANCH), {
+    method:"PATCH",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({sha:commit.sha,force:false})
+  }, token);
+
+  return commit;
+}
+
+module.exports = { OWNER, REPO, BRANCH, installationToken, getFile, putFile, recentRuns, commitFiles };
