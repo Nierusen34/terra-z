@@ -21,7 +21,7 @@ window.TerraZData.districts = [
     ],
     "note": null,
     "image": {
-      "src": "a-muralha.png",
+      "src": "images/districts/a-muralha.png",
       "alt": "Distrito corporativo de A Muralha ao anoitecer, com a Shaw Spire iluminada em azul e drones sobrevoando a avenida",
       "caption": "A Muralha — o centro corporativo, com a Shaw Spire dominando o horizonte."
     },
@@ -56,7 +56,7 @@ window.TerraZData.districts = [
     ],
     "note": null,
     "image": {
-      "src": "la-ventanita.png",
+      "src": "images/districts/la-ventanita.png",
       "alt": "Esquina movimentada de Coral Gate ao pôr do sol, com o letreiro do café La Ventanita, clientes em mesas externas e músicos tocando",
       "caption": "Coral Gate — a La Ventanita, coração pulsante do bairro latino."
     },
@@ -90,7 +90,7 @@ window.TerraZData.districts = [
     ],
     "note": null,
     "image": {
-      "src": "downtown.png",
+      "src": "images/districts/downtown.png",
       "alt": "Praça cívica de Downtown ao anoitecer, com o Paço Municipal, o Fórum e o Grande Teatro Vanguard iluminados",
       "caption": "Downtown — Paço Municipal, Fórum e Grande Teatro Vanguard."
     },
@@ -123,7 +123,7 @@ window.TerraZData.districts = [
     ],
     "note": null,
     "image": {
-      "src": "bar-urso-polar.png",
+      "src": "images/districts/bar-urso-polar.png",
       "alt": "Docas de O Dique à noite, com contêineres, guindastes e o letreiro de neon do Bar Urso Polar em vermelho",
       "caption": "O Dique — o Bar Urso Polar, quartel-general da Bratva Volkov."
     },
@@ -156,7 +156,7 @@ window.TerraZData.districts = [
     ],
     "note": null,
     "image": {
-      "src": "distrito-solar.png",
+      "src": "images/districts/distrito-solar.png",
       "alt": "Complexo de luxo do Distrito Solar na Ilha Solara, com piscinas à beira-mar, palmeiras e mega-iates ancorados na marina",
       "caption": "Distrito Solar — a Ilha Solara, com piscinas de borda infinita e mega-iates."
     },
@@ -186,7 +186,7 @@ window.TerraZData.districts = [
     ],
     "note": "Convergência do Verde e do Cinza.",
     "image": {
-      "src": "emaranhado.png",
+      "src": "images/districts/emaranhado.png",
       "alt": "Pântano do Emaranhado de Vanguard sob a lua cheia, com árvores retorcidas, neblina e luzes fantasmagóricas na água",
       "caption": "Emaranhado de Vanguard — o pântano ancestral."
     },
@@ -215,7 +215,7 @@ window.TerraZData.districts = [
     ],
     "note": null,
     "image": {
-      "src": "a-fenda.png",
+      "src": "images/districts/a-fenda.png",
       "alt": "Vórtice dimensional roxo e vermelho em zona industrial abandonada de A Fenda, com destroços flutuantes e figuras encapuzadas ao redor",
       "caption": "A Fenda — instabilidade dimensional no coração industrial abandonado."
     },
