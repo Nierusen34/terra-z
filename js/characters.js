@@ -59,7 +59,7 @@ function openFichaModal(characterName){
       box.classList.toggle('open');
       var label = secretsToggle.querySelector('span:first-child');
       var isOpen = box.classList.contains('open');
-      if(label) label.textContent = (isOpen ? '🔓 Ocultar Segredos' : '🔒 Mostrar Segredos') + ' (' + ficha.secrets.length + ')';
+      if(label) label.textContent = (isOpen ? '🔓 Ocultar Segredos' : '🔒 Mostrar Segredos') + ' (' + secrets.length + ')';
     });
   }
 }
