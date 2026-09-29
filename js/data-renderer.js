@@ -30,7 +30,7 @@ function renderDistrictData(){
     if(d.note) locationText += (locationText ? ' ' : '') + d.note;
 
     html += '<figure class="photo" data-district="' + escapeAttr(d.id) + '">';
-    html += '<img data-district-image src="' + escapeAttr(d.image.src) + '" alt="' + escapeAttr(d.image.alt) + '" loading="lazy" decoding="async">';
+    html += '<img data-district-image data-src="' + escapeAttr(d.image.src) + '" alt="' + escapeAttr(d.image.alt) + '" loading="lazy" decoding="async" fetchpriority="low">';
     html += '<figcaption' + editAttrs(d.edit.caption) + '>' + escapeHtml(d.image.caption) + '</figcaption></figure>';
     html += '<div class="card"><h4' + editAttrs(d.edit.title) + '>' + escapeHtml(d.icon + ' ' + d.name) + '</h4>';
     html += '<p' + editAttrs(d.edit.details) + '><strong>Tipo:</strong> ' + escapeHtml(d.type) + '<br><strong>Locais:</strong> ' + escapeHtml(locationText) + '</p></div>';
