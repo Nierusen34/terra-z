@@ -23,7 +23,7 @@ function openFichaModal(characterName){
   var portrait = (window.TerraZApp.characterMedia)
     ? window.TerraZApp.characterMedia.renderPortraitHtml(characterName, 'large')
     : '';
-  header.innerHTML = portrait + '<div class="fh-info"><div class="fh-eyebrow">' + escapeHtml(ficha.eyebrow) + '</div><h2>' + escapeHtml(characterName) + '</h2></div><button class="fh-close" id="fichaCloseBtn">✕</button>';
+  header.innerHTML = portrait + '<div class="fh-info"><div class="fh-eyebrow">' + escapeHtml(ficha.eyebrow) + '</div><h2>' + escapeHtml(characterName) + '</h2></div><div class="fh-actions"><button class="fh-link" id="fichaCopyLinkBtn" title="Copiar link direto">🔗</button><button class="fh-close" id="fichaCloseBtn">✕</button></div>';
   var bodyHtml = '';
   ficha.sections.forEach(function(sec){
     bodyHtml += '<div class="ficha-section"><h3>' + sec.title + '</h3>' + sec.content + '</div>';
@@ -39,6 +39,11 @@ function openFichaModal(characterName){
   document.body.style.overflow = 'hidden';
   if(window.TerraZApp.characterMedia) window.TerraZApp.characterMedia.hydrate(header);
   document.getElementById('fichaCloseBtn').addEventListener('click', closeFichaModal);
+  var copyBtn = document.getElementById('fichaCopyLinkBtn');
+  if(copyBtn) copyBtn.addEventListener('click', function(){
+    if(window.TerraZApp.router) window.TerraZApp.router.copyCurrentLink();
+  });
+  if(window.TerraZApp.router) window.TerraZApp.router.setCharacter(characterName);
   document.getElementById('fichaSearchBtn').addEventListener('click', function(){ window.searchOnFandom(characterName); });
   var secretsToggle = document.getElementById('fichaSecretsToggle');
   if(secretsToggle){
@@ -52,7 +57,11 @@ function openFichaModal(characterName){
   }
 }
 
-function closeFichaModal(){ document.getElementById('fichaModal').classList.remove('show'); document.body.style.overflow = ''; }
+function closeFichaModal(){
+  document.getElementById('fichaModal').classList.remove('show');
+  document.body.style.overflow = '';
+  if(window.TerraZApp.router) window.TerraZApp.router.clearCharacter();
+}
 
 function attachFichaHandlers(){
   document.querySelectorAll('.card-grid .card').forEach(function(card){
