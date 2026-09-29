@@ -1,0 +1,9 @@
+{
+  "name": "terra-z",
+  "private": true,
+  "version": "1.3.2",
+  "description": "Terra Z dossier and secure publishing API",
+  "dependencies": {
+    "sanitize-html": "^2.17.0"
+  }
+}
