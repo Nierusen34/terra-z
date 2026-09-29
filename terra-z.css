@@ -618,3 +618,7 @@ button.session-chip:hover{border-color:var(--accent);color:var(--accent)}
 
 /* Hotspots do mapa: textos não bloqueiam clique nas áreas de distrito */
 #sub-mapa-detalhado svg text{pointer-events:none}
+
+.publish-key-row{display:flex;gap:8px;align-items:stretch;margin-bottom:12px}
+.publish-key-row .publish-message{margin-bottom:0;flex:1}
+.publish-key-row button{white-space:nowrap;padding:0 12px}
