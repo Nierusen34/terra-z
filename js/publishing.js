@@ -17,6 +17,14 @@ function setStatus(text, state){
   statusEl.setAttribute('data-state', state || 'idle');
 }
 
+function refreshPendingStatus(){
+  var editor = window.TerraZApp.editor;
+  if(!editor) return;
+  var pending = editor.getPendingCount();
+  if(pending > 0) setStatus(pending + (pending === 1 ? ' alteração pendente' : ' alterações pendentes'), 'pending');
+  else setStatus('Sem alterações pendentes', 'idle');
+}
+
 function updateButton(){
   if(!btn) return;
   var enabled = !!(config.enabled && config.endpoint);
@@ -25,6 +33,7 @@ function updateButton(){
   btn.title = enabled
     ? 'Publicar alterações para todos'
     : 'Publicação remota aguardando configuração do backend seguro';
+  refreshPendingStatus();
 }
 
 async function publish(){
@@ -89,6 +98,7 @@ async function publish(){
 }
 
 if(btn) btn.addEventListener('click', publish);
+document.addEventListener('terraz:draftchange', refreshPendingStatus);
 updateButton();
 
 window.TerraZApp.publishing = {
