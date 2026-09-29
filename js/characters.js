@@ -20,7 +20,10 @@ function openFichaModal(characterName){
   var modal = document.getElementById('fichaModal');
   var header = document.getElementById('fichaHeader');
   var body = document.getElementById('fichaBody');
-  header.innerHTML = '<div class="fh-info"><div class="fh-eyebrow">' + escapeHtml(ficha.eyebrow) + '</div><h2>' + escapeHtml(characterName) + '</h2></div><button class="fh-close" id="fichaCloseBtn">✕</button>';
+  var portrait = (window.TerraZApp.characterMedia)
+    ? window.TerraZApp.characterMedia.renderPortraitHtml(characterName, 'large')
+    : '';
+  header.innerHTML = portrait + '<div class="fh-info"><div class="fh-eyebrow">' + escapeHtml(ficha.eyebrow) + '</div><h2>' + escapeHtml(characterName) + '</h2></div><button class="fh-close" id="fichaCloseBtn">✕</button>';
   var bodyHtml = '';
   ficha.sections.forEach(function(sec){
     bodyHtml += '<div class="ficha-section"><h3>' + sec.title + '</h3>' + sec.content + '</div>';
@@ -34,6 +37,7 @@ function openFichaModal(characterName){
   body.innerHTML = bodyHtml;
   modal.classList.add('show');
   document.body.style.overflow = 'hidden';
+  if(window.TerraZApp.characterMedia) window.TerraZApp.characterMedia.hydrate(header);
   document.getElementById('fichaCloseBtn').addEventListener('click', closeFichaModal);
   document.getElementById('fichaSearchBtn').addEventListener('click', function(){ window.searchOnFandom(characterName); });
   var secretsToggle = document.getElementById('fichaSecretsToggle');
@@ -62,6 +66,7 @@ function attachFichaHandlers(){
     }
     if(match){
       card.setAttribute('data-ficha', match);
+      if(window.TerraZApp.characterMedia) window.TerraZApp.characterMedia.decorateCard(card, match);
       card.setAttribute('title', 'Clique para ver a ficha completa');
       card.addEventListener('click', function(e){
         if(e.target.classList.contains('fav-btn')) return;
