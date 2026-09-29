@@ -19,6 +19,25 @@ if(!window.TerraZData || !window.TerraZData.defaultGraph){
 }
 
 var graphData = null;
+var graphRelationFilter = 'all';
+var graphCharacterMap = {
+  oliver:'Oliver Queen',
+  dinah:'Dinah Lance',
+  tristan:'Tristan Queen',
+  connor:'Connor Hawke',
+  bruce:'Bruce Wayne',
+  damian:'Damian Wayne',
+  jason:'Jason Todd',
+  dick:'Dick Grayson',
+  tim:'Tim Drake',
+  mgann:"M'gann M'orzz",
+  conner2:'Conner Kent',
+  mark:"M'ark",
+  jonn:"J'onn J'onzz",
+  lobo:'Lobo',
+  riot:'Riot',
+  kendra:'Kendra Saunders'
+};
 function loadGraph(){
   try { var saved = localStorage.getItem(GRAPH_KEY); if(saved) return JSON.parse(saved); } catch(e){ console.error(e); }
   return JSON.parse(JSON.stringify(defaultGraph));
@@ -45,6 +64,7 @@ function renderGraph(){
   var nodeMap = {};
   graphData.nodes.forEach(function(n){ nodeMap[n.id] = n; });
   graphData.edges.forEach(function(e){
+    if(graphRelationFilter !== 'all' && e.type !== graphRelationFilter) return;
     var a = nodeMap[e.from], b = nodeMap[e.to];
     if(!a || !b) return;
     var stroke = edgeColor(e.type);
@@ -57,10 +77,21 @@ function renderGraph(){
     html += '<text x="' + (mx + offX) + '" y="' + (my + offY) + '" font-family="Share Tech Mono,monospace" font-size="9" fill="' + stroke + '" text-anchor="middle" style="paint-order:stroke;stroke:var(--paper3);stroke-width:4px;stroke-linejoin:round">' + escapeHtml(e.label) + '</text>';
   });
   graphData.nodes.forEach(function(n){
+    var character = graphCharacterMap[n.id] || '';
+    var cls = character ? 'graph-node graph-node-clickable' : 'graph-node';
+    html += '<g class="' + cls + '" data-node-id="' + escapeAttr(n.id) + '" data-character="' + escapeAttr(character) + '">';
     html += '<circle cx="' + n.x + '" cy="' + n.y + '" r="' + n.r + '" fill="' + n.color + '" stroke="#fff" stroke-width="3" filter="url(#glowNode)"/>';
     html += '<text x="' + n.x + '" y="' + (n.y + Math.round(n.r * 0.13)) + '" font-family="Oswald,sans-serif" font-size="' + Math.max(10, Math.round(n.r * 0.37)) + '" fill="#fff" text-anchor="middle" font-weight="700">' + escapeHtml(n.label) + '</text>';
+    html += '</g>';
   });
   svg.innerHTML = html;
+
+  svg.querySelectorAll('.graph-node-clickable').forEach(function(node){
+    node.addEventListener('click', function(){
+      var name = node.getAttribute('data-character');
+      if(name && window.TerraZApp.characters) window.TerraZApp.characters.open(name);
+    });
+  });
 }
 
 function openGraphEditor(){
@@ -159,6 +190,16 @@ function restoreGraphFromBackup(){
   } catch(e){ showToast('Erro ao restaurar backup', 'error'); }
 }
 
+function setupGraphFilters(){
+  var select = document.getElementById('graphRelationFilter');
+  if(!select) return;
+  select.value = graphRelationFilter;
+  select.addEventListener('change', function(){
+    graphRelationFilter = select.value || 'all';
+    renderGraph();
+  });
+}
+
 function setupGraphEditorEvents(){
   var staticActions = {
     graphOpenBtn: openGraphEditor,
@@ -227,6 +268,7 @@ function setupGraphEditorEvents(){
 try {
   graphData = loadGraph();
   renderGraph();
+  setupGraphFilters();
   setupGraphEditorEvents();
 } catch(e){
   console.error('Terra Z graph:', e);
