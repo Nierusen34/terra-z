@@ -26,12 +26,7 @@ window.TerraZData.characters = {
       { title:"🔗 Relações", content:"<ul><li><strong>Kendra (mãe adotiva):</strong> Respeito e afeto genuínos. Sente-se calmo com ela. A rebeldia dele dificilmente é direcionada a ela.</li><li><strong>Lobo:</strong> Origem genética. Promessa de caça em 2072. Riot sente raiva e é perturbado pelas memórias genéticas.</li><li><strong>Oliver, Metamorfo e Gladiador Dourado:</strong> Colegas da missão de resgate de 2022. Relação positiva, mas distante — sempre checavam com Kendra se ele estava bem.</li><li><strong>Tristan Queen:</strong> Dois estranhos que estão se ajudando em um mesmo objetivo. Riot confia em Tristan por conhecer Oliver — como se a familiaridade fosse uma garantia.</li></ul>" },
       { title:"🆕 A ORGANIZAÇÃO SUMDAC", content:"<p>A equipe da Cadmus que criou Riot era <strong>dissidente</strong>. Separaram-se da Cadmus e formaram a <strong>Sumdac</strong> — mesma logotipo da Cadmus, mas toda em <strong>vermelho</strong>. Estão operando em <strong>Vanguard Bay</strong>, fazendo experimentos. Riot descobriu isso durante eventos recentes.</p>" }
     ],
-    secrets: [
-      "Kendra contou sobre a promessa de Lobo — não é segredo entre eles.",
-      "Riot parece querer enfrentar Lobo em 2072, em vez de fugir.",
-      "Sabe que a Sumdac está em Vanguard Bay — mas Kendra não sabe que ele descobriu.",
-      "Sua consciência às vezes divaga entre memórias genéticas de Lobo e memórias próprias."
-    ]
+    secrets: []
   },
   "M'ark": {
     eyebrow: "🟢 Filho de M'gann · Nome provisório",
@@ -44,13 +39,7 @@ window.TerraZData.characters = {
       { title:"🆕 O CATIVEIRO E CAMILA VARGAS", content:"<p><strong>Como foi capturado:</strong> emboscado pela Sumdac ao chegar em Vanguard Bay.<br><strong>Motivo:</strong> estudar seu DNA alienígena.<br><strong>Duração:</strong> não sabe quantos dias está preso. Perdeu a noção do tempo.<br><strong>Quem sabe:</strong> ninguém — nem M'gann, nem J'onn, nem Conner. <strong>Apenas Camila Vargas.</strong></p><p><strong>Camila Vargas</strong> é uma meta-humana recém-desperta (telepata), braço-direito de Leland Shaw na Shaw Innovations. Ao despertar seus poderes, criou acidentalmente um <strong>elo telepático</strong> com M'ark. Ela não sabe a localização dele, mas sabe que ele está preso e em perigo. É leal à empresa, mas <strong>não a Shaw</strong>, e esconde seus poderes dele. Propôs uma <strong>aliança com Tristan e Riot</strong> para resgatar M'ark — já que a Sumdac também é parte do objetivo deles. A Sumdac não sabe do elo.</p>" },
       { title:"💀 A VOZ DE ARMek", content:"<p>Às vezes, M'ark <strong>conversa com Armek na própria cabeça</strong>. A natureza disso ainda não foi definida — pode ser alucinação, loucura (herança genética) ou um resquício da existência de seu falecido pai. Um dos maiores mistérios do personagem.</p>" }
     ],
-    secrets: [
-      "É Marciano Branco — M'ark sabe. Ele tem plena consciência da própria natureza.",
-      "Concordou em se passar por Marciano Verde publicamente. Não foi forçado.",
-      "Está preso pela Sumdac — ninguém sabe, exceto Camila Vargas.",
-      "Mantém contato telepático periódico com Camila Vargas.",
-      "Ouve a voz de Armek na cabeça — natureza indefinida."
-    ]
+    secrets: []
   },
   "Kendra Saunders": {
     eyebrow: "🦅 Reencarnação de Shiera Hall",
@@ -61,11 +50,7 @@ window.TerraZData.characters = {
       { title:"⚔️ Habilidades", content:"<ul><li><strong>Voo:</strong> asas e cinto de Nth Metal.</li><li><strong>Maça de Nth Metal:</strong> arma principal.</li><li><strong>Fator de cura:</strong> regeneração acelerada.</li><li><strong>Memórias de vidas passadas:</strong> acesso limitado a memórias de Shiera Hall.</li></ul>" },
       { title:"🔗 Relações", content:"<ul><li><strong>Riot (filho adotivo):</strong> Respeito e afeto genuínos. Apoiou a ida dele para Vanguard Bay — confia nas decisões dele. Pretende ficar em Midway City.</li><li><strong>Lobo:</strong> Testemunhou a promessa dos 50 anos. Odeia e teme, mas Lobo não tem motivo para atacá-la — deixou Riot com ela.</li><li><strong>Filha biológica:</strong> Sabe onde ela está. Apenas observa de longe.</li><li><strong>Oliver, Metamorfo e Gladiador Dourado:</strong> Colegas da missão de 2022.</li><li><strong>Carter Hall:</strong> Sem contato. Shiera Hall foi para Thanagar.</li></ul>" }
     ],
-    secrets: [
-      "Sabe da promessa de Lobo — foi testemunha e conversou com Riot sobre isso.",
-      "Sabe onde sua filha biológica está, mas apenas observa de longe.",
-      "Tem pesadelos recorrentes com a morte de Shiera Hall."
-    ]
+    secrets: []
   },
   "Lobo": {
     eyebrow: "💀 O Maioral · Czarniano",
@@ -76,11 +61,7 @@ window.TerraZData.characters = {
       { title:"⚔️ Habilidades", content:"<ul><li><strong>Superforça:</strong> nível Superman.</li><li><strong>Super-velocidade:</strong> extremamente rápido.</li><li><strong>Regeneração:</strong> cura acelerada.</li><li><strong>Imortalidade:</strong> não pode morrer.</li><li><strong>Olfato superdesenvolvido:</strong> rastreia alvos a longas distâncias.</li></ul>" },
       { title:"🔗 Relações", content:"<ul><li><strong>Riot:</strong> Origem genética. Promessa de caça em 2072 — por diversão sádica.</li><li><strong>Kendra:</strong> Deixou Riot com ela. Sem motivo para atacá-la.</li><li><strong>Liga da Justiça Sem Limites:</strong> Membro temporário — recrutado na fase de expansão.</li><li><strong>Superman (Rei Ômega):</strong> Contexto — a ascensão dele abriu a fase JLU.</li></ul>" }
     ],
-    secrets: [
-      "Não observa Riot — não acompanha o crescimento dele.",
-      "Pretende fazer da caça um espetáculo público em 2072.",
-      "Deixou o clone com Kendra por escolha própria — sem ressentimento contra ela."
-    ]
+    secrets: []
   },
   "M'gann M'orzz": {
     eyebrow: "🟢 Miss Martian · Marciana Branca",
@@ -91,12 +72,7 @@ window.TerraZData.characters = {
       { title:"⚔️ Habilidades", content:"<ul><li><strong>Telepatia:</strong> poderosa.</li><li><strong>Telecinese:</strong> sim.</li><li><strong>Metamorfose:</strong> sim.</li><li><strong>Intangibilidade:</strong> sim.</li><li><strong>Invisibilidade:</strong> sim.</li><li><strong>Voo:</strong> sim.</li></ul>" },
       { title:"🔗 Relações", content:"<ul><li><strong>M'ark:</strong> Filho. Superprotetora, mas apoiou a ida dele para Vanguard Bay — com preocupação.</li><li><strong>Conner Kent:</strong> Namorado. Relação sólida em 2027.</li><li><strong>J'onn J'onzz:</strong> Mentor e figura paterna.</li><li><strong>Armek:</strong> Violentador (falecido).</li><li><strong>Jovens Titãs:</strong> Ex-membro.</li></ul>" }
     ],
-    secrets: [
-      "É Marciana Branca — J'onn, Conner, Dick, Garfield e Raven sabem.",
-      "Tem um filho (M'ark) — nem todos os Titãs sabem.",
-      "Foi estuprada por Armek em 2003–2004.",
-      "J'onn matou Armek em vingança."
-    ]
+    secrets: []
   },
   "J'onn J'onzz": {
     eyebrow: "🟢 Caçador de Marte · Último Marciano Verde",
@@ -107,11 +83,7 @@ window.TerraZData.characters = {
       { title:"⚔️ Habilidades", content:"<ul><li><strong>Telepatia:</strong> de escala planetária.</li><li><strong>Telecinese:</strong> poderosa.</li><li><strong>Metamorfose:</strong> qualquer forma.</li><li><strong>Intangibilidade e invisibilidade:</strong> sim.</li><li><strong>Regeneração:</strong> cura acelerada.</li><li><strong>Voo:</strong> sim.</li></ul>" },
       { title:"🔗 Relações", content:"<ul><li><strong>M'gann M'orzz:</strong> Figura paterna. Mentor.</li><li><strong>M'ark:</strong> Figura paterna / avô.</li><li><strong>Conner Kent:</strong> Aliado próximo.</li><li><strong>Armek:</strong> Matou em vingança — decisão difícil, mas necessária.</li><li><strong>Ma'alefa'ak:</strong> Irmão gêmeo. Morto — consumido pelo sol durante combate.</li><li><strong>Liga da Justiça:</strong> Membro fundador. Atuação ativa em 2027.</li></ul>" }
     ],
-    secrets: [
-      "Matou Armek em vingança — decisão difícil, mas necessária.",
-      "Ainda tem pesadelos com a Maldição de H'ronmeer.",
-      "Sabe que M'gann esconde outros segredos, mas respeita o silêncio dela."
-    ]
+    secrets: []
   },
   "Oliver Queen": {
     eyebrow: "🏹 O Queen · Agente da JLU",
@@ -122,11 +94,7 @@ window.TerraZData.characters = {
       { title:"⚔️ Habilidades", content:"<ul><li><strong>Arco e flecha:</strong> mestre arqueiro nível lendário. Ainda tem o arco.</li><li><strong>Combate corpo a corpo:</strong> treinado, mas não é o foco.</li><li><strong>Táticas:</strong> estrategista experiente.</li><li><strong>Liderança:</strong> ex-líder da JLU em missões.</li></ul>" },
       { title:"🔗 Relações", content:"<ul><li><strong>Dinah Lance:</strong> Esposa. Reataram. Não consegue se afastar dela por muito tempo.</li><li><strong>Tristan Queen:</strong> Filho. Silêncio total por parte de Oliver desde 2022 — teimosia e orgulho. Não gosta que Tristan esteja em Vanguard Bay, mas reconhece que é melhor do que Gotham.</li><li><strong>Connor Hawke:</strong> Filho que assumiu o manto. Respeito mútuo.</li><li><strong>Kendra Saunders:</strong> Contato regular. Colegas e amigos.</li><li><strong>Jason Todd:</strong> Não aprova que ele tenha treinado Tristan.</li></ul>" }
     ],
-    secrets: [
-      "Durante o isolamento no bolsão dimensional, teve visões do futuro da família — nunca contou.",
-      "Sente culpa por não ter impedido Dinah de ir para Gotham em 2019.",
-      "Reconhece que Connor é um arqueiro melhor do que ele jamais foi — nunca disse em voz alta."
-    ]
+    secrets: []
   },
   "Dinah Lance": {
     eyebrow: "🐤 Canário Negro · Líder das Aves de Rapina",
@@ -137,11 +105,7 @@ window.TerraZData.characters = {
       { title:"⚔️ Habilidades", content:"<ul><li><strong>Grito Canário:</strong> falhando — distorção do Rei Ômega. Temporário ou permanente ainda não revelado.</li><li><strong>Combate corpo a corpo:</strong> mestre — ensinou Tristan.</li><li><strong>Liderança:</strong> fundadora das Aves de Rapina (em hiato).</li><li><strong>Táticas:</strong> estrategista.</li></ul>" },
       { title:"🔗 Relações", content:"<ul><li><strong>Oliver Queen:</strong> Marido. Amor sólido. Ciente do trauma dele e do silêncio com Tristan.</li><li><strong>Tristan Queen:</strong> Filho. Conversam por mensagem. Não há evitação mútua.</li><li><strong>Connor Hawke:</strong> Gratidão — ele cuidou de Tristan em 2020.</li><li><strong>Bárbara Gordon:</strong> Melhor amiga. Aves de Rapina em hiato.</li><li><strong>Helena Bertinelli e Zinda Blake:</strong> Aliadas nas Aves de Rapina.</li></ul>" }
     ],
-    secrets: [
-      "Seus poderes estão falhando por causa da distorção do Rei Ômega — a gravidade real é escondida.",
-      "Sente culpa por não ter estado presente em 2020.",
-      "Considera deixar as Aves de Rapina para focar na família — mas ainda não tomou coragem."
-    ]
+    secrets: []
   },
   "Connor Hawke": {
     eyebrow: "🏹 Arqueiro Verde · Herói de Star City",
@@ -152,11 +116,7 @@ window.TerraZData.characters = {
       { title:"⚔️ Habilidades", content:"<ul><li><strong>Arco e flecha:</strong> nível Oliver — talvez superior.</li><li><strong>Combate corpo a corpo:</strong> treinado.</li><li><strong>Táticas:</strong> estrategista.</li><li><strong>Gestão financeira:</strong> responsável pelos negócios Queen.</li></ul>" },
       { title:"🔗 Relações", content:"<ul><li><strong>Oliver Queen:</strong> Pai. Respeito, mas tensão não resolvida.</li><li><strong>Tristan Queen:</strong> Irmão mais novo. Elo de comunicação. Contato não constante (ocupado).</li><li><strong>Dinah Lance:</strong> Madrasta. Gratidão.</li><li><strong>Jason Todd:</strong> Contato por causa de Tristan.</li><li><strong>Roy Harper (Arsenal):</strong> Amigo. Roy atua às vezes com Connor e Mia.</li><li><strong>Mia Dearden (Speedy):</strong> Parceira de combate.</li><li><strong>Cyborg (Victor Stone):</strong> Amigo.</li><li><strong>Lian Harper:</strong> Amiga — filha de Roy.</li></ul>" }
     ],
-    secrets: [
-      "Nunca contou a Tristan que estava com Oliver no dia da explosão de 2020.",
-      "Sente que Oliver ainda o vê como \"substituto\" — e não como herdeiro legítimo.",
-      "Considera passar o manto adiante em alguns anos para focar em ajudar Tristan."
-    ]
+    secrets: []
   },
   "Jason Todd": {
     eyebrow: "🦇 Capuz Vermelho · Líder dos Novos Titãs",
@@ -167,11 +127,7 @@ window.TerraZData.characters = {
       { title:"⚔️ Habilidades", content:"<ul><li><strong>Combate:</strong> brutal, eficiente, letal.</li><li><strong>Armas:</strong> pistolas, facas, explosivos.</li><li><strong>Estratégia:</strong> táticas de guerrilha.</li><li><strong>Liderança:</strong> relutante, mas eficaz.</li></ul>" },
       { title:"🔗 Relações", content:"<ul><li><strong>Tristan Queen:</strong> Ex-aluno. Mentor e figura fraterna oposta a Connor — o contraponto rebelde ao irmão estável.</li><li><strong>Bruce:</strong> Relação distante, mas Bruce não interfere.</li><li><strong>Dick:</strong> Irmão adotivo. Rivalidade de irmãos. Jason criou sua própria equipe para provocá-lo.</li><li><strong>Tim:</strong> Irmão adotivo. Respeito.</li><li><strong>Damian:</strong> Meio-irmão adotivo. Rivalidade.</li><li><strong>Novos Titãs:</strong> Líder. Relação em adaptação.</li><li><strong>Lian Harper (Cheshire Cat):</strong> Membro da equipe dele.</li><li><strong>Talia al-Ghul:</strong> Pouco contato.</li></ul>" }
     ],
-    secrets: [
-      "Nunca contou a Tristan que o Poço de Lázaro pertence à Liga dos Assassinos.",
-      "Ainda tem pesadelos com a morte de 2019 — nunca admitiu a ninguém.",
-      "Pretende deixar Gotham quando Tristan estiver pronto."
-    ]
+    secrets: []
   },
   "Conner Kent": {
     eyebrow: "🦸 Superboy · Clone de Superman e Lex Luthor",
@@ -182,11 +138,7 @@ window.TerraZData.characters = {
       { title:"⚔️ Habilidades", content:"<ul><li><strong>Superforça:</strong> nível Superman.</li><li><strong>Super-velocidade:</strong> sim.</li><li><strong>Invulnerabilidade:</strong> sim.</li><li><strong>Voo:</strong> sim.</li><li><strong>Visão de calor:</strong> sim.</li><li><strong>Super-audição:</strong> sim.</li></ul>" },
       { title:"🔗 Relações", content:"<ul><li><strong>M'gann M'orzz:</strong> Namorada. Relação sólida.</li><li><strong>M'ark:</strong> Filho adotivo de fato.</li><li><strong>Superman:</strong> Doador genético. Contato regular antes do Rei Ômega.</li><li><strong>Lex Luthor:</strong> Doador genético. Odeia. Lex está na JLU — o que aumenta o receio.</li><li><strong>J'onn J'onzz:</strong> Aliado.</li></ul>" }
     ],
-    secrets: [
-      "Teme que M'ark herde a crueldade de Armek — nunca contou a M'gann.",
-      "Pesadelos com Lex Luthor — pioraram com Lex na JLU.",
-      "Considera pedir a M'ark para chamá-lo de \"pai\" — tem medo da resposta."
-    ]
+    secrets: []
   },
   "Bruce Wayne": {
     eyebrow: "🦇 Batman · O Maior Detetive do Mundo",
@@ -195,10 +147,7 @@ window.TerraZData.characters = {
       { title:"🎯 Personalidade", content:"<p>Ainda em luto por Alfred (2022) — a chegada de Verity está ajudando a se adaptar. Reservado e não interfere nas escolhas de Jason (inclusive sobre Tristan). Contato regular com a JL.</p>" },
       { title:"🔗 Relações", content:"<ul><li><strong>Alfred Pennyworth:</strong> Pai adotivo. Morto em 2022. Visita o túmulo periodicamente.</li><li><strong>Dick Grayson:</strong> Filho adotivo. Respeito.</li><li><strong>Jason Todd:</strong> Filho adotivo. Relação distante, mas não interfere no que ele faz.</li><li><strong>Tim Drake:</strong> Filho adotivo. Respeita a escolha de se aposentar.</li><li><strong>Damian Wayne:</strong> Filho biológico. Relação tensa, mas de amor.</li><li><strong>Barbara Gordon:</strong> Aliada e amiga. Batgirl.</li><li><strong>Verity Pennyworth:</strong> Nova mordoma. Ajudando no luto.</li></ul>" }
     ],
-    secrets: [
-      "Ainda processa a morte de Alfred — Verity está ajudando.",
-      "Situação atual de Gotham em 2027 — a definir."
-    ]
+    secrets: []
   },
   "Dick Grayson": {
     eyebrow: "🦅 Asa Noturna · Líder dos Titãs",
@@ -265,12 +214,7 @@ window.TerraZData.characters = {
       { title:"🔗 Relações", content:"<ul><li><strong>M'ark:</strong> Elo telepático. Sabe que ele está preso e em perigo, mas não sabe a localização.</li><li><strong>Leland Shaw:</strong> Chefe. Leal à empresa, não a ele.</li><li><strong>Tristan Queen:</strong> Aliada. Comunicam-se por ligação ou telepatia.</li><li><strong>Riot:</strong> Aliada. Comunicam-se por ligação ou telepatia.</li></ul>" },
       { title:"🎯 Objetivo", content:"<p>Procurar M'ark junto com Tristan e Riot. Propôs a aliança — já que a Sumdac também é parte do objetivo deles.</p>" }
     ],
-    secrets: [
-      "É meta-humana — esconde de Shaw.",
-      "Elo telepático com M'ark — a Sumdac não sabe.",
-      "Propôs aliança com Tristan e Riot para procurar M'ark.",
-      "Não sabe a localização do cativeiro de M'ark."
-    ]
+    secrets: []
   },
   "Roy Harper": {
     eyebrow: "🏹 Arsenal · Pai de Lian",
