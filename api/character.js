@@ -1,7 +1,7 @@
 import { applyCors } from "./_lib/cors.js";
 import { requireEditor } from "./_lib/auth.js";
 import { getHead, readTextFile, commitFiles } from "./_lib/github.js";
-import { parseDataAssignment, renderCharacterOverrides } from "./_lib/data-files.js";
+import { parseDataAssignment, renderCharacterOverrides, renderCharacterMedia } from "./_lib/data-files.js";
 import {
   PRIVATE_CHARACTER_DATA_PATH,
   readPrivateCharacterData,
@@ -129,9 +129,15 @@ export default async function handler(req,res){
     const name = text(input.name,160);
     if(!name) return res.status(400).json({error:"missing_character",message:"Personagem não informado."});
 
+    const creating = input.create === true;
     const mediaFile = await readTextFile("data/character-media.js");
     const media = parseDataAssignment(mediaFile.content,"characterMedia");
-    if(!Object.prototype.hasOwnProperty.call(media,name)){
+    const existingName = Object.keys(media).find(key => key.toLocaleLowerCase("pt-BR") === name.toLocaleLowerCase("pt-BR"));
+
+    if(creating && existingName){
+      return res.status(409).json({error:"character_exists",message:"Já existe um personagem com esse nome."});
+    }
+    if(!creating && !Object.prototype.hasOwnProperty.call(media,name)){
       return res.status(404).json({error:"unknown_character",message:"Personagem não encontrado na base atual."});
     }
 
@@ -144,7 +150,21 @@ export default async function handler(req,res){
     const head = await getHead();
     const overridesFile = await readTextFile("data/character-overrides.js");
     const overrides = parseDataAssignment(overridesFile.content,"characterOverrides");
-    overrides[name] = {eyebrow,sections};
+    const previousOverride = overrides[name] && typeof overrides[name] === "object" ? overrides[name] : {};
+
+    const cardInput = input.card && typeof input.card === "object" ? input.card : null;
+    const card = cardInput ? {
+      icon:text(cardInput.icon,12) || "👤",
+      summary:text(cardInput.summary,700)
+    } : previousOverride.card;
+
+    overrides[name] = {
+      ...previousOverride,
+      eyebrow,
+      sections,
+      ...(creating ? {created:true} : {}),
+      ...(card ? {card} : {})
+    };
 
     const files = [
       {
@@ -153,6 +173,20 @@ export default async function handler(req,res){
         encoding:"utf-8"
       }
     ];
+
+    if(creating){
+      media[name] = {
+        src:"",
+        alt:name,
+        source:"local",
+        credit:""
+      };
+      files.push({
+        path:"data/character-media.js",
+        content:renderCharacterMedia(media),
+        encoding:"utf-8"
+      });
+    }
 
     const secrets = normalizeSecrets(input.secrets);
     if(secrets !== null){
@@ -171,7 +205,7 @@ export default async function handler(req,res){
 
     const commit = await commitFiles(
       files,
-      "characters: atualizar ficha de " + name,
+      creating ? "characters: criar " + name : "characters: atualizar ficha de " + name,
       head
     );
 
