@@ -213,6 +213,20 @@ if(moreBtn && advanced){
 if(clearBtn) clearBtn.addEventListener('click',clearFilters);
 
 document.addEventListener('terraz:favoriteschange',apply);
+document.addEventListener('terra-z:characters-rendered',apply);
+document.addEventListener('terra-z:runtime-data-loaded',function(){
+  taxonomy = (window.TerraZData && window.TerraZData.characterTaxonomy) || taxonomy;
+  fillSelect(typeSelect,taxonomy.types);
+  fillSelect(statusSelect,taxonomy.statuses);
+
+  var available = ['all','featured'].concat(
+    (Array.isArray(taxonomy.nuclei) ? taxonomy.nuclei : []).map(function(item){ return item.id; })
+  );
+  if(available.indexOf(activeNucleus) === -1) activeNucleus = 'all';
+
+  renderNuclei();
+  apply();
+});
 
 window.TerraZApp.characterFilters = {
   apply:apply,
