@@ -6,12 +6,33 @@ var core = window.TerraZCore;
 if(!core) throw new Error('Terra Z: núcleo não carregado antes de js/sessions.js');
 
 var escapeHtml = core.escapeHtml;
-var sessions = (window.TerraZData && window.TerraZData.sessions) || [];
+var escapeAttr = core.escapeAttr;
+var publicSessions = (window.TerraZData && window.TerraZData.sessions) || [];
+var privateSessions = [];
+
+function backend(){ return window.TerraZApp && window.TerraZApp.backend; }
+
+function allSessions(){
+  var byId = {};
+  publicSessions.forEach(function(item){
+    if(item && item.id) byId[item.id] = item;
+  });
+  privateSessions.forEach(function(item){
+    if(item && item.id) byId[item.id] = item;
+  });
+  return Object.keys(byId).map(function(id){ return byId[id]; });
+}
 
 function characterLink(name){
   var router = window.TerraZApp.router;
   var slug = router && router.slugify ? router.slugify(name) : '';
-  return '<button class="session-chip session-character" data-character="' + escapeHtml(name) + '" data-character-slug="' + escapeHtml(slug) + '">' + escapeHtml(name) + '</button>';
+  return '<button class="session-chip session-character" data-character="' + escapeAttr(name) + '" data-character-slug="' + escapeAttr(slug) + '">' + escapeHtml(name) + '</button>';
+}
+
+function visibilityBadge(level){
+  if(level === 'master') return '<span class="session-visibility master">🔒 Mestre</span>';
+  if(level === 'rumor') return '<span class="session-visibility rumor">◈ Rumor</span>';
+  return '<span class="session-visibility public">Público</span>';
 }
 
 function render(){
@@ -19,6 +40,7 @@ function render(){
   var count = document.getElementById('campaignSessionCount');
   if(!root) return;
 
+  var sessions = allSessions();
   if(count) count.textContent = sessions.length + (sessions.length === 1 ? ' sessão registrada' : ' sessões registradas');
 
   if(!sessions.length){
@@ -26,7 +48,7 @@ function render(){
     return;
   }
 
-  var b = window.TerraZApp && window.TerraZApp.backend;
+  var b = backend();
   var canEdit = !!(b && b.isConfigured && b.isConfigured() && b.isAuthenticated && b.isAuthenticated());
 
   var ordered = sessions.slice().sort(function(a,b){
@@ -36,13 +58,14 @@ function render(){
   var html = '';
   ordered.forEach(function(session){
     var visibility = session.visibility || 'public';
-    html += '<article class="session-entry" data-session-id="' + escapeHtml(session.id || '') + '" data-visibility="' + escapeHtml(visibility) + '">';
+    html += '<article class="session-entry session-' + escapeAttr(visibility) + '" data-session-id="' + escapeAttr(session.id || '') + '" data-visibility="' + escapeAttr(visibility) + '">';
     html += '<div class="session-meta">';
     if(session.realDate) html += '<span>' + escapeHtml(session.realDate) + '</span>';
     if(session.inWorldDate) html += '<span>· ' + escapeHtml(session.inWorldDate) + '</span>';
+    html += visibilityBadge(visibility);
     html += '</div>';
     html += '<div class="session-title-row"><h3>' + escapeHtml(session.title || 'Sessão sem título') + '</h3>';
-    if(canEdit) html += '<button class="session-edit-btn" data-session-edit="' + escapeHtml(session.id || '') + '">✏️ Editar</button>';
+    if(canEdit) html += '<button class="session-edit-btn" data-session-edit="' + escapeAttr(session.id || '') + '">✏️ Editar</button>';
     html += '</div>';
     if(session.summary) html += '<p class="session-summary">' + escapeHtml(session.summary) + '</p>';
 
@@ -86,13 +109,36 @@ function render(){
   if(window.TerraZApp.visibility) window.TerraZApp.visibility.apply();
 }
 
-document.addEventListener('terra-z:auth-changed', render);
+async function loadPrivateSessions(){
+  var b = backend();
+
+  if(!b || !b.isConfigured() || !b.isAuthenticated()){
+    privateSessions = [];
+    render();
+    return;
+  }
+
+  try {
+    var result = await b.request('/api/private-sessions',{method:'GET'});
+    privateSessions = Array.isArray(result.sessions) ? result.sessions : [];
+  } catch(error){
+    privateSessions = [];
+    console.error('Terra Z private sessions:',error);
+  }
+
+  render();
+}
+
+document.addEventListener('terra-z:auth-changed', loadPrivateSessions);
 
 render();
+if(backend() && backend().isAuthenticated()) loadPrivateSessions();
 
 window.TerraZApp.sessions = {
-  render: render,
-  count: function(){ return sessions.length; }
+  render:render,
+  reloadPrivate:loadPrivateSessions,
+  getAll:allSessions,
+  count:function(){ return allSessions().length; }
 };
 
 })();
