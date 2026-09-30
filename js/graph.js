@@ -82,8 +82,10 @@ function renderGraph(){
   });
   graphData.nodes.forEach(function(n){
     var character = graphCharacterMap[n.id] || '';
-    var cls = character ? 'graph-node graph-node-clickable' : 'graph-node';
-    html += '<g class="' + cls + '" data-node-id="' + escapeAttr(n.id) + '" data-character="' + escapeAttr(character) + '">';
+    var manager = window.TerraZApp && window.TerraZApp.characters;
+    var hasActiveFicha = !!(character && manager && manager.get && manager.get(character));
+    var cls = hasActiveFicha ? 'graph-node graph-node-clickable' : 'graph-node';
+    html += '<g class="' + cls + '" data-node-id="' + escapeAttr(n.id) + '" data-character="' + escapeAttr(hasActiveFicha ? character : '') + '">';
     html += '<circle cx="' + n.x + '" cy="' + n.y + '" r="' + n.r + '" fill="' + n.color + '" stroke="#fff" stroke-width="3" filter="url(#glowNode)"/>';
     html += '<text x="' + n.x + '" y="' + (n.y + Math.round(n.r * 0.13)) + '" font-family="Oswald,sans-serif" font-size="' + Math.max(10, Math.round(n.r * 0.37)) + '" fill="#fff" text-anchor="middle" font-weight="700">' + escapeHtml(n.label) + '</text>';
     html += '</g>';
