@@ -1,6 +1,6 @@
 import { applyCors } from "./_lib/cors.js";
 import { requireEditor } from "./_lib/auth.js";
-import { getHead, readTextFile, commitFiles } from "./_lib/github.js";
+import { getHead, readTextFile, readBinaryFile, commitFiles } from "./_lib/github.js";
 import { parseDataAssignment, renderCharacterOverrides, renderCharacterMedia, renderCharacterTaxonomy } from "./_lib/data-files.js";
 import {
   PRIVATE_CHARACTER_DATA_PATH,
@@ -224,8 +224,8 @@ function statusUrl(req,sha){
 
 export default async function handler(req,res){
   if(applyCors(req,res)) return;
-  if(req.method !== "POST"){
-    res.setHeader("Allow","POST, OPTIONS");
+  if(req.method !== "POST" && req.method !== "DELETE"){
+    res.setHeader("Allow","POST, DELETE, OPTIONS");
     return res.status(405).json({error:"method_not_allowed"});
   }
   if(!requireEditor(req,res)) return;
@@ -235,7 +235,8 @@ export default async function handler(req,res){
     const name = text(input.name,160);
     if(!name) return res.status(400).json({error:"missing_character",message:"Personagem não informado."});
 
-    const creating = input.create === true;
+    const deleting = req.method === "DELETE";
+    const creating = !deleting && input.create === true;
 
     const [mediaFile,overridesFile,charactersFile,metaFile] = await Promise.all([
       readTextFile("data/character-media.js"),
@@ -258,6 +259,97 @@ export default async function handler(req,res){
       name
     );
     const mediaExistingName = findCaseInsensitiveKey(Object.keys(media),name);
+
+    if(deleting){
+      const canonicalName = baseExistingName || overrideExistingName;
+
+      if(!canonicalName){
+        return res.status(404).json({
+          error:"unknown_character",
+          message:"Nenhuma ficha de personagem com esse nome foi encontrada."
+        });
+      }
+
+      if(baseExistingName && overrides[canonicalName] && overrides[canonicalName].deleted === true){
+        return res.status(404).json({
+          error:"character_already_deleted",
+          message:"Este personagem já está apagado."
+        });
+      }
+
+      const removedMedia = media[canonicalName] || null;
+      const portraitPath = removedMedia && typeof removedMedia.src === "string"
+        ? removedMedia.src.trim()
+        : "";
+
+      if(baseExistingName){
+        overrides[canonicalName] = {
+          deleted:true,
+          deletedAt:new Date().toISOString()
+        };
+      } else {
+        delete overrides[canonicalName];
+      }
+
+      if(taxonomy.characters) delete taxonomy.characters[canonicalName];
+      delete media[canonicalName];
+
+      const privateData = await readPrivateCharacterData();
+      privateData.characters = privateData.characters && typeof privateData.characters === "object"
+        ? privateData.characters
+        : {};
+      delete privateData.characters[canonicalName];
+
+      const files = [
+        {
+          path:"data/character-overrides.js",
+          content:renderCharacterOverrides(overrides),
+          encoding:"utf-8"
+        },
+        {
+          path:"data/character-meta.js",
+          content:renderCharacterTaxonomy(taxonomy),
+          encoding:"utf-8"
+        },
+        {
+          path:"data/character-media.js",
+          content:renderCharacterMedia(media),
+          encoding:"utf-8"
+        },
+        {
+          path:PRIVATE_CHARACTER_DATA_PATH,
+          content:renderPrivateCharacterData(privateData),
+          encoding:"utf-8"
+        }
+      ];
+
+      if(/^images\/characters\/[a-z0-9._-]+\.(png|jpe?g|webp)$/i.test(portraitPath)){
+        try {
+          await readBinaryFile(portraitPath);
+          files.push({
+            path:portraitPath,
+            delete:true
+          });
+        } catch(error){
+          if(!error || error.status !== 404) throw error;
+        }
+      }
+
+      const head = await getHead();
+      const commit = await commitFiles(
+        files,
+        "characters: apagar " + canonicalName,
+        head
+      );
+
+      return res.status(200).json({
+        ok:true,
+        sha:commit.sha,
+        deleted:canonicalName,
+        mode:baseExistingName ? "tombstone" : "removed",
+        status_url:statusUrl(req,commit.sha)
+      });
+    }
 
     if(creating && (baseExistingName || overrideExistingName)){
       return res.status(409).json({error:"character_exists",message:"Já existe uma ficha de personagem com esse nome."});
