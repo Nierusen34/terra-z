@@ -17,7 +17,8 @@ window.TerraZData.sessions = [
     ],
     "locations": [
       "Dique",
-      "Downtown e a Muralha"
+      "Downtown",
+      "Muralha"
     ],
     "consequences": [],
     "visibility": "public",
