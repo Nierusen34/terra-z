@@ -186,7 +186,7 @@ async function saveGraphEditor(){
   var button = document.getElementById('graphSaveBtn');
   if(button){
     button.disabled = true;
-    button.textContent = 'Publicando…';
+    button.textContent = 'Salvando…';
   }
 
   try {
@@ -195,19 +195,17 @@ async function saveGraphEditor(){
       body:{graph:graphData}
     });
 
-    showToast('Grafo enviado. Aguardando GitHub Pages…','info',5000);
-
-    if(window.TerraZApp.publishing && result.status_url){
-      var published = await window.TerraZApp.publishing.waitForDeployment(result.status_url);
-      if(published){
-        showToast('Grafo publicado com sucesso','success',5000);
-        setTimeout(function(){ location.reload(); },900);
-        return;
-      }
-    }
-
+    publishedGraph = JSON.parse(JSON.stringify(graphData));
     closeGraphEditor();
-    showToast('Commit criado; o deploy ainda está processando.','info',5000);
+    showToast('Grafo salvo. Sincronização estática continua em segundo plano.','success',4500);
+
+    var runtime = window.TerraZApp && window.TerraZApp.runtimeData;
+    if(runtime && runtime.refresh) runtime.refresh({force:true,bust:result.sha,silent:true});
+
+    var publishing = window.TerraZApp && window.TerraZApp.publishing;
+    if(publishing && publishing.trackDeployment && result.status_url){
+      publishing.trackDeployment(result.status_url);
+    }
   } catch(error){
     console.error('Terra Z graph publish:',error);
     showToast(error.message || 'Falha ao publicar o grafo','error',6000);
@@ -310,6 +308,18 @@ function setupGraphEditorEvents(){
 }
 
 
+
+document.addEventListener('terra-z:runtime-data-loaded',function(){
+  publishedGraph = (window.TerraZData && window.TerraZData.graphOverride) || publishedGraph;
+  var modal = document.getElementById('graphEditorModal');
+  var editing = !!(modal && modal.classList.contains('show'));
+
+  if(!editing && publishedGraph && Array.isArray(publishedGraph.nodes) && Array.isArray(publishedGraph.edges)){
+    graphData = JSON.parse(JSON.stringify(publishedGraph));
+    saveGraph();
+    renderGraph();
+  }
+});
 
 try {
   graphData = loadGraph();
