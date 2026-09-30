@@ -214,7 +214,7 @@ if(clearBtn) clearBtn.addEventListener('click',clearFilters);
 
 document.addEventListener('terraz:favoriteschange',apply);
 document.addEventListener('terra-z:characters-rendered',apply);
-document.addEventListener('terra-z:runtime-data-loaded',function(){
+function refreshTaxonomy(){
   taxonomy = (window.TerraZData && window.TerraZData.characterTaxonomy) || taxonomy;
   fillSelect(typeSelect,taxonomy.types);
   fillSelect(statusSelect,taxonomy.statuses);
@@ -226,10 +226,13 @@ document.addEventListener('terra-z:runtime-data-loaded',function(){
 
   renderNuclei();
   apply();
-});
+}
+
+document.addEventListener('terra-z:runtime-data-loaded',refreshTaxonomy);
 
 window.TerraZApp.characterFilters = {
   apply:apply,
+  refreshTaxonomy:refreshTaxonomy,
   clear:clearFilters,
   nucleus:function(id){
     activeNucleus = id || 'all';
