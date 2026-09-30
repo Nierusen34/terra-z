@@ -23,6 +23,18 @@ window.TerraZData.sessions = [
     "consequences": [],
     "visibility": "public",
     "links": []
+  },
+  {
+    "id": "teste",
+    "title": "Teste",
+    "realDate": "",
+    "inWorldDate": "",
+    "summary": "",
+    "characters": [],
+    "locations": [],
+    "consequences": [],
+    "visibility": "public",
+    "links": []
   }
 ];
 
