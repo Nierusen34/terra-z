@@ -109,22 +109,81 @@ function closeFichaModal(){
 }
 
 
-function renderCreatedCharacterCards(){
+function characterNameFromCard(card){
+  var h4 = card && card.querySelector ? card.querySelector('h4') : null;
+  if(!h4) return '';
+
+  var title = h4.textContent.replace(/^[^\w]*\s*/,'').trim();
+  title = title.replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s⭐]+/u,'').trim();
+
+  var match = '';
+  Object.keys(fichasPersonagens).some(function(name){
+    if(title === name || title.indexOf(name) !== -1 || name.indexOf(title) !== -1){
+      match = name;
+      return true;
+    }
+    return false;
+  });
+
+  return match;
+}
+
+function inferredCardIcon(name,ficha){
+  var override = characterOverrides[name] || {};
+  if(override.card && override.card.icon) return String(override.card.icon).trim() || '👤';
+
+  var first = String((ficha && ficha.eyebrow) || '').trim().split(/\s+/)[0] || '';
+  if(first && first.length <= 12 && /[^A-Za-z0-9]/.test(first)) return first;
+  return '👤';
+}
+
+function inferredCardSummary(name,ficha){
+  var override = characterOverrides[name] || {};
+  if(override.card && override.card.summary) return String(override.card.summary).trim();
+
+  var sections = Array.isArray(ficha && ficha.sections) ? ficha.sections : [];
+  var basic = sections.find(function(section){
+    return /ficha básica/i.test(String(section && section.title || ''));
+  }) || sections[0];
+
+  if(basic && basic.content){
+    var temp = document.createElement('div');
+    temp.innerHTML = String(basic.content)
+      .replace(/<br\s*\/?>/gi,'\n')
+      .replace(/<\/p>/gi,'\n');
+
+    var lines = String(temp.textContent || '')
+      .split(/\n+/)
+      .map(function(line){ return line.trim(); })
+      .filter(Boolean)
+      .slice(0,4);
+
+    if(lines.length) return lines.join('\n');
+  }
+
+  return String((ficha && ficha.eyebrow) || 'Personagem do universo Terra Z').trim();
+}
+
+function renderMissingCharacterCards(){
   var grid = document.querySelector('#sub-tz-personagens .card-grid');
   if(!grid) return;
 
-  Object.keys(characterOverrides).forEach(function(name){
-    var override = characterOverrides[name] || {};
-    if(!override.created) return;
-    if(grid.querySelector('[data-created-character="' + CSS.escape(name) + '"]')) return;
+  var represented = new Set();
+  Array.from(grid.querySelectorAll('.card')).forEach(function(card){
+    var name = characterNameFromCard(card);
+    if(name) represented.add(name);
+  });
 
-    var card = override.card || {};
-    var icon = String(card.icon || '👤').trim() || '👤';
-    var summary = String(card.summary || override.eyebrow || 'Personagem do universo Terra Z').trim();
+  Object.keys(fichasPersonagens).forEach(function(name){
+    if(represented.has(name)) return;
+
+    var ficha = fichasPersonagens[name] || {};
+    var icon = inferredCardIcon(name,ficha);
+    var summary = inferredCardSummary(name,ficha);
 
     var wrapper = document.createElement('div');
-    wrapper.className = 'card character-created-card';
-    wrapper.setAttribute('data-created-character',name);
+    wrapper.className = 'card character-generated-card';
+    wrapper.setAttribute('data-generated-character',name);
 
     var h4 = document.createElement('h4');
     h4.textContent = icon + ' ' + name;
@@ -138,6 +197,7 @@ function renderCreatedCharacterCards(){
     wrapper.appendChild(h4);
     wrapper.appendChild(p);
     grid.appendChild(wrapper);
+    represented.add(name);
   });
 }
 
@@ -171,7 +231,7 @@ function attachFichaHandlers(){
 
 
 
-renderCreatedCharacterCards();
+renderMissingCharacterCards();
 attachFichaHandlers();
 
 window.openFichaModal = openFichaModal;
