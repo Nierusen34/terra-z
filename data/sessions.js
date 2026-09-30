@@ -12,7 +12,8 @@ window.TerraZData.sessions = [
     "inWorldDate": "4 de Janeiro de 2027",
     "summary": "Riot faz seu ultimo treinamento com Kendra em Midway City antes de partir para Vanguard Bay.\nTristan tem um flashback de quando era criança sobre a discussão de Oliver e Dinah em 2019 quando ela vai para Gotham.\nEm uma das suas primeiras missões, Tristan acaba encontrando Riot no Dique achando que é o Lobo, os dois enfrentam capangas que estavam fazendo tráfico humano para Sumdac. \nO celular hackeado de Tristan marca uma reunião dele e de Riot com Camila Vargas que pede a ajuda deles para ajudar um alienigena telepata.",
     "characters": [
-      "Tristan Queen e Riot"
+      "Tristan Queen",
+      "Riot"
     ],
     "locations": [
       "Dique",
