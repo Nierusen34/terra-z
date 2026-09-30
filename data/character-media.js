@@ -19,7 +19,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "M'ark": {
-    "src": "",
+    "src": "images/characters/mark.jpg",
     "alt": "M'ark",
     "source": "local",
     "credit": ""
