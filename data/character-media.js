@@ -137,12 +137,6 @@ window.TerraZData.characterMedia = {
     "alt": "George Gandenzio Toombs",
     "source": "local",
     "credit": ""
-  },
-  "Personagem teste": {
-    "src": "",
-    "alt": "Personagem teste",
-    "source": "local",
-    "credit": ""
   }
 };
 
