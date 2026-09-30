@@ -171,6 +171,7 @@ function handleAction(action){
       if(app.editor && app.editor.toggle){
         app.editor.toggle();
         refresh();
+        close();
       }
     });
     return;
