@@ -1138,3 +1138,13 @@ button.session-chip:hover{border-color:var(--accent);color:var(--accent)}
     #lightbox img{max-height:calc(100vh - 82px)}
   }
 }
+
+
+/* ===== EXCLUSÃO DE PERSONAGEM ===== */
+#characterEditorDelete{margin-right:auto;border:1px solid #a33;background:transparent;color:#a33}
+#characterEditorDelete:hover:not(:disabled){background:#a33;color:#fff;border-color:#a33}
+#characterEditorDelete:disabled{opacity:.45;cursor:not-allowed}
+
+@media(max-width:520px){
+  #characterEditorDelete{grid-column:1/-1;margin-right:0}
+}
