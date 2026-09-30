@@ -6,10 +6,10 @@ var core = window.TerraZCore;
 if(!core) throw new Error('Terra Z: núcleo não carregado antes de js/character-editor.js');
 
 var showToast = core.showToast;
-var escapeHtml = core.escapeHtml;
 var escapeAttr = core.escapeAttr;
 
 var currentName = '';
+var createMode = false;
 var privateLoaded = false;
 
 function el(id){ return document.getElementById(id); }
@@ -31,6 +31,16 @@ function sectionHtml(section,index){
     '</div>' +
     '<div class="character-section-content" contenteditable="true" spellcheck="true">' + (section.content || '') + '</div>' +
   '</div>';
+}
+
+function defaultSections(){
+  return [
+    {title:'📋 Ficha Básica',content:'<p><strong>Nome:</strong> <br><strong>Codinome:</strong> <br><strong>Idade:</strong> <br><strong>Local:</strong> </p>'},
+    {title:'📖 História',content:'<p>Escreva aqui a história do personagem.</p>'},
+    {title:'🎯 Personalidade',content:'<p>Descreva a personalidade do personagem.</p>'},
+    {title:'⚔️ Habilidades',content:'<ul><li>Adicione uma habilidade.</li></ul>'},
+    {title:'🔗 Relações',content:'<ul><li>Adicione uma relação importante.</li></ul>'}
+  ];
 }
 
 function renderSections(sections){
@@ -69,37 +79,47 @@ function splitSecrets(value){
   return String(value || '').split(/\r?\n/).map(function(v){ return v.trim(); }).filter(Boolean);
 }
 
-async function open(name){
+function refreshCreateButton(){
+  var btn = el('addCharacterBtn');
+  if(!btn) return;
   var b = backend();
-  if(!b || !b.isConfigured() || !b.isAuthenticated()){
-    showToast('Entre como editor para editar personagens.','warning',5000);
-    if(window.TerraZApp.publishing) window.TerraZApp.publishing.open();
-    return;
+  var ready = !!(b && b.isConfigured && b.isConfigured() && b.isAuthenticated && b.isAuthenticated());
+  btn.disabled = !ready;
+  btn.title = ready ? 'Criar novo personagem ou NPC' : 'Entre como editor em Publicar para criar personagens';
+}
+
+function setCreateFieldsVisible(visible){
+  var fields = el('characterEditorCardFields');
+  if(fields) fields.hidden = !visible;
+}
+
+function setCreateDependentButtons(disabled){
+  var portrait = el('characterEditorPortraitBtn');
+  var graph = el('characterEditorGraphBtn');
+
+  if(portrait){
+    portrait.disabled = disabled;
+    portrait.title = disabled ? 'Salve o personagem primeiro para adicionar retrato' : 'Trocar retrato';
   }
-
-  var manager = window.TerraZApp.characters;
-  var ficha = manager && manager.get ? manager.get(name) : null;
-  if(!ficha){
-    showToast('Ficha não encontrada para: ' + name,'error');
-    return;
+  if(graph){
+    graph.disabled = disabled;
+    graph.title = disabled ? 'Salve o personagem primeiro para adicionar relações no grafo' : 'Relações / Grafo';
   }
+}
 
-  currentName = name;
-  el('characterEditorName').value = name;
-  el('characterEditorEyebrow').value = ficha.eyebrow || '';
-  renderSections(Array.isArray(ficha.sections) ? ficha.sections : []);
+function preparePanel(){
+  var panel = el('characterEditorPanel');
+  if(panel) panel.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
 
+async function loadExistingSecrets(name){
   privateLoaded = false;
   var secretsField = el('characterEditorSecrets');
   secretsField.value = '';
   secretsField.disabled = true;
   secretsField.placeholder = 'Carregando conteúdo privado…';
-
   setStatus('Carregando conteúdo privado…','working');
-
-  var panel = el('characterEditorPanel');
-  if(panel) panel.classList.add('show');
-  document.body.style.overflow = 'hidden';
 
   try {
     var privateApi = window.TerraZApp.privateContent;
@@ -122,9 +142,103 @@ async function open(name){
   }
 }
 
+async function open(name){
+  var b = backend();
+  if(!b || !b.isConfigured() || !b.isAuthenticated()){
+    showToast('Entre como editor para editar personagens.','warning',5000);
+    if(window.TerraZApp.publishing) window.TerraZApp.publishing.open();
+    return;
+  }
+
+  var manager = window.TerraZApp.characters;
+  var ficha = manager && manager.get ? manager.get(name) : null;
+  if(!ficha){
+    showToast('Ficha não encontrada para: ' + name,'error');
+    return;
+  }
+
+  createMode = false;
+  currentName = name;
+
+  var nameField = el('characterEditorName');
+  nameField.readOnly = true;
+  nameField.value = name;
+
+  el('characterEditorEyebrow').value = ficha.eyebrow || '';
+  renderSections(Array.isArray(ficha.sections) ? ficha.sections : []);
+
+  var isCreated = !!(manager && manager.isCreated && manager.isCreated(name));
+  setCreateFieldsVisible(isCreated);
+  if(isCreated){
+    var card = manager.card ? (manager.card(name) || {}) : {};
+    el('characterEditorIcon').value = card.icon || '👤';
+    el('characterEditorCardSummary').value = card.summary || '';
+  }
+
+  setCreateDependentButtons(false);
+
+  var title = el('characterEditorTitle');
+  if(title) title.textContent = '✏️ Editar personagem';
+  var saveBtn = el('characterEditorSave');
+  if(saveBtn) saveBtn.textContent = '💾 Salvar personagem';
+
+  preparePanel();
+  await loadExistingSecrets(name);
+}
+
+function openCreate(){
+  var b = backend();
+  if(!b || !b.isConfigured() || !b.isAuthenticated()){
+    showToast('Entre como editor para criar personagens.','warning',5000);
+    if(window.TerraZApp.publishing) window.TerraZApp.publishing.open();
+    return;
+  }
+
+  createMode = true;
+  currentName = '';
+  privateLoaded = true;
+
+  var nameField = el('characterEditorName');
+  nameField.readOnly = false;
+  nameField.value = '';
+  nameField.placeholder = 'Nome completo ou codinome';
+
+  el('characterEditorEyebrow').value = '';
+  el('characterEditorIcon').value = '👤';
+  el('characterEditorCardSummary').value = '';
+  el('characterEditorSecrets').value = '';
+  el('characterEditorSecrets').disabled = false;
+  el('characterEditorSecrets').placeholder = 'Um segredo por linha';
+
+  renderSections(defaultSections());
+  setCreateFieldsVisible(true);
+  setCreateDependentButtons(true);
+
+  var title = el('characterEditorTitle');
+  if(title) title.textContent = '＋ Novo personagem';
+  var saveBtn = el('characterEditorSave');
+  if(saveBtn) saveBtn.textContent = '＋ Criar personagem';
+
+  setStatus('Preencha a ficha. O retrato e o grafo poderão ser adicionados após o primeiro salvamento.','ready');
+  preparePanel();
+
+  setTimeout(function(){ nameField.focus(); },50);
+}
+
 function close(){
   currentName = '';
+  createMode = false;
   privateLoaded = false;
+
+  var nameField = el('characterEditorName');
+  if(nameField){
+    nameField.readOnly = true;
+    nameField.placeholder = '';
+  }
+
+  setCreateFieldsVisible(false);
+  setCreateDependentButtons(false);
+
   var panel = el('characterEditorPanel');
   if(panel) panel.classList.remove('show');
   document.body.style.overflow = '';
@@ -138,6 +252,13 @@ async function save(){
     return;
   }
 
+  var name = createMode ? el('characterEditorName').value.trim() : currentName;
+  if(!name){
+    setStatus('Informe o nome do personagem.','error');
+    el('characterEditorName').focus();
+    return;
+  }
+
   var sections = collectSections();
   if(!sections.length){
     setStatus('A ficha precisa ter ao menos uma seção.','error');
@@ -146,15 +267,25 @@ async function save(){
 
   var button = el('characterEditorSave');
   button.disabled = true;
-  button.textContent = 'Salvando…';
-  setStatus('Publicando ficha no Terra Z…','working');
+  button.textContent = createMode ? 'Criando…' : 'Salvando…';
+  setStatus(createMode ? 'Criando personagem no Terra Z…' : 'Publicando ficha no Terra Z…','working');
 
   try {
     var payload = {
-      name:currentName,
+      name:name,
+      create:createMode,
       eyebrow:el('characterEditorEyebrow').value.trim(),
       sections:sections
     };
+
+    var manager = window.TerraZApp.characters;
+    var hasCard = createMode || !!(manager && manager.isCreated && manager.isCreated(name));
+    if(hasCard){
+      payload.card = {
+        icon:el('characterEditorIcon').value.trim() || '👤',
+        summary:el('characterEditorCardSummary').value.trim()
+      };
+    }
 
     if(privateLoaded){
       payload.secrets = splitSecrets(el('characterEditorSecrets').value);
@@ -170,8 +301,8 @@ async function save(){
     if(window.TerraZApp.publishing && result.status_url){
       var published = await window.TerraZApp.publishing.waitForDeployment(result.status_url);
       if(published){
-        setStatus('Personagem atualizado com sucesso.','success');
-        showToast('Ficha de ' + currentName + ' atualizada.','success',5000);
+        setStatus(createMode ? 'Personagem criado com sucesso.' : 'Personagem atualizado com sucesso.','success');
+        showToast(createMode ? (name + ' foi adicionado ao Terra Z.') : ('Ficha de ' + name + ' atualizada.'),'success',5000);
         setTimeout(function(){ location.reload(); },900);
         return;
       }
@@ -181,21 +312,29 @@ async function save(){
     showToast('Alterações enviadas. O deploy ainda está processando.','info',5000);
   } catch(error){
     console.error('Terra Z character editor:',error);
-    setStatus(error.message || 'Falha ao atualizar personagem.','error');
-    showToast(error.message || 'Falha ao atualizar personagem.','error',6000);
+    setStatus(error.message || (createMode ? 'Falha ao criar personagem.' : 'Falha ao atualizar personagem.'),'error');
+    showToast(error.message || 'Falha ao salvar personagem.','error',6000);
   } finally {
     button.disabled = false;
-    button.textContent = '💾 Salvar personagem';
+    button.textContent = createMode ? '＋ Criar personagem' : '💾 Salvar personagem';
   }
 }
 
 function openPortrait(){
+  if(createMode){
+    showToast('Salve o personagem antes de adicionar o retrato.','info',4000);
+    return;
+  }
   if(currentName && window.TerraZApp.mediaManager){
     window.TerraZApp.mediaManager.choose(currentName);
   }
 }
 
 function openGraph(){
+  if(createMode){
+    showToast('Salve o personagem antes de adicioná-lo ao grafo.','info',4000);
+    return;
+  }
   close();
   if(window.TerraZApp.graph && window.TerraZApp.graph.openEditor){
     window.TerraZApp.graph.openEditor();
@@ -206,6 +345,7 @@ function setup(){
   var panel = el('characterEditorPanel');
   var sections = el('characterEditorSections');
 
+  if(el('addCharacterBtn')) el('addCharacterBtn').addEventListener('click',openCreate);
   if(el('characterEditorClose')) el('characterEditorClose').addEventListener('click',close);
   if(el('characterEditorCancel')) el('characterEditorCancel').addEventListener('click',close);
   if(el('characterEditorSave')) el('characterEditorSave').addEventListener('click',save);
@@ -229,15 +369,19 @@ function setup(){
   }
 
   document.addEventListener('terra-z:auth-changed',function(){
+    refreshCreateButton();
     var b = backend();
     if(!b || !b.isAuthenticated()) close();
   });
+
+  refreshCreateButton();
 }
 
 setup();
 
 window.TerraZApp.characterEditor = {
   open:open,
+  openCreate:openCreate,
   close:close,
   save:save
 };
