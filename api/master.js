@@ -1,5 +1,6 @@
 import { applyCors } from "./_lib/cors.js";
 import { requireEditor } from "./_lib/auth.js";
+import { readPrivateCharacterData } from "./_lib/private-character-data.js";
 
 export default async function handler(req,res){
   res.setHeader("Cache-Control","no-store");
@@ -20,6 +21,20 @@ export default async function handler(req,res){
 
   try {
     const data = JSON.parse(raw);
+    const privateOverrides = await readPrivateCharacterData();
+
+    data.characters = data.characters && typeof data.characters === "object" ? data.characters : {};
+    const extraCharacters = privateOverrides && privateOverrides.characters && typeof privateOverrides.characters === "object"
+      ? privateOverrides.characters
+      : {};
+
+    Object.keys(extraCharacters).forEach(name => {
+      data.characters[name] = {
+        ...(data.characters[name] || {}),
+        ...extraCharacters[name]
+      };
+    });
+
     return res.status(200).json({ok:true,content:data});
   } catch(error){
     console.error(error);
