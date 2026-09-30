@@ -12,15 +12,22 @@ var escapeHtml = core.escapeHtml;
 var baseFichasPersonagens = (window.TerraZData && window.TerraZData.characters) || {};
 var characterOverrides = (window.TerraZData && window.TerraZData.characterOverrides) || {};
 var fichasPersonagens = {};
+var deletedCharacterNames = new Set();
 
 function rebuildFichas(){
   baseFichasPersonagens = (window.TerraZData && window.TerraZData.characters) || baseFichasPersonagens || {};
   characterOverrides = (window.TerraZData && window.TerraZData.characterOverrides) || {};
   fichasPersonagens = {};
+  deletedCharacterNames = new Set(
+    Object.keys(characterOverrides).filter(function(name){
+      return characterOverrides[name] && characterOverrides[name].deleted === true;
+    })
+  );
 
   Object.keys(baseFichasPersonagens).forEach(function(name){
     var base = baseFichasPersonagens[name] || {};
     var override = characterOverrides[name] || {};
+    if(override.deleted === true) return;
     fichasPersonagens[name] = {
       ...base,
       ...override,
@@ -32,7 +39,7 @@ function rebuildFichas(){
   Object.keys(characterOverrides).forEach(function(name){
     if(fichasPersonagens[name]) return;
     var override = characterOverrides[name] || {};
-    if(!override.created) return;
+    if(override.deleted === true || !override.created) return;
     fichasPersonagens[name] = {
       eyebrow:override.eyebrow || '',
       sections:Array.isArray(override.sections) ? override.sections : [],
@@ -178,6 +185,20 @@ function renderMissingCharacterCards(){
 
   grid.querySelectorAll('.character-generated-card').forEach(function(card){ card.remove(); });
 
+  Array.from(grid.querySelectorAll('.card')).forEach(function(card){
+    var h4 = card.querySelector('h4');
+    if(!h4) return;
+
+    var title = h4.textContent.replace(/^[^\w]*\s*/,'').trim();
+    title = title.replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s⭐]+/u,'').trim();
+
+    var deleted = Array.from(deletedCharacterNames).some(function(name){
+      return title === name || title.indexOf(name) !== -1 || name.indexOf(title) !== -1;
+    });
+
+    if(deleted) card.remove();
+  });
+
   var represented = new Set();
   Array.from(grid.querySelectorAll('.card')).forEach(function(card){
     var name = characterNameFromCard(card);
@@ -266,6 +287,7 @@ window.TerraZApp.characters = {
   get:function(name){ return fichasPersonagens[name] || null; },
   names:function(){ return Object.keys(fichasPersonagens); },
   isCreated:function(name){ return !!(characterOverrides[name] && characterOverrides[name].created); },
+  isDeleted:function(name){ return deletedCharacterNames.has(name); },
   card:function(name){ return (characterOverrides[name] && characterOverrides[name].card) || null; },
   refresh:refreshCharactersFromRuntime
 };
