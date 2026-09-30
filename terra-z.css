@@ -1227,3 +1227,46 @@ button.session-chip:hover{border-color:var(--accent);color:var(--accent)}
   .editorial-poster{margin:10px auto 18px}
   .editorial-poster figcaption{font-size:10.5px}
 }
+
+
+/* ===== CAPA · DOSSIÊ TERRA Z / CULTURA E SOCIEDADE ===== */
+.home-dossier-visual{
+  width:min(1180px,calc(100% - 40px));
+  margin:18px auto 24px;
+  padding:7px;
+  background:#0a0a09;
+  border-color:color-mix(in srgb,var(--accent) 35%,var(--line));
+  box-shadow:0 18px 48px rgba(0,0,0,.28);
+}
+.home-dossier-visual img{
+  width:100%;
+  height:auto;
+  aspect-ratio:16/9;
+  object-fit:cover;
+  background:#080807;
+}
+.home-dossier-visual figcaption{
+  margin-top:7px;
+  padding:9px 8px 3px;
+  font-size:11px;
+  line-height:1.5;
+  letter-spacing:.2px;
+}
+.culture-society-visual{
+  max-width:980px;
+  margin-left:auto;
+  margin-right:auto;
+}
+.culture-society-visual img{
+  aspect-ratio:16/9;
+  object-fit:cover;
+}
+@media(max-width:760px){
+  .home-dossier-visual{
+    width:calc(100% - 20px);
+    margin:12px auto 18px;
+    padding:4px;
+  }
+  .home-dossier-visual figcaption{font-size:10.5px}
+  .culture-society-visual{margin:10px auto 16px}
+}

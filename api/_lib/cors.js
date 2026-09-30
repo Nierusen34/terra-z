@@ -1,3 +1,4 @@
+// GitHub Pages e Vercel compartilham este backend; mudanças em api/ também sincronizam o snapshot completo do frontend.
 const REQUIRED_ORIGINS = [
   "https://nierusen34.github.io",
   "http://localhost:3000",
