@@ -32,20 +32,73 @@ function statusUrl(req,sha){
 
 export default async function handler(req,res){
   if(applyCors(req,res)) return;
-  if(req.method !== "POST"){
-    res.setHeader("Allow","POST, OPTIONS");
+  if(req.method !== "POST" && req.method !== "DELETE"){
+    res.setHeader("Allow","POST, DELETE, OPTIONS");
     return res.status(405).json({error:"method_not_allowed"});
   }
   if(!requireEditor(req,res)) return;
 
   try {
     const input = (req.body || {}).session || req.body || {};
+    const deleting = req.method === "DELETE";
+
+    const suppliedId = text(input.id,100);
     const title = text(input.title,160);
-    if(!title) return res.status(400).json({error:"missing_title",message:"Informe o título da sessão."});
+
+    if(!deleting && !title){
+      return res.status(400).json({error:"missing_title",message:"Informe o título da sessão."});
+    }
 
     const realDate = text(input.realDate,20);
-    const id = text(input.id,100) || slugify((realDate ? realDate + "-" : "") + title);
-    if(!id) return res.status(400).json({error:"invalid_session_id"});
+    const id = suppliedId || (!deleting ? slugify((realDate ? realDate + "-" : "") + title) : "");
+    if(!id) return res.status(400).json({error:"invalid_session_id",message:"Sessão não informada."});
+
+
+
+    if(deleting){
+      if(publicIndex < 0 && privateIndex < 0){
+        return res.status(404).json({
+          error:"session_not_found",
+          message:"Sessão não encontrada."
+        });
+      }
+
+      const wasPrivate = privateIndex >= 0;
+      const removed = publicIndex >= 0 ? publicSessions[publicIndex] : privateSessions[privateIndex];
+      const files = [];
+
+      if(publicIndex >= 0){
+        publicSessions.splice(publicIndex,1);
+        files.push({
+          path:"data/sessions.js",
+          content:renderSessions(publicSessions),
+          encoding:"utf-8"
+        });
+      }
+
+      if(privateIndex >= 0){
+        privateSessions.splice(privateIndex,1);
+        files.push({
+          path:PRIVATE_SESSIONS_PATH,
+          content:renderPrivateSessions(privateSessions),
+          encoding:"utf-8"
+        });
+      }
+
+      const commit = await commitFiles(
+        files,
+        wasPrivate ? "sessions: apagar conteúdo privado do Mestre" : "sessions: apagar " + text(removed && removed.title,160),
+        head
+      );
+
+      return res.status(200).json({
+        ok:true,
+        sha:commit.sha,
+        deleted:id,
+        visibility:removed && removed.visibility ? removed.visibility : (wasPrivate ? "master" : "public"),
+        status_url:statusUrl(req,commit.sha)
+      });
+    }
 
     const item = {
       id,
