@@ -527,16 +527,35 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2
 <div class="sub-content" id="sub-tz-personagens">
 <div class="section-title">👥 Personagens</div>
 <div data-edit-id="tz-0462" data-legacy-edit-id="e_461" class="info-box"><div class="label">👆 Toque para expandir</div>Clique em qualquer card para ver a <strong>ficha completa</strong>. Passe o mouse para revelar o botão ⭐ de favoritos.</div>
-<div class="character-tools">
-  <input id="characterFilter" type="search" placeholder="🔎 Filtrar personagens..." autocomplete="off">
-  <select id="characterViewFilter" aria-label="Filtrar personagens por estado">
-    <option value="all">Todos</option>
-    <option value="favorites">Favoritos</option>
-    <option value="with-image">Com retrato</option>
-    <option value="without-image">Sem retrato</option>
-  </select>
-  <button id="addCharacterBtn" class="character-add-btn" type="button" disabled>＋ Novo personagem</button>
-  <span id="characterCount"></span>
+<div class="character-tools character-tools-v2">
+  <div class="character-search-row">
+    <input id="characterFilter" type="search" placeholder="🔎 Buscar personagem, codinome ou núcleo..." autocomplete="off">
+    <button id="characterFavoritesToggle" class="character-filter-action" type="button" aria-pressed="false">⭐ Favoritos</button>
+    <button id="characterMoreFiltersBtn" class="character-filter-action" type="button" aria-expanded="false">⚙️ Mais filtros</button>
+    <button id="addCharacterBtn" class="character-add-btn" type="button" disabled>＋ Novo personagem</button>
+    <span id="characterCount"></span>
+  </div>
+  <div id="characterNucleiFilters" class="character-nuclei" aria-label="Filtrar personagens por núcleo"></div>
+  <div id="characterAdvancedFilters" class="character-advanced-filters" hidden>
+    <label>Tipo
+      <select id="characterTypeFilter">
+        <option value="all">Todos</option>
+      </select>
+    </label>
+    <label>Status
+      <select id="characterStatusFilter">
+        <option value="all">Todos</option>
+      </select>
+    </label>
+    <label>Retrato
+      <select id="characterMediaFilter">
+        <option value="all">Todos</option>
+        <option value="with-image">Com retrato</option>
+        <option value="without-image">Sem retrato</option>
+      </select>
+    </label>
+    <button id="characterClearFilters" type="button">Limpar filtros</button>
+  </div>
 </div>
 <div class="card-grid">
 <div class="card"><h4 data-edit-id="tz-0463" data-legacy-edit-id="e_462">🏹 Tristan Queen</h4><p data-edit-id="tz-0464" data-legacy-edit-id="e_463"><strong>Codinome:</strong> Ranger<br><strong>Idade:</strong> 20 (2007)<br><strong>Pais:</strong> Oliver e Dinah<br><strong>Local:</strong> O Dique</p></div>
@@ -704,6 +723,17 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <button id="characterEditorGraphBtn" type="button">🔗 Relações / Grafo</button>
 </div>
 
+<div class="character-editor-section-title">Organização</div>
+<div class="character-editor-meta-grid">
+<label>Tipo<select id="characterEditorType"></select></label>
+<label>Status<select id="characterEditorStatusMeta"></select></label>
+<label class="character-featured-toggle"><input id="characterEditorFeatured" type="checkbox"> <span>Personagem principal</span></label>
+</div>
+<div class="character-editor-nuclei">
+<div class="character-editor-note">Núcleos narrativos — um personagem pode pertencer a vários.</div>
+<div id="characterEditorNuclei"></div>
+</div>
+
 <div class="character-editor-section-title">Seções da ficha</div>
 <div id="characterEditorSections"></div>
 <button id="characterEditorAddSection" type="button" class="character-editor-add">＋ Adicionar seção</button>
@@ -786,6 +816,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 
 <script src="data/characters.js" defer></script>
 <script src="data/character-overrides.js" defer></script>
+<script src="data/character-meta.js" defer></script>
 <script src="data/character-media.js" defer></script>
 <script src="data/relations.js" defer></script>
 <script src="data/graph-overrides.js" defer></script>
