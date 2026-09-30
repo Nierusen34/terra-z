@@ -69,6 +69,13 @@ function setCharacterSecrets(name,secrets){
   document.dispatchEvent(new CustomEvent('terra-z:private-content-loaded'));
 }
 
+
+function removeCharacter(name){
+  if(!cache || !cache.characters || typeof cache.characters !== 'object') return;
+  delete cache.characters[name];
+  document.dispatchEvent(new CustomEvent('terra-z:private-content-loaded'));
+}
+
 document.addEventListener('terra-z:auth-changed',function(){
   clear();
   load();
@@ -81,6 +88,7 @@ window.TerraZApp.privateContent = {
   clear:clear,
   reload:reload,
   setCharacterSecrets:setCharacterSecrets,
+  removeCharacter:removeCharacter,
   getCharacterSecrets:getCharacterSecrets,
   getMasterState:getMasterState,
   setMasterState:setMasterState,
