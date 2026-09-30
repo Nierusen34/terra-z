@@ -11,9 +11,9 @@ window.TerraZData.visibilityLevels = {
 };
 
 window.TerraZData.visibilityPolicy = {
-  mode: "public-bundle",
-  secure: false,
-  warning: "Ocultação visual não é controle de acesso. Conteúdo presente no bundle público pode ser inspecionado."
+  mode: "hybrid-private-master",
+  secure: true,
+  warning: "Público e Rumor permanecem no bundle. Conteúdo Mestre é armazenado criptografado e entregue somente ao editor autenticado."
 };
 
 })();
