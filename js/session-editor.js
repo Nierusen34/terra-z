@@ -84,39 +84,44 @@ async function save(){
 
   var button = el('sessionSaveBtn');
   button.disabled = true;
-  button.textContent = 'Publicando…';
+  button.textContent = 'Salvando…';
+
+  var sessionPayload = {
+    id:currentId,
+    title:title,
+    realDate:el('sessionRealDate').value,
+    inWorldDate:el('sessionWorldDate').value.trim(),
+    summary:el('sessionSummary').value.trim(),
+    characters:splitComma(el('sessionCharacters').value),
+    locations:splitComma(el('sessionLocations').value),
+    consequences:splitLines(el('sessionConsequences').value),
+    visibility:el('sessionVisibility').value
+  };
 
   try {
+    var wasEditing = !!currentId;
     var result = await b.request('/api/session',{
       method:'POST',
-      body:{
-        session:{
-          id:currentId,
-          title:title,
-          realDate:el('sessionRealDate').value,
-          inWorldDate:el('sessionWorldDate').value.trim(),
-          summary:el('sessionSummary').value.trim(),
-          characters:splitComma(el('sessionCharacters').value),
-          locations:splitComma(el('sessionLocations').value),
-          consequences:splitLines(el('sessionConsequences').value),
-          visibility:el('sessionVisibility').value
-        }
-      }
+      body:{session:sessionPayload}
     });
 
-    showToast(currentId ? 'Sessão atualizada. Aguardando GitHub Pages…' : 'Sessão registrada. Aguardando GitHub Pages…','info',5000);
-
-    if(window.TerraZApp.publishing && result.status_url){
-      var published = await window.TerraZApp.publishing.waitForDeployment(result.status_url);
-      if(published){
-        showToast(currentId ? 'Sessão atualizada com sucesso' : 'Sessão publicada com sucesso','success',5000);
-        setTimeout(function(){ location.reload(); },1000);
-        return;
-      }
-    }
+    var manager = window.TerraZApp && window.TerraZApp.sessions;
+    if(manager && manager.upsert && result.session) manager.upsert(result.session);
 
     close();
-    showToast('Commit criado; o deploy ainda está processando.','info',5000);
+    showToast(
+      wasEditing ? 'Sessão atualizada com sucesso.' : 'Sessão registrada com sucesso.',
+      'success',
+      4500
+    );
+
+    var runtime = window.TerraZApp && window.TerraZApp.runtimeData;
+    if(runtime && runtime.refresh) runtime.refresh({force:true,bust:result.sha,silent:true});
+
+    var publishing = window.TerraZApp && window.TerraZApp.publishing;
+    if(publishing && publishing.trackDeployment && result.status_url){
+      publishing.trackDeployment(result.status_url);
+    }
   } catch(err){
     console.error(err);
     showToast(err.message || 'Falha ao registrar sessão','error',6000);
