@@ -659,3 +659,5 @@ button.session-chip:hover{border-color:var(--accent);color:var(--accent)}
 .master-migration-actions button{padding:8px 10px;cursor:pointer}
 .master-migration-actions button:disabled{opacity:.45;cursor:not-allowed}
 .master-migration-actions .danger{border:1px solid #a33;color:#a33;background:transparent}
+
+.field-note{display:block;margin-top:5px;font-family:var(--font-body);font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink3);line-height:1.4}
