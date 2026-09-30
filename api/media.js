@@ -60,14 +60,75 @@ export default async function handler(req,res){
     }
   }
 
-  if(req.method !== "POST"){
-    res.setHeader("Allow","GET, POST, OPTIONS");
+  if(req.method !== "POST" && req.method !== "DELETE"){
+    res.setHeader("Allow","GET, POST, DELETE, OPTIONS");
     return res.status(405).json({error:"method_not_allowed"});
   }
 
   if(!requireEditor(req,res)) return;
 
   try {
+    if(req.method === "DELETE"){
+      const body = req.body || {};
+      const character = String(body.character || "").trim();
+
+      if(!character){
+        return res.status(400).json({error:"missing_character",message:"Personagem não informado."});
+      }
+
+      const head = await getHead();
+      const mediaFile = await readTextFile("data/character-media.js");
+      const mediaData = parseDataAssignment(mediaFile.content,"characterMedia");
+
+      if(!Object.prototype.hasOwnProperty.call(mediaData,character)){
+        return res.status(404).json({error:"unknown_character",message:"Personagem não encontrado na camada de mídia."});
+      }
+
+      const previousPath = mediaData[character] && mediaData[character].src
+        ? String(mediaData[character].src)
+        : "";
+
+      if(!previousPath){
+        return res.status(409).json({error:"no_portrait",message:"Este personagem não possui retrato para remover."});
+      }
+
+      mediaData[character] = {
+        ...mediaData[character],
+        src:"",
+        source:"local",
+        credit:""
+      };
+
+      const files = [
+        {
+          path:"data/character-media.js",
+          content:renderCharacterMedia(mediaData),
+          encoding:"utf-8"
+        }
+      ];
+
+      if(/^images\/characters\/[a-z0-9._-]+\.(png|jpe?g|webp)$/i.test(previousPath)){
+        try {
+          await readBinaryFile(previousPath);
+          files.push({path:previousPath,delete:true});
+        } catch(error){
+          if(!error || error.status !== 404) throw error;
+        }
+      }
+
+      const commit = await commitFiles(
+        files,
+        "media: remover retrato de " + character,
+        head
+      );
+
+      return res.status(200).json({
+        ok:true,
+        sha:commit.sha,
+        character,
+        status_url:statusUrl(req,commit.sha)
+      });
+    }
     const body = req.body || {};
     const character = String(body.character || "").trim();
     const mime = String(body.mimeType || "").toLowerCase();
