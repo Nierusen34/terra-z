@@ -11,9 +11,88 @@ var escapeAttr = core.escapeAttr;
 var currentName = '';
 var createMode = false;
 var privateLoaded = false;
+var taxonomy = (window.TerraZData && window.TerraZData.characterTaxonomy) || {nuclei:[],types:[],statuses:[],characters:{}};
 
 function el(id){ return document.getElementById(id); }
 function backend(){ return window.TerraZApp && window.TerraZApp.backend; }
+
+function definitions(kind){
+  return Array.isArray(taxonomy[kind]) ? taxonomy[kind] : [];
+}
+
+function metaFor(name){
+  var all = taxonomy.characters && typeof taxonomy.characters === 'object' ? taxonomy.characters : {};
+  var meta = all[name] || {};
+  return {
+    featured:meta.featured === true,
+    nuclei:Array.isArray(meta.nuclei) ? meta.nuclei.slice() : [],
+    type:meta.type || 'other',
+    status:meta.status || 'unknown'
+  };
+}
+
+function fillSelect(id,defs,value){
+  var select = el(id);
+  if(!select) return;
+  select.innerHTML = '';
+  defs.forEach(function(item){
+    var option = document.createElement('option');
+    option.value = item.id;
+    option.textContent = item.label;
+    select.appendChild(option);
+  });
+  if(defs.some(function(item){ return item.id === value; })) select.value = value;
+  else if(defs[0]) select.value = defs[0].id;
+}
+
+function renderEditorNuclei(selected){
+  var root = el('characterEditorNuclei');
+  if(!root) return;
+  var chosen = new Set(Array.isArray(selected) ? selected : []);
+  root.innerHTML = '';
+
+  definitions('nuclei').forEach(function(item){
+    var label = document.createElement('label');
+    label.className = 'character-editor-nucleus-option';
+
+    var input = document.createElement('input');
+    input.type = 'checkbox';
+    input.value = item.id;
+    input.checked = chosen.has(item.id);
+
+    var span = document.createElement('span');
+    span.textContent = item.label;
+
+    label.appendChild(input);
+    label.appendChild(span);
+    root.appendChild(label);
+  });
+}
+
+function fillOrganization(meta){
+  meta = meta || {};
+  fillSelect('characterEditorType',definitions('types'),meta.type || 'other');
+  fillSelect('characterEditorStatusMeta',definitions('statuses'),meta.status || 'unknown');
+
+  var featured = el('characterEditorFeatured');
+  if(featured) featured.checked = meta.featured === true;
+
+  renderEditorNuclei(meta.nuclei || []);
+}
+
+function collectOrganization(){
+  var nucleiRoot = el('characterEditorNuclei');
+  var nuclei = nucleiRoot
+    ? Array.from(nucleiRoot.querySelectorAll('input[type="checkbox"]:checked')).map(function(input){ return input.value; })
+    : [];
+
+  return {
+    featured:!!(el('characterEditorFeatured') && el('characterEditorFeatured').checked),
+    nuclei:nuclei,
+    type:el('characterEditorType') ? el('characterEditorType').value : 'other',
+    status:el('characterEditorStatusMeta') ? el('characterEditorStatusMeta').value : 'unknown'
+  };
+}
 
 function setStatus(message,state){
   var node = el('characterEditorStatus');
@@ -176,6 +255,7 @@ async function open(name){
   }
 
   setCreateDependentButtons(false);
+  fillOrganization(metaFor(name));
 
   var title = el('characterEditorTitle');
   if(title) title.textContent = '✏️ Editar personagem';
@@ -213,6 +293,7 @@ function openCreate(){
   renderSections(defaultSections());
   setCreateFieldsVisible(true);
   setCreateDependentButtons(true);
+  fillOrganization({featured:false,nuclei:['other'],type:'npc',status:'active'});
 
   var title = el('characterEditorTitle');
   if(title) title.textContent = '＋ Novo personagem';
@@ -275,7 +356,8 @@ async function save(){
       name:name,
       create:createMode,
       eyebrow:el('characterEditorEyebrow').value.trim(),
-      sections:sections
+      sections:sections,
+      meta:collectOrganization()
     };
 
     var manager = window.TerraZApp.characters;
