@@ -523,6 +523,9 @@ async function performDelete(name){
     var privateApi = window.TerraZApp && window.TerraZApp.privateContent;
     if(privateApi && privateApi.removeCharacter) privateApi.removeCharacter(deletedName);
 
+    var favorites = window.TerraZApp && window.TerraZApp.favorites;
+    if(favorites && favorites.remove) favorites.remove(deletedName);
+
     var characters = window.TerraZApp && window.TerraZApp.characters;
     close();
     if(characters && characters.close) characters.close();
