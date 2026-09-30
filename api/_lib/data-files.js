@@ -123,3 +123,16 @@ window.TerraZData.graphOverride = ${JSON.stringify(data,null,2)};
 })();
 `;
 }
+
+
+export function renderCharacterTaxonomy(data){
+  return `(function(){
+"use strict";
+
+window.TerraZData = window.TerraZData || {};
+
+window.TerraZData.characterTaxonomy = ${JSON.stringify(data,null,2)};
+
+})();
+`;
+}
