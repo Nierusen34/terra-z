@@ -6,6 +6,7 @@ var core = window.TerraZCore;
 if(!core) throw new Error('Terra Z: núcleo não carregado antes de js/character-editor.js');
 
 var showToast = core.showToast;
+var showConfirm = core.showConfirm;
 var escapeAttr = core.escapeAttr;
 
 var currentName = '';
@@ -262,6 +263,9 @@ async function open(name){
   var saveBtn = el('characterEditorSave');
   if(saveBtn) saveBtn.textContent = '💾 Salvar personagem';
 
+  var deleteBtn = el('characterEditorDelete');
+  if(deleteBtn) deleteBtn.hidden = false;
+
   preparePanel();
   await loadExistingSecrets(name);
 }
@@ -300,6 +304,9 @@ function openCreate(){
   var saveBtn = el('characterEditorSave');
   if(saveBtn) saveBtn.textContent = '＋ Criar personagem';
 
+  var deleteBtn = el('characterEditorDelete');
+  if(deleteBtn) deleteBtn.hidden = true;
+
   setStatus('Preencha a ficha. O retrato e o grafo poderão ser adicionados após o primeiro salvamento.','ready');
   preparePanel();
 
@@ -319,6 +326,9 @@ function close(){
 
   setCreateFieldsVisible(false);
   setCreateDependentButtons(false);
+
+  var deleteBtn = el('characterEditorDelete');
+  if(deleteBtn) deleteBtn.hidden = true;
 
   var panel = el('characterEditorPanel');
   if(panel) panel.classList.remove('show');
@@ -437,6 +447,96 @@ async function save(){
   }
 }
 
+function requestDelete(){
+  if(createMode || !currentName) return;
+
+  var name = currentName;
+  showConfirm(
+    'Apagar personagem',
+    'Apagar "' + name + '"? A ficha, o card, os metadados, a associação de retrato e os segredos privados serão removidos. Referências históricas em sessões, textos e relações não serão reescritas automaticamente.',
+    function(){ performDelete(name); },
+    'Apagar personagem'
+  );
+}
+
+async function performDelete(name){
+  var b = backend();
+  if(!b || !b.isAuthenticated()){
+    close();
+    showToast('Sua sessão de editor expirou.','warning');
+    return;
+  }
+
+  var deleteBtn = el('characterEditorDelete');
+  var saveBtn = el('characterEditorSave');
+
+  if(deleteBtn){
+    deleteBtn.disabled = true;
+    deleteBtn.textContent = 'Apagando…';
+  }
+  if(saveBtn) saveBtn.disabled = true;
+
+  document.body.style.overflow = 'hidden';
+  setStatus('Apagando personagem do Terra Z…','working');
+
+  try {
+    var result = await b.request('/api/character',{
+      method:'DELETE',
+      body:{character:{name:name}}
+    });
+
+    var deletedName = result.deleted || name;
+
+    window.TerraZData = window.TerraZData || {};
+    window.TerraZData.characterOverrides = window.TerraZData.characterOverrides || {};
+    window.TerraZData.characterTaxonomy = window.TerraZData.characterTaxonomy || {characters:{}};
+    window.TerraZData.characterTaxonomy.characters = window.TerraZData.characterTaxonomy.characters || {};
+    window.TerraZData.characterMedia = window.TerraZData.characterMedia || {};
+
+    if(result.mode === 'tombstone'){
+      window.TerraZData.characterOverrides[deletedName] = {deleted:true};
+    } else {
+      delete window.TerraZData.characterOverrides[deletedName];
+    }
+
+    delete window.TerraZData.characterTaxonomy.characters[deletedName];
+    delete window.TerraZData.characterMedia[deletedName];
+    taxonomy = window.TerraZData.characterTaxonomy;
+
+    var privateApi = window.TerraZApp && window.TerraZApp.privateContent;
+    if(privateApi && privateApi.removeCharacter) privateApi.removeCharacter(deletedName);
+
+    var characters = window.TerraZApp && window.TerraZApp.characters;
+    close();
+    if(characters && characters.close) characters.close();
+
+    var filters = window.TerraZApp && window.TerraZApp.characterFilters;
+    if(filters && filters.refreshTaxonomy) filters.refreshTaxonomy();
+    if(characters && characters.refresh) characters.refresh();
+
+    showToast(deletedName + ' foi apagado do Terra Z.','success',5000);
+
+    var runtime = window.TerraZApp && window.TerraZApp.runtimeData;
+    if(runtime && runtime.refresh) runtime.refresh({force:true,bust:result.sha,silent:true});
+
+    var publishing = window.TerraZApp && window.TerraZApp.publishing;
+    if(publishing && publishing.trackDeployment && result.status_url){
+      publishing.trackDeployment(result.status_url);
+    }
+  } catch(error){
+    console.error('Terra Z character delete:',error);
+    setStatus(error.message || 'Falha ao apagar personagem.','error');
+    showToast(error.message || 'Falha ao apagar personagem.','error',6000);
+    document.body.style.overflow = 'hidden';
+  } finally {
+    if(deleteBtn){
+      deleteBtn.disabled = false;
+      deleteBtn.textContent = '🗑️ Apagar personagem';
+    }
+    if(saveBtn) saveBtn.disabled = false;
+  }
+}
+
 function openPortrait(){
   if(createMode){
     showToast('Salve o personagem antes de adicionar o retrato.','info',4000);
@@ -466,6 +566,7 @@ function setup(){
   if(el('characterEditorClose')) el('characterEditorClose').addEventListener('click',close);
   if(el('characterEditorCancel')) el('characterEditorCancel').addEventListener('click',close);
   if(el('characterEditorSave')) el('characterEditorSave').addEventListener('click',save);
+  if(el('characterEditorDelete')) el('characterEditorDelete').addEventListener('click',requestDelete);
   if(el('characterEditorAddSection')) el('characterEditorAddSection').addEventListener('click',addSection);
   if(el('characterEditorPortraitBtn')) el('characterEditorPortraitBtn').addEventListener('click',openPortrait);
   if(el('characterEditorGraphBtn')) el('characterEditorGraphBtn').addEventListener('click',openGraph);
@@ -504,7 +605,8 @@ window.TerraZApp.characterEditor = {
   open:open,
   openCreate:openCreate,
   close:close,
-  save:save
+  save:save,
+  deleteCharacter:requestDelete
 };
 
 })();
