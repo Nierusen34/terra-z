@@ -28,7 +28,11 @@ export function verifyPassword(password){
   const fallbackPassword = process.env.EDITOR_PASSWORD;
 
   if(expectedHash){
-    return safeEqual(passwordHash(password), String(expectedHash).toLowerCase());
+    const normalizedHash = String(expectedHash)
+      .trim()
+      .replace(/^["']|["']$/g,"")
+      .toLowerCase();
+    return safeEqual(passwordHash(password), normalizedHash);
   }
 
   if(fallbackPassword){
