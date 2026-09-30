@@ -55,7 +55,7 @@ window.TerraZData.teams = {
       }
     },
     {
-      "name": "Jovens Titãs (1ª)",
+      "name": "Novos Titãs",
       "year": "~2010–2012",
       "leader": "Dick Grayson",
       "members": "Dick, Ravena, Mutano, Cyborg, M'gann",
@@ -127,7 +127,7 @@ window.TerraZData.teams = {
       }
     },
     {
-      "name": "Novos Titãs (2ª)",
+      "name": "Jovens Titãs",
       "year": "2026",
       "leader": "Jason Todd",
       "members": "Fairplay, Cheshire Cat, Flatline, Proxy, Wildcard",
