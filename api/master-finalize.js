@@ -9,6 +9,7 @@ function statusUrl(req,sha){
 }
 
 export default async function handler(req,res){
+  res.setHeader("Cache-Control","no-store");
   if(applyCors(req,res)) return;
   if(req.method!=="POST"){
     res.setHeader("Allow","POST, OPTIONS");
