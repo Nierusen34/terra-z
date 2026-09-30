@@ -7,7 +7,7 @@ window.TerraZData = window.TerraZData || {};
 // src vazio = usar placeholder do Terra Z.
 window.TerraZData.characterMedia = {
   "Tristan Queen": {
-    "src": "",
+    "src": "images/characters/tristan-queen.jpg",
     "alt": "Tristan Queen",
     "source": "local",
     "credit": ""
