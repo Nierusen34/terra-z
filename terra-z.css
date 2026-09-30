@@ -1148,3 +1148,36 @@ button.session-chip:hover{border-color:var(--accent);color:var(--accent)}
 @media(max-width:520px){
   #characterEditorDelete{grid-column:1/-1;margin-right:0}
 }
+
+
+/* ===== EXCLUSÕES EDITÁVEIS ===== */
+#sessionDeleteBtn,
+#characterEditorRemovePortraitBtn{
+  border:1px solid #a33;
+  background:transparent;
+  color:#a33;
+}
+#sessionDeleteBtn:hover:not(:disabled),
+#characterEditorRemovePortraitBtn:hover:not(:disabled){
+  background:#a33;
+  color:#fff;
+  border-color:#a33;
+}
+#sessionDeleteBtn{margin-right:auto}
+#characterEditorRemovePortraitBtn[hidden],
+#sessionDeleteBtn[hidden]{display:none!important}
+.session-character-unavailable{
+  opacity:.62;
+  cursor:default;
+  border-style:dashed;
+}
+.session-character-unavailable::after{
+  content:' · sem ficha ativa';
+  font-size:.82em;
+  color:var(--ink3);
+}
+
+@media(max-width:520px){
+  #sessionDeleteBtn{grid-column:1/-1;margin-right:0}
+  .character-editor-toolbar .danger{width:100%}
+}
