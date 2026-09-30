@@ -5,8 +5,8 @@ window.TerraZData = window.TerraZData || {};
 
 // Alterações publicadas pelo editor visual, indexadas pelos data-edit-id permanentes.
 window.TerraZData.contentOverrides = {
-  "tz-0001": "O Farol de <span class=\"city\">Vanguard</span>",
-  "tz-0002": "\"A verdade ilumina a Cidade Dourada\"",
+  "tz-0001": "A Sentinela <span class=\"city\">Dourada</span>",
+  "tz-0002": "🔥 Nada escapa do nosso radar",
   "tz-0036": "Vista aérea de Vanguard Bay ao anoitecer — o continente e a Ilha Solara ligados por duas pontes.",
   "tz-0394": "Kendra, Lobo <strong>e Riot</strong>",
   "tz-0018": "Documento revisado e publicado. Versão 1.3.",
@@ -33,9 +33,12 @@ window.TerraZData.contentOverrides = {
   "tz-0436": "Gotham",
   "tz-0441": "Vanguard Bay",
   "tz-0435": "Líder dos Novos Titãs",
-  "tz-0476": "<strong>Idade:</strong> 23 (2004)<br><strong>Papel:</strong> Treinou Tristan. Líder dos Novos Titãs",
+  "tz-0476": "<strong>Idade:</strong> 23 (2004)<br><strong>Papel:</strong> Treinou Tristan. Líder dos Jovens Titãs",
   "tz-0532": "Jovens Titãs (1ª)",
-  "tz-0544": "Novos Titãs (2ª)"
+  "tz-0544": "Novos Titãs (2ª)",
+  "tz-0464": "<strong>Codinome:</strong> Ranger<br><strong>Idade:</strong> 20 (2007)<br><strong>Pais:</strong> Oliver e Dinah<br><strong>Local:</strong>&nbsp;Downtown",
+  "tz-0466": "<strong>Origem:</strong> Clone da Cadmus<br><strong>Idade:</strong> Aparência 20 (cron. 5)<br><strong>Local:</strong>&nbsp;Vanguard Bay<br><strong>Prazo:</strong> Caçado em 2072",
+  "tz-0468": "<strong>Idade:</strong> 23 (2004)<br><strong>Pai:</strong> Armek<br><strong>Mãe:</strong> M'gann<br><strong>Local:</strong>&nbsp;Vanguard Bay"
 };
 
 })();
