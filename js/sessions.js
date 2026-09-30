@@ -24,6 +24,13 @@ function allSessions(){
 }
 
 function characterLink(name){
+  var manager = window.TerraZApp && window.TerraZApp.characters;
+  var hasFicha = !!(manager && manager.get && manager.get(name));
+
+  if(!hasFicha){
+    return '<span class="session-chip session-character-unavailable" title="Sem ficha ativa">' + escapeHtml(name) + '</span>';
+  }
+
   var router = window.TerraZApp.router;
   var slug = router && router.slugify ? router.slugify(name) : '';
   return '<button class="session-chip session-character" data-character="' + escapeAttr(name) + '" data-character-slug="' + escapeAttr(slug) + '">' + escapeHtml(name) + '</button>';
