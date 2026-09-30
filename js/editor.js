@@ -62,6 +62,26 @@ function applyPublishedOverrides(){
   publishedBaseline = captureCurrentEdits();
 }
 
+function syncRuntimeOverrides(){
+  var data = (window.TerraZData && window.TerraZData.contentOverrides) || {};
+  var current = captureCurrentEdits();
+
+  getAll().forEach(function(el){
+    var id = el.dataset.editId;
+    var hadLocalDraft = publishedBaseline[id] !== undefined && current[id] !== publishedBaseline[id];
+
+    if(!hadLocalDraft && data[id] !== undefined){
+      el.innerHTML = data[id];
+    }
+
+    if(data[id] !== undefined){
+      publishedBaseline[id] = data[id];
+    }
+  });
+
+  notifyEditsChanged();
+}
+
 function getPendingChanges(){
   var current = captureCurrentEdits();
   var pending = {};
@@ -376,6 +396,8 @@ applyPublishedOverrides();
 loadEdits();
 notifyEditsChanged();
 
+document.addEventListener('terra-z:runtime-data-loaded',syncRuntimeOverrides);
+
 window.toggleEdit = toggleEdit;
 window.saveEdits = saveEdits;
 window.exportEdits = exportEdits;
@@ -395,6 +417,7 @@ window.TerraZApp.editor = {
   getPendingChanges: getPendingChanges,
   getPublishedBaseline: getPublishedBaseline,
   markPublished: markPublished,
+  syncRuntime: syncRuntimeOverrides,
   refreshPending: notifyEditsChanged
 };
 
