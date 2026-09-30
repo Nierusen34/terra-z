@@ -9,22 +9,23 @@ var showToast = core.showToast;
 var showConfirm = core.showConfirm;
 
 /* ===== MODO EDIÇÃO ===== */
-var editMode = false, fallbackEditCounter = 0;
+var editMode = false;
 var publishedBaseline = {};
 var EDITS_KEY = 'terraZ_v1_edits';
 var EDITS_BACKUP_FORMAT = 'terra-z-edits';
 var EDITS_BACKUP_VERSION = 2;
 var SEL = 'h1,h2,h3,h4,h5,h6,p,td,th,li,.timeline-year,.timeline-text,.card p,.info-box,.stat-num,.stat-label,.mast-subtitle,.home-hero .lead,.pull-quote,.event-item .title,.event-item .desc,.photo figcaption,.fc-value,.fc-desc';
 
-function getAll(){ return document.querySelectorAll('.container ' + SEL); }
+function getAll(){
+  // Somente conteúdo com ID permanente participa do editor/publicação.
+  // Elementos da interface (modais, títulos de confirmação etc.) não podem
+  // virar alterações pendentes por mudarem durante o uso do site.
+  return document.querySelectorAll('.container [data-edit-id]');
+}
 
 function initEditables(){
-  getAll().forEach(function(el){
-    if(el.dataset.editId) return;
-    fallbackEditCounter++;
-    el.dataset.editId = 'tz-runtime-' + String(fallbackEditCounter).padStart(4, '0');
-    console.warn('Terra Z: elemento editável sem data-edit-id permanente.', el);
-  });
+  // Os IDs editáveis são definidos no HTML ou pela camada de dados canônica.
+  // IDs gerados em runtime não são estáveis entre recargas e não devem ser publicados.
 }
 
 function toggleEdit(){
