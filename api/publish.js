@@ -1,4 +1,3 @@
-import sanitizeHtml from "sanitize-html";
 import { applyCors } from "./_lib/cors.js";
 import { requireEditor } from "./_lib/auth.js";
 import { getHead, readTextFile, commitFiles } from "./_lib/github.js";
@@ -10,9 +9,39 @@ const ALLOWED_ATTRIBUTES = {
   span:["class"]
 };
 
-function sanitizeValue(value){
-  if(typeof value !== "string") throw new Error("Conteúdo editado precisa ser texto.");
-  if(value.length > 100000) throw new Error("Um dos campos excede o limite de 100 mil caracteres.");
+let sanitizeHtmlPromise;
+
+async function getSanitizeHtml(){
+  if(!sanitizeHtmlPromise){
+    sanitizeHtmlPromise = import("sanitize-html").then(mod => mod.default || mod);
+  }
+  return sanitizeHtmlPromise;
+}
+
+async function sanitizeValue(value){
+  if(typeof value !== "string"){
+    const error = new Error("Conteúdo editado precisa ser texto.");
+    error.code = "invalid_content_value";
+    error.status = 400;
+    throw error;
+  }
+  if(value.length > 100000){
+    const error = new Error("Um dos campos excede o limite de 100 mil caracteres.");
+    error.code = "content_too_large";
+    error.status = 413;
+    throw error;
+  }
+
+  let sanitizeHtml;
+  try {
+    sanitizeHtml = await getSanitizeHtml();
+  } catch(error){
+    console.error("Falha ao carregar sanitize-html:", error);
+    const wrapped = new Error("O servidor não conseguiu carregar o sanitizador de conteúdo.");
+    wrapped.code = "sanitizer_load_failed";
+    wrapped.status = 503;
+    throw wrapped;
+  }
 
   return sanitizeHtml(value,{
     allowedTags:ALLOWED_TAGS,
@@ -78,7 +107,9 @@ export default async function handler(req,res){
     }
 
     const merged = {...current};
-    ids.forEach(id => { merged[id] = sanitizeValue(changes[id]); });
+    for(const id of ids){
+      merged[id] = await sanitizeValue(changes[id]);
+    }
 
     const messageRaw = String(body.message || "content: atualizar conteúdo pelo editor do Terra Z").trim();
     const message = messageRaw.slice(0,120) || "content: atualizar conteúdo pelo editor do Terra Z";
@@ -95,9 +126,20 @@ export default async function handler(req,res){
   } catch(error){
     console.error(error);
     const status = error.status || 500;
+    let message = error.message || "Falha ao publicar.";
+    if(status === 500){
+      if(/Estrutura de dados não encontrada|Valor JSON|JSON/i.test(message)){
+        message = "O arquivo de conteúdo publicado está em formato inválido.";
+      } else if(/GitHub API/i.test(message)){
+        message = "Falha ao publicar no GitHub.";
+      } else {
+        message = "Falha interna ao preparar a publicação.";
+      }
+    }
+
     return res.status(status).json({
       error:error.code || "publish_failed",
-      message:status === 500 ? "Falha ao publicar no GitHub." : error.message,
+      message,
       current_head:error.currentHead || undefined
     });
   }
