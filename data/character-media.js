@@ -131,6 +131,12 @@ window.TerraZData.characterMedia = {
     "alt": "Roy Harper",
     "source": "local",
     "credit": ""
+  },
+  "George Gandenzio Toombs": {
+    "src": "",
+    "alt": "George Gandenzio Toombs",
+    "source": "local",
+    "credit": ""
   }
 };
 
