@@ -43,8 +43,14 @@ async function refresh(){
   try {
     var health=await b.health();
     if(health.master_content==='ready'){
-      setStatus('MASTER_CONTENT_JSON válido. Já é seguro finalizar a migração.','ready');
-      setButtons(true,true);
+      var state=await b.request('/api/master-template',{method:'GET'});
+      if(state.secrets===0){
+        setStatus('Migração concluída. Os segredos já estão fora do bundle público e permanecem no MASTER_CONTENT_JSON privado.','success');
+        setButtons(false,false);
+      } else {
+        setStatus('MASTER_CONTENT_JSON válido. Já é seguro finalizar a migração.','ready');
+        setButtons(true,true);
+      }
     } else if(health.master_content==='invalid'){
       setStatus('MASTER_CONTENT_JSON existe, mas contém JSON inválido.','error');
       setButtons(true,false);
@@ -86,6 +92,12 @@ async function copyTemplate(){
 
   try {
     var result=await b.request('/api/master-template',{method:'GET'});
+    if(result.secrets===0){
+      setStatus('Migração concluída. Não há mais segredos públicos para copiar. Mantenha o MASTER_CONTENT_JSON atual da Vercel.','success');
+      setButtons(false,false);
+      showToast('Migração já concluída. O JSON Mestre privado atual deve ser mantido.','info',6000);
+      return;
+    }
     var payload=JSON.stringify(result.content);
     await copyText(payload);
     setStatus('JSON copiado: '+result.secrets+' segredos de '+result.characters+' personagens. Cole em MASTER_CONTENT_JSON na Vercel e faça redeploy.','success');
