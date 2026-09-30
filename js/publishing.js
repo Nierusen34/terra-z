@@ -112,6 +112,18 @@ async function waitForDeployment(statusUrl){
   return false;
 }
 
+
+function trackDeployment(statusUrl){
+  if(!statusUrl) return;
+  waitForDeployment(statusUrl)
+    .then(function(ok){
+      if(ok) document.dispatchEvent(new CustomEvent('terra-z:static-deploy-synced'));
+    })
+    .catch(function(error){
+      console.warn('Terra Z static deploy:',error);
+    });
+}
+
 async function publish(){
   var b = backend();
   var changes = pending();
@@ -131,28 +143,43 @@ async function publish(){
 
   var btn = el('publishSubmitBtn');
   if(btn) btn.disabled = true;
-  setStatus('Enviando alterações…','working');
+  setStatus('Salvando no GitHub…','working');
 
   try {
     var result = await b.request('/api/publish',{method:'POST',body:buildPayload()});
-    setStatus('Commit criado. Aguardando GitHub Pages…','working');
 
-    var published = await waitForDeployment(result.status_url);
-    if(published === null || published === false){
-      setStatus('Commit criado; deploy ainda está processando','working');
-      showToast('Commit criado. O rascunho local foi preservado até a confirmação do deploy.','info',6000);
-      return;
-    }
+    window.TerraZData = window.TerraZData || {};
+    window.TerraZData.contentOverrides = Object.assign(
+      {},
+      window.TerraZData.contentOverrides || {},
+      changes
+    );
 
     var e = editor();
     var remaining = e && e.markPublished ? e.markPublished(changes) : 0;
-    setStatus(remaining ? 'Publicado; há novas alterações locais' : 'Publicado com sucesso','success');
-    showToast(remaining ? 'Publicado. Novas edições locais foram preservadas.' : 'Alterações publicadas no Terra Z','success',5000);
-    setTimeout(function(){ location.reload(); },1200);
+
+    setStatus(
+      remaining ? 'Salvo; há novas alterações locais' : 'Salvo com sucesso',
+      'success'
+    );
+    showToast(
+      remaining
+        ? 'Alterações salvas. Novas edições locais foram preservadas.'
+        : 'Alterações salvas no Terra Z.',
+      'success',
+      4500
+    );
+
+    var runtime = window.TerraZApp && window.TerraZApp.runtimeData;
+    if(runtime && runtime.refresh) runtime.refresh({force:true,bust:result.sha,silent:true});
+
+    trackDeployment(result.status_url);
+    refresh();
   } catch(err){
     console.error('Terra Z publish:',err);
     setStatus(err.message || 'Falha ao publicar','error');
     showToast('Erro ao publicar: ' + (err.message || 'falha desconhecida'),'error',6000);
+  } finally {
     if(btn) btn.disabled = false;
   }
 }
@@ -190,6 +217,7 @@ window.TerraZApp.publishing = {
   refresh:refresh,
   publish:publish,
   waitForDeployment:waitForDeployment,
+  trackDeployment:trackDeployment,
   isConfigured:function(){ var b=backend(); return !!(b && b.isConfigured()); }
 };
 
