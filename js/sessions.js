@@ -129,6 +129,13 @@ async function loadPrivateSessions(){
   render();
 }
 
+function removeSession(id){
+  if(!id) return;
+  publicSessions = publicSessions.filter(function(row){ return !row || row.id !== id; });
+  privateSessions = privateSessions.filter(function(row){ return !row || row.id !== id; });
+  render();
+}
+
 function upsertSession(item){
   if(!item || !item.id) return;
 
@@ -162,6 +169,7 @@ window.TerraZApp.sessions = {
   render:render,
   reloadPrivate:loadPrivateSessions,
   upsert:upsertSession,
+  remove:removeSession,
   getAll:allSessions,
   count:function(){ return allSessions().length; }
 };
