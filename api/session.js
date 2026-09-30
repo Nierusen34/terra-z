@@ -53,7 +53,13 @@ export default async function handler(req,res){
     const id = suppliedId || (!deleting ? slugify((realDate ? realDate + "-" : "") + title) : "");
     if(!id) return res.status(400).json({error:"invalid_session_id",message:"Sessão não informada."});
 
+    const head = await getHead();
+    const sessionsFile = await readTextFile("data/sessions.js");
+    const publicSessions = parseDataAssignment(sessionsFile.content,"sessions");
+    const privateSessions = await readPrivateSessions();
 
+    const publicIndex = publicSessions.findIndex(row => row && row.id === id);
+    const privateIndex = privateSessions.findIndex(row => row && row.id === id);
 
     if(deleting){
       if(publicIndex < 0 && privateIndex < 0){
@@ -113,13 +119,6 @@ export default async function handler(req,res){
       links:list(input.links,20,500)
     };
 
-    const head = await getHead();
-    const sessionsFile = await readTextFile("data/sessions.js");
-    const publicSessions = parseDataAssignment(sessionsFile.content,"sessions");
-    const privateSessions = await readPrivateSessions();
-
-    const publicIndex = publicSessions.findIndex(row => row && row.id === id);
-    const privateIndex = privateSessions.findIndex(row => row && row.id === id);
     const existed = publicIndex >= 0 || privateIndex >= 0;
     const files = [];
 
