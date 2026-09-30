@@ -36,8 +36,12 @@ function navigate(tab, sub){
 }
 
 function findCharacterBySlug(slug){
-  var data = (window.TerraZData && window.TerraZData.characters) || {};
-  return Object.keys(data).find(function(name){ return slugify(name) === slug; }) || null;
+  var manager = window.TerraZApp && window.TerraZApp.characters;
+  var names = manager && manager.names
+    ? manager.names()
+    : Object.keys((window.TerraZData && window.TerraZData.characters) || {});
+
+  return names.find(function(name){ return slugify(name) === slug; }) || null;
 }
 
 function applyHash(){
