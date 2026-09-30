@@ -33,7 +33,21 @@ export function applyCors(req, res){
   const rawOrigin = req.headers.origin || "";
   const origin = normalizeOrigin(rawOrigin);
   const allowed = allowedOrigins();
-  const isAllowed = !origin || allowed.includes(origin);
+
+  // Requisições feitas pelo próprio domínio da API são sempre válidas.
+  // Isso evita bloquear o login quando o Terra Z está aberto diretamente
+  // no domínio de produção da Vercel (ex.: https://terra-z.vercel.app).
+  const forwardedProto = String(req.headers["x-forwarded-proto"] || "https")
+    .split(",")[0]
+    .trim();
+  const forwardedHost = String(req.headers["x-forwarded-host"] || req.headers.host || "")
+    .split(",")[0]
+    .trim();
+  const requestOrigin = forwardedHost
+    ? normalizeOrigin(forwardedProto + "://" + forwardedHost)
+    : "";
+
+  const isAllowed = !origin || origin === requestOrigin || allowed.includes(origin);
 
   if(origin && isAllowed){
     res.setHeader("Access-Control-Allow-Origin", rawOrigin || origin);
