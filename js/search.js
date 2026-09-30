@@ -17,6 +17,12 @@ var fandomCache = {};
 var fandomHistory = [];
 var currentFandomTitle = null;
 var searchMode = 'local';
+var fandomOriginalHtml = '';
+var fandomTranslatedHtmlCache = {};
+var fandomTextTranslationCache = {};
+var fandomTranslationMode = 'original';
+var fandomTranslatorPromise = null;
+var fandomTranslationRunId = 0;
 
 if(searchInput){
   searchInput.addEventListener('keydown', function(e){
@@ -193,7 +199,200 @@ function renderFandomResults(data, query){
   });
 }
 
+
+function fandomTranslateButton(){
+  return document.getElementById('modalTranslateBtn');
+}
+
+function updateFandomTranslateButton(state, progress){
+  var btn = fandomTranslateButton();
+  if(!btn) return;
+
+  btn.classList.remove('translated','translating');
+
+  if(state === 'loading'){
+    btn.disabled = true;
+    btn.textContent = '🌐 Carregando…';
+    return;
+  }
+
+  if(state === 'translating'){
+    btn.disabled = true;
+    btn.classList.add('translating');
+    btn.textContent = progress ? ('🌐 Traduzindo ' + progress + '%') : '🌐 Traduzindo…';
+    return;
+  }
+
+  if(state === 'translated'){
+    btn.disabled = false;
+    btn.classList.add('translated');
+    btn.textContent = '🇧🇷 Ver original';
+    return;
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🌐 Traduzir PT-BR';
+}
+
+function resetFandomTranslation(){
+  fandomTranslationRunId++;
+  fandomOriginalHtml = '';
+  fandomTranslationMode = 'original';
+  updateFandomTranslateButton('loading');
+}
+
+function getTranslatableWikiTextNodes(root){
+  var nodes = [];
+  var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode:function(node){
+      var value = node.nodeValue || '';
+      var trimmed = value.trim();
+      if(trimmed.length < 2 || !/[A-Za-z]/.test(trimmed)) return NodeFilter.FILTER_REJECT;
+
+      var parent = node.parentElement;
+      if(!parent) return NodeFilter.FILTER_REJECT;
+      if(parent.closest('script,style,noscript,code,pre,kbd,samp,svg,math')) return NodeFilter.FILTER_REJECT;
+      if(parent.closest('.mw-editsection,.noprint,.reference,.metadata')) return NodeFilter.FILTER_REJECT;
+
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+
+  while(walker.nextNode()) nodes.push(walker.currentNode);
+  return nodes;
+}
+
+function splitOuterWhitespace(value){
+  var match = String(value || '').match(/^(\s*)([\s\S]*?)(\s*)$/);
+  return {
+    before:match ? match[1] : '',
+    core:match ? match[2] : String(value || ''),
+    after:match ? match[3] : ''
+  };
+}
+
+async function getFandomTranslator(){
+  if(fandomTranslatorPromise) return fandomTranslatorPromise;
+
+  if(!('Translator' in self)){
+    throw new Error('A tradução integrada não está disponível neste navegador.');
+  }
+
+  fandomTranslatorPromise = Translator.create({
+    sourceLanguage:'en',
+    targetLanguage:'pt',
+    monitor:function(monitor){
+      monitor.addEventListener('downloadprogress',function(event){
+        var percent = Math.max(0,Math.min(100,Math.round((event.loaded || 0) * 100)));
+        updateFandomTranslateButton('translating', percent);
+      });
+    }
+  }).catch(function(error){
+    fandomTranslatorPromise = null;
+    throw error;
+  });
+
+  return fandomTranslatorPromise;
+}
+
+async function translateFandomArticle(){
+  var body = document.getElementById('modalBody');
+  if(!body || !currentFandomTitle) return;
+
+  if(fandomTranslationMode === 'translated'){
+    if(fandomOriginalHtml){
+      body.innerHTML = fandomOriginalHtml;
+      processWikiContent(body);
+      body.scrollTop = 0;
+    }
+    fandomTranslationMode = 'original';
+    updateFandomTranslateButton('original');
+    return;
+  }
+
+  var title = currentFandomTitle;
+  var runId = ++fandomTranslationRunId;
+
+  if(fandomTranslatedHtmlCache[title]){
+    body.innerHTML = fandomTranslatedHtmlCache[title];
+    processWikiContent(body);
+    body.scrollTop = 0;
+    fandomTranslationMode = 'translated';
+    updateFandomTranslateButton('translated');
+    return;
+  }
+
+  if(!fandomOriginalHtml){
+    showToast('O artigo ainda está carregando.','warning');
+    return;
+  }
+
+  updateFandomTranslateButton('translating', 0);
+
+  try {
+    var translator = await getFandomTranslator();
+    if(runId !== fandomTranslationRunId || title !== currentFandomTitle) return;
+
+    var holder = document.createElement('div');
+    holder.innerHTML = fandomOriginalHtml;
+
+    var nodes = getTranslatableWikiTextNodes(holder);
+    var unique = [];
+    var seen = new Set();
+
+    nodes.forEach(function(node){
+      var parts = splitOuterWhitespace(node.nodeValue);
+      var key = parts.core.trim();
+      if(!key || seen.has(key)) return;
+      seen.add(key);
+      unique.push(key);
+    });
+
+    var translatedMap = {};
+    for(var i=0;i<unique.length;i++){
+      if(runId !== fandomTranslationRunId || title !== currentFandomTitle) return;
+
+      var sourceText = unique[i];
+      var translated = fandomTextTranslationCache[sourceText];
+
+      if(!translated){
+        translated = await translator.translate(sourceText);
+        translated = String(translated || sourceText);
+        fandomTextTranslationCache[sourceText] = translated;
+      }
+
+      translatedMap[sourceText] = translated;
+      updateFandomTranslateButton('translating', unique.length ? Math.round(((i+1)/unique.length)*100) : 100);
+    }
+
+    if(runId !== fandomTranslationRunId || title !== currentFandomTitle) return;
+
+    nodes.forEach(function(node){
+      var parts = splitOuterWhitespace(node.nodeValue);
+      var key = parts.core.trim();
+      if(!translatedMap[key]) return;
+      node.nodeValue = parts.before + translatedMap[key] + parts.after;
+    });
+
+    var translatedHtml = holder.innerHTML;
+    fandomTranslatedHtmlCache[title] = translatedHtml;
+
+    body.innerHTML = translatedHtml;
+    processWikiContent(body);
+    body.scrollTop = 0;
+    fandomTranslationMode = 'translated';
+    updateFandomTranslateButton('translated');
+    showToast('Artigo traduzido para português.','success',3500);
+  } catch(error){
+    console.error('Terra Z wiki translation:', error);
+    fandomTranslationMode = 'original';
+    updateFandomTranslateButton('original');
+    showToast(error.message || 'Não foi possível traduzir o artigo.','error',6000);
+  }
+}
+
 function openFandomModal(title){
+  resetFandomTranslation();
   var modal = document.getElementById('fandomModal');
   var body = document.getElementById('modalBody');
   var modalTitle = document.getElementById('modalTitle');
@@ -216,6 +415,9 @@ function openFandomModal(title){
       var html = data.parse.text['*'] || '';
       body.innerHTML = sanitizeWikiHtml(html);
       processWikiContent(body);
+      fandomOriginalHtml = body.innerHTML;
+      fandomTranslationMode = 'original';
+      updateFandomTranslateButton('original');
       body.scrollTop = 0;
     })
     .catch(function(err){
@@ -244,6 +446,7 @@ function updateFandomBackButton(){
 }
 
 function closeFandomModal(){
+  fandomTranslationRunId++;
   document.getElementById('fandomModal').classList.remove('show');
   document.body.style.overflow = '';
   setTimeout(function(){
@@ -396,6 +599,8 @@ function searchOnFandom(term){
 }
 
 setupModalBodyDelegation();
+var fandomTranslateBtn = fandomTranslateButton();
+if(fandomTranslateBtn) fandomTranslateBtn.addEventListener('click', translateFandomArticle);
 
 window.executeSearch = executeSearch;
 window.closeFandomModal = closeFandomModal;
@@ -410,7 +615,8 @@ window.TerraZApp.search = {
   closePanel: closeSearchPanel,
   back: goBackFandom,
   switchMode: switchSearchMode,
-  searchOnFandom: searchOnFandom
+  searchOnFandom: searchOnFandom,
+  translateArticle: translateFandomArticle
 };
 
 })();
