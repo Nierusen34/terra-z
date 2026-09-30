@@ -347,21 +347,22 @@ async function save(){
   }
 
   var button = el('characterEditorSave');
+  var wasCreating = createMode;
   button.disabled = true;
-  button.textContent = createMode ? 'Criando…' : 'Salvando…';
-  setStatus(createMode ? 'Criando personagem no Terra Z…' : 'Publicando ficha no Terra Z…','working');
+  button.textContent = wasCreating ? 'Criando…' : 'Salvando…';
+  setStatus(wasCreating ? 'Criando personagem no Terra Z…' : 'Salvando personagem…','working');
 
   try {
     var payload = {
       name:name,
-      create:createMode,
+      create:wasCreating,
       eyebrow:el('characterEditorEyebrow').value.trim(),
       sections:sections,
       meta:collectOrganization()
     };
 
     var manager = window.TerraZApp.characters;
-    var hasCard = createMode || !!(manager && manager.isCreated && manager.isCreated(name));
+    var hasCard = wasCreating || !!(manager && manager.isCreated && manager.isCreated(name));
     if(hasCard){
       payload.card = {
         icon:el('characterEditorIcon').value.trim() || '👤',
@@ -378,23 +379,40 @@ async function save(){
       body:{character:payload}
     });
 
-    setStatus('Commit criado. Aguardando GitHub Pages…','working');
-
-    if(window.TerraZApp.publishing && result.status_url){
-      var published = await window.TerraZApp.publishing.waitForDeployment(result.status_url);
-      if(published){
-        setStatus(createMode ? 'Personagem criado com sucesso.' : 'Personagem atualizado com sucesso.','success');
-        showToast(createMode ? (name + ' foi adicionado ao Terra Z.') : ('Ficha de ' + name + ' atualizada.'),'success',5000);
-        setTimeout(function(){ location.reload(); },900);
-        return;
-      }
+    if(privateLoaded && window.TerraZApp.privateContent && window.TerraZApp.privateContent.setCharacterSecrets){
+      window.TerraZApp.privateContent.setCharacterSecrets(name,payload.secrets || []);
     }
 
-    setStatus('Commit criado; o deploy ainda está processando.','working');
-    showToast('Alterações enviadas. O deploy ainda está processando.','info',5000);
+    var runtime = window.TerraZApp && window.TerraZApp.runtimeData;
+    if(runtime && runtime.refresh){
+      await runtime.refresh({force:true,bust:result.sha,silent:true});
+    }
+
+    var privateApi = window.TerraZApp && window.TerraZApp.privateContent;
+    if(privateLoaded && privateApi && privateApi.reload){
+      await privateApi.reload();
+    }
+
+    close();
+
+    var characters = window.TerraZApp && window.TerraZApp.characters;
+    if(characters && characters.open){
+      characters.open(name);
+    }
+
+    showToast(
+      wasCreating ? (name + ' foi adicionado ao Terra Z.') : ('Ficha de ' + name + ' atualizada.'),
+      'success',
+      4500
+    );
+
+    var publishing = window.TerraZApp && window.TerraZApp.publishing;
+    if(publishing && publishing.trackDeployment && result.status_url){
+      publishing.trackDeployment(result.status_url);
+    }
   } catch(error){
     console.error('Terra Z character editor:',error);
-    setStatus(error.message || (createMode ? 'Falha ao criar personagem.' : 'Falha ao atualizar personagem.'),'error');
+    setStatus(error.message || (wasCreating ? 'Falha ao criar personagem.' : 'Falha ao atualizar personagem.'),'error');
     showToast(error.message || 'Falha ao salvar personagem.','error',6000);
   } finally {
     button.disabled = false;
@@ -454,6 +472,10 @@ function setup(){
     refreshCreateButton();
     var b = backend();
     if(!b || !b.isAuthenticated()) close();
+  });
+
+  document.addEventListener('terra-z:runtime-data-loaded',function(){
+    taxonomy = (window.TerraZData && window.TerraZData.characterTaxonomy) || taxonomy;
   });
 
   refreshCreateButton();
