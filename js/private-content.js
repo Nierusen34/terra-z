@@ -32,6 +32,20 @@ function clear(){
   cache = null;
 }
 
+
+async function reload(){
+  clear();
+  return load();
+}
+
+function setCharacterSecrets(name,secrets){
+  if(!cache) cache = {};
+  if(!cache.characters || typeof cache.characters !== 'object') cache.characters = {};
+  cache.characters[name] = cache.characters[name] || {};
+  cache.characters[name].secrets = Array.isArray(secrets) ? secrets.slice() : [];
+  document.dispatchEvent(new CustomEvent('terra-z:private-content-loaded'));
+}
+
 document.addEventListener('terra-z:auth-changed',function(){
   clear();
   load();
@@ -42,6 +56,8 @@ if(backend() && backend().isAuthenticated()) load();
 window.TerraZApp.privateContent = {
   load:load,
   clear:clear,
+  reload:reload,
+  setCharacterSecrets:setCharacterSecrets,
   getCharacterSecrets:getCharacterSecrets,
   isLoaded:function(){ return !!cache; }
 };
