@@ -9,7 +9,21 @@ var showToast = core.showToast;
 var escapeHtml = core.escapeHtml;
 
 /* ===== FICHAS DE PERSONAGENS ===== */
-var fichasPersonagens = (window.TerraZData && window.TerraZData.characters) || {};
+var baseFichasPersonagens = (window.TerraZData && window.TerraZData.characters) || {};
+var characterOverrides = (window.TerraZData && window.TerraZData.characterOverrides) || {};
+var fichasPersonagens = {};
+
+Object.keys(baseFichasPersonagens).forEach(function(name){
+  var base = baseFichasPersonagens[name] || {};
+  var override = characterOverrides[name] || {};
+  fichasPersonagens[name] = {
+    ...base,
+    ...override,
+    sections:Array.isArray(override.sections) ? override.sections : base.sections,
+    secrets:base.secrets
+  };
+});
+
 if(!window.TerraZData || !window.TerraZData.characters){
   console.error('Terra Z: data/characters.js não foi carregado.');
 }
@@ -24,8 +38,11 @@ function openFichaModal(characterName){
     ? window.TerraZApp.characterMedia.renderPortraitHtml(characterName, 'large')
     : '';
   var canUploadPortrait = window.TerraZApp.mediaManager && window.TerraZApp.mediaManager.canUpload();
+  var backend = window.TerraZApp && window.TerraZApp.backend;
+  var canEditCharacter = !!(backend && backend.isConfigured && backend.isConfigured() && backend.isAuthenticated && backend.isAuthenticated());
   var uploadBtn = canUploadPortrait ? '<button class="fh-link" id="fichaUploadPortraitBtn" title="Atualizar retrato">🖼️</button>' : '';
-  header.innerHTML = portrait + '<div class="fh-info"><div class="fh-eyebrow">' + escapeHtml(ficha.eyebrow) + '</div><h2>' + escapeHtml(characterName) + '</h2></div><div class="fh-actions">' + uploadBtn + '<button class="fh-link" id="fichaCopyLinkBtn" title="Copiar link direto">🔗</button><button class="fh-close" id="fichaCloseBtn">✕</button></div>';
+  var editBtn = canEditCharacter ? '<button class="fh-link" id="fichaEditCharacterBtn" title="Editar personagem">✏️</button>' : '';
+  header.innerHTML = portrait + '<div class="fh-info"><div class="fh-eyebrow">' + escapeHtml(ficha.eyebrow) + '</div><h2>' + escapeHtml(characterName) + '</h2></div><div class="fh-actions">' + editBtn + uploadBtn + '<button class="fh-link" id="fichaCopyLinkBtn" title="Copiar link direto">🔗</button><button class="fh-close" id="fichaCloseBtn">✕</button></div>';
   var bodyHtml = '';
   var privateSecrets = (window.TerraZApp.privateContent && window.TerraZApp.privateContent.getCharacterSecrets)
     ? window.TerraZApp.privateContent.getCharacterSecrets(characterName)
@@ -46,6 +63,10 @@ function openFichaModal(characterName){
   if(window.TerraZApp.characterMedia) window.TerraZApp.characterMedia.hydrate(header);
   if(window.TerraZApp.visibility) window.TerraZApp.visibility.apply();
   document.getElementById('fichaCloseBtn').addEventListener('click', closeFichaModal);
+  var editCharacterBtn = document.getElementById('fichaEditCharacterBtn');
+  if(editCharacterBtn) editCharacterBtn.addEventListener('click', function(){
+    if(window.TerraZApp.characterEditor) window.TerraZApp.characterEditor.open(characterName);
+  });
   var uploadPortraitBtn = document.getElementById('fichaUploadPortraitBtn');
   if(uploadPortraitBtn) uploadPortraitBtn.addEventListener('click', function(){
     if(window.TerraZApp.mediaManager) window.TerraZApp.mediaManager.choose(characterName);
@@ -112,7 +133,9 @@ window.closeFichaModal = closeFichaModal;
 window.TerraZApp.characters = {
   open: openFichaModal,
   close: closeFichaModal,
-  attach: attachFichaHandlers
+  attach: attachFichaHandlers,
+  get:function(name){ return fichasPersonagens[name] || null; },
+  names:function(){ return Object.keys(fichasPersonagens); }
 };
 
 })();
