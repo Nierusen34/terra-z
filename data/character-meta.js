@@ -280,6 +280,14 @@ window.TerraZData.characterTaxonomy = {
       ],
       "type": "npc",
       "status": "active"
+    },
+    "Personagem teste": {
+      "featured": false,
+      "nuclei": [
+        "other"
+      ],
+      "type": "npc",
+      "status": "active"
     }
   }
 };

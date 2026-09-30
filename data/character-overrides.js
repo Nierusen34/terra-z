@@ -60,6 +60,36 @@ window.TerraZData.characterOverrides = {
       "icon": "👤",
       "summary": ""
     }
+  },
+  "Personagem teste": {
+    "eyebrow": "",
+    "sections": [
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> <br><strong>Codinome:</strong> <br><strong>Idade:</strong> <br><strong>Local:</strong> </p>"
+      },
+      {
+        "title": "📖 História",
+        "content": "<p>Escreva aqui a história do personagem.</p>"
+      },
+      {
+        "title": "🎯 Personalidade",
+        "content": "<p>Descreva a personalidade do personagem.</p>"
+      },
+      {
+        "title": "⚔️ Habilidades",
+        "content": "<ul><li>Adicione uma habilidade.</li></ul>"
+      },
+      {
+        "title": "🔗 Relações",
+        "content": "<ul><li>Adicione uma relação importante.</li></ul>"
+      }
+    ],
+    "created": true,
+    "card": {
+      "icon": "👤",
+      "summary": ""
+    }
   }
 };
 
