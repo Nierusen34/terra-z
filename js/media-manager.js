@@ -75,6 +75,63 @@ async function upload(character,file){
   return result;
 }
 
+async function remove(character){
+  var b = backend();
+  if(!b || !b.isConfigured()) throw new Error('Backend ainda não configurado.');
+  if(!b.isAuthenticated()) throw new Error('Faça login como editor antes de remover o retrato.');
+
+  var result = await b.request('/api/media',{
+    method:'DELETE',
+    body:{character:character}
+  });
+
+  window.TerraZData = window.TerraZData || {};
+  window.TerraZData.characterMedia = window.TerraZData.characterMedia || {};
+
+  var current = window.TerraZData.characterMedia[character] || {};
+  window.TerraZData.characterMedia[character] = Object.assign({},current,{
+    src:'',
+    source:'local',
+    credit:''
+  });
+
+  if(window.TerraZApp.characterMedia && window.TerraZApp.characterMedia.refresh){
+    window.TerraZApp.characterMedia.refresh(document);
+  }
+
+  showToast('Retrato removido com sucesso.','success',4200);
+
+  var runtime = window.TerraZApp && window.TerraZApp.runtimeData;
+  if(runtime && runtime.refresh) runtime.refresh({force:true,bust:result.sha,silent:true});
+
+  var p = publishing();
+  if(p && p.trackDeployment && result.status_url){
+    p.trackDeployment(result.status_url);
+  }
+
+  return result;
+}
+
+function requestRemove(character){
+  if(!canUpload()){
+    showToast('Entre como editor para remover retratos.','warning',5000);
+    if(window.TerraZApp.publishing) window.TerraZApp.publishing.open();
+    return;
+  }
+
+  showConfirm(
+    'Remover retrato',
+    'Remover o retrato atual de ' + character + '? A ficha continuará existindo e voltará a usar o placeholder.',
+    function(){
+      remove(character).catch(function(error){
+        console.error(error);
+        showToast(error.message || 'Falha ao remover retrato.','error',6000);
+      });
+    },
+    'Remover retrato'
+  );
+}
+
 function choose(character){
   if(!canUpload()){
     showToast('Entre como editor no painel Publicar para enviar retratos.','warning',5000);
@@ -111,7 +168,9 @@ function choose(character){
 window.TerraZApp.mediaManager = {
   canUpload:canUpload,
   choose:choose,
-  upload:upload
+  upload:upload,
+  remove:remove,
+  requestRemove:requestRemove
 };
 
 })();
