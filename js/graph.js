@@ -14,6 +14,7 @@ var escapeAttr = core.escapeAttr;
 var GRAPH_KEY = 'terraZ_graph_v2';
 var GRAPH_BACKUP_KEY = 'terraZ_graph_backup_v2';
 var defaultGraph = (window.TerraZData && window.TerraZData.defaultGraph) || { quadrants:[], nodes:[], edges:[] };
+var publishedGraph = (window.TerraZData && window.TerraZData.graphOverride) || null;
 if(!window.TerraZData || !window.TerraZData.defaultGraph){
   console.error('Terra Z: data/relations.js não foi carregado.');
 }
@@ -39,6 +40,9 @@ var graphCharacterMap = {
   kendra:'Kendra Saunders'
 };
 function loadGraph(){
+  if(publishedGraph && Array.isArray(publishedGraph.nodes) && Array.isArray(publishedGraph.edges)){
+    return JSON.parse(JSON.stringify(publishedGraph));
+  }
   try { var saved = localStorage.getItem(GRAPH_KEY); if(saved) return JSON.parse(saved); } catch(e){ console.error(e); }
   return JSON.parse(JSON.stringify(defaultGraph));
 }
@@ -166,11 +170,53 @@ function addGraphEdge(){
 }
 function removeGraphEdge(index){ graphData.edges.splice(index, 1); renderGraphEditorForm(); }
 
-function saveGraphEditor(){
+async function saveGraphEditor(){
   saveGraph();
   renderGraph();
-  closeGraphEditor();
-  showToast('✅ Grafo atualizado e salvo', 'success');
+
+  var b = window.TerraZApp && window.TerraZApp.backend;
+  var remote = !!(b && b.isConfigured && b.isConfigured() && b.isAuthenticated && b.isAuthenticated());
+
+  if(!remote){
+    closeGraphEditor();
+    showToast('Grafo salvo apenas neste navegador. Entre como editor para publicar.','info',5000);
+    return;
+  }
+
+  var button = document.getElementById('graphSaveBtn');
+  if(button){
+    button.disabled = true;
+    button.textContent = 'Publicando…';
+  }
+
+  try {
+    var result = await b.request('/api/graph',{
+      method:'POST',
+      body:{graph:graphData}
+    });
+
+    showToast('Grafo enviado. Aguardando GitHub Pages…','info',5000);
+
+    if(window.TerraZApp.publishing && result.status_url){
+      var published = await window.TerraZApp.publishing.waitForDeployment(result.status_url);
+      if(published){
+        showToast('Grafo publicado com sucesso','success',5000);
+        setTimeout(function(){ location.reload(); },900);
+        return;
+      }
+    }
+
+    closeGraphEditor();
+    showToast('Commit criado; o deploy ainda está processando.','info',5000);
+  } catch(error){
+    console.error('Terra Z graph publish:',error);
+    showToast(error.message || 'Falha ao publicar o grafo','error',6000);
+  } finally {
+    if(button){
+      button.disabled = false;
+      button.textContent = '💾 Salvar Alterações';
+    }
+  }
 }
 function resetGraph(){
   showConfirm('Restaurar Grafo Padrão', 'Isso apagará todas as suas alterações no grafo e restaurará a versão original. Continuar?', function(){
