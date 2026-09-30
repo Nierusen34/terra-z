@@ -15,6 +15,20 @@ function getFavorites(){ try { return JSON.parse(localStorage.getItem(FAV_KEY) |
 function saveFavorites(list){ try { localStorage.setItem(FAV_KEY, JSON.stringify(list)); } catch(e){ console.error(e); } }
 function isFavorite(name){ return getFavorites().indexOf(name) !== -1; }
 
+function removeFavorite(name){
+  var favs = getFavorites();
+  var next = favs.filter(function(item){ return item !== name; });
+  if(next.length === favs.length) return false;
+  saveFavorites(next);
+  updateAllCardFavorites();
+
+  var panel = document.getElementById('favoritesPanel');
+  if(panel && panel.classList.contains('show')) showFavoritesPanel();
+
+  document.dispatchEvent(new CustomEvent('terraz:favoriteschange'));
+  return true;
+}
+
 function toggleFavorite(name, event){
   if(event){ event.stopPropagation(); event.preventDefault(); }
   var favs = getFavorites();
@@ -140,7 +154,8 @@ window.TerraZApp.favorites = {
   show: showFavoritesPanel,
   close: closeFavoritesPanel,
   refresh: updateAllCardFavorites,
-  attach: attachFavoriteButtons
+  attach: attachFavoriteButtons,
+  remove: removeFavorite
 };
 
 })();
