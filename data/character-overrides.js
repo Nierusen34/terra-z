@@ -36,11 +36,11 @@ window.TerraZData.characterOverrides = {
     "sections": [
       {
         "title": "📋 Ficha Básica",
-        "content": "<p><strong>Nome:</strong><b>George Gandenzio Toombs</b><br><strong>Idade: 65 anos</strong><br><strong>Local: Downtown, Bar One Beer, One Scotch, One Bourbon</strong></p>"
+        "content": "<p><strong>Nome:</strong><b>George Gandenzio Toombs</b><br><strong>Idade: 65 anos</strong><br><strong>Local: Downtown</strong></p>"
       },
       {
         "title": "📖 História",
-        "content": "<p>Escreva aqui a história do personagem.</p>"
+        "content": "<p>Dono do Bar One Bourbon, One Scotch, One Beer.</p>"
       },
       {
         "title": "🎯 Personalidade",
