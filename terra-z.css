@@ -577,6 +577,9 @@ body.reading-mode .photo img{cursor:default}
 /* ===== DESCOBERTA DE PERSONAGENS ===== */
 .character-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0 18px;padding:10px;background:var(--paper3);border:1px solid var(--line2)}
 .character-tools input,.character-tools select{background:var(--paper2);border:1px solid var(--line);color:var(--ink);padding:9px 11px;font-family:var(--font-body);font-size:12px}
+.character-add-btn{background:var(--accent);border:1px solid var(--accent);color:#fff;padding:9px 12px;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.5px;cursor:pointer;white-space:nowrap}
+.character-add-btn:hover:not(:disabled){opacity:.88}
+.character-add-btn:disabled{opacity:.4;cursor:not-allowed}
 .character-tools input{flex:1;min-width:210px}
 .character-tools select{min-width:145px}
 #characterCount{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--ink3);margin-left:auto;white-space:nowrap}
@@ -586,7 +589,7 @@ body.reading-mode .photo img{cursor:default}
 .ficha-header .fh-link:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
 @media(max-width:600px){
   .character-tools{align-items:stretch}
-  .character-tools input,.character-tools select{width:100%}
+  .character-tools input,.character-tools select,.character-add-btn{width:100%}
   #characterCount{margin-left:0}
 }
 
@@ -685,10 +688,15 @@ button.session-chip:hover{border-color:var(--accent);color:var(--accent)}
 .character-editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .character-editor-grid label{display:flex;flex-direction:column;gap:5px;font-family:var(--font-title);font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink3)}
 .character-editor-grid input{width:100%;padding:10px;background:var(--paper);border:1px solid var(--line);color:var(--ink);font:inherit;text-transform:none;letter-spacing:0}
+.character-editor-grid textarea{width:100%;padding:10px;background:var(--paper);border:1px solid var(--line);color:var(--ink);font:inherit;text-transform:none;letter-spacing:0;resize:vertical;min-height:78px}
+.character-editor-create-fields[hidden]{display:none!important}
+.character-editor-create-fields{padding:12px;margin-bottom:12px;border:1px dashed var(--line);background:color-mix(in srgb,var(--accent2) 5%,var(--paper3))}
 .character-editor-grid input[readonly]{opacity:.7}
 .character-editor-toolbar{display:flex;gap:8px;flex-wrap:wrap;padding:10px 0 16px;border-bottom:1px solid var(--line2)}
 .character-editor-toolbar button,.character-editor-add{padding:8px 11px;border:1px solid var(--line);background:var(--paper3);color:var(--ink2);font-family:'Share Tech Mono',monospace;font-size:10px;cursor:pointer}
 .character-editor-toolbar button:hover,.character-editor-add:hover{border-color:var(--accent);color:var(--accent)}
+.character-editor-toolbar button:disabled{opacity:.42;cursor:not-allowed}
+.character-editor-toolbar button:disabled:hover{border-color:var(--line);color:var(--ink2)}
 .character-editor-section-title{font-family:var(--font-title);font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin:18px 0 10px}
 .character-editor-section-title.private{color:var(--accent)}
 .character-editor-section{border:1px solid var(--line2);background:var(--paper3);padding:10px;margin-bottom:10px}
