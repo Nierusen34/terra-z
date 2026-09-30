@@ -3,28 +3,113 @@ import { requireEditor } from "./_lib/auth.js";
 import { getHead, readTextFile, commitFiles } from "./_lib/github.js";
 import { parseDataAssignment, renderContentOverrides } from "./_lib/data-files.js";
 
-const ALLOWED_TAGS = ["br","strong","em","b","i","u","s","ul","ol","li","span","a","small","sup","sub","blockquote","code"];
-const ALLOWED_ATTRIBUTES = {
-  a:["href","title","target","rel"],
-  span:["class"]
-};
+const ALLOWED_TAGS = new Set(["br","strong","em","b","i","u","s","ul","ol","li","span","a","small","sup","sub","blockquote","code"]);
+const VOID_TAGS = new Set(["br"]);
 
-let sanitizeHtmlPromise;
-
-async function getSanitizeHtml(){
-  if(!sanitizeHtmlPromise){
-    sanitizeHtmlPromise = import("sanitize-html").then(mod => mod.default || mod);
-  }
-  return sanitizeHtmlPromise;
+function escapeAttribute(value){
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/"/g,"&quot;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;");
 }
 
-async function sanitizeValue(value){
+function parseAttributes(raw){
+  const attrs = [];
+  const re = /([^\\s=/>]+)\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s"'=<>]+))/g;
+  let match;
+  while((match = re.exec(raw || ""))){
+    attrs.push({
+      name:String(match[1] || "").toLowerCase(),
+      value:match[2] ?? match[3] ?? match[4] ?? ""
+    });
+  }
+  return attrs;
+}
+
+function safeHref(value){
+  const raw = String(value || "").trim();
+  if(!raw) return "";
+  const compact = raw.replace(/[\\u0000-\\u0020\\u007f]+/g,"").toLowerCase();
+
+  if(compact.startsWith("javascript:") ||
+     compact.startsWith("data:") ||
+     compact.startsWith("vbscript:")){
+    return "";
+  }
+
+  if(/^https?:\\/\\//i.test(raw) ||
+     /^mailto:/i.test(raw) ||
+     raw.startsWith("#") ||
+     raw.startsWith("/") ||
+     raw.startsWith("./") ||
+     raw.startsWith("../") ||
+     !/^[a-z][a-z0-9+.-]*:/i.test(raw)){
+    return raw;
+  }
+
+  return "";
+}
+
+function sanitizeTag(tagName, rawAttributes, closing){
+  const tag = String(tagName || "").toLowerCase();
+  if(!ALLOWED_TAGS.has(tag)) return "";
+
+  if(closing){
+    return VOID_TAGS.has(tag) ? "" : "</" + tag + ">";
+  }
+
+  if(tag === "br") return "<br>";
+
+  const safe = [];
+
+  if(tag === "a"){
+    parseAttributes(rawAttributes).forEach(attr => {
+      if(attr.name === "href"){
+        const href = safeHref(attr.value);
+        if(href) safe.push('href="' + escapeAttribute(href) + '"');
+      } else if(attr.name === "title"){
+        safe.push('title="' + escapeAttribute(attr.value.slice(0,500)) + '"');
+      } else if(attr.name === "target"){
+        const target = String(attr.value).toLowerCase();
+        if(target === "_blank" || target === "_self"){
+          safe.push('target="' + target + '"');
+        }
+      } else if(attr.name === "rel"){
+        const rel = String(attr.value)
+          .split(/\\s+/)
+          .map(v => v.toLowerCase())
+          .filter(v => ["noopener","noreferrer","nofollow"].includes(v));
+        if(rel.length) safe.push('rel="' + [...new Set(rel)].join(" ") + '"');
+      }
+    });
+
+    if(safe.some(attr => attr === 'target="_blank"') &&
+       !safe.some(attr => /^rel=/.test(attr))){
+      safe.push('rel="noopener noreferrer"');
+    }
+  } else if(tag === "span"){
+    parseAttributes(rawAttributes).forEach(attr => {
+      if(attr.name !== "class") return;
+      const classes = String(attr.value)
+        .split(/\\s+/)
+        .filter(v => /^[a-z0-9_-]{1,64}$/i.test(v))
+        .slice(0,8);
+      if(classes.length) safe.push('class="' + escapeAttribute(classes.join(" ")) + '"');
+    });
+  }
+
+  return "<" + tag + (safe.length ? " " + safe.join(" ") : "") + ">";
+}
+
+function sanitizeValue(value){
   if(typeof value !== "string"){
     const error = new Error("Conteúdo editado precisa ser texto.");
     error.code = "invalid_content_value";
     error.status = 400;
     throw error;
   }
+
   if(value.length > 100000){
     const error = new Error("Um dos campos excede o limite de 100 mil caracteres.");
     error.code = "content_too_large";
@@ -32,24 +117,18 @@ async function sanitizeValue(value){
     throw error;
   }
 
-  let sanitizeHtml;
-  try {
-    sanitizeHtml = await getSanitizeHtml();
-  } catch(error){
-    console.error("Falha ao carregar sanitize-html:", error);
-    const wrapped = new Error("O servidor não conseguiu carregar o sanitizador de conteúdo.");
-    wrapped.code = "sanitizer_load_failed";
-    wrapped.status = 503;
-    throw wrapped;
-  }
+  let output = value
+    .replace(/<!--[\\s\\S]*?-->/g,"")
+    .replace(/<![^>]*>/g,"")
+    .replace(/<\\?[^>]*>/g,"");
 
-  return sanitizeHtml(value,{
-    allowedTags:ALLOWED_TAGS,
-    allowedAttributes:ALLOWED_ATTRIBUTES,
-    allowedSchemes:["http","https","mailto"],
-    allowProtocolRelative:false,
-    disallowedTagsMode:"discard"
-  });
+  output = output.replace(/<\\s*(\\/?)\\s*([a-zA-Z][a-zA-Z0-9]*)\\b([^<>]*?)\\/?\\s*>/g,
+    function(full, slash, tagName, attrs){
+      return sanitizeTag(tagName, attrs, slash === "/");
+    }
+  );
+
+  return output;
 }
 
 function statusUrl(req,sha){
