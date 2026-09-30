@@ -28,6 +28,29 @@ function getCharacterSecrets(name){
   return cache.characters[name].secrets || null;
 }
 
+
+function emptyMasterState(){
+  return {
+    version:1,
+    notes:[],
+    revelations:[],
+    goals:[],
+    clues:[],
+    npcStates:[]
+  };
+}
+
+function getMasterState(){
+  if(!cache || !cache.master) return emptyMasterState();
+  return cache.master;
+}
+
+function setMasterState(master){
+  if(!cache) cache = {};
+  cache.master = master || emptyMasterState();
+  document.dispatchEvent(new CustomEvent('terra-z:private-content-loaded'));
+}
+
 function clear(){
   cache = null;
 }
@@ -59,6 +82,8 @@ window.TerraZApp.privateContent = {
   reload:reload,
   setCharacterSecrets:setCharacterSecrets,
   getCharacterSecrets:getCharacterSecrets,
+  getMasterState:getMasterState,
+  setMasterState:setMasterState,
   isLoaded:function(){ return !!cache; }
 };
 
