@@ -111,6 +111,80 @@ function normalizeSecrets(value){
     .filter(Boolean);
 }
 
+function extractTopLevelCharacterNames(source){
+  const marker = "window.TerraZData.characters =";
+  const markerIndex = source.indexOf(marker);
+  if(markerIndex < 0) return [];
+
+  const open = source.indexOf("{",markerIndex + marker.length);
+  if(open < 0) return [];
+
+  const names = [];
+  let depth = 1;
+  let i = open + 1;
+
+  while(i < source.length && depth > 0){
+    const ch = source[i];
+
+    if(ch === "/" && source[i+1] === "/"){
+      const nl = source.indexOf("\n",i+2);
+      i = nl < 0 ? source.length : nl + 1;
+      continue;
+    }
+
+    if(ch === "/" && source[i+1] === "*"){
+      const end = source.indexOf("*/",i+2);
+      i = end < 0 ? source.length : end + 2;
+      continue;
+    }
+
+    if(ch === '"' || ch === "'"){
+      const quote = ch;
+      const start = i;
+      i++;
+      let escaped = false;
+
+      while(i < source.length){
+        const current = source[i];
+        if(escaped){
+          escaped = false;
+        } else if(current === "\\"){
+          escaped = true;
+        } else if(current === quote){
+          break;
+        }
+        i++;
+      }
+
+      const end = i;
+      if(depth === 1){
+        let k = end + 1;
+        while(/\s/.test(source[k] || "")) k++;
+        if(source[k] === ":"){
+          let value = source.slice(start+1,end);
+          value = value.replace(/\\(["'\\])/g,"$1");
+          names.push(value);
+        }
+      }
+
+      i = end + 1;
+      continue;
+    }
+
+    if(ch === "{") depth++;
+    else if(ch === "}") depth--;
+
+    i++;
+  }
+
+  return names;
+}
+
+function findCaseInsensitiveKey(keys,name){
+  const target = String(name).toLocaleLowerCase("pt-BR");
+  return keys.find(key => String(key).toLocaleLowerCase("pt-BR") === target) || "";
+}
+
 function statusUrl(req,sha){
   const proto = String(req.headers["x-forwarded-proto"] || "https").split(",")[0].trim();
   return proto + "://" + req.headers.host + "/api/status?sha=" + encodeURIComponent(sha);
@@ -130,14 +204,29 @@ export default async function handler(req,res){
     if(!name) return res.status(400).json({error:"missing_character",message:"Personagem não informado."});
 
     const creating = input.create === true;
-    const mediaFile = await readTextFile("data/character-media.js");
-    const media = parseDataAssignment(mediaFile.content,"characterMedia");
-    const existingName = Object.keys(media).find(key => key.toLocaleLowerCase("pt-BR") === name.toLocaleLowerCase("pt-BR"));
 
-    if(creating && existingName){
-      return res.status(409).json({error:"character_exists",message:"Já existe um personagem com esse nome."});
+    const [mediaFile,overridesFile,charactersFile] = await Promise.all([
+      readTextFile("data/character-media.js"),
+      readTextFile("data/character-overrides.js"),
+      readTextFile("data/characters.js")
+    ]);
+
+    const media = parseDataAssignment(mediaFile.content,"characterMedia");
+    const overrides = parseDataAssignment(overridesFile.content,"characterOverrides");
+    const baseCharacterNames = extractTopLevelCharacterNames(charactersFile.content);
+
+    const baseExistingName = findCaseInsensitiveKey(baseCharacterNames,name);
+    const overrideExistingName = findCaseInsensitiveKey(
+      Object.keys(overrides).filter(key => overrides[key] && overrides[key].created === true),
+      name
+    );
+    const mediaExistingName = findCaseInsensitiveKey(Object.keys(media),name);
+
+    if(creating && (baseExistingName || overrideExistingName)){
+      return res.status(409).json({error:"character_exists",message:"Já existe uma ficha de personagem com esse nome."});
     }
-    if(!creating && !Object.prototype.hasOwnProperty.call(media,name)){
+
+    if(!creating && !mediaExistingName){
       return res.status(404).json({error:"unknown_character",message:"Personagem não encontrado na base atual."});
     }
 
@@ -148,8 +237,6 @@ export default async function handler(req,res){
     }
 
     const head = await getHead();
-    const overridesFile = await readTextFile("data/character-overrides.js");
-    const overrides = parseDataAssignment(overridesFile.content,"characterOverrides");
     const previousOverride = overrides[name] && typeof overrides[name] === "object" ? overrides[name] : {};
 
     const cardInput = input.card && typeof input.card === "object" ? input.card : null;
@@ -175,17 +262,19 @@ export default async function handler(req,res){
     ];
 
     if(creating){
-      media[name] = {
-        src:"",
-        alt:name,
-        source:"local",
-        credit:""
-      };
-      files.push({
-        path:"data/character-media.js",
-        content:renderCharacterMedia(media),
-        encoding:"utf-8"
-      });
+      if(!mediaExistingName){
+        media[name] = {
+          src:"",
+          alt:name,
+          source:"local",
+          credit:""
+        };
+        files.push({
+          path:"data/character-media.js",
+          content:renderCharacterMedia(media),
+          encoding:"utf-8"
+        });
+      }
     }
 
     const secrets = normalizeSecrets(input.secrets);
