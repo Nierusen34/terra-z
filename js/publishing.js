@@ -180,7 +180,7 @@ async function publish(){
     setStatus(err.message || 'Falha ao publicar','error');
     showToast('Erro ao publicar: ' + (err.message || 'falha desconhecida'),'error',6000);
   } finally {
-    if(btn) btn.disabled = false;
+    refresh();
   }
 }
 
