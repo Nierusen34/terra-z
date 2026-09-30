@@ -32,8 +32,10 @@ function renderPortraitHtml(name, size){
   var cls = 'character-portrait ' + (size === 'large' ? 'large' : 'small');
 
   if(meta.src){
+    var runtime = window.TerraZApp && window.TerraZApp.runtimeData;
+    var src = runtime && runtime.mediaUrl ? runtime.mediaUrl(meta.src) : meta.src;
     return '<div class="' + cls + '" data-character="' + escapeAttr(name) + '">' +
-      '<img data-src="' + escapeAttr(meta.src) + '" alt="' + escapeAttr(meta.alt) + '" loading="lazy" decoding="async">' +
+      '<img data-src="' + escapeAttr(src) + '" alt="' + escapeAttr(meta.alt) + '" loading="lazy" decoding="async">' +
       '</div>';
   }
 
@@ -53,11 +55,35 @@ function hydratePortraits(root){
   if(window.TerraZApp.media) window.TerraZApp.media.hydrate(root);
 }
 
+
+function refreshPortraits(root){
+  root = root || document;
+  media = (window.TerraZData && window.TerraZData.characterMedia) || {};
+
+  Array.from(root.querySelectorAll('.character-portrait[data-character]')).forEach(function(wrapper){
+    var name = wrapper.getAttribute('data-character');
+    if(!name) return;
+    var size = wrapper.classList.contains('large') ? 'large' : 'small';
+    var holder = document.createElement('div');
+    holder.innerHTML = renderPortraitHtml(name,size);
+    var next = holder.firstElementChild;
+    if(next){
+      wrapper.replaceWith(next);
+      hydratePortraits(next);
+    }
+  });
+}
+
+document.addEventListener('terra-z:runtime-data-loaded',function(){
+  refreshPortraits(document);
+});
+
 window.TerraZApp.characterMedia = {
   get: getMeta,
   renderPortraitHtml: renderPortraitHtml,
   decorateCard: decorateCard,
-  hydrate: hydratePortraits
+  hydrate: hydratePortraits,
+  refresh: refreshPortraits
 };
 
 })();
