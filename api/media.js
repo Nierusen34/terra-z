@@ -1,6 +1,6 @@
 import { applyCors } from "./_lib/cors.js";
 import { requireEditor } from "./_lib/auth.js";
-import { getHead, readTextFile, commitFiles } from "./_lib/github.js";
+import { getHead, readTextFile, readBinaryFile, commitFiles } from "./_lib/github.js";
 import { parseDataAssignment, renderCharacterMedia } from "./_lib/data-files.js";
 
 const MAX_BYTES = 2 * 1024 * 1024;
@@ -8,6 +8,13 @@ const EXTENSIONS = {
   "image/png":"png",
   "image/jpeg":"jpg",
   "image/webp":"webp"
+};
+
+const MIME_BY_EXT = {
+  png:"image/png",
+  jpg:"image/jpeg",
+  jpeg:"image/jpeg",
+  webp:"image/webp"
 };
 
 function slugify(value){
@@ -34,10 +41,30 @@ function statusUrl(req,sha){
 
 export default async function handler(req,res){
   if(applyCors(req,res)) return;
+
+  if(req.method === "GET"){
+    const path = String((req.query || {}).path || "");
+    if(!/^images\/characters\/[a-z0-9._-]+\.(png|jpe?g|webp)$/i.test(path)){
+      return res.status(400).json({error:"invalid_media_path"});
+    }
+
+    try {
+      const file = await readBinaryFile(path);
+      const ext = path.split(".").pop().toLowerCase();
+      res.setHeader("Content-Type",MIME_BY_EXT[ext] || "application/octet-stream");
+      res.setHeader("Cache-Control","public, max-age=60, s-maxage=60");
+      return res.status(200).send(file.buffer);
+    } catch(error){
+      console.error(error);
+      return res.status(error.status || 404).end();
+    }
+  }
+
   if(req.method !== "POST"){
-    res.setHeader("Allow","POST, OPTIONS");
+    res.setHeader("Allow","GET, POST, OPTIONS");
     return res.status(405).json({error:"method_not_allowed"});
   }
+
   if(!requireEditor(req,res)) return;
 
   try {
