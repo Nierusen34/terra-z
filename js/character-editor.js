@@ -402,6 +402,9 @@ async function save(){
       window.TerraZApp.privateContent.setCharacterSecrets(name,payload.secrets || []);
     }
 
+    var filters = window.TerraZApp && window.TerraZApp.characterFilters;
+    if(filters && filters.refreshTaxonomy) filters.refreshTaxonomy();
+
     var characters = window.TerraZApp && window.TerraZApp.characters;
     if(characters && characters.refresh) characters.refresh();
 
