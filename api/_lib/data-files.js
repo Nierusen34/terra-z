@@ -7,7 +7,24 @@ function scanJsonValue(text, assignment){
 
   const opener = text[i];
   const closer = opener === "{" ? "}" : opener === "[" ? "]" : null;
-  if(!closer) throw new Error("Valor JSON esperado após " + assignment);
+
+  if(!closer){
+    const tail = text.slice(i);
+    const literal = tail.match(/^(null|true|false|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/);
+    if(literal) return literal[1];
+
+    if(opener === '"'){
+      let escaped = false;
+      for(let j=i+1; j<text.length; j++){
+        const ch = text[j];
+        if(escaped) escaped = false;
+        else if(ch === "\\") escaped = true;
+        else if(ch === '"') return text.slice(i,j+1);
+      }
+    }
+
+    throw new Error("Valor JSON esperado após " + assignment);
+  }
 
   let depth = 0;
   let inString = false;
