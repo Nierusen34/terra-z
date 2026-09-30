@@ -24,6 +24,19 @@ Object.keys(baseFichasPersonagens).forEach(function(name){
   };
 });
 
+Object.keys(characterOverrides).forEach(function(name){
+  if(fichasPersonagens[name]) return;
+  var override = characterOverrides[name] || {};
+  if(!override.created) return;
+  fichasPersonagens[name] = {
+    eyebrow:override.eyebrow || '',
+    sections:Array.isArray(override.sections) ? override.sections : [],
+    secrets:[],
+    created:true,
+    card:override.card || {}
+  };
+});
+
 if(!window.TerraZData || !window.TerraZData.characters){
   console.error('Terra Z: data/characters.js não foi carregado.');
 }
@@ -95,6 +108,39 @@ function closeFichaModal(){
   if(window.TerraZApp.router) window.TerraZApp.router.clearCharacter();
 }
 
+
+function renderCreatedCharacterCards(){
+  var grid = document.querySelector('#sub-tz-personagens .card-grid');
+  if(!grid) return;
+
+  Object.keys(characterOverrides).forEach(function(name){
+    var override = characterOverrides[name] || {};
+    if(!override.created) return;
+    if(grid.querySelector('[data-created-character="' + CSS.escape(name) + '"]')) return;
+
+    var card = override.card || {};
+    var icon = String(card.icon || '👤').trim() || '👤';
+    var summary = String(card.summary || override.eyebrow || 'Personagem do universo Terra Z').trim();
+
+    var wrapper = document.createElement('div');
+    wrapper.className = 'card character-created-card';
+    wrapper.setAttribute('data-created-character',name);
+
+    var h4 = document.createElement('h4');
+    h4.textContent = icon + ' ' + name;
+
+    var p = document.createElement('p');
+    summary.split(/\r?\n/).forEach(function(line,index){
+      if(index) p.appendChild(document.createElement('br'));
+      p.appendChild(document.createTextNode(line));
+    });
+
+    wrapper.appendChild(h4);
+    wrapper.appendChild(p);
+    grid.appendChild(wrapper);
+  });
+}
+
 function attachFichaHandlers(){
   document.querySelectorAll('#sub-tz-personagens .card-grid .card').forEach(function(card){
     var h4 = card.querySelector('h4');
@@ -125,6 +171,7 @@ function attachFichaHandlers(){
 
 
 
+renderCreatedCharacterCards();
 attachFichaHandlers();
 
 window.openFichaModal = openFichaModal;
@@ -135,7 +182,9 @@ window.TerraZApp.characters = {
   close: closeFichaModal,
   attach: attachFichaHandlers,
   get:function(name){ return fichasPersonagens[name] || null; },
-  names:function(){ return Object.keys(fichasPersonagens); }
+  names:function(){ return Object.keys(fichasPersonagens); },
+  isCreated:function(name){ return !!(characterOverrides[name] && characterOverrides[name].created); },
+  card:function(name){ return (characterOverrides[name] && characterOverrides[name].card) || null; }
 };
 
 })();
