@@ -127,6 +127,10 @@ function initFavoritesPanel(){
 attachFavoriteButtons();
 initFavoritesPanel();
 
+document.addEventListener('terra-z:characters-rendered',function(){
+  attachFavoriteButtons();
+});
+
 window.toggleFavorite = toggleFavorite;
 window.showFavoritesPanel = showFavoritesPanel;
 window.closeFavoritesPanel = closeFavoritesPanel;
@@ -135,7 +139,8 @@ window.TerraZApp.favorites = {
   toggle: toggleFavorite,
   show: showFavoritesPanel,
   close: closeFavoritesPanel,
-  refresh: updateAllCardFavorites
+  refresh: updateAllCardFavorites,
+  attach: attachFavoriteButtons
 };
 
 })();
