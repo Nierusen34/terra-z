@@ -17,7 +17,7 @@ export default async function handler(req,res){
   }
 
   const path = String(req.query && req.query.path || "");
-  if(!/^images\/characters\/[a-z0-9._/-]+\.(png|jpe?g|webp)$/i.test(path)){
+  if(!/^images\/characters\/[a-z0-9._-]+\.(png|jpe?g|webp)$/i.test(path)){
     return res.status(400).json({error:"invalid_media_path"});
   }
 
