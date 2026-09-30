@@ -12,6 +12,7 @@ export default async function handler(req,res){
   const githubAppReady = !!(process.env.GITHUB_APP_ID && process.env.GITHUB_INSTALLATION_ID && process.env.GITHUB_PRIVATE_KEY);
   const tokenReady = !!process.env.GITHUB_TOKEN;
   const editorReady = !!(process.env.EDITOR_AUTH_SECRET && (process.env.EDITOR_PASSWORD_HASH || process.env.EDITOR_PASSWORD));
+  const editorPasswordMode = process.env.EDITOR_PASSWORD_HASH ? "hash" : (process.env.EDITOR_PASSWORD ? "plaintext" : "none");
   let masterContent = "missing";
   if(process.env.MASTER_CONTENT_JSON){
     try {
@@ -25,6 +26,7 @@ export default async function handler(req,res){
   return res.status(200).json({
     ok:true,
     editor_auth:editorReady,
+    editor_password_mode:editorPasswordMode,
     github_write:githubAppReady || tokenReady,
     github_mode:githubAppReady ? "app" : (tokenReady ? "token" : "none"),
     master_content:masterContent,
