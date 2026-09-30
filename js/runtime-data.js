@@ -44,7 +44,8 @@ async function refresh(options){
     ? ('?v=' + encodeURIComponent(options.bust))
     : ('?t=' + Date.now());
 
-  var promise = b.request('/api/runtime-data' + suffix,{method:'GET'},false)
+  var separator = suffix.charAt(0) === '?' ? '&' : '?';
+  var promise = b.request('/api/health?runtime=1' + separator + suffix.replace(/^\?/,'') ,{method:'GET'},false)
     .then(function(result){
       if(serial < appliedSerial) return result;
       appliedSerial = serial;
@@ -68,7 +69,7 @@ function mediaUrl(path,sha){
   if(!raw || !b || !b.isConfigured()) return raw;
   if(!/^images\/characters\/[a-z0-9._-]+\.(png|jpe?g|webp)$/i.test(raw)) return raw;
 
-  var url = b.endpoint('/api/runtime-media?path=' + encodeURIComponent(raw));
+  var url = b.endpoint('/api/media?path=' + encodeURIComponent(raw));
   var version = sha || currentSha;
   if(version) url += '&v=' + encodeURIComponent(version);
   return url;
