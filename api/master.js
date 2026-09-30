@@ -2,6 +2,7 @@ import { applyCors } from "./_lib/cors.js";
 import { requireEditor } from "./_lib/auth.js";
 
 export default async function handler(req,res){
+  res.setHeader("Cache-Control","no-store");
   if(applyCors(req,res)) return;
   if(req.method !== "GET"){
     res.setHeader("Allow","GET, OPTIONS");

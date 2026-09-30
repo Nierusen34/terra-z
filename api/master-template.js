@@ -4,6 +4,7 @@ import { readTextFile } from "./_lib/github.js";
 import { buildMasterContent } from "./_lib/master-migration.js";
 
 export default async function handler(req,res){
+  res.setHeader("Cache-Control","no-store");
   if(applyCors(req,res)) return;
   if(req.method!=="GET"){
     res.setHeader("Allow","GET, OPTIONS");
