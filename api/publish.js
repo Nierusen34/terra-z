@@ -16,7 +16,7 @@ function escapeAttribute(value){
 
 function parseAttributes(raw){
   const attrs = [];
-  const re = /([^\\s=/>]+)\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s"'=<>]+))/g;
+  const re = /([^\s=/>]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>]+))/g;
   let match;
   while((match = re.exec(raw || ""))){
     attrs.push({
@@ -30,7 +30,7 @@ function parseAttributes(raw){
 function safeHref(value){
   const raw = String(value || "").trim();
   if(!raw) return "";
-  const compact = raw.replace(/[\\u0000-\\u0020\\u007f]+/g,"").toLowerCase();
+  const compact = raw.replace(/[\u0000-\u0020\u007f]+/g,"").toLowerCase();
 
   if(compact.startsWith("javascript:") ||
      compact.startsWith("data:") ||
@@ -38,7 +38,7 @@ function safeHref(value){
     return "";
   }
 
-  if(/^https?:\\/\\//i.test(raw) ||
+  if(/^https?:\/\//i.test(raw) ||
      /^mailto:/i.test(raw) ||
      raw.startsWith("#") ||
      raw.startsWith("/") ||
@@ -77,7 +77,7 @@ function sanitizeTag(tagName, rawAttributes, closing){
         }
       } else if(attr.name === "rel"){
         const rel = String(attr.value)
-          .split(/\\s+/)
+          .split(/\s+/)
           .map(v => v.toLowerCase())
           .filter(v => ["noopener","noreferrer","nofollow"].includes(v));
         if(rel.length) safe.push('rel="' + [...new Set(rel)].join(" ") + '"');
@@ -92,7 +92,7 @@ function sanitizeTag(tagName, rawAttributes, closing){
     parseAttributes(rawAttributes).forEach(attr => {
       if(attr.name !== "class") return;
       const classes = String(attr.value)
-        .split(/\\s+/)
+        .split(/\s+/)
         .filter(v => /^[a-z0-9_-]{1,64}$/i.test(v))
         .slice(0,8);
       if(classes.length) safe.push('class="' + escapeAttribute(classes.join(" ")) + '"');
@@ -118,11 +118,11 @@ function sanitizeValue(value){
   }
 
   let output = value
-    .replace(/<!--[\\s\\S]*?-->/g,"")
+    .replace(/<!--[\s\S]*?-->/g,"")
     .replace(/<![^>]*>/g,"")
-    .replace(/<\\?[^>]*>/g,"");
+    .replace(/<\?[^>]*>/g,"");
 
-  output = output.replace(/<\\s*(\\/?)\\s*([a-zA-Z][a-zA-Z0-9]*)\\b([^<>]*?)\\/?\\s*>/g,
+  output = output.replace(/<\s*(\/?)\s*([a-zA-Z][a-zA-Z0-9]*)\b([^<>]*?)\/?\s*>/g,
     function(full, slash, tagName, attrs){
       return sanitizeTag(tagName, attrs, slash === "/");
     }
