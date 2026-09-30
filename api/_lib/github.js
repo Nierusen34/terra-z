@@ -102,6 +102,16 @@ export async function readTextFile(path){
   };
 }
 
+
+export async function readBinaryFile(path){
+  const data = await request("/repos/" + repo() + "/contents/" + path.split("/").map(encodeURIComponent).join("/") + "?ref=" + encodeURIComponent(branch()));
+  if(!data || data.type !== "file") throw new Error("Arquivo não encontrado: " + path);
+  return {
+    sha:data.sha,
+    buffer:Buffer.from(String(data.content || "").replace(/\s+/g,""),"base64")
+  };
+}
+
 async function createBlob(content, encoding){
   return request("/repos/" + repo() + "/git/blobs",{
     method:"POST",
