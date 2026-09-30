@@ -5,6 +5,8 @@ window.TerraZApp = window.TerraZApp || {};
 
 var currentSha = '';
 var loadingPromise = null;
+var requestSerial = 0;
+var appliedSerial = 0;
 
 function backend(){
   return window.TerraZApp && window.TerraZApp.backend;
@@ -37,28 +39,34 @@ async function refresh(options){
 
   if(loadingPromise && !options.force) return loadingPromise;
 
+  var serial = ++requestSerial;
   var suffix = options.bust
     ? ('?v=' + encodeURIComponent(options.bust))
     : ('?t=' + Date.now());
 
-  loadingPromise = b.request('/api/runtime-data' + suffix,{method:'GET'},false)
-    .then(applyData)
+  var promise = b.request('/api/runtime-data' + suffix,{method:'GET'},false)
+    .then(function(result){
+      if(serial < appliedSerial) return result;
+      appliedSerial = serial;
+      return applyData(result);
+    })
     .catch(function(error){
       if(!options.silent) console.error('Terra Z runtime data:',error);
       return null;
     })
     .finally(function(){
-      loadingPromise = null;
+      if(loadingPromise === promise) loadingPromise = null;
     });
 
-  return loadingPromise;
+  loadingPromise = promise;
+  return promise;
 }
 
 function mediaUrl(path,sha){
   var b = backend();
   var raw = String(path || '');
   if(!raw || !b || !b.isConfigured()) return raw;
-  if(!/^images\/characters\/[a-z0-9._/-]+\.(png|jpe?g|webp)$/i.test(raw)) return raw;
+  if(!/^images\/characters\/[a-z0-9._-]+\.(png|jpe?g|webp)$/i.test(raw)) return raw;
 
   var url = b.endpoint('/api/runtime-media?path=' + encodeURIComponent(raw));
   var version = sha || currentSha;
