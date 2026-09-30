@@ -88,7 +88,10 @@ var globalStructure = [
     {id:'sub-historia', label:'História'},{id:'sub-cultura', label:'Cultura'},{id:'sub-eventos', label:'Eventos'}
   ]},
   { id:'tab-maps', icon:'🗺️', label:'Mapas', subs:[
-    {id:'sub-mapa-detalhado', label:'Mapa'},{id:'sub-mapa-criminal', label:'Criminalidade'},{id:'sub-mapa-transporte', label:'Transporte'}
+    {id:'sub-mapa-detalhado', label:'Visão Geral'},
+    {id:'sub-mapa-transporte', label:'Transporte'},
+    {id:'sub-mapa-nacional', label:'Mapa Nacional'},
+    {id:'sub-mapa-criminal', label:'Criminalidade'}
   ]},
   { id:'tab-transport', icon:'🚋', label:'Transporte', subs:[
     {id:'sub-dist-internas', label:'Internas'},{id:'sub-cidades-externas', label:'Externas'},{id:'sub-sistema-transporte', label:'Sistema'}
