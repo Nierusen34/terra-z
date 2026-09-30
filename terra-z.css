@@ -890,3 +890,251 @@ button.session-chip:hover{border-color:var(--accent);color:var(--accent)}
   .map-intro{font-size:12px}
   .map-note{font-size:10.5px}
 }
+
+
+/* ===== ETAPA 6.1 · ACABAMENTO MOBILE ===== */
+@media(max-width:900px){
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+
+  /* Barra superior: busca em linha própria + ações confortáveis para toque */
+  .topbar{align-items:stretch;gap:8px;padding:10px 12px}
+  .search-wrap{flex:1 0 100%;width:100%;max-width:none;min-width:0}
+  .search-wrap input{min-width:0;min-height:44px;padding:10px 14px}
+  .search-wrap button{min-height:44px;padding:9px 15px}
+  .topbar-actions{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .topbar-actions>button{width:100%;min-height:44px;padding:8px 6px;font-size:9px;letter-spacing:.45px;line-height:1.25;white-space:normal}
+  .legacy-admin-actions{display:none!important}
+
+  /* Abas principais deslizam em vez de ocupar várias linhas */
+  .tabs-nav{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;padding:0 8px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tabs-nav::-webkit-scrollbar{display:none}
+  .tab-btn{flex:0 0 auto;min-width:112px;min-height:48px;padding:12px 10px;scroll-snap-align:start}
+  .tab-btn.active::after{display:none}
+
+  /* Navegação e hierarquia */
+  .breadcrumbs{padding:9px 14px;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}
+  .content-area{padding:18px 14px}
+  .section-title{font-size:22px;line-height:1.15;gap:8px}
+  .subsection-title{font-size:15px}
+  .mast-top{gap:8px;font-size:9px;letter-spacing:1.3px}
+  .mast-subtitle{font-size:14px;line-height:1.45}
+
+  /* Alvos de toque */
+  .sidebar-item,
+  .search-tab,
+  .fandom-modal-header button,
+  .fandom-modal-header a,
+  .graph-toolbar button,
+  .graph-editor-header button,
+  .graph-editor-footer button,
+  .ge-btn-add,
+  .ge-btn-remove,
+  .campaign-add-btn,
+  .session-editor-actions button,
+  .character-editor-actions button,
+  .character-editor-toolbar button,
+  .character-editor-add,
+  .master-workspace-tab,
+  .master-workspace-toolbar button,
+  .master-workspace-editor-actions button,
+  .admin-login-row button,
+  .admin-action,
+  .publish-actions button,
+  .confirm-inner button{
+    min-height:44px;
+  }
+
+  .ficha-header .fh-close,
+  .ficha-header .fh-link,
+  .session-editor-head button,
+  .character-editor-head>button,
+  #masterWorkspaceClose,
+  #masterWorkspaceEditorClose,
+  #adminCloseBtn{
+    min-width:44px;
+    width:44px;
+    min-height:44px;
+    height:44px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    flex:0 0 44px;
+  }
+
+  #menuBtn{width:48px!important;height:48px!important}
+  #backTop{width:46px!important;height:46px!important}
+
+  /* Evita zoom automático do iOS ao focar campos */
+  .search-wrap input,
+  .admin-login-row input,
+  .session-form-grid input,
+  .session-form-grid select,
+  .session-form-grid textarea,
+  .character-editor-grid input,
+  .character-editor-grid textarea,
+  .character-editor-meta-grid select,
+  #characterEditorSecrets,
+  .master-field input,
+  .master-field select,
+  .master-field textarea,
+  .publish-message,
+  .ge-table input,
+  .ge-table select{
+    font-size:16px;
+  }
+
+  /* Modais usam melhor a viewport móvel */
+  #fandomModal,#fichaModal,#graphEditorModal{padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
+  .fandom-modal-inner,.ficha-inner,.graph-editor-inner{width:100%;max-width:none}
+  .fandom-modal-body{padding:18px 16px;max-height:calc(100dvh - 120px)}
+  .fandom-modal-header{padding:12px 14px}
+  .fandom-modal-header .mh-actions{width:100%}
+  .fandom-modal-header .mh-actions>*{flex:1 1 auto;text-align:center}
+
+  .publish-panel,
+  .session-editor-panel,
+  .character-editor-panel,
+  .admin-panel,
+  .master-workspace-panel{
+    padding:8px;
+  }
+  .publish-card,
+  .session-editor-card,
+  .character-editor-card,
+  .admin-card{
+    max-height:calc(100dvh - 16px);
+    overflow:auto;
+  }
+  .master-workspace-card{height:calc(100dvh - 16px);max-height:none}
+
+  /* Corrige centralização sobrescrita por regra mobile antiga */
+  #confirmModal.show{display:flex}
+  #lightbox.show{display:flex}
+
+  /* Lightbox móvel: toque alterna zoom e permite pan */
+  #lightbox{
+    padding:58px 12px 20px;
+    overflow:auto;
+    align-items:center;
+    justify-content:center;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-x pan-y pinch-zoom;
+  }
+  #lightbox img{
+    max-width:100%;
+    max-height:calc(100dvh - 82px);
+    flex:0 0 auto;
+    cursor:zoom-in;
+    touch-action:manipulation;
+  }
+  #lightbox.mobile-zoomed{
+    align-items:flex-start;
+    justify-content:flex-start;
+  }
+  #lightbox.mobile-zoomed img{
+    width:240vw;
+    height:auto;
+    max-width:none;
+    max-height:none;
+    margin:0;
+    cursor:zoom-out;
+  }
+  #lightbox .close-lb{
+    top:max(8px,env(safe-area-inset-top));
+    right:10px;
+    width:44px;
+    height:44px;
+    padding:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    background:rgba(0,0,0,.55);
+    backdrop-filter:blur(4px);
+    z-index:5;
+  }
+
+  /* Tabelas largas: preserva legibilidade sem esmagar colunas */
+  .mobile-table-scroll{
+    position:relative;
+    width:100%;
+    overflow-x:auto;
+    overscroll-behavior-inline:contain;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;
+    margin:14px 0;
+  }
+  .mobile-table-scroll table{margin:0;width:100%}
+  .mobile-table-scroll.wide table{min-width:680px}
+  .mobile-table-scroll.very-wide table{min-width:820px}
+  .mobile-table-scroll.is-scrollable{padding-top:19px}
+  .mobile-table-scroll.is-scrollable::before{
+    content:'↔ Deslize para ver mais';
+    position:absolute;
+    top:0;
+    right:2px;
+    font-family:'Share Tech Mono',monospace;
+    font-size:8px;
+    letter-spacing:.6px;
+    text-transform:uppercase;
+    color:var(--ink3);
+    pointer-events:none;
+  }
+
+  .graph-wrap{padding:12px;-webkit-overflow-scrolling:touch}
+}
+
+@media(max-width:760px){
+  .graph-wrap.mobile-scroll-region::before{
+    content:'↔ Deslize o grafo horizontalmente';
+    display:block;
+    margin:0 0 8px;
+    font-family:'Share Tech Mono',monospace;
+    font-size:8px;
+    letter-spacing:.6px;
+    text-transform:uppercase;
+    color:var(--ink3);
+  }
+  .map-showcase figcaption{font-size:11px;line-height:1.4}
+}
+
+@media(max-width:520px){
+  .topbar-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .masthead{padding-left:14px;padding-right:14px}
+  .mast-title{font-size:clamp(28px,9vw,34px);letter-spacing:1px}
+  .mast-top{font-size:8px}
+  .content-area{padding:16px 12px}
+  .home-body{padding:22px 16px}
+  .home-hero{padding:24px 16px}
+  .feature-row{padding:0 16px 18px}
+
+  .session-editor-card,
+  .character-editor-card,
+  .publish-card{padding:16px}
+
+  .session-editor-actions,
+  .character-editor-actions,
+  .publish-actions,
+  .confirm-inner .actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  .session-editor-actions button,
+  .character-editor-actions button,
+  .publish-actions button,
+  .confirm-inner button{
+    width:100%;
+  }
+
+  #lightbox.mobile-zoomed img{width:280vw}
+}
+
+@supports not (height:100dvh){
+  @media(max-width:900px){
+    .fandom-modal-body{max-height:calc(100vh - 120px)}
+    .publish-card,.session-editor-card,.character-editor-card,.admin-card{max-height:calc(100vh - 16px)}
+    .master-workspace-card{height:calc(100vh - 16px)}
+    #lightbox img{max-height:calc(100vh - 82px)}
+  }
+}
