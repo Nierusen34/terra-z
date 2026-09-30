@@ -91,9 +91,13 @@ export default async function handler(req,res){
       }
     }
 
+    const commitMessage = item.visibility === "master"
+      ? (existed ? "sessions: atualizar conteúdo privado do Mestre" : "sessions: registrar conteúdo privado do Mestre")
+      : (existed ? "sessions: atualizar " : "sessions: registrar ") + title;
+
     const commit = await commitFiles(
       files,
-      (existed ? "sessions: atualizar " : "sessions: registrar ") + title,
+      commitMessage,
       head
     );
 
