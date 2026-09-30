@@ -1,7 +1,7 @@
 import { applyCors } from "./_lib/cors.js";
 import { requireEditor } from "./_lib/auth.js";
 import { getHead, readTextFile, commitFiles } from "./_lib/github.js";
-import { parseDataAssignment, renderCharacterOverrides, renderCharacterMedia } from "./_lib/data-files.js";
+import { parseDataAssignment, renderCharacterOverrides, renderCharacterMedia, renderCharacterTaxonomy } from "./_lib/data-files.js";
 import {
   PRIVATE_CHARACTER_DATA_PATH,
   readPrivateCharacterData,
@@ -185,6 +185,38 @@ function findCaseInsensitiveKey(keys,name){
   return keys.find(key => String(key).toLocaleLowerCase("pt-BR") === target) || "";
 }
 
+function normalizeCharacterMeta(value,taxonomy,creating){
+  const input = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  const nucleiDefs = Array.isArray(taxonomy.nuclei) ? taxonomy.nuclei : [];
+  const typeDefs = Array.isArray(taxonomy.types) ? taxonomy.types : [];
+  const statusDefs = Array.isArray(taxonomy.statuses) ? taxonomy.statuses : [];
+
+  const allowedNuclei = new Set(nucleiDefs.map(item => String(item && item.id || "")));
+  const allowedTypes = new Set(typeDefs.map(item => String(item && item.id || "")));
+  const allowedStatuses = new Set(statusDefs.map(item => String(item && item.id || "")));
+
+  let nuclei = Array.isArray(input.nuclei)
+    ? input.nuclei.map(v => String(v || "")).filter(v => allowedNuclei.has(v))
+    : [];
+
+  if(!nuclei.length && creating && allowedNuclei.has("other")) nuclei = ["other"];
+
+  const type = allowedTypes.has(String(input.type || ""))
+    ? String(input.type)
+    : (creating && allowedTypes.has("npc") ? "npc" : "other");
+
+  const status = allowedStatuses.has(String(input.status || ""))
+    ? String(input.status)
+    : (creating && allowedStatuses.has("active") ? "active" : "unknown");
+
+  return {
+    featured:input.featured === true,
+    nuclei:[...new Set(nuclei)],
+    type,
+    status
+  };
+}
+
 function statusUrl(req,sha){
   const proto = String(req.headers["x-forwarded-proto"] || "https").split(",")[0].trim();
   return proto + "://" + req.headers.host + "/api/status?sha=" + encodeURIComponent(sha);
@@ -205,14 +237,19 @@ export default async function handler(req,res){
 
     const creating = input.create === true;
 
-    const [mediaFile,overridesFile,charactersFile] = await Promise.all([
+    const [mediaFile,overridesFile,charactersFile,metaFile] = await Promise.all([
       readTextFile("data/character-media.js"),
       readTextFile("data/character-overrides.js"),
-      readTextFile("data/characters.js")
+      readTextFile("data/characters.js"),
+      readTextFile("data/character-meta.js")
     ]);
 
     const media = parseDataAssignment(mediaFile.content,"characterMedia");
     const overrides = parseDataAssignment(overridesFile.content,"characterOverrides");
+    const taxonomy = parseDataAssignment(metaFile.content,"characterTaxonomy");
+    taxonomy.characters = taxonomy.characters && typeof taxonomy.characters === "object" && !Array.isArray(taxonomy.characters)
+      ? taxonomy.characters
+      : {};
     const baseCharacterNames = extractTopLevelCharacterNames(charactersFile.content);
 
     const baseExistingName = findCaseInsensitiveKey(baseCharacterNames,name);
@@ -253,10 +290,22 @@ export default async function handler(req,res){
       ...(card ? {card} : {})
     };
 
+    const characterMeta = normalizeCharacterMeta(
+      input.meta || taxonomy.characters[name] || {},
+      taxonomy,
+      creating
+    );
+    taxonomy.characters[name] = characterMeta;
+
     const files = [
       {
         path:"data/character-overrides.js",
         content:renderCharacterOverrides(overrides),
+        encoding:"utf-8"
+      },
+      {
+        path:"data/character-meta.js",
+        content:renderCharacterTaxonomy(taxonomy),
         encoding:"utf-8"
       }
     ];
