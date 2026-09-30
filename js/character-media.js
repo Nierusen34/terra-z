@@ -45,9 +45,19 @@ function renderPortraitHtml(name, size){
 }
 
 function decorateCard(card, name){
-  if(!card || card.querySelector('.character-portrait')) return;
+  if(!card) return;
+
+  var existing = card.querySelector('.character-portrait');
+  if(existing){
+    hydratePortraits(existing);
+    return;
+  }
+
   card.classList.add('character-card');
   card.insertAdjacentHTML('afterbegin', renderPortraitHtml(name, 'small'));
+
+  var portrait = card.querySelector('.character-portrait[data-character]');
+  if(portrait) hydratePortraits(portrait);
 }
 
 function hydratePortraits(root){
