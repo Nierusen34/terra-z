@@ -597,6 +597,13 @@ body.reading-mode .photo img{cursor:default}
 .campaign-empty strong{display:block;font-family:var(--font-title);color:var(--accent);margin-bottom:6px}
 .session-entry{border:1px solid var(--line);background:var(--paper2);padding:18px 20px;margin-bottom:16px}
 .session-meta{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--ink3);letter-spacing:.5px}
+.session-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.session-visibility{display:inline-flex;align-items:center;margin-left:auto;padding:2px 6px;border:1px solid var(--line);border-radius:999px;font-size:8px;letter-spacing:.8px;text-transform:uppercase}
+.session-visibility.public{color:var(--ink3)}
+.session-visibility.rumor{color:var(--accent2);border-color:var(--accent2)}
+.session-visibility.master{color:var(--accent);border-color:var(--accent)}
+.session-entry.session-rumor{border-left:3px solid var(--accent2)}
+.session-entry.session-master{border-left:3px solid var(--accent);background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 6%,var(--paper2)),var(--paper2) 35%)}
 .session-entry h3{font-family:var(--font-title);font-size:20px;color:var(--accent);margin:4px 0 10px}
 .session-summary{color:var(--ink2);font-size:13px;margin-bottom:14px}
 .session-block{margin-top:12px}
