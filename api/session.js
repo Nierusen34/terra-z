@@ -3,7 +3,7 @@ import { requireEditor } from "./_lib/auth.js";
 import { getHead, readTextFile, commitFiles } from "./_lib/github.js";
 import { parseDataAssignment, renderSessions } from "./_lib/data-files.js";
 
-const VISIBILITY = new Set(["public","rumor","restricted","master"]);
+const VISIBILITY = new Set(["public","rumor"]);
 
 function text(value,max=2000){
   return String(value || "").replace(/[<>]/g,"").trim().slice(0,max);
