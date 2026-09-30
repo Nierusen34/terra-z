@@ -6,6 +6,7 @@ var core = window.TerraZCore;
 if(!core) throw new Error('Terra Z: núcleo não carregado antes de js/session-editor.js');
 
 var showToast = core.showToast;
+var showConfirm = core.showConfirm;
 var currentId = '';
 
 function el(id){ return document.getElementById(id); }
@@ -43,6 +44,9 @@ function fill(session){
   if(title) title.textContent = currentId ? '📓 Editar sessão' : '📓 Registrar sessão';
   var saveBtn = el('sessionSaveBtn');
   if(saveBtn) saveBtn.textContent = currentId ? '💾 Atualizar sessão' : '💾 Registrar sessão';
+
+  var deleteBtn = el('sessionDeleteBtn');
+  if(deleteBtn) deleteBtn.hidden = !currentId;
 }
 
 function open(id){
@@ -66,6 +70,8 @@ function open(id){
 
 function close(){
   currentId = '';
+  var deleteBtn = el('sessionDeleteBtn');
+  if(deleteBtn) deleteBtn.hidden = true;
   var panel = el('sessionEditorPanel');
   if(panel) panel.classList.remove('show');
   document.body.style.overflow = '';
@@ -131,17 +137,86 @@ async function save(){
   }
 }
 
+function requestDelete(){
+  if(!currentId) return;
+
+  var manager = window.TerraZApp && window.TerraZApp.sessions;
+  var all = manager && manager.getAll ? manager.getAll() : [];
+  var session = all.find(function(item){ return item && item.id === currentId; });
+  var title = session && session.title ? session.title : 'esta sessão';
+
+  showConfirm(
+    'Apagar sessão',
+    'Apagar "' + title + '" do Diário da Campanha? Esta ação remove o registro da sessão, mas não apaga automaticamente personagens, locais ou outros conteúdos citados nela.',
+    performDelete,
+    'Apagar sessão'
+  );
+}
+
+async function performDelete(){
+  if(!currentId) return;
+
+  var b = backend();
+  if(!b || !b.isAuthenticated()){
+    close();
+    showToast('Sua sessão de editor expirou.','warning');
+    return;
+  }
+
+  var id = currentId;
+  var deleteBtn = el('sessionDeleteBtn');
+  var saveBtn = el('sessionSaveBtn');
+
+  if(deleteBtn){
+    deleteBtn.disabled = true;
+    deleteBtn.textContent = 'Apagando…';
+  }
+  if(saveBtn) saveBtn.disabled = true;
+
+  try {
+    var result = await b.request('/api/session',{
+      method:'DELETE',
+      body:{session:{id:id}}
+    });
+
+    var manager = window.TerraZApp && window.TerraZApp.sessions;
+    if(manager && manager.remove) manager.remove(result.deleted || id);
+
+    close();
+    showToast('Sessão apagada com sucesso.','success',4500);
+
+    var runtime = window.TerraZApp && window.TerraZApp.runtimeData;
+    if(runtime && runtime.refresh) runtime.refresh({force:true,bust:result.sha,silent:true});
+
+    var publishing = window.TerraZApp && window.TerraZApp.publishing;
+    if(publishing && publishing.trackDeployment && result.status_url){
+      publishing.trackDeployment(result.status_url);
+    }
+  } catch(error){
+    console.error('Terra Z session delete:',error);
+    showToast(error.message || 'Falha ao apagar a sessão.','error',6000);
+  } finally {
+    if(deleteBtn){
+      deleteBtn.disabled = false;
+      deleteBtn.textContent = '🗑️ Apagar sessão';
+    }
+    if(saveBtn) saveBtn.disabled = false;
+  }
+}
+
 function setup(){
   var openBtn = el('addSessionBtn');
   var closeBtn = el('sessionEditorClose');
   var cancelBtn = el('sessionCancelBtn');
   var saveBtn = el('sessionSaveBtn');
+  var deleteBtn = el('sessionDeleteBtn');
   var panel = el('sessionEditorPanel');
 
   if(openBtn) openBtn.addEventListener('click',function(){ open(''); });
   if(closeBtn) closeBtn.addEventListener('click',close);
   if(cancelBtn) cancelBtn.addEventListener('click',close);
   if(saveBtn) saveBtn.addEventListener('click',save);
+  if(deleteBtn) deleteBtn.addEventListener('click',requestDelete);
   if(panel) panel.addEventListener('click',function(e){ if(e.target === panel) close(); });
 
   document.addEventListener('terra-z:auth-changed',refresh);
@@ -153,7 +228,8 @@ setup();
 window.TerraZApp.sessionEditor = {
   open:open,
   close:close,
-  refresh:refresh
+  refresh:refresh,
+  deleteSession:requestDelete
 };
 
 })();
