@@ -675,6 +675,43 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 </div>
 </div>
 
+<div id="characterEditorPanel" class="character-editor-panel" role="dialog" aria-modal="true" aria-labelledby="characterEditorTitle">
+<div class="character-editor-card">
+<div class="character-editor-head">
+<div>
+<div class="character-editor-eyebrow">EDITOR DE PERSONAGEM</div>
+<h3 id="characterEditorTitle">✏️ Editar personagem</h3>
+</div>
+<button id="characterEditorClose">✕</button>
+</div>
+
+<div class="character-editor-grid">
+<label>Personagem<input id="characterEditorName" type="text" readonly></label>
+<label>Subtítulo / classificação<input id="characterEditorEyebrow" type="text" maxlength="240"></label>
+</div>
+
+<div class="character-editor-toolbar">
+<button id="characterEditorPortraitBtn" type="button">🖼️ Trocar retrato</button>
+<button id="characterEditorGraphBtn" type="button">🔗 Relações / Grafo</button>
+</div>
+
+<div class="character-editor-section-title">Seções da ficha</div>
+<div id="characterEditorSections"></div>
+<button id="characterEditorAddSection" type="button" class="character-editor-add">＋ Adicionar seção</button>
+
+<div class="character-editor-section-title private">🔒 Segredos do Mestre</div>
+<p class="character-editor-note">Um segredo por linha. Estes dados são armazenados de forma privada e não entram na ficha pública.</p>
+<textarea id="characterEditorSecrets" rows="7" placeholder="Um segredo por linha"></textarea>
+
+<div class="character-editor-status" id="characterEditorStatus"></div>
+
+<div class="character-editor-actions">
+<button id="characterEditorCancel">Cancelar</button>
+<button id="characterEditorSave" class="primary">💾 Salvar personagem</button>
+</div>
+</div>
+</div>
+
 <div id="fichaModal">
 <div class="ficha-inner">
 <div class="ficha-header" id="fichaHeader"></div>
@@ -739,6 +776,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <button id="backTop">↑</button>
 
 <script src="data/characters.js" defer></script>
+<script src="data/character-overrides.js" defer></script>
 <script src="data/character-media.js" defer></script>
 <script src="data/relations.js" defer></script>
 <script src="data/locations.js" defer></script>
@@ -764,6 +802,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="js/navigation.js" defer></script>
 <script src="js/search.js" defer></script>
 <script src="js/characters.js" defer></script>
+<script src="js/character-editor.js" defer></script>
 <script src="js/favorites.js" defer></script>
 <script src="js/presentation.js" defer></script>
 <script src="js/graph.js" defer></script>
