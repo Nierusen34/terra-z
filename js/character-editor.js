@@ -173,6 +173,20 @@ function setCreateFieldsVisible(visible){
   if(fields) fields.hidden = !visible;
 }
 
+function refreshPortraitRemoval(name){
+  var button = el('characterEditorRemovePortraitBtn');
+  if(!button) return;
+
+  if(createMode || !name){
+    button.hidden = true;
+    return;
+  }
+
+  var media = (window.TerraZData && window.TerraZData.characterMedia) || {};
+  var item = media[name] || {};
+  button.hidden = !item.src;
+}
+
 function setCreateDependentButtons(disabled){
   var portrait = el('characterEditorPortraitBtn');
   var graph = el('characterEditorGraphBtn');
@@ -256,6 +270,7 @@ async function open(name){
   }
 
   setCreateDependentButtons(false);
+  refreshPortraitRemoval(name);
   fillOrganization(metaFor(name));
 
   var title = el('characterEditorTitle');
@@ -297,6 +312,7 @@ function openCreate(){
   renderSections(defaultSections());
   setCreateFieldsVisible(true);
   setCreateDependentButtons(true);
+  refreshPortraitRemoval('');
   fillOrganization({featured:false,nuclei:['other'],type:'npc',status:'active'});
 
   var title = el('characterEditorTitle');
@@ -326,6 +342,7 @@ function close(){
 
   setCreateFieldsVisible(false);
   setCreateDependentButtons(false);
+  refreshPortraitRemoval('');
 
   var deleteBtn = el('characterEditorDelete');
   if(deleteBtn) deleteBtn.hidden = true;
@@ -547,6 +564,13 @@ function openPortrait(){
   }
 }
 
+function removePortrait(){
+  if(createMode || !currentName) return;
+  if(window.TerraZApp.mediaManager && window.TerraZApp.mediaManager.requestRemove){
+    window.TerraZApp.mediaManager.requestRemove(currentName);
+  }
+}
+
 function openGraph(){
   if(createMode){
     showToast('Salve o personagem antes de adicioná-lo ao grafo.','info',4000);
@@ -569,6 +593,7 @@ function setup(){
   if(el('characterEditorDelete')) el('characterEditorDelete').addEventListener('click',requestDelete);
   if(el('characterEditorAddSection')) el('characterEditorAddSection').addEventListener('click',addSection);
   if(el('characterEditorPortraitBtn')) el('characterEditorPortraitBtn').addEventListener('click',openPortrait);
+  if(el('characterEditorRemovePortraitBtn')) el('characterEditorRemovePortraitBtn').addEventListener('click',removePortrait);
   if(el('characterEditorGraphBtn')) el('characterEditorGraphBtn').addEventListener('click',openGraph);
 
   if(sections){
@@ -594,6 +619,12 @@ function setup(){
 
   document.addEventListener('terra-z:runtime-data-loaded',function(){
     taxonomy = (window.TerraZData && window.TerraZData.characterTaxonomy) || taxonomy;
+    if(currentName) refreshPortraitRemoval(currentName);
+  });
+
+  document.addEventListener('terra-z:character-media-changed',function(event){
+    var changed = event.detail && event.detail.character;
+    if(currentName && changed === currentName) refreshPortraitRemoval(currentName);
   });
 
   refreshCreateButton();
