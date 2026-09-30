@@ -13,29 +13,37 @@ var baseFichasPersonagens = (window.TerraZData && window.TerraZData.characters) 
 var characterOverrides = (window.TerraZData && window.TerraZData.characterOverrides) || {};
 var fichasPersonagens = {};
 
-Object.keys(baseFichasPersonagens).forEach(function(name){
-  var base = baseFichasPersonagens[name] || {};
-  var override = characterOverrides[name] || {};
-  fichasPersonagens[name] = {
-    ...base,
-    ...override,
-    sections:Array.isArray(override.sections) ? override.sections : base.sections,
-    secrets:base.secrets
-  };
-});
+function rebuildFichas(){
+  baseFichasPersonagens = (window.TerraZData && window.TerraZData.characters) || baseFichasPersonagens || {};
+  characterOverrides = (window.TerraZData && window.TerraZData.characterOverrides) || {};
+  fichasPersonagens = {};
 
-Object.keys(characterOverrides).forEach(function(name){
-  if(fichasPersonagens[name]) return;
-  var override = characterOverrides[name] || {};
-  if(!override.created) return;
-  fichasPersonagens[name] = {
-    eyebrow:override.eyebrow || '',
-    sections:Array.isArray(override.sections) ? override.sections : [],
-    secrets:[],
-    created:true,
-    card:override.card || {}
-  };
-});
+  Object.keys(baseFichasPersonagens).forEach(function(name){
+    var base = baseFichasPersonagens[name] || {};
+    var override = characterOverrides[name] || {};
+    fichasPersonagens[name] = {
+      ...base,
+      ...override,
+      sections:Array.isArray(override.sections) ? override.sections : base.sections,
+      secrets:base.secrets
+    };
+  });
+
+  Object.keys(characterOverrides).forEach(function(name){
+    if(fichasPersonagens[name]) return;
+    var override = characterOverrides[name] || {};
+    if(!override.created) return;
+    fichasPersonagens[name] = {
+      eyebrow:override.eyebrow || '',
+      sections:Array.isArray(override.sections) ? override.sections : [],
+      secrets:[],
+      created:true,
+      card:override.card || {}
+    };
+  });
+}
+
+rebuildFichas();
 
 if(!window.TerraZData || !window.TerraZData.characters){
   console.error('Terra Z: data/characters.js não foi carregado.');
@@ -168,6 +176,8 @@ function renderMissingCharacterCards(){
   var grid = document.querySelector('#sub-tz-personagens .card-grid');
   if(!grid) return;
 
+  grid.querySelectorAll('.character-generated-card').forEach(function(card){ card.remove(); });
+
   var represented = new Set();
   Array.from(grid.querySelectorAll('.card')).forEach(function(card){
     var name = characterNameFromCard(card);
@@ -203,6 +213,7 @@ function renderMissingCharacterCards(){
 
 function attachFichaHandlers(){
   document.querySelectorAll('#sub-tz-personagens .card-grid .card').forEach(function(card){
+    if(card.getAttribute('data-ficha-bound') === '1') return;
     var h4 = card.querySelector('h4');
     if(!h4) return;
     var title = h4.textContent.replace(/^[^\w]*\s*/,'').trim();
@@ -213,6 +224,7 @@ function attachFichaHandlers(){
     }
     if(match){
       card.setAttribute('data-ficha', match);
+      card.setAttribute('data-ficha-bound','1');
       if(window.TerraZApp.characterMedia) window.TerraZApp.characterMedia.decorateCard(card, match);
       card.setAttribute('title', 'Clique para ver a ficha completa');
       card.addEventListener('click', function(e){
@@ -220,6 +232,7 @@ function attachFichaHandlers(){
         openFichaModal(match);
       });
     } else {
+      card.setAttribute('data-ficha-bound','1');
       card.setAttribute('data-fandom', title);
       card.addEventListener('click', function(e){
         if(e.target.classList.contains('fav-btn')) return;
@@ -231,8 +244,17 @@ function attachFichaHandlers(){
 
 
 
-renderMissingCharacterCards();
-attachFichaHandlers();
+function refreshCharactersFromRuntime(){
+  rebuildFichas();
+  renderMissingCharacterCards();
+  attachFichaHandlers();
+
+  document.dispatchEvent(new CustomEvent('terra-z:characters-rendered'));
+}
+
+document.addEventListener('terra-z:runtime-data-loaded',refreshCharactersFromRuntime);
+
+refreshCharactersFromRuntime();
 
 window.openFichaModal = openFichaModal;
 window.closeFichaModal = closeFichaModal;
@@ -244,7 +266,8 @@ window.TerraZApp.characters = {
   get:function(name){ return fichasPersonagens[name] || null; },
   names:function(){ return Object.keys(fichasPersonagens); },
   isCreated:function(name){ return !!(characterOverrides[name] && characterOverrides[name].created); },
-  card:function(name){ return (characterOverrides[name] && characterOverrides[name].card) || null; }
+  card:function(name){ return (characterOverrides[name] && characterOverrides[name].card) || null; },
+  refresh:refreshCharactersFromRuntime
 };
 
 })();
