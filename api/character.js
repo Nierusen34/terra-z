@@ -350,6 +350,12 @@ export default async function handler(req,res){
     return res.status(200).json({
       ok:true,
       sha:commit.sha,
+      character:{
+        name,
+        ...overrides[name]
+      },
+      meta:characterMeta,
+      media:media[name] || null,
       status_url:statusUrl(req,commit.sha)
     });
   } catch(error){
