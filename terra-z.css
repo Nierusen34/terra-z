@@ -1270,3 +1270,101 @@ button.session-chip:hover{border-color:var(--accent);color:var(--accent)}
   .home-dossier-visual figcaption{font-size:10.5px}
   .culture-society-visual{margin:10px auto 16px}
 }
+
+
+/* ===== PROTAGONISTAS NA CAPA ===== */
+.home-protagonists{
+  padding:32px 40px 34px;
+  background:var(--paper2);
+  border-top:1px solid var(--line);
+  border-bottom:3px double var(--line);
+}
+.home-protagonists[hidden]{display:none}
+.home-protagonists-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:24px;
+  margin-bottom:18px;
+}
+.home-protagonists-kicker{
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:5px;
+}
+.home-protagonists h3{
+  font-family:var(--font-title);
+  font-size:28px;
+  line-height:1.05;
+  text-transform:uppercase;
+  letter-spacing:.7px;
+  color:var(--ink);
+  margin:0 0 6px;
+}
+.home-protagonists-head p{
+  max-width:650px;
+  margin:0;
+  color:var(--ink2);
+  font-size:12.5px;
+  line-height:1.55;
+}
+.home-protagonists-all{
+  flex:0 0 auto;
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--accent);
+  padding:9px 12px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.6px;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all .25s;
+}
+.home-protagonists-all:hover{
+  border-color:var(--accent);
+  transform:translateY(-1px);
+  box-shadow:3px 3px 0 rgba(139,26,26,.12);
+}
+.home-protagonists-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:18px;
+}
+.home-protagonist-card{
+  margin:0;
+  background:var(--paper);
+}
+.home-protagonist-card h4{padding-right:104px}
+.home-protagonist-card::after{
+  content:'→';
+  top:auto;
+  right:12px;
+  bottom:10px;
+}
+.home-protagonist-badge{
+  position:absolute;
+  top:10px;
+  right:12px;
+  z-index:4;
+  border:1px solid var(--accent);
+  background:var(--paper);
+  color:var(--accent);
+  padding:2px 6px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+}
+@media(max-width:700px){
+  .home-protagonists{padding:24px 18px 26px}
+  .home-protagonists-head{align-items:stretch;flex-direction:column;gap:14px}
+  .home-protagonists-all{align-self:flex-start}
+  .home-protagonists-grid{grid-template-columns:1fr}
+  .home-protagonist-card h4{padding-right:92px}
+}
