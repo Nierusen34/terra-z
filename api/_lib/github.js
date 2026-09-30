@@ -126,6 +126,16 @@ export async function commitFiles(files, message, expectedHeadSha){
   const entries = [];
 
   for(const file of files){
+    if(file.delete){
+      entries.push({
+        path:file.path,
+        mode:"100644",
+        type:"blob",
+        sha:null
+      });
+      continue;
+    }
+
     const blob = await createBlob(file.content, file.encoding || "utf-8");
     entries.push({
       path:file.path,
