@@ -73,6 +73,10 @@ export default async function handler(req,res){
 
     const filename = slugify(character) + "." + extension;
     const imagePath = "images/characters/" + filename;
+    const previousPath = mediaData[character] && mediaData[character].src
+      ? String(mediaData[character].src)
+      : "";
+
     mediaData[character] = {
       ...mediaData[character],
       src:imagePath,
@@ -81,10 +85,22 @@ export default async function handler(req,res){
       credit:String(body.credit || "").slice(0,240)
     };
 
-    const commit = await commitFiles([
+    const files = [
       {path:imagePath,content:buffer.toString("base64"),encoding:"base64"},
       {path:"data/character-media.js",content:renderCharacterMedia(mediaData),encoding:"utf-8"}
-    ],"media: atualizar retrato de " + character,head);
+    ];
+
+    if(previousPath &&
+       previousPath !== imagePath &&
+       /^images\/characters\/[a-z0-9._/-]+$/i.test(previousPath)){
+      files.push({path:previousPath,delete:true});
+    }
+
+    const commit = await commitFiles(
+      files,
+      "media: atualizar retrato de " + character,
+      head
+    );
 
     return res.status(200).json({
       ok:true,
