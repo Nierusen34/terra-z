@@ -51,6 +51,7 @@
 <button id="editBtn">✏️ Editar</button>
 <button id="saveBtn">💾 Salvar rascunho</button>
 <button id="publishBtn">🚀 Publicar</button>
+<button id="masterWorkspaceBtn" hidden>🗝️ Mestre</button>
 <button id="exportHtmlBtn">📥 Exportar HTML</button>
 <button id="exportBtn">📤 Backup JSON</button>
 <button id="importBtn">📂 Importar</button>
@@ -72,6 +73,44 @@
 </div>
 
 <div id="favoritesPanel"></div>
+
+<div id="masterWorkspacePanel" class="master-workspace-panel" role="dialog" aria-modal="true" aria-labelledby="masterWorkspaceTitle">
+  <div class="master-workspace-card">
+    <div class="master-workspace-head">
+      <div>
+        <div class="master-workspace-eyebrow">CONTEÚDO PRIVADO · MESTRE</div>
+        <h3 id="masterWorkspaceTitle">🗝️ Painel do Mestre</h3>
+      </div>
+      <div class="master-workspace-head-actions">
+        <span id="masterWorkspaceStatus">🔒 Privado</span>
+        <button id="masterWorkspaceClose" type="button">✕</button>
+      </div>
+    </div>
+
+    <div id="masterWorkspaceTabs" class="master-workspace-tabs"></div>
+
+    <div class="master-workspace-toolbar">
+      <input id="masterWorkspaceSearch" type="search" placeholder="🔎 Buscar neste conteúdo Mestre..." autocomplete="off">
+      <button id="masterWorkspaceAdd" type="button">＋ Adicionar</button>
+    </div>
+
+    <div class="master-workspace-body">
+      <div id="masterWorkspaceList" class="master-workspace-list"></div>
+
+      <div id="masterWorkspaceEditor" class="master-workspace-editor" hidden>
+        <div class="master-workspace-editor-head">
+          <h4 id="masterWorkspaceEditorTitle">Novo item</h4>
+          <button id="masterWorkspaceEditorClose" type="button">✕</button>
+        </div>
+        <div id="masterWorkspaceFields"></div>
+        <div class="master-workspace-editor-actions">
+          <button id="masterWorkspaceEditorCancel" type="button">Cancelar</button>
+          <button id="masterWorkspaceEditorSave" type="button" class="primary">💾 Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="publish-panel" id="publishPanel" role="dialog" aria-modal="true" aria-labelledby="publishTitle">
   <div class="publish-card">
@@ -835,6 +874,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="js/data-renderer.js" defer></script>
 <script src="js/editor.js" defer></script>
 <script src="js/private-content.js" defer></script>
+<script src="js/master-workspace.js" defer></script>
 <script src="js/publishing.js" defer></script>
 <script src="js/master-migration.js" defer></script>
 <script src="js/visibility.js" defer></script>
