@@ -19,7 +19,13 @@ window.TerraZData.contentOverrides = {
   "tz-0380": "📌 NavegaçãoClique em qualquer <strong>card de personagem</strong> para abrir a ficha completa. Use a <strong>busca no topo</strong> para alternar entre <strong>Busca Local</strong> e <strong>DC Wiki</strong>. Pressione <strong>Esc</strong> para fechar qualquer janela.",
   "tz-0462": "👆 Toque para expandirClique em qualquer card para ver a <strong>ficha completa</strong>. Passe o mouse para revelar o botão ⭐ de favoritos.",
   "tz-0596": "📌 Como lerCada cor representa um tipo de vínculo. Use o botão <strong>✏️ Editar Grafo</strong> abaixo para alterar nomes, posições, cores e conexões. Tudo é salvo automaticamente.",
-  "tz-0138": "Vista noturna · Transmissão VBN · Fonte: Satélite V-BPD · Jan 2027"
+  "tz-0138": "Vista noturna · Transmissão VBN · Fonte: Satélite V-BPD · Jan 2027",
+  "tz-0526": "Jay Garrick, Alan Scott",
+  "tz-0527": "Gavião Negro, Espectro, Senhor Destino e outros.&nbsp;",
+  "tz-0530": "Superman, Batman, Mulher Maravilha",
+  "tz-0531": "J'onn, Barry, Hal Jordan, Aquaman e outros.&nbsp;",
+  "tz-0535": "Estelar, Ravena, Donna Troy, Ciborgue, Mutano, Wally",
+  "tz-0539": "Membros originais + Miss Marte e Conner Kent"
 };
 
 })();
