@@ -29,6 +29,12 @@ function enhanceTables(root){
     table.parentNode.insertBefore(wrapper,table);
     wrapper.appendChild(table);
   });
+
+  requestAnimationFrame(function(){
+    Array.from(document.querySelectorAll('.mobile-table-scroll')).forEach(function(wrapper){
+      wrapper.classList.toggle('is-scrollable',wrapper.scrollWidth > wrapper.clientWidth + 4);
+    });
+  });
 }
 
 function setupLightbox(){
@@ -48,7 +54,12 @@ function setupLightbox(){
     var zoomed = lightbox.classList.contains('mobile-zoomed');
     image.setAttribute('aria-pressed',zoomed ? 'true' : 'false');
 
-    if(!zoomed){
+    if(zoomed){
+      requestAnimationFrame(function(){
+        var left = Math.max(0,(lightbox.scrollWidth - lightbox.clientWidth) / 2);
+        lightbox.scrollTo({top:0,left:left,behavior:'smooth'});
+      });
+    } else {
       lightbox.scrollTo({top:0,left:0,behavior:'smooth'});
     }
   }
@@ -90,6 +101,12 @@ function apply(){
   document.documentElement.classList.add('mobile-polish');
   enhanceTables(document);
   markGraphScroll();
+
+  requestAnimationFrame(function(){
+    Array.from(document.querySelectorAll('.mobile-table-scroll')).forEach(function(wrapper){
+      wrapper.classList.toggle('is-scrollable',wrapper.scrollWidth > wrapper.clientWidth + 4);
+    });
+  });
 }
 
 document.addEventListener('DOMContentLoaded',function(){
