@@ -44,7 +44,7 @@ window.TerraZData.characterOverrides = {
       },
       {
         "title": "🎯 Personalidade",
-        "content": "<p>Descreva a personalidade do personagem.</p>"
+        "content": "<p>É um senhor de idade com bastante atitude e que não tem medo de se posicionar.&nbsp;</p>"
       },
       {
         "title": "⚔️ Habilidades",
