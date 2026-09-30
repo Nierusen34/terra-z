@@ -1197,3 +1197,33 @@ button.session-chip:hover{border-color:var(--accent);color:var(--accent)}
   .team-visual-card img{height:auto;max-height:none}
   .editorial-visual{margin:10px 0 16px}
 }
+
+
+/* ===== PÔSTERES EDITORIAIS · TRANSPORTE E CRIMINALIDADE ===== */
+.editorial-poster{
+  width:min(760px,100%);
+  margin:14px auto 22px;
+  background:var(--paper3);
+}
+.editorial-poster img{
+  display:block;
+  width:100%;
+  height:auto;
+  aspect-ratio:auto;
+  object-fit:contain;
+  background:#090b0f;
+}
+.editorial-poster figcaption{
+  font-size:11px;
+  line-height:1.5;
+}
+.crime-poster{
+  border-color:color-mix(in srgb,#b22 55%,var(--line));
+}
+.transport-poster{
+  border-color:color-mix(in srgb,#2b7fb8 55%,var(--line));
+}
+@media(max-width:760px){
+  .editorial-poster{margin:10px auto 18px}
+  .editorial-poster figcaption{font-size:10.5px}
+}
