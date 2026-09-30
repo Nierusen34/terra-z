@@ -46,17 +46,30 @@ async function upload(character,file){
     }
   });
 
-  showToast('Retrato enviado. Aguardando publicação…','info',5000);
+  window.TerraZData = window.TerraZData || {};
+  window.TerraZData.characterMedia = window.TerraZData.characterMedia || {};
+  window.TerraZData.characterMedia[character] = Object.assign(
+    {},
+    window.TerraZData.characterMedia[character] || {},
+    {
+      src:result.path,
+      alt:character,
+      source:'local'
+    }
+  );
+
+  if(window.TerraZApp.characterMedia && window.TerraZApp.characterMedia.refresh){
+    window.TerraZApp.characterMedia.refresh(document);
+  }
+
+  showToast('Retrato salvo com sucesso.','success',4500);
+
+  var runtime = window.TerraZApp && window.TerraZApp.runtimeData;
+  if(runtime && runtime.refresh) runtime.refresh({force:true,bust:result.sha,silent:true});
 
   var p = publishing();
-  if(p && p.waitForDeployment && result.status_url){
-    var ok = await p.waitForDeployment(result.status_url);
-    if(ok){
-      showToast('Retrato publicado com sucesso','success',5000);
-      setTimeout(function(){ location.reload(); },1000);
-    } else {
-      showToast('Retrato enviado; o deploy ainda está processando.','info',5000);
-    }
+  if(p && p.trackDeployment && result.status_url){
+    p.trackDeployment(result.status_url);
   }
 
   return result;
