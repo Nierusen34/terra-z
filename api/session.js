@@ -2,8 +2,9 @@ import { applyCors } from "./_lib/cors.js";
 import { requireEditor } from "./_lib/auth.js";
 import { getHead, readTextFile, commitFiles } from "./_lib/github.js";
 import { parseDataAssignment, renderSessions } from "./_lib/data-files.js";
+import { PRIVATE_SESSIONS_PATH, readPrivateSessions, renderPrivateSessions } from "./_lib/private-sessions.js";
 
-const VISIBILITY = new Set(["public","rumor"]);
+const VISIBILITY = new Set(["public","rumor","master"]);
 
 function text(value,max=2000){
   return String(value || "").replace(/[<>]/g,"").trim().slice(0,max);
@@ -61,15 +62,40 @@ export default async function handler(req,res){
 
     const head = await getHead();
     const sessionsFile = await readTextFile("data/sessions.js");
-    const sessions = parseDataAssignment(sessionsFile.content,"sessions");
-    const index = sessions.findIndex(row => row && row.id === id);
+    const publicSessions = parseDataAssignment(sessionsFile.content,"sessions");
+    const privateSessions = await readPrivateSessions();
 
-    if(index >= 0) sessions[index] = item;
-    else sessions.push(item);
+    const publicIndex = publicSessions.findIndex(row => row && row.id === id);
+    const privateIndex = privateSessions.findIndex(row => row && row.id === id);
+    const existed = publicIndex >= 0 || privateIndex >= 0;
+    const files = [];
 
-    const commit = await commitFiles([
-      {path:"data/sessions.js",content:renderSessions(sessions),encoding:"utf-8"}
-    ],(index >= 0 ? "sessions: atualizar " : "sessions: registrar ") + title,head);
+    if(item.visibility === "master"){
+      if(publicIndex >= 0) publicSessions.splice(publicIndex,1);
+      if(privateIndex >= 0) privateSessions[privateIndex] = item;
+      else privateSessions.push(item);
+
+      if(publicIndex >= 0){
+        files.push({path:"data/sessions.js",content:renderSessions(publicSessions),encoding:"utf-8"});
+      }
+      files.push({path:PRIVATE_SESSIONS_PATH,content:renderPrivateSessions(privateSessions),encoding:"utf-8"});
+    } else {
+      if(publicIndex >= 0) publicSessions[publicIndex] = item;
+      else publicSessions.push(item);
+
+      if(privateIndex >= 0) privateSessions.splice(privateIndex,1);
+
+      files.push({path:"data/sessions.js",content:renderSessions(publicSessions),encoding:"utf-8"});
+      if(privateIndex >= 0){
+        files.push({path:PRIVATE_SESSIONS_PATH,content:renderPrivateSessions(privateSessions),encoding:"utf-8"});
+      }
+    }
+
+    const commit = await commitFiles(
+      files,
+      (existed ? "sessions: atualizar " : "sessions: registrar ") + title,
+      head
+    );
 
     return res.status(200).json({
       ok:true,
