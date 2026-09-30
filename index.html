@@ -535,6 +535,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2
     <option value="with-image">Com retrato</option>
     <option value="without-image">Sem retrato</option>
   </select>
+  <button id="addCharacterBtn" class="character-add-btn" type="button" disabled>＋ Novo personagem</button>
   <span id="characterCount"></span>
 </div>
 <div class="card-grid">
@@ -686,8 +687,16 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 </div>
 
 <div class="character-editor-grid">
-<label>Personagem<input id="characterEditorName" type="text" readonly></label>
+<label>Personagem<input id="characterEditorName" type="text" readonly maxlength="160"></label>
 <label>Subtítulo / classificação<input id="characterEditorEyebrow" type="text" maxlength="240"></label>
+</div>
+
+<div id="characterEditorCardFields" class="character-editor-create-fields" hidden>
+<div class="character-editor-grid">
+<label>Ícone do card<input id="characterEditorIcon" type="text" maxlength="12" placeholder="👤"></label>
+<label>Resumo do card<textarea id="characterEditorCardSummary" rows="3" maxlength="700" placeholder="Ex.: Codinome, idade, papel, local..."></textarea></label>
+</div>
+<p class="character-editor-note">Esses campos controlam como o personagem aparece na lista principal.</p>
 </div>
 
 <div class="character-editor-toolbar">
