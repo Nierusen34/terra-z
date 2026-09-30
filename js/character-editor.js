@@ -379,23 +379,34 @@ async function save(){
       body:{character:payload}
     });
 
+    window.TerraZData = window.TerraZData || {};
+    window.TerraZData.characterOverrides = window.TerraZData.characterOverrides || {};
+    window.TerraZData.characterTaxonomy = window.TerraZData.characterTaxonomy || {characters:{}};
+    window.TerraZData.characterTaxonomy.characters = window.TerraZData.characterTaxonomy.characters || {};
+
+    if(result.character){
+      var savedCharacter = Object.assign({},result.character);
+      delete savedCharacter.name;
+      window.TerraZData.characterOverrides[name] = savedCharacter;
+    }
+    if(result.meta){
+      window.TerraZData.characterTaxonomy.characters[name] = result.meta;
+      taxonomy = window.TerraZData.characterTaxonomy;
+    }
+    if(result.media){
+      window.TerraZData.characterMedia = window.TerraZData.characterMedia || {};
+      window.TerraZData.characterMedia[name] = result.media;
+    }
+
     if(privateLoaded && window.TerraZApp.privateContent && window.TerraZApp.privateContent.setCharacterSecrets){
       window.TerraZApp.privateContent.setCharacterSecrets(name,payload.secrets || []);
     }
 
-    var runtime = window.TerraZApp && window.TerraZApp.runtimeData;
-    if(runtime && runtime.refresh){
-      await runtime.refresh({force:true,bust:result.sha,silent:true});
-    }
-
-    var privateApi = window.TerraZApp && window.TerraZApp.privateContent;
-    if(privateLoaded && privateApi && privateApi.reload){
-      await privateApi.reload();
-    }
+    var characters = window.TerraZApp && window.TerraZApp.characters;
+    if(characters && characters.refresh) characters.refresh();
 
     close();
 
-    var characters = window.TerraZApp && window.TerraZApp.characters;
     if(characters && characters.open){
       characters.open(name);
     }
@@ -405,6 +416,9 @@ async function save(){
       'success',
       4500
     );
+
+    var runtime = window.TerraZApp && window.TerraZApp.runtimeData;
+    if(runtime && runtime.refresh) runtime.refresh({force:true,bust:result.sha,silent:true});
 
     var publishing = window.TerraZApp && window.TerraZApp.publishing;
     if(publishing && publishing.trackDeployment && result.status_url){
