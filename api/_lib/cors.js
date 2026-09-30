@@ -1,4 +1,4 @@
-const DEFAULT_ORIGINS = [
+const REQUIRED_ORIGINS = [
   "https://nierusen34.github.io",
   "http://localhost:3000",
   "http://127.0.0.1:3000",
@@ -6,20 +6,37 @@ const DEFAULT_ORIGINS = [
   "http://127.0.0.1:8000"
 ];
 
+function normalizeOrigin(value){
+  const raw = String(value || "").trim();
+  if(!raw) return "";
+
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return raw.replace(/\/+$/,"");
+  }
+}
+
 export function allowedOrigins(){
   const configured = String(process.env.ALLOWED_ORIGINS || "")
     .split(",")
-    .map(v => v.trim())
+    .map(normalizeOrigin)
     .filter(Boolean);
-  return configured.length ? configured : DEFAULT_ORIGINS;
+
+  return [...new Set([
+    ...REQUIRED_ORIGINS.map(normalizeOrigin),
+    ...configured
+  ])];
 }
 
 export function applyCors(req, res){
-  const origin = req.headers.origin || "";
+  const rawOrigin = req.headers.origin || "";
+  const origin = normalizeOrigin(rawOrigin);
   const allowed = allowedOrigins();
+  const isAllowed = !origin || allowed.includes(origin);
 
-  if(origin && allowed.includes(origin)){
-    res.setHeader("Access-Control-Allow-Origin", origin);
+  if(origin && isAllowed){
+    res.setHeader("Access-Control-Allow-Origin", rawOrigin || origin);
     res.setHeader("Vary", "Origin");
   }
 
@@ -28,12 +45,24 @@ export function applyCors(req, res){
   res.setHeader("Access-Control-Max-Age", "86400");
 
   if(req.method === "OPTIONS"){
+    if(!isAllowed){
+      return res.status(403).json({
+        error:"origin_not_allowed",
+        message:"Origem não autorizada.",
+        received_origin:rawOrigin
+      });
+    }
+
     res.status(204).end();
     return true;
   }
 
-  if(origin && !allowed.includes(origin)){
-    res.status(403).json({ error:"origin_not_allowed", message:"Origem não autorizada." });
+  if(!isAllowed){
+    res.status(403).json({
+      error:"origin_not_allowed",
+      message:"Origem não autorizada.",
+      received_origin:rawOrigin
+    });
     return true;
   }
 
