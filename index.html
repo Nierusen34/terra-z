@@ -48,6 +48,10 @@
 <button id="presentationBtn">▶ Apresentação</button>
 <button id="favoritesBtn">⭐ Favoritos</button>
 <button id="spoilerToggle" aria-pressed="false">🙈 Ocultar spoilers</button>
+<button id="adminPanelBtn">⚙️ Administração</button>
+<button id="themeToggle">🌙 Modo Escuro</button>
+
+<div class="legacy-admin-actions" hidden>
 <button id="editBtn">✏️ Editar</button>
 <button id="saveBtn">💾 Salvar rascunho</button>
 <button id="publishBtn">🚀 Publicar</button>
@@ -56,7 +60,7 @@
 <button id="exportBtn">📤 Backup JSON</button>
 <button id="importBtn">📂 Importar</button>
 <button id="resetBtn">🔄 Resetar</button>
-<button id="themeToggle">🌙 Modo Escuro</button>
+</div>
 </div>
 </div>
 
@@ -73,6 +77,102 @@
 </div>
 
 <div id="favoritesPanel"></div>
+
+<div id="adminPanel" class="admin-panel" role="dialog" aria-modal="true" aria-labelledby="adminPanelTitle">
+  <div class="admin-card">
+    <div class="admin-head">
+      <div>
+        <div class="admin-eyebrow">TERRA Z · CONTROLE DO MESTRE</div>
+        <h3 id="adminPanelTitle">⚙️ Administração</h3>
+      </div>
+      <button id="adminCloseBtn" type="button">✕</button>
+    </div>
+
+    <div id="adminLoggedOut" class="admin-login">
+      <div class="admin-login-copy">
+        <strong>Acesso do editor</strong>
+        <span>Entre para administrar conteúdo, personagens, sessões e dados privados.</span>
+      </div>
+      <div class="admin-login-row">
+        <input id="adminPassword" type="password" autocomplete="current-password" placeholder="Senha do editor">
+        <button id="adminLoginBtn" type="button" class="primary">Entrar</button>
+      </div>
+      <div id="adminLoginStatus" class="admin-inline-status"></div>
+    </div>
+
+    <div id="adminLoggedIn" hidden>
+      <div class="admin-status-strip">
+        <div><span>Backend</span><strong id="adminBackendStatus">—</strong></div>
+        <div><span>Pendências</span><strong id="adminPendingCount">0</strong></div>
+        <div><span>Personagens</span><strong id="adminCharacterCount">0</strong></div>
+        <div><span>Sessões</span><strong id="adminSessionCount">0</strong></div>
+        <button id="adminLogoutBtn" type="button">Sair</button>
+      </div>
+
+      <div class="admin-section">
+        <div class="admin-section-title">Conteúdo</div>
+        <div class="admin-grid">
+          <button class="admin-action" data-admin-action="edit">
+            <span class="admin-action-icon">✏️</span>
+            <strong>Editar conteúdo</strong>
+            <small>Ativar/desativar edição dos textos do dossiê.</small>
+          </button>
+          <button class="admin-action" data-admin-action="draft">
+            <span class="admin-action-icon">💾</span>
+            <strong>Salvar rascunho</strong>
+            <small>Guardar alterações locais neste navegador.</small>
+          </button>
+          <button class="admin-action primary" data-admin-action="publish">
+            <span class="admin-action-icon">🚀</span>
+            <strong>Publicar alterações</strong>
+            <small id="adminPublishHint">Enviar alterações pendentes ao GitHub.</small>
+          </button>
+          <button class="admin-action private" data-admin-action="master">
+            <span class="admin-action-icon">🗝️</span>
+            <strong>Conteúdo Mestre</strong>
+            <small>Notas, revelações, objetivos, pistas e NPCs privados.</small>
+          </button>
+        </div>
+      </div>
+
+      <div class="admin-section">
+        <div class="admin-section-title">Campanha</div>
+        <div class="admin-grid">
+          <button class="admin-action" data-admin-action="new-character">
+            <span class="admin-action-icon">👤</span>
+            <strong>Novo personagem</strong>
+            <small>Criar NPC ou personagem com ficha estruturada.</small>
+          </button>
+          <button class="admin-action" data-admin-action="new-session">
+            <span class="admin-action-icon">📓</span>
+            <strong>Registrar sessão</strong>
+            <small>Adicionar uma nova entrada ao Diário da Campanha.</small>
+          </button>
+          <button class="admin-action" data-admin-action="graph">
+            <span class="admin-action-icon">🔗</span>
+            <strong>Relações / Grafo</strong>
+            <small>Editar conexões entre personagens.</small>
+          </button>
+          <button class="admin-action" data-admin-action="characters">
+            <span class="admin-action-icon">🗂️</span>
+            <strong>Ir para personagens</strong>
+            <small>Abrir a área de personagens e seus filtros.</small>
+          </button>
+        </div>
+      </div>
+
+      <div class="admin-section">
+        <div class="admin-section-title">Backup e manutenção</div>
+        <div class="admin-grid compact">
+          <button class="admin-action" data-admin-action="backup">📤 <strong>Backup JSON</strong></button>
+          <button class="admin-action" data-admin-action="import">📂 <strong>Importar backup</strong></button>
+          <button class="admin-action" data-admin-action="export-html">📥 <strong>Exportar HTML</strong></button>
+          <button class="admin-action danger" data-admin-action="reset">🔄 <strong>Resetar rascunho local</strong></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div id="masterWorkspacePanel" class="master-workspace-panel" role="dialog" aria-modal="true" aria-labelledby="masterWorkspaceTitle">
   <div class="master-workspace-card">
@@ -121,7 +221,7 @@
       </div>
       <button id="publishClose" class="publish-close" title="Fechar">✕</button>
     </div>
-    <p class="publish-copy">O rascunho continua salvo somente neste navegador até ser publicado. A publicação remota criará um commit no GitHub e aguardará o deploy do GitHub Pages.</p>
+    <p class="publish-copy">O rascunho continua salvo somente neste navegador até ser publicado. A publicação cria um commit no GitHub e o Terra Z aplica o conteúdo salvo imediatamente; a cópia estática sincroniza em segundo plano.</p>
     <div class="publish-summary"><strong id="publishCount">0</strong><span>alterações pendentes</span></div>
     <div class="publish-auth">
       <div id="publishLoggedOut">
@@ -870,6 +970,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="config.js" defer></script>
 <script src="terra-z.js" defer></script>
 <script src="js/backend-client.js" defer></script>
+<script src="js/admin-panel.js" defer></script>
 <script src="js/runtime-data.js" defer></script>
 <script src="js/data-renderer.js" defer></script>
 <script src="js/editor.js" defer></script>
