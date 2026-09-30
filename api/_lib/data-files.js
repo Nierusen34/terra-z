@@ -69,6 +69,21 @@ window.TerraZData.characterMedia = ${JSON.stringify(data,null,2)};
 `;
 }
 
+
+export function renderCharacterOverrides(data){
+  return `(function(){
+"use strict";
+
+window.TerraZData = window.TerraZData || {};
+
+// Sobrescritas estruturadas de personagens existentes.
+// A base canônica continua em data/characters.js.
+window.TerraZData.characterOverrides = ${JSON.stringify(data,null,2)};
+
+})();
+`;
+}
+
 export function renderSessions(data){
   return `(function(){
 "use strict";
