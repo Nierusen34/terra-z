@@ -62,6 +62,10 @@ async function upload(character,file){
     window.TerraZApp.characterMedia.refresh(document);
   }
 
+  document.dispatchEvent(new CustomEvent('terra-z:character-media-changed',{
+    detail:{character:character,hasPortrait:true}
+  }));
+
   showToast('Retrato salvo com sucesso.','success',4500);
 
   var runtime = window.TerraZApp && window.TerraZApp.runtimeData;
@@ -98,6 +102,10 @@ async function remove(character){
   if(window.TerraZApp.characterMedia && window.TerraZApp.characterMedia.refresh){
     window.TerraZApp.characterMedia.refresh(document);
   }
+
+  document.dispatchEvent(new CustomEvent('terra-z:character-media-changed',{
+    detail:{character:character,hasPortrait:false}
+  }));
 
   showToast('Retrato removido com sucesso.','success',4200);
 
