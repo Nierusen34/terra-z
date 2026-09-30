@@ -129,7 +129,31 @@ async function loadPrivateSessions(){
   render();
 }
 
+function upsertSession(item){
+  if(!item || !item.id) return;
+
+  if(item.visibility === 'master'){
+    var privateIndex = privateSessions.findIndex(function(row){ return row && row.id === item.id; });
+    if(privateIndex >= 0) privateSessions[privateIndex] = item;
+    else privateSessions.push(item);
+
+    publicSessions = publicSessions.filter(function(row){ return !row || row.id !== item.id; });
+  } else {
+    var publicIndex = publicSessions.findIndex(function(row){ return row && row.id === item.id; });
+    if(publicIndex >= 0) publicSessions[publicIndex] = item;
+    else publicSessions.push(item);
+
+    privateSessions = privateSessions.filter(function(row){ return !row || row.id !== item.id; });
+  }
+
+  render();
+}
+
 document.addEventListener('terra-z:auth-changed', loadPrivateSessions);
+document.addEventListener('terra-z:runtime-data-loaded',function(){
+  publicSessions = (window.TerraZData && window.TerraZData.sessions) || [];
+  render();
+});
 
 render();
 if(backend() && backend().isAuthenticated()) loadPrivateSessions();
@@ -137,6 +161,7 @@ if(backend() && backend().isAuthenticated()) loadPrivateSessions();
 window.TerraZApp.sessions = {
   render:render,
   reloadPrivate:loadPrivateSessions,
+  upsert:upsertSession,
   getAll:allSessions,
   count:function(){ return allSessions().length; }
 };
