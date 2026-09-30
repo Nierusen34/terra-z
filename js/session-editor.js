@@ -52,7 +52,8 @@ function open(id){
     if(window.TerraZApp.publishing) window.TerraZApp.publishing.open();
     return;
   }
-  var all = (window.TerraZData && window.TerraZData.sessions) || [];
+  var manager = window.TerraZApp && window.TerraZApp.sessions;
+  var all = manager && manager.getAll ? manager.getAll() : ((window.TerraZData && window.TerraZData.sessions) || []);
   var session = id ? all.find(function(item){ return item && item.id === id; }) : null;
   fill(session || {});
 
