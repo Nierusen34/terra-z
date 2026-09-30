@@ -13,7 +13,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Riot": {
-    "src": "",
+    "src": "images/characters/riot.jpg",
     "alt": "Riot",
     "source": "local",
     "credit": ""
