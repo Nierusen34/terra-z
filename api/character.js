@@ -218,6 +218,24 @@ function normalizeCharacterMeta(value,taxonomy,creating){
   };
 }
 
+function defaultCharacterMedia(name){
+  return {src:"",alt:name,source:"local",credit:""};
+}
+
+function privateProfile(entry){
+  return entry && entry.profile && typeof entry.profile === "object" && !Array.isArray(entry.profile)
+    ? entry.profile
+    : null;
+}
+
+function cleanPrivateEntry(container,name){
+  const entry=container[name];
+  if(!entry || typeof entry !== "object") return;
+  const hasSecrets=Array.isArray(entry.secrets) && entry.secrets.length > 0;
+  const hasProfile=!!privateProfile(entry);
+  if(!hasSecrets && !hasProfile) delete container[name];
+}
+
 function statusUrl(req,sha){
   const proto = String(req.headers["x-forwarded-proto"] || "https").split(",")[0].trim();
   return proto + "://" + req.headers.host + "/api/status?sha=" + encodeURIComponent(sha);
@@ -324,6 +342,75 @@ export default async function handler(req,res){
   try {
     const body = req.body || {};
 
+    if(req.method === "POST" && body.action === "migrate-private-characters"){
+      const [mediaFile,overridesFile,metaFile,privateData] = await Promise.all([
+        readTextFile("data/character-media.js"),
+        readTextFile("data/character-overrides.js"),
+        readTextFile("data/character-meta.js"),
+        readPrivateCharacterData()
+      ]);
+
+      const media=parseDataAssignment(mediaFile.content,"characterMedia");
+      const overrides=parseDataAssignment(overridesFile.content,"characterOverrides");
+      const taxonomy=parseDataAssignment(metaFile.content,"characterTaxonomy");
+      taxonomy.characters=taxonomy.characters && typeof taxonomy.characters === "object" && !Array.isArray(taxonomy.characters)
+        ? taxonomy.characters
+        : {};
+      privateData.characters=privateData.characters && typeof privateData.characters === "object" && !Array.isArray(privateData.characters)
+        ? privateData.characters
+        : {};
+
+      const migrated=[];
+
+      Object.keys(taxonomy.characters).forEach(name => {
+        const meta=taxonomy.characters[name] || {};
+        if(meta.visibility !== "private") return;
+
+        const override=overrides[name] && typeof overrides[name] === "object" ? overrides[name] : null;
+        if(!override || override.deleted === true) return;
+
+        const previous=privateData.characters[name] && typeof privateData.characters[name] === "object"
+          ? privateData.characters[name]
+          : {};
+
+        privateData.characters[name]={
+          ...previous,
+          profile:{
+            version:1,
+            eyebrow:String(override.eyebrow || ""),
+            sections:Array.isArray(override.sections) ? override.sections : [],
+            card:override.card && typeof override.card === "object" ? override.card : {},
+            meta:{...meta,visibility:"private"},
+            media:media[name] && typeof media[name] === "object" ? media[name] : defaultCharacterMedia(name)
+          }
+        };
+
+        delete overrides[name];
+        delete taxonomy.characters[name];
+        delete media[name];
+        migrated.push(name);
+      });
+
+      if(!migrated.length){
+        return res.status(200).json({ok:true,migrated:[],message:"Nenhum personagem aguardando migração privada."});
+      }
+
+      const head=await getHead();
+      const commit=await commitFiles([
+        {path:"data/character-overrides.js",content:renderCharacterOverrides(overrides),encoding:"utf-8"},
+        {path:"data/character-meta.js",content:renderCharacterTaxonomy(taxonomy),encoding:"utf-8"},
+        {path:"data/character-media.js",content:renderCharacterMedia(media),encoding:"utf-8"},
+        {path:PRIVATE_CHARACTER_DATA_PATH,content:renderPrivateCharacterData(privateData),encoding:"utf-8"}
+      ],"security: migrar personagens privados para armazenamento criptografado",head);
+
+      return res.status(200).json({
+        ok:true,
+        sha:commit.sha,
+        migrated,
+        status_url:statusUrl(req,commit.sha)
+      });
+    }
+
     if(req.method === "POST" && body.action === "update-taxonomy"){
       const metaFile = await readTextFile("data/character-meta.js");
       const taxonomy = parseDataAssignment(metaFile.content,"characterTaxonomy");
@@ -363,11 +450,12 @@ export default async function handler(req,res){
     const deleting = req.method === "DELETE";
     const creating = !deleting && input.create === true;
 
-    const [mediaFile,overridesFile,charactersFile,metaFile] = await Promise.all([
+    const [mediaFile,overridesFile,charactersFile,metaFile,privateData] = await Promise.all([
       readTextFile("data/character-media.js"),
       readTextFile("data/character-overrides.js"),
       readTextFile("data/characters.js"),
-      readTextFile("data/character-meta.js")
+      readTextFile("data/character-meta.js"),
+      readPrivateCharacterData()
     ]);
 
     const media = parseDataAssignment(mediaFile.content,"characterMedia");
@@ -377,6 +465,9 @@ export default async function handler(req,res){
       ? taxonomy.characters
       : {};
     const baseCharacterNames = extractTopLevelCharacterNames(charactersFile.content);
+    privateData.characters = privateData.characters && typeof privateData.characters === "object" && !Array.isArray(privateData.characters)
+      ? privateData.characters
+      : {};
 
     const baseExistingName = findCaseInsensitiveKey(baseCharacterNames,name);
     const overrideExistingName = findCaseInsensitiveKey(
@@ -384,9 +475,13 @@ export default async function handler(req,res){
       name
     );
     const mediaExistingName = findCaseInsensitiveKey(Object.keys(media),name);
+    const privateExistingName = findCaseInsensitiveKey(
+      Object.keys(privateData.characters).filter(key => privateProfile(privateData.characters[key])),
+      name
+    );
 
     if(deleting){
-      const canonicalName = baseExistingName || overrideExistingName;
+      const canonicalName = baseExistingName || overrideExistingName || privateExistingName;
 
       if(!canonicalName){
         return res.status(404).json({
@@ -402,7 +497,8 @@ export default async function handler(req,res){
         });
       }
 
-      const removedMedia = media[canonicalName] || null;
+      const removedPrivateProfile = privateProfile(privateData.characters[canonicalName]);
+      const removedMedia = media[canonicalName] || (removedPrivateProfile && removedPrivateProfile.media) || null;
       const portraitPath = removedMedia && typeof removedMedia.src === "string"
         ? removedMedia.src.trim()
         : "";
@@ -419,10 +515,6 @@ export default async function handler(req,res){
       if(taxonomy.characters) delete taxonomy.characters[canonicalName];
       delete media[canonicalName];
 
-      const privateData = await readPrivateCharacterData();
-      privateData.characters = privateData.characters && typeof privateData.characters === "object"
-        ? privateData.characters
-        : {};
       delete privateData.characters[canonicalName];
 
       const files = [
@@ -476,11 +568,11 @@ export default async function handler(req,res){
       });
     }
 
-    if(creating && (baseExistingName || overrideExistingName)){
+    if(creating && (baseExistingName || overrideExistingName || privateExistingName)){
       return res.status(409).json({error:"character_exists",message:"Já existe uma ficha de personagem com esse nome."});
     }
 
-    if(!creating && !mediaExistingName){
+    if(!creating && !(baseExistingName || overrideExistingName || privateExistingName || mediaExistingName)){
       return res.status(404).json({error:"unknown_character",message:"Personagem não encontrado na base atual."});
     }
 
@@ -491,7 +583,18 @@ export default async function handler(req,res){
     }
 
     const head = await getHead();
-    const previousOverride = overrides[name] && typeof overrides[name] === "object" ? overrides[name] : {};
+    const previousPrivateEntry = privateData.characters[name] && typeof privateData.characters[name] === "object"
+      ? privateData.characters[name]
+      : {};
+    const previousPrivateProfile = privateProfile(previousPrivateEntry);
+    const previousOverride = overrides[name] && typeof overrides[name] === "object"
+      ? overrides[name]
+      : (previousPrivateProfile ? {
+          eyebrow:previousPrivateProfile.eyebrow || "",
+          sections:Array.isArray(previousPrivateProfile.sections) ? previousPrivateProfile.sections : [],
+          card:previousPrivateProfile.card || {},
+          created:true
+        } : {});
 
     const cardInput = input.card && typeof input.card === "object" ? input.card : null;
     const card = cardInput ? {
@@ -502,63 +605,82 @@ export default async function handler(req,res){
       status:text(cardInput.status,200)
     } : previousOverride.card;
 
-    overrides[name] = {
-      ...previousOverride,
-      eyebrow,
-      sections,
-      ...(creating ? {created:true} : {}),
-      ...(card ? {card} : {})
-    };
-
     const characterMeta = normalizeCharacterMeta(
-      input.meta || taxonomy.characters[name] || {},
+      input.meta ||
+      (previousPrivateProfile && previousPrivateProfile.meta) ||
+      taxonomy.characters[name] ||
+      {},
       taxonomy,
       creating
     );
-    taxonomy.characters[name] = characterMeta;
 
-    const files = [
-      {
-        path:"data/character-overrides.js",
-        content:renderCharacterOverrides(overrides),
-        encoding:"utf-8"
-      },
-      {
-        path:"data/character-meta.js",
-        content:renderCharacterTaxonomy(taxonomy),
-        encoding:"utf-8"
-      }
-    ];
+    const secrets = normalizeSecrets(input.secrets);
+    const files = [];
+    const existingMedia = media[name] && typeof media[name] === "object"
+      ? media[name]
+      : (previousPrivateProfile && previousPrivateProfile.media) || defaultCharacterMedia(name);
 
-    if(creating){
-      if(!mediaExistingName){
-        media[name] = {
-          src:"",
-          alt:name,
-          source:"local",
-          credit:""
+    if(characterMeta.visibility === "private"){
+      privateData.characters[name] = {
+        ...previousPrivateEntry,
+        ...(secrets !== null ? {secrets} : {}),
+        profile:{
+          version:1,
+          eyebrow,
+          sections,
+          card:card || {},
+          meta:{...characterMeta,visibility:"private"},
+          media:existingMedia
+        }
+      };
+
+      delete overrides[name];
+      delete taxonomy.characters[name];
+      delete media[name];
+
+      files.push(
+        {path:"data/character-overrides.js",content:renderCharacterOverrides(overrides),encoding:"utf-8"},
+        {path:"data/character-meta.js",content:renderCharacterTaxonomy(taxonomy),encoding:"utf-8"},
+        {path:"data/character-media.js",content:renderCharacterMedia(media),encoding:"utf-8"},
+        {path:PRIVATE_CHARACTER_DATA_PATH,content:renderPrivateCharacterData(privateData),encoding:"utf-8"}
+      );
+    }else{
+      overrides[name] = {
+        ...previousOverride,
+        eyebrow,
+        sections,
+        created:true,
+        ...(card ? {card} : {})
+      };
+      taxonomy.characters[name] = characterMeta;
+
+      if(!media[name]) media[name] = existingMedia;
+
+      if(secrets !== null){
+        privateData.characters[name] = {
+          ...previousPrivateEntry,
+          secrets
         };
+      }
+
+      if(privateData.characters[name]){
+        delete privateData.characters[name].profile;
+        cleanPrivateEntry(privateData.characters,name);
+      }
+
+      files.push(
+        {path:"data/character-overrides.js",content:renderCharacterOverrides(overrides),encoding:"utf-8"},
+        {path:"data/character-meta.js",content:renderCharacterTaxonomy(taxonomy),encoding:"utf-8"},
+        {path:"data/character-media.js",content:renderCharacterMedia(media),encoding:"utf-8"}
+      );
+
+      if(previousPrivateProfile || secrets !== null){
         files.push({
-          path:"data/character-media.js",
-          content:renderCharacterMedia(media),
+          path:PRIVATE_CHARACTER_DATA_PATH,
+          content:renderPrivateCharacterData(privateData),
           encoding:"utf-8"
         });
       }
-    }
-
-    const secrets = normalizeSecrets(input.secrets);
-    if(secrets !== null){
-      const privateData = await readPrivateCharacterData();
-      privateData.characters = privateData.characters || {};
-      privateData.characters[name] = {
-        ...(privateData.characters[name] || {}),
-        secrets
-      };
-      files.push({
-        path:PRIVATE_CHARACTER_DATA_PATH,
-        content:renderPrivateCharacterData(privateData),
-        encoding:"utf-8"
-      });
     }
 
     const commit = await commitFiles(
@@ -572,10 +694,18 @@ export default async function handler(req,res){
       sha:commit.sha,
       character:{
         name,
-        ...overrides[name]
+        ...(characterMeta.visibility === "private"
+          ? {
+              eyebrow,
+              sections,
+              card:card || {},
+              created:true,
+              privateRuntime:true
+            }
+          : overrides[name])
       },
       meta:characterMeta,
-      media:media[name] || null,
+      media:characterMeta.visibility === "private" ? existingMedia : (media[name] || null),
       status_url:statusUrl(req,commit.sha)
     });
   } catch(error){
