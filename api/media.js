@@ -28,6 +28,60 @@ function cleanDcTitle(value){
   return safeDcText(value).replace(/[\u0000-\u001f\u007f]/g,"");
 }
 
+function safeHttpsUrl(value,max=1200){
+  const raw=String(value || "").trim().slice(0,max);
+  if(!raw) return "";
+  try{
+    const url=new URL(raw);
+    if(url.protocol !== "https:") return "";
+    return url.toString();
+  }catch(error){
+    return "";
+  }
+}
+
+function normalizeAutoSource(body){
+  const provider=String(body.provider || "none").trim();
+
+  if(provider === "none") return null;
+
+  if(provider === "dc-fandom"){
+    const wikiTitle=cleanDcTitle(body.wikiTitle);
+    if(!wikiTitle){
+      const error=new Error("Informe o título da página/versão na DC Database.");
+      error.status=400;
+      error.code="missing_wiki_title";
+      throw error;
+    }
+    return {provider:"dc-fandom",wikiTitle};
+  }
+
+  if(provider === "external-url"){
+    const imageUrl=safeHttpsUrl(body.imageUrl);
+    if(!imageUrl){
+      const error=new Error("Informe uma URL HTTPS válida para a imagem externa.");
+      error.status=400;
+      error.code="invalid_external_image_url";
+      throw error;
+    }
+
+    const pageUrl=safeHttpsUrl(body.pageUrl);
+    const sourceLabel=safeDcText(body.sourceLabel,160) || "Fonte externa";
+
+    return {
+      provider:"external-url",
+      imageUrl,
+      ...(pageUrl ? {pageUrl} : {}),
+      sourceLabel
+    };
+  }
+
+  const error=new Error("Fonte automática de retrato desconhecida.");
+  error.status=400;
+  error.code="invalid_auto_provider";
+  throw error;
+}
+
 function dcPageImage(page){
   if(!page || page.missing) return "";
   return (
@@ -233,6 +287,55 @@ export default async function handler(req,res){
   if(!requireEditor(req,res)) return;
 
   try {
+    const requestBody = req.body || {};
+
+    if(req.method === "POST" && requestBody.action === "configure-source"){
+      const character=String(requestBody.character || "").trim();
+      if(!character){
+        return res.status(400).json({error:"missing_character",message:"Personagem não informado."});
+      }
+
+      const head=await getHead();
+      const mediaFile=await readTextFile("data/character-media.js");
+      const mediaData=parseDataAssignment(mediaFile.content,"characterMedia");
+
+      if(!Object.prototype.hasOwnProperty.call(mediaData,character)){
+        return res.status(404).json({error:"unknown_character",message:"Personagem não encontrado na camada de mídia."});
+      }
+
+      const current=mediaData[character] && typeof mediaData[character] === "object"
+        ? mediaData[character]
+        : {src:"",alt:character,source:"local",credit:""};
+
+      const auto=normalizeAutoSource(requestBody);
+
+      mediaData[character]={
+        ...current,
+        source:current.src ? "local" : (auto ? "auto" : "local")
+      };
+
+      if(auto) mediaData[character].auto=auto;
+      else delete mediaData[character].auto;
+
+      const commit=await commitFiles(
+        [{
+          path:"data/character-media.js",
+          content:renderCharacterMedia(mediaData),
+          encoding:"utf-8"
+        }],
+        "media: atualizar fonte de retrato de " + character,
+        head
+      );
+
+      return res.status(200).json({
+        ok:true,
+        sha:commit.sha,
+        character,
+        media:mediaData[character],
+        status_url:statusUrl(req,commit.sha)
+      });
+    }
+
     if(req.method === "DELETE"){
       const body = req.body || {};
       const character = String(body.character || "").trim();
@@ -260,7 +363,7 @@ export default async function handler(req,res){
       mediaData[character] = {
         ...mediaData[character],
         src:"",
-        source:"local",
+        source:mediaData[character] && mediaData[character].auto ? "auto" : "local",
         credit:""
       };
 

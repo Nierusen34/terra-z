@@ -25,8 +25,22 @@ function initials(name){
 
 function automaticConfig(item){
   var auto = item && item.auto;
-  if(!auto || auto.provider !== 'dc-fandom' || !auto.wikiTitle) return null;
-  return auto;
+  if(!auto) return null;
+  if(auto.provider === 'dc-fandom' && auto.wikiTitle) return auto;
+  if(auto.provider === 'external-url' && auto.imageUrl) return auto;
+  return null;
+}
+
+function automaticSourceLabel(config){
+  if(!config) return '';
+  if(config.provider === 'external-url') return config.sourceLabel || 'Fonte externa';
+  return 'DC Database · Fandom';
+}
+
+function automaticTitle(config){
+  if(!config) return '';
+  if(config.provider === 'external-url') return 'Retrato automático · ' + automaticSourceLabel(config);
+  return 'Retrato automático · DC Database (Fandom)';
 }
 
 function getMeta(name){
@@ -43,7 +57,8 @@ function getMeta(name){
 }
 
 function cacheKey(name,config){
-  return AUTO_CACHE_PREFIX + encodeURIComponent(name) + ':' + encodeURIComponent(config.wikiTitle);
+  var sourceKey = config.wikiTitle || config.imageUrl || config.provider || '';
+  return AUTO_CACHE_PREFIX + encodeURIComponent(name) + ':' + encodeURIComponent(sourceKey);
 }
 
 function readCache(name,config){
@@ -93,6 +108,18 @@ async function directFandom(config){
 }
 
 async function fetchAutomatic(name,config){
+  if(config && config.provider === 'external-url'){
+    return {
+      ok:true,
+      found:true,
+      provider:'external-url',
+      source:automaticSourceLabel(config),
+      title:config.sourceLabel || name,
+      imageUrl:config.imageUrl,
+      pageUrl:config.pageUrl || ''
+    };
+  }
+
   var backend = window.TerraZApp && window.TerraZApp.backend;
 
   if(backend && backend.isConfigured && backend.isConfigured() && backend.publicJson){
@@ -130,11 +157,11 @@ function resolveAutomatic(name){
       var normalized = result && result.found && result.imageUrl
         ? {
             found:true,
-            provider:'dc-fandom',
-            source:result.source || 'DC Database · Fandom',
-            title:result.title || config.wikiTitle,
+            provider:result.provider || config.provider || 'dc-fandom',
+            source:result.source || automaticSourceLabel(config),
+            title:result.title || config.wikiTitle || config.sourceLabel || name,
             imageUrl:result.imageUrl,
-            pageUrl:result.pageUrl || ''
+            pageUrl:result.pageUrl || config.pageUrl || ''
           }
         : {found:false,provider:'dc-fandom'};
 
@@ -163,7 +190,7 @@ function renderPortraitHtml(name, size){
     var runtime = window.TerraZApp && window.TerraZApp.runtimeData;
     var src = item.src && runtime && runtime.mediaUrl ? runtime.mediaUrl(item.src) : meta.src;
     var sourceClass = meta.automatic ? ' auto-source' : '';
-    var title = meta.automatic ? ' title="Retrato automático · DC Database (Fandom)"' : '';
+    var title = meta.automatic ? ' title="' + escapeAttr(automaticTitle(auto)) + '"' : '';
     return '<div class="' + cls + sourceClass + '" data-character="' + escapeAttr(name) + '"' + title + '>' +
       '<img data-src="' + escapeAttr(src) + '" alt="' + escapeAttr(meta.alt) + '" loading="lazy" decoding="async" referrerpolicy="no-referrer">' +
       '</div>';
@@ -205,7 +232,8 @@ function replaceAutomaticPortrait(wrapper,result){
 
   if(next){
     next.classList.add('auto-source');
-    next.title = 'Retrato automático · DC Database (Fandom)';
+    var item = media[name] || {};
+    next.title = automaticTitle(automaticConfig(item));
     wrapper.replaceWith(next);
     if(window.TerraZApp.media) window.TerraZApp.media.hydrate(next);
   }
@@ -276,6 +304,18 @@ function hydratePortraits(root){
   observeAutomaticPortraits(root);
 }
 
+function clearAutomaticCache(name){
+  var prefix = AUTO_CACHE_PREFIX + encodeURIComponent(name) + ':';
+  try{
+    for(var i=localStorage.length-1;i>=0;i--){
+      var key = localStorage.key(i);
+      if(key && key.indexOf(prefix) === 0) localStorage.removeItem(key);
+    }
+  }catch(e){}
+  delete autoResolved[name];
+  delete autoPending[name];
+}
+
 function refreshPortraits(root){
   root = root || document;
   media = (window.TerraZData && window.TerraZData.characterMedia) || {};
@@ -304,7 +344,8 @@ window.TerraZApp.characterMedia = {
   decorateCard:decorateCard,
   hydrate:hydratePortraits,
   refresh:refreshPortraits,
-  resolveAutomatic:resolveAutomatic
+  resolveAutomatic:resolveAutomatic,
+  clearAutomaticCache:clearAutomaticCache
 };
 
 })();

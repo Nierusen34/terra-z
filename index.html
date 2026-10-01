@@ -849,6 +849,36 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <button id="characterEditorGraphBtn" type="button">🔗 Relações / Grafo</button>
 </div>
 
+<div id="characterEditorMediaSource" class="character-editor-media-source">
+<div class="character-editor-section-title">🛰️ Fonte automática do retrato</div>
+<p class="character-editor-note">Altera somente a imagem do personagem. O nome e o conteúdo da ficha não são modificados.</p>
+<div class="character-editor-grid">
+<label>Fonte
+<select id="characterEditorMediaProvider">
+<option value="none">Sem fonte automática</option>
+<option value="dc-fandom">DC Database / Fandom</option>
+<option value="external-url">Imagem externa (URL)</option>
+</select>
+</label>
+<label id="characterEditorWikiTitleWrap">Página / versão na DC Database
+<input id="characterEditorWikiTitle" type="text" maxlength="180" placeholder="Ex.: Richard Grayson (Prime Earth)">
+</label>
+<label id="characterEditorExternalUrlWrap" hidden>URL HTTPS da imagem
+<input id="characterEditorExternalUrl" type="url" maxlength="1200" placeholder="https://...">
+</label>
+<label id="characterEditorExternalPageWrap" hidden>Página de origem
+<input id="characterEditorExternalPage" type="url" maxlength="1200" placeholder="https://...">
+</label>
+<label id="characterEditorExternalLabelWrap" hidden>Crédito / fonte
+<input id="characterEditorExternalLabel" type="text" maxlength="160" placeholder="Ex.: DC Comics">
+</label>
+</div>
+<div class="character-editor-media-actions">
+<button id="characterEditorMediaRefreshBtn" type="button">↻ Atualizar agora</button>
+<button id="characterEditorMediaSaveBtn" class="primary" type="button">💾 Salvar fonte do retrato</button>
+</div>
+</div>
+
 <div class="character-editor-section-title">Organização</div>
 <div class="character-editor-meta-grid">
 <label>Tipo<select id="characterEditorType"></select></label>

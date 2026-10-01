@@ -173,6 +173,137 @@ function setCreateFieldsVisible(visible){
   if(fields) fields.hidden = !visible;
 }
 
+function mediaFor(name){
+  var all = (window.TerraZData && window.TerraZData.characterMedia) || {};
+  return all[name] || {};
+}
+
+function syncMediaSourceFields(){
+  var provider = el('characterEditorMediaProvider');
+  var value = provider ? provider.value : 'none';
+  var fandom = value === 'dc-fandom';
+  var external = value === 'external-url';
+
+  if(el('characterEditorWikiTitleWrap')) el('characterEditorWikiTitleWrap').hidden = !fandom;
+  if(el('characterEditorExternalUrlWrap')) el('characterEditorExternalUrlWrap').hidden = !external;
+  if(el('characterEditorExternalPageWrap')) el('characterEditorExternalPageWrap').hidden = !external;
+  if(el('characterEditorExternalLabelWrap')) el('characterEditorExternalLabelWrap').hidden = !external;
+}
+
+function fillMediaSource(name){
+  var panel = el('characterEditorMediaSource');
+  if(panel) panel.hidden = !name || createMode;
+
+  var item = name ? mediaFor(name) : {};
+  var auto = item.auto || {};
+  var provider = auto.provider === 'dc-fandom' || auto.provider === 'external-url'
+    ? auto.provider
+    : 'none';
+
+  if(el('characterEditorMediaProvider')) el('characterEditorMediaProvider').value = provider;
+  if(el('characterEditorWikiTitle')) el('characterEditorWikiTitle').value = auto.wikiTitle || '';
+  if(el('characterEditorExternalUrl')) el('characterEditorExternalUrl').value = auto.imageUrl || '';
+  if(el('characterEditorExternalPage')) el('characterEditorExternalPage').value = auto.pageUrl || '';
+  if(el('characterEditorExternalLabel')) el('characterEditorExternalLabel').value = auto.sourceLabel || '';
+  syncMediaSourceFields();
+}
+
+async function saveMediaSource(){
+  if(createMode || !currentName) return;
+
+  var b = backend();
+  if(!b || !b.isAuthenticated()){
+    showToast('Entre como editor para alterar a fonte do retrato.','warning',5000);
+    return;
+  }
+
+  var button = el('characterEditorMediaSaveBtn');
+  var provider = el('characterEditorMediaProvider') ? el('characterEditorMediaProvider').value : 'none';
+  var body = {
+    action:'configure-source',
+    character:currentName,
+    provider:provider
+  };
+
+  if(provider === 'dc-fandom'){
+    body.wikiTitle = el('characterEditorWikiTitle') ? el('characterEditorWikiTitle').value.trim() : '';
+    if(!body.wikiTitle){
+      showToast('Informe a página/versão da DC Database.','warning',4500);
+      return;
+    }
+  } else if(provider === 'external-url'){
+    body.imageUrl = el('characterEditorExternalUrl') ? el('characterEditorExternalUrl').value.trim() : '';
+    body.pageUrl = el('characterEditorExternalPage') ? el('characterEditorExternalPage').value.trim() : '';
+    body.sourceLabel = el('characterEditorExternalLabel') ? el('characterEditorExternalLabel').value.trim() : '';
+    if(!body.imageUrl){
+      showToast('Informe a URL HTTPS da imagem externa.','warning',4500);
+      return;
+    }
+  }
+
+  if(button){
+    button.disabled = true;
+    button.textContent = 'Salvando…';
+  }
+
+  try{
+    var result = await b.request('/api/media',{method:'POST',body:body});
+
+    window.TerraZData = window.TerraZData || {};
+    window.TerraZData.characterMedia = window.TerraZData.characterMedia || {};
+    window.TerraZData.characterMedia[currentName] = result.media || window.TerraZData.characterMedia[currentName] || {};
+
+    var characterMedia = window.TerraZApp && window.TerraZApp.characterMedia;
+    if(characterMedia && characterMedia.clearAutomaticCache) characterMedia.clearAutomaticCache(currentName);
+    if(characterMedia && characterMedia.refresh) characterMedia.refresh(document);
+
+    fillMediaSource(currentName);
+    refreshPortraitRemoval(currentName);
+
+    document.dispatchEvent(new CustomEvent('terra-z:character-media-changed',{
+      detail:{character:currentName,sourceChanged:true}
+    }));
+
+    showToast('Fonte do retrato atualizada sem alterar a ficha.','success',4500);
+
+    var runtime = window.TerraZApp && window.TerraZApp.runtimeData;
+    if(runtime && runtime.refresh) runtime.refresh({force:true,bust:result.sha,silent:true});
+
+    var publishing = window.TerraZApp && window.TerraZApp.publishing;
+    if(publishing && publishing.trackDeployment && result.status_url){
+      publishing.trackDeployment(result.status_url);
+    }
+  }catch(error){
+    console.error('Terra Z media source:',error);
+    showToast(error.message || 'Falha ao salvar a fonte do retrato.','error',6000);
+  }finally{
+    if(button){
+      button.disabled = false;
+      button.textContent = '💾 Salvar fonte do retrato';
+    }
+  }
+}
+
+function refreshAutomaticPortrait(){
+  if(createMode || !currentName) return;
+  var characterMedia = window.TerraZApp && window.TerraZApp.characterMedia;
+  if(!characterMedia) return;
+
+  if(characterMedia.clearAutomaticCache) characterMedia.clearAutomaticCache(currentName);
+  if(characterMedia.refresh) characterMedia.refresh(document);
+
+  if(characterMedia.resolveAutomatic){
+    characterMedia.resolveAutomatic(currentName).then(function(result){
+      if(result && result.found){
+        if(characterMedia.refresh) characterMedia.refresh(document);
+        showToast('Retrato automático atualizado.','success',3500);
+      } else {
+        showToast('A fonte configurada ainda não retornou uma imagem para este personagem.','warning',5000);
+      }
+    });
+  }
+}
+
 function refreshPortraitRemoval(name){
   var button = el('characterEditorRemovePortraitBtn');
   var portrait = el('characterEditorPortraitBtn');
@@ -186,7 +317,10 @@ function refreshPortraitRemoval(name){
   var media = (window.TerraZData && window.TerraZData.characterMedia) || {};
   var item = media[name] || {};
   var hasLocal = !!item.src;
-  var hasAutomatic = !!(item.auto && item.auto.provider === 'dc-fandom' && item.auto.wikiTitle);
+  var hasAutomatic = !!(item.auto && (
+    (item.auto.provider === 'dc-fandom' && item.auto.wikiTitle) ||
+    (item.auto.provider === 'external-url' && item.auto.imageUrl)
+  ));
 
   if(button){
     button.hidden = !hasLocal;
@@ -290,6 +424,7 @@ async function open(name){
 
   setCreateDependentButtons(false);
   refreshPortraitRemoval(name);
+  fillMediaSource(name);
   fillOrganization(metaFor(name));
 
   var title = el('characterEditorTitle');
@@ -332,6 +467,7 @@ function openCreate(){
   setCreateFieldsVisible(true);
   setCreateDependentButtons(true);
   refreshPortraitRemoval('');
+  fillMediaSource('');
   fillOrganization({featured:false,nuclei:['other'],type:'npc',status:'active'});
 
   var title = el('characterEditorTitle');
@@ -362,6 +498,7 @@ function close(){
   setCreateFieldsVisible(false);
   setCreateDependentButtons(false);
   refreshPortraitRemoval('');
+  fillMediaSource('');
 
   var deleteBtn = el('characterEditorDelete');
   if(deleteBtn) deleteBtn.hidden = true;
@@ -617,6 +754,9 @@ function setup(){
   if(el('characterEditorPortraitBtn')) el('characterEditorPortraitBtn').addEventListener('click',openPortrait);
   if(el('characterEditorRemovePortraitBtn')) el('characterEditorRemovePortraitBtn').addEventListener('click',removePortrait);
   if(el('characterEditorGraphBtn')) el('characterEditorGraphBtn').addEventListener('click',openGraph);
+  if(el('characterEditorMediaProvider')) el('characterEditorMediaProvider').addEventListener('change',syncMediaSourceFields);
+  if(el('characterEditorMediaSaveBtn')) el('characterEditorMediaSaveBtn').addEventListener('click',saveMediaSource);
+  if(el('characterEditorMediaRefreshBtn')) el('characterEditorMediaRefreshBtn').addEventListener('click',refreshAutomaticPortrait);
 
   if(sections){
     sections.addEventListener('click',function(event){
@@ -641,12 +781,18 @@ function setup(){
 
   document.addEventListener('terra-z:runtime-data-loaded',function(){
     taxonomy = (window.TerraZData && window.TerraZData.characterTaxonomy) || taxonomy;
-    if(currentName) refreshPortraitRemoval(currentName);
+    if(currentName){
+      refreshPortraitRemoval(currentName);
+      fillMediaSource(currentName);
+    }
   });
 
   document.addEventListener('terra-z:character-media-changed',function(event){
     var changed = event.detail && event.detail.character;
-    if(currentName && changed === currentName) refreshPortraitRemoval(currentName);
+    if(currentName && changed === currentName){
+      refreshPortraitRemoval(currentName);
+      fillMediaSource(currentName);
+    }
   });
 
   refreshCreateButton();

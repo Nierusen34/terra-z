@@ -4,6 +4,7 @@
 window.TerraZData = window.TerraZData || {};
 
 // Metadados visuais de personagens.
+// O nome da ficha pode ser diferente do título usado pela fonte de retrato.
 // Prioridade: src local > fonte automática configurada > placeholder do Terra Z.
 window.TerraZData.characterMedia = {
   "Tristan Queen": {
@@ -81,7 +82,7 @@ window.TerraZData.characterMedia = {
     "credit": "",
     "auto": {
       "provider": "dc-fandom",
-      "wikiTitle": "Dinah Lance (Prime Earth)"
+      "wikiTitle": "Dinah Drake (Prime Earth)"
     }
   },
   "Connor Hawke": {
@@ -111,7 +112,7 @@ window.TerraZData.characterMedia = {
     "credit": "",
     "auto": {
       "provider": "dc-fandom",
-      "wikiTitle": "Conner Kent (Prime Earth)"
+      "wikiTitle": "Kon-El (Prime Earth)"
     }
   },
   "Bruce Wayne": {
@@ -131,7 +132,7 @@ window.TerraZData.characterMedia = {
     "credit": "",
     "auto": {
       "provider": "dc-fandom",
-      "wikiTitle": "Dick Grayson (Prime Earth)"
+      "wikiTitle": "Richard Grayson (Prime Earth)"
     }
   },
   "Barbara Gordon": {
@@ -161,14 +162,18 @@ window.TerraZData.characterMedia = {
     "credit": "",
     "auto": {
       "provider": "dc-fandom",
-      "wikiTitle": "Tim Drake (Prime Earth)"
+      "wikiTitle": "Timothy Drake (Prime Earth)"
     }
   },
   "Verity Pennyworth": {
     "src": "",
     "alt": "Verity Pennyworth",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "dc-fandom",
+      "wikiTitle": "Verity Pennyworth"
+    }
   },
   "Lian Harper": {
     "src": "",

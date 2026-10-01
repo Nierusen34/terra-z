@@ -95,7 +95,7 @@ async function remove(character){
   var current = window.TerraZData.characterMedia[character] || {};
   window.TerraZData.characterMedia[character] = Object.assign({},current,{
     src:'',
-    source:(current.auto && current.auto.provider === 'dc-fandom') ? 'auto' : 'local',
+    source:current.auto ? 'auto' : 'local',
     credit:''
   });
 
@@ -129,13 +129,16 @@ function requestRemove(character){
 
   var media = (window.TerraZData && window.TerraZData.characterMedia) || {};
   var item = media[character] || {};
-  var hasAutomatic = !!(item.auto && item.auto.provider === 'dc-fandom' && item.auto.wikiTitle);
+  var hasAutomatic = !!(item.auto && (
+    (item.auto.provider === 'dc-fandom' && item.auto.wikiTitle) ||
+    (item.auto.provider === 'external-url' && item.auto.imageUrl)
+  ));
 
   showConfirm(
     'Remover retrato',
     'Remover o retrato atual de ' + character + '? ' +
       (hasAutomatic
-        ? 'A ficha voltará a usar automaticamente a imagem da DC Database.'
+        ? 'A ficha voltará a usar a fonte automática configurada.'
         : 'A ficha continuará existindo e voltará a usar o placeholder.'),
     function(){
       remove(character).catch(function(error){
