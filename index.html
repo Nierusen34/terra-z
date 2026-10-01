@@ -216,11 +216,24 @@
     </div>
 
     <div class="integrity-toolbar">
-      <div class="integrity-filter-row">
-        <button type="button" class="active" data-integrity-filter="all">Todos</button>
-        <button type="button" data-integrity-filter="critical">Críticos</button>
-        <button type="button" data-integrity-filter="warning">Atenção</button>
-        <button type="button" data-integrity-filter="info">Informativos</button>
+      <div class="integrity-filter-groups">
+        <div class="integrity-filter-block">
+          <span class="integrity-filter-label">Gravidade</span>
+          <div class="integrity-filter-row">
+            <button type="button" class="active" data-integrity-filter="all">Todos</button>
+            <button type="button" data-integrity-filter="critical">Críticos</button>
+            <button type="button" data-integrity-filter="warning">Atenção</button>
+            <button type="button" data-integrity-filter="info">Informativos</button>
+          </div>
+        </div>
+        <div class="integrity-filter-block">
+          <span class="integrity-filter-label">Natureza</span>
+          <div class="integrity-filter-row integrity-nature-filter">
+            <button type="button" class="active" data-integrity-nature="all">Todas</button>
+            <button type="button" data-integrity-nature="content">✎ Conteúdo</button>
+            <button type="button" data-integrity-nature="technical">⚙ Técnico</button>
+          </div>
+        </div>
       </div>
       <div class="integrity-toolbar-actions">
         <input id="integritySearch" type="search" placeholder="Buscar no relatório..." autocomplete="off">

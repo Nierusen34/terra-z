@@ -9,6 +9,7 @@ var escapeHtml = core.escapeHtml;
 var escapeAttr = core.escapeAttr;
 var currentReport = null;
 var currentFilter = "all";
+var currentNature = "all";
 var running = false;
 
 function el(id){ return document.getElementById(id); }
@@ -60,15 +61,43 @@ function makeReport(){
   };
 }
 
-function issue(report,severity,area,title,detail,action,entity){
+function inferNature(area,title){
+  var key = normalize(String(area || "") + " " + String(title || ""));
+  var contentPatterns = [
+    "card incompleto",
+    "ficha sem secoes",
+    "personagem sem organizacao",
+    "personagem sem nucleo",
+    "sessao sem titulo",
+    "sessao sem resumo",
+    "local ainda nao catalogado"
+  ];
+
+  if(contentPatterns.some(function(pattern){ return key.indexOf(pattern) !== -1; })){
+    return "content";
+  }
+
+  return "technical";
+}
+
+function issue(report,severity,area,title,detail,action,entity,nature){
+  var resolvedNature = nature || inferNature(area,title);
   report.issues.push({
     severity:severity,
+    nature:resolvedNature,
     area:area,
     title:title,
     detail:detail || "",
     action:action || "",
     entity:entity || "",
-    search:normalize([severity,area,title,detail || "",entity || ""].join(" "))
+    search:normalize([
+      severity,
+      resolvedNature === "content" ? "conteudo" : "tecnico",
+      area,
+      title,
+      detail || "",
+      entity || ""
+    ].join(" "))
   });
 }
 
@@ -471,10 +500,24 @@ function auditDom(report){
 }
 
 function counts(report){
-  var out = {critical:0,warning:0,info:0};
+  var out = {
+    critical:0,
+    warning:0,
+    info:0,
+    content:0,
+    technical:0,
+    warningContent:0,
+    warningTechnical:0
+  };
+
   (report && report.issues || []).forEach(function(row){
     if(Object.prototype.hasOwnProperty.call(out,row.severity)) out[row.severity]++;
+    if(row.nature === "content") out.content++;
+    if(row.nature === "technical") out.technical++;
+    if(row.severity === "warning" && row.nature === "content") out.warningContent++;
+    if(row.severity === "warning" && row.nature === "technical") out.warningTechnical++;
   });
+
   return out;
 }
 
@@ -491,6 +534,10 @@ function labelSeverity(value){
   return "INFO";
 }
 
+function labelNature(value){
+  return value === "content" ? "CONTEÚDO" : "TÉCNICO";
+}
+
 function render(){
   if(!currentReport) return;
   var root = el("integrityResults");
@@ -505,6 +552,7 @@ function render(){
   var term = normalize(el("integritySearch") ? el("integritySearch").value : "");
   var rows = currentReport.issues.filter(function(row){
     if(currentFilter !== "all" && row.severity !== currentFilter) return false;
+    if(currentNature !== "all" && row.nature !== currentNature) return false;
     return !term || row.search.indexOf(term) !== -1;
   });
 
@@ -522,8 +570,12 @@ function render(){
       var action = row.action
         ? '<button type="button" data-integrity-action="' + escapeAttr(row.action) + '" data-integrity-entity="' + escapeAttr(row.entity || "") + '">Abrir ↗</button>'
         : "";
-      return '<article class="integrity-issue severity-' + escapeAttr(row.severity) + '">' +
-        '<div class="integrity-issue-top"><span class="integrity-severity">' + labelSeverity(row.severity) + '</span><span class="integrity-area">' + escapeHtml(row.area) + '</span></div>' +
+      return '<article class="integrity-issue severity-' + escapeAttr(row.severity) + ' nature-' + escapeAttr(row.nature) + '">' +
+        '<div class="integrity-issue-top">' +
+          '<span class="integrity-severity">' + labelSeverity(row.severity) + '</span>' +
+          '<span class="integrity-nature nature-' + escapeAttr(row.nature) + '">' + labelNature(row.nature) + '</span>' +
+          '<span class="integrity-area">' + escapeHtml(row.area) + '</span>' +
+        '</div>' +
         '<div class="integrity-issue-main"><div><strong>' + escapeHtml(row.title) + '</strong>' +
         (row.entity ? '<span class="integrity-entity">' + escapeHtml(row.entity) + '</span>' : "") +
         '<p>' + escapeHtml(row.detail) + '</p></div>' + action + '</div></article>';
@@ -545,6 +597,14 @@ function setFilter(value){
   currentFilter = value || "all";
   document.querySelectorAll("[data-integrity-filter]").forEach(function(button){
     button.classList.toggle("active",button.getAttribute("data-integrity-filter") === currentFilter);
+  });
+  render();
+}
+
+function setNature(value){
+  currentNature = value || "all";
+  document.querySelectorAll("[data-integrity-nature]").forEach(function(button){
+    button.classList.toggle("active",button.getAttribute("data-integrity-nature") === currentNature);
   });
   render();
 }
@@ -626,7 +686,15 @@ async function run(){
     if(total.critical){
       status(total.critical + (total.critical === 1 ? " problema crítico encontrado." : " problemas críticos encontrados."),"error");
     } else if(total.warning){
-      status("Sem problemas críticos. Há " + total.warning + (total.warning === 1 ? " ponto de atenção." : " pontos de atenção."),"warning");
+      var breakdown = [];
+      if(total.warningContent) breakdown.push(total.warningContent + (total.warningContent === 1 ? " de conteúdo" : " de conteúdo"));
+      if(total.warningTechnical) breakdown.push(total.warningTechnical + (total.warningTechnical === 1 ? " técnico" : " técnicos"));
+      status(
+        "Sem problemas críticos. Há " + total.warning +
+        (total.warning === 1 ? " ponto de atenção" : " pontos de atenção") +
+        (breakdown.length ? ": " + breakdown.join(" · ") : "") + ".",
+        "warning"
+      );
     } else {
       status("Nenhum problema crítico ou ponto de atenção encontrado.","success");
     }
@@ -647,9 +715,13 @@ function open(){
   panel.classList.add("show");
   document.body.style.overflow = "hidden";
   currentFilter = "all";
+  currentNature = "all";
   if(el("integritySearch")) el("integritySearch").value = "";
   document.querySelectorAll("[data-integrity-filter]").forEach(function(button){
     button.classList.toggle("active",button.getAttribute("data-integrity-filter") === "all");
+  });
+  document.querySelectorAll("[data-integrity-nature]").forEach(function(button){
+    button.classList.toggle("active",button.getAttribute("data-integrity-nature") === "all");
   });
   run();
 }
@@ -669,6 +741,10 @@ function setup(){
     button.addEventListener("click",function(){ setFilter(button.getAttribute("data-integrity-filter")); });
   });
 
+  document.querySelectorAll("[data-integrity-nature]").forEach(function(button){
+    button.addEventListener("click",function(){ setNature(button.getAttribute("data-integrity-nature")); });
+  });
+
   var panel = el("integrityPanel");
   if(panel){
     panel.addEventListener("click",function(event){ if(event.target === panel) close(); });
@@ -681,7 +757,9 @@ window.TerraZApp.integrityChecker = {
   open:open,
   close:close,
   run:run,
-  getReport:function(){ return currentReport; }
+  getReport:function(){ return currentReport; },
+  setFilter:setFilter,
+  setNature:setNature
 };
 
 })();
