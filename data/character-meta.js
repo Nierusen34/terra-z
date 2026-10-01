@@ -270,7 +270,8 @@ window.TerraZData.characterTaxonomy = {
         "vanguard"
       ],
       "type": "npc",
-      "status": "active"
+      "status": "active",
+      "visibility": "private"
     },
     "Roy Harper": {
       "featured": false,

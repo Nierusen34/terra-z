@@ -91,7 +91,14 @@ window.TerraZData.characterOverrides = {
         "title": "🎯 Objetivo",
         "content": "<p>Procurar M'ark junto com Tristan e Riot. Propôs a aliança — já que a Sumdac também é parte do objetivo deles.</p>"
       }
-    ]
+    ],
+    "card": {
+      "icon": "🧠",
+      "codename": "",
+      "age": "35–45 anos",
+      "origin": "Humana",
+      "status": "Ativa"
+    }
   },
   "Oliver Queen": {
     "eyebrow": "🏹 O Queen · Agente da JLU",
