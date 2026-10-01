@@ -254,6 +254,22 @@ function checkGraph(data){
     fail("Preferência de exibir spoilers não deve persistir entre recarregamentos.");
   }
   pass("Modo Jogador é o padrão seguro de inicialização");
+
+  const publishApi=read("api/publish.js");
+  const githubLib=read("api/_lib/github.js");
+  if(!publishApi.includes('body.action === "restore-content"')){
+    fail("API de publicação não oferece restauração segura de conteúdo.");
+  }
+  if(!publishApi.includes('body.action === "deploy-checkpoint"')){
+    fail("API de publicação não oferece checkpoint controlado de deploy.");
+  }
+  if(!githubLib.includes("restoreContentSnapshot") || !githubLib.includes("createCheckpointCommit")){
+    fail("Biblioteca GitHub não contém infraestrutura de histórico/restauração.");
+  }
+  if(/RESTORABLE_CONTENT_(?:PATHS|PREFIXES)[\s\S]{0,1200}(?:api\/|js\/|index\.html|terra-z\.css)/.test(publishApi)){
+    fail("Escopo de restauração de conteúdo não pode incluir código da aplicação.");
+  }
+  pass("Histórico/restauração e deploy inteligente usam APIs existentes sem restaurar código");
 }
 
 function checkEncryptedFiles(){

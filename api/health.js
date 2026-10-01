@@ -84,6 +84,9 @@ export default async function handler(req,res){
     visibility_system:"public-spoiler-master",
     secure_master_sections:true,
     secure_master_relations:true,
+    history_restore:true,
+    deployment_control:true,
+    history_model:"git-content-checkpoints-v1",
     deployment_commit:String(process.env.VERCEL_GIT_COMMIT_SHA || ""),
     deployment_env:String(process.env.VERCEL_ENV || ""),
     ...githubConfig()

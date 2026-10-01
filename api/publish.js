@@ -1,10 +1,88 @@
 import { applyCors } from "./_lib/cors.js";
 import { requireEditor } from "./_lib/auth.js";
-import { getHead, readTextFile, commitFiles } from "./_lib/github.js";
+import {
+  getHead,
+  readTextFile,
+  commitFiles,
+  listCommits,
+  compareCommits,
+  createCheckpointCommit,
+  restoreContentSnapshot
+} from "./_lib/github.js";
 import { parseDataAssignment, renderContentOverrides } from "./_lib/data-files.js";
 
 const ALLOWED_TAGS = new Set(["br","strong","em","b","i","u","s","ul","ol","li","span","a","small","sup","sub","blockquote","code"]);
 const VOID_TAGS = new Set(["br"]);
+
+const RESTORABLE_CONTENT_PATHS = [
+  "data/content-overrides.js",
+  "data/character-overrides.js",
+  "data/character-meta.js",
+  "data/character-media.js",
+  "data/graph-overrides.js",
+  "data/sessions.js",
+  "data/private-character-data.enc.json",
+  "data/private-sessions.enc.json"
+];
+
+const RESTORABLE_CONTENT_PREFIXES = [
+  "images/characters/"
+];
+
+function shortSha(value){
+  return String(value || "").slice(0,7);
+}
+
+function safeCheckpointLabel(value){
+  return String(value || "")
+    .replace(/[\r\n\t]+/g," ")
+    .replace(/\s+/g," ")
+    .trim()
+    .slice(0,80);
+}
+
+function commitKind(message){
+  const text=String(message || "").toLowerCase();
+  if(text.includes("[vercel-hook]")) return "deploy";
+  if(text.startsWith("restore:")) return "restore";
+  if(text.startsWith("characters:")) return "character";
+  if(text.startsWith("sessions:") || text.startsWith("session:")) return "session";
+  if(text.startsWith("relations:")) return "graph";
+  if(text.startsWith("content:")) return "content";
+  if(text.startsWith("security:")) return "security";
+  if(text.startsWith("media:")) return "media";
+  if(text.startsWith("ci:") || text.startsWith("test:")) return "quality";
+  if(text.startsWith("fix:")) return "fix";
+  if(text.startsWith("feat:")) return "feature";
+  return "system";
+}
+
+function historyRow(item,productionSha,headSha){
+  const commit=item && item.commit || {};
+  const author=commit.author || {};
+  const message=String(commit.message || "").split("\n")[0].slice(0,180);
+
+  return {
+    sha:String(item.sha || ""),
+    short_sha:shortSha(item.sha),
+    message,
+    kind:commitKind(message),
+    date:String(author.date || ""),
+    author:String(author.name || ""),
+    is_head:String(item.sha || "") === headSha,
+    is_production:String(item.sha || "") === productionSha,
+    is_checkpoint:/\[vercel-hook\]/i.test(message)
+  };
+}
+
+function syncState(compare,productionSha,headSha){
+  if(!productionSha || !/^[a-f0-9]{40}$/i.test(productionSha)) return "unknown";
+  if(productionSha === headSha) return "synced";
+  if(compare && compare.status === "ahead") return "development";
+  if(compare && compare.status === "identical") return "synced";
+  if(compare && compare.status === "diverged") return "diverged";
+  return "development";
+}
 
 function escapeAttribute(value){
   return String(value)
@@ -139,14 +217,96 @@ function statusUrl(req,sha){
 
 export default async function handler(req,res){
   if(applyCors(req,res)) return;
-  if(req.method !== "POST"){
-    res.setHeader("Allow","POST, OPTIONS");
+  if(req.method !== "GET" && req.method !== "POST"){
+    res.setHeader("Allow","GET, POST, OPTIONS");
     return res.status(405).json({error:"method_not_allowed"});
   }
   if(!requireEditor(req,res)) return;
 
   try {
+    if(req.method === "GET"){
+      const limit=Math.max(10,Math.min(Number((req.query || {}).limit) || 40,80));
+      const head=await getHead();
+      const productionSha=String(process.env.VERCEL_GIT_COMMIT_SHA || "");
+      const [commits,comparison]=await Promise.all([
+        listCommits(limit),
+        productionSha && /^[a-f0-9]{40}$/i.test(productionSha)
+          ? compareCommits(productionSha,head).catch(()=>null)
+          : Promise.resolve(null)
+      ]);
+
+      const state=syncState(comparison,productionSha,head);
+
+      res.setHeader("Cache-Control","no-store, max-age=0");
+      return res.status(200).json({
+        ok:true,
+        head_sha:head,
+        production_sha:productionSha,
+        deployment_env:String(process.env.VERCEL_ENV || ""),
+        sync:{
+          state,
+          ahead_by:Number(comparison && comparison.ahead_by || 0),
+          behind_by:Number(comparison && comparison.behind_by || 0),
+          total_commits:Number(comparison && comparison.total_commits || 0)
+        },
+        capabilities:{
+          restore_content:true,
+          deploy_checkpoint:true,
+          restore_scope:"managed-content-v1"
+        },
+        history:(Array.isArray(commits) ? commits : []).map(item =>
+          historyRow(item,productionSha,head)
+        )
+      });
+    }
+
     const body = req.body || {};
+
+    if(body.action === "restore-content"){
+      if(body.confirm !== true){
+        return res.status(400).json({
+          error:"confirmation_required",
+          message:"Confirme a restauração antes de continuar."
+        });
+      }
+
+      const targetSha=String(body.target_sha || "");
+      const expectedHead=String(body.expected_head || "");
+      const restored=await restoreContentSnapshot(targetSha,expectedHead,{
+        paths:RESTORABLE_CONTENT_PATHS,
+        prefixes:RESTORABLE_CONTENT_PREFIXES,
+        message:"restore: restaurar conteúdo de " + shortSha(targetSha)
+      });
+
+      return res.status(200).json({
+        ok:true,
+        action:"restore-content",
+        sha:restored.sha,
+        source_sha:restored.sourceSha,
+        changed_paths:restored.changedPaths,
+        deleted_paths:restored.deletedPaths,
+        status_url:statusUrl(req,restored.sha)
+      });
+    }
+
+    if(body.action === "deploy-checkpoint"){
+      const expectedHead=String(body.expected_head || "");
+      const label=safeCheckpointLabel(body.label);
+      const message="[vercel-hook] deploy: checkpoint" + (label ? " — " + label : "");
+      const checkpoint=await createCheckpointCommit(message,expectedHead);
+
+      const proto=String(req.headers["x-forwarded-proto"] || "https").split(",")[0].trim();
+      const host=req.headers.host;
+      return res.status(200).json({
+        ok:true,
+        action:"deploy-checkpoint",
+        sha:checkpoint.sha,
+        previous_head:checkpoint.previousHead,
+        vercel_status_url:proto + "://" + host + "/api/status?kind=vercel&sha=" + encodeURIComponent(checkpoint.sha),
+        pages_status_url:statusUrl(req,checkpoint.sha)
+      });
+    }
+
     if(body.schema !== "terra-z-publish-v1" || body.type !== "content-overrides"){
       return res.status(400).json({error:"invalid_payload",message:"Formato de publicação não reconhecido."});
     }
@@ -219,7 +379,8 @@ export default async function handler(req,res){
     return res.status(status).json({
       error:error.code || "publish_failed",
       message,
-      current_head:error.currentHead || undefined
+      current_head:error.currentHead || undefined,
+      missing_paths:error.missingPaths || undefined
     });
   }
 }
