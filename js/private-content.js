@@ -232,6 +232,10 @@ document.addEventListener('terra-z:auth-changed',function(){
   load();
 });
 
+document.addEventListener('terra-z:runtime-data-loaded',function(){
+  if(cache) applyPrivateProfiles();
+});
+
 if(backend() && backend().isAuthenticated()) load();
 
 window.TerraZApp.privateContent = {

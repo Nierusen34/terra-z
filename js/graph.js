@@ -21,6 +21,7 @@ if(!window.TerraZData || !window.TerraZData.defaultGraph){
 
 var graphData = null;
 var graphRelationFilter = 'all';
+var visibilityCapability = null;
 var graphCharacterMap = {
   oliver:'Oliver Queen',
   dinah:'Dinah Lance',
@@ -107,6 +108,32 @@ function saveGraph(){
     localStorage.setItem(GRAPH_BACKUP_KEY,localStorage.getItem(GRAPH_KEY) || JSON.stringify(publicOnly));
     localStorage.setItem(GRAPH_KEY,JSON.stringify(publicOnly));
   } catch(e){ console.error(e); }
+}
+
+async function supportsVisibilitySystem(){
+  if(visibilityCapability !== null) return visibilityCapability;
+  var b=window.TerraZApp && window.TerraZApp.backend;
+  if(!b || !b.health) return false;
+
+  try{
+    var health=await b.health();
+    visibilityCapability=!!(
+      health &&
+      health.visibility_system === 'public-spoiler-master' &&
+      health.secure_master_relations === true
+    );
+  }catch(error){
+    visibilityCapability=false;
+  }
+  return visibilityCapability;
+}
+
+function graphUsesAdvancedVisibility(){
+  return (graphData.nodes || []).some(function(node){
+    return normalizeVisibility(node.visibility) !== 'public';
+  }) || (graphData.edges || []).some(function(edge){
+    return normalizeVisibility(edge.visibility) !== 'public';
+  });
 }
 
 function edgeColor(type){
@@ -250,10 +277,19 @@ function addGraphEdge(){
 function removeGraphEdge(index){ graphData.edges.splice(index, 1); renderGraphEditorForm(); }
 
 async function saveGraphEditor(){
+  var b = window.TerraZApp && window.TerraZApp.backend;
+
+  if(graphUsesAdvancedVisibility() && !(await supportsVisibilitySystem())){
+    showToast(
+      'Os níveis Spoiler/Mestre do grafo estão em staging. O salvamento foi bloqueado até o backend consolidado ser publicado.',
+      'warning',
+      6500
+    );
+    return;
+  }
+
   saveGraph();
   renderGraph();
-
-  var b = window.TerraZApp && window.TerraZApp.backend;
   var remote = !!(b && b.isConfigured && b.isConfigured() && b.isAuthenticated && b.isAuthenticated());
 
   if(!remote){
@@ -276,6 +312,13 @@ async function saveGraphEditor(){
 
     if(result.publicGraph) publishedGraph=JSON.parse(JSON.stringify(result.publicGraph));
     if(result.graph) graphData=normalizeGraphVisibility(JSON.parse(JSON.stringify(result.graph)));
+
+    var privateApi=window.TerraZApp && window.TerraZApp.privateContent;
+    if(privateApi && privateApi.reload){
+      await privateApi.reload();
+      graphData=loadGraph();
+    }
+
     saveGraph();
     renderGraph();
     closeGraphEditor();
@@ -407,6 +450,9 @@ document.addEventListener('terra-z:runtime-data-loaded',function(){
 document.addEventListener('terra-z:private-content-loaded',refreshGraphFromSources);
 document.addEventListener('terra-z:private-content-cleared',refreshGraphFromSources);
 document.addEventListener('terra-z:visibility-changed',renderGraph);
+document.addEventListener('terra-z:auth-changed',function(){
+  visibilityCapability=null;
+});
 
 try {
   graphData = loadGraph();

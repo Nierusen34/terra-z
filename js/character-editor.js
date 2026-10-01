@@ -17,6 +17,34 @@ var taxonomy = (window.TerraZData && window.TerraZData.characterTaxonomy) || {nu
 function el(id){ return document.getElementById(id); }
 function backend(){ return window.TerraZApp && window.TerraZApp.backend; }
 
+var visibilityCapability=null;
+
+async function supportsVisibilitySystem(){
+  if(visibilityCapability !== null) return visibilityCapability;
+  var b=backend();
+  if(!b || !b.health) return false;
+
+  try{
+    var health=await b.health();
+    visibilityCapability=!!(
+      health &&
+      health.visibility_system === 'public-spoiler-master' &&
+      health.secure_master_sections === true
+    );
+  }catch(error){
+    visibilityCapability=false;
+  }
+
+  return visibilityCapability;
+}
+
+function usesAdvancedVisibility(meta,sections){
+  if(meta && meta.visibility && meta.visibility !== 'public') return true;
+  return (sections || []).some(function(section){
+    return section && section.visibility && section.visibility !== 'public';
+  });
+}
+
 function definitions(kind){
   return Array.isArray(taxonomy[kind]) ? taxonomy[kind] : [];
 }
@@ -550,6 +578,13 @@ async function save(){
     return;
   }
 
+  var organization=collectOrganization();
+  if(usesAdvancedVisibility(organization,sections) && !(await supportsVisibilitySystem())){
+    setStatus('Os novos níveis Público / Spoiler / Mestre estão em staging. O backend consolidado ainda não foi publicado na Vercel, então esta alteração foi bloqueada para evitar exposição acidental.','warning');
+    showToast('Visibilidade avançada em staging: aguarde o próximo deploy consolidado antes de salvar este nível.','warning',6500);
+    return;
+  }
+
   var button = el('characterEditorSave');
   var wasCreating = createMode;
   button.disabled = true;
@@ -562,7 +597,7 @@ async function save(){
       create:wasCreating,
       eyebrow:el('characterEditorEyebrow').value.trim(),
       sections:sections,
-      meta:collectOrganization()
+      meta:organization
     };
 
     payload.card = {
@@ -809,6 +844,7 @@ function setup(){
   }
 
   document.addEventListener('terra-z:auth-changed',function(){
+    visibilityCapability=null;
     refreshCreateButton();
     var b = backend();
     if(!b || !b.isAuthenticated()) close();

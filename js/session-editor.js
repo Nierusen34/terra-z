@@ -12,6 +12,21 @@ var currentId = '';
 function el(id){ return document.getElementById(id); }
 function backend(){ return window.TerraZApp && window.TerraZApp.backend; }
 
+var visibilityCapability=null;
+
+async function supportsVisibilitySystem(){
+  if(visibilityCapability !== null) return visibilityCapability;
+  var b=backend();
+  if(!b || !b.health) return false;
+  try{
+    var health=await b.health();
+    visibilityCapability=!!(health && health.visibility_system === 'public-spoiler-master');
+  }catch(error){
+    visibilityCapability=false;
+  }
+  return visibilityCapability;
+}
+
 function splitComma(value){
   return String(value || '').split(',').map(function(v){ return v.trim(); }).filter(Boolean);
 }
@@ -89,6 +104,12 @@ async function save(){
     return;
   }
 
+  var selectedVisibility=el('sessionVisibility').value;
+  if(selectedVisibility === 'spoiler' && !(await supportsVisibilitySystem())){
+    showToast('O nível Spoiler está em staging e será habilitado para salvamento após o próximo deploy consolidado.','warning',6000);
+    return;
+  }
+
   var button = el('sessionSaveBtn');
   button.disabled = true;
   button.textContent = 'Salvando…';
@@ -102,7 +123,7 @@ async function save(){
     characters:splitComma(el('sessionCharacters').value),
     locations:splitComma(el('sessionLocations').value),
     consequences:splitLines(el('sessionConsequences').value),
-    visibility:el('sessionVisibility').value
+    visibility:selectedVisibility
   };
 
   try {
@@ -220,7 +241,10 @@ function setup(){
   if(deleteBtn) deleteBtn.addEventListener('click',requestDelete);
   if(panel) panel.addEventListener('click',function(e){ if(e.target === panel) close(); });
 
-  document.addEventListener('terra-z:auth-changed',refresh);
+  document.addEventListener('terra-z:auth-changed',function(){
+    visibilityCapability=null;
+    refresh();
+  });
   refresh();
 }
 
