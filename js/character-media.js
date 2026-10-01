@@ -487,6 +487,12 @@ function refreshPortraits(root){
 document.addEventListener('terra-z:runtime-data-loaded',function(){
   refreshPortraits(document);
 });
+document.addEventListener('terra-z:private-profiles-changed',function(){
+  refreshPortraits(document);
+});
+document.addEventListener('terra-z:private-content-cleared',function(){
+  refreshPortraits(document);
+});
 
 window.TerraZApp.characterMedia = {
   get:getMeta,
