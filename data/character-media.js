@@ -61,8 +61,8 @@ window.TerraZData.characterMedia = {
     "credit": "",
     "auto": {
       "provider": "external-url",
-      "imageUrl": "https://64.media.tumblr.com/97de10b59cdb203bc9b129d3dca609ce/11cdf65cf657d6a6-e9/s2048x3072/62d22900f4e3b7312076e15a291cece580e51412.jpg",
-      "sourceLabel": "Google Imagens · Dan Mora"
+      "imageUrl": "https://trello.com/1/cards/6a9b653884b277f7fdcb68b7/attachments/6a9b6587408796cd2bc62ac0/download/a7f7774264b01ebf51e1f67de5a7ab4c.jpg",
+      "sourceLabel": "Google Imagens · imagem selecionada"
     }
   },
   "Oliver Queen": {
