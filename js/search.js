@@ -78,6 +78,15 @@ function searchLocalDocument(query){
       var parent = node.parentElement;
       while(parent && parent !== document.body){
         if(parent.matches && parent.matches(skipSelectors)) return NodeFilter.FILTER_REJECT;
+
+        if(parent.hasAttribute && parent.hasAttribute('data-visibility')){
+          var level = parent.getAttribute('data-visibility') || 'public';
+          var visibility = window.TerraZApp && window.TerraZApp.visibility;
+          if(visibility && visibility.isLevelAllowed && !visibility.isLevelAllowed(level)){
+            return NodeFilter.FILTER_REJECT;
+          }
+        }
+
         parent = parent.parentElement;
       }
       if(node.parentElement && node.parentElement.isContentEditable) return NodeFilter.FILTER_REJECT;

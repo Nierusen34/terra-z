@@ -1368,3 +1368,99 @@ button.session-chip:hover{border-color:var(--accent);color:var(--accent)}
   .home-protagonists-grid{grid-template-columns:1fr}
   .home-protagonist-card h4{padding-right:92px}
 }
+
+
+/* ===== BARRA DE FERRAMENTAS · GRUPOS VISUAIS ===== */
+.topbar-actions{align-items:center}
+.topbar-separator{width:1px;height:24px;background:var(--line);margin:0 4px;flex:0 0 1px}
+#spoilerToggle.active{
+  border-color:var(--accent2);
+  color:var(--accent2);
+  background:color-mix(in srgb,var(--accent2) 8%,transparent);
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--accent2) 14%,transparent) inset;
+}
+html[data-spoiler-mode="safe"] #adminPanelBtn{display:none}
+
+/* ===== MODO APRESENTAÇÃO · DOSSIÊ RICO ===== */
+.pres-card{
+  justify-content:flex-start;
+  min-height:min(560px,70vh);
+  overflow:hidden;
+}
+.pres-kicker{
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  color:var(--ink3);
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+.pres-content{font-size:16px;color:var(--ink2);line-height:1.8;min-width:0}
+.pres-content>p:first-child{margin-top:0}
+.pres-dateline{
+  margin-top:18px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;
+  letter-spacing:1.4px;
+  text-transform:uppercase;
+  color:var(--ink3);
+}
+.pres-media{
+  margin:2px 0 22px;
+  display:flex;
+  justify-content:center;
+  background:var(--paper3);
+  border:1px solid var(--line);
+  padding:8px;
+}
+.pres-media img{
+  display:block;
+  max-width:100%;
+  max-height:56vh;
+  width:auto;
+  height:auto;
+  object-fit:contain;
+}
+.pres-figure h4{font-size:24px}
+.pres-quote .pres-content{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:1;
+}
+.pres-quote blockquote{
+  margin:0;
+  font-family:var(--font-title);
+  font-size:clamp(24px,4vw,38px);
+  line-height:1.4;
+  color:var(--accent);
+  text-align:center;
+}
+.pres-table-wrap{
+  width:100%;
+  max-height:54vh;
+  overflow:auto;
+  border:1px solid var(--line);
+  background:var(--paper);
+}
+.pres-table-wrap table{margin:0;width:100%;font-size:12px}
+.pres-table-wrap th{position:sticky;top:0;z-index:2;background:var(--paper3)}
+.pres-card .character-portrait.small{width:92px;height:110px}
+.pres-card .character-card{grid-template-columns:92px minmax(0,1fr)}
+.pres-card .info-box{margin:0}
+.pres-card .event-item{border:none;padding:0}
+
+/* Modo Jogador: filtro de apresentação. O conteúdo Mestre continua protegido pelo backend. */
+html[data-spoiler-mode="safe"] [data-visibility="restricted"],
+html[data-spoiler-mode="safe"] [data-visibility="master"]{display:none!important}
+
+@media(max-width:900px){
+  .topbar-separator{display:none}
+  .pres-media img{max-height:46vh}
+  .pres-table-wrap{max-height:48vh}
+}
+@media(max-width:520px){
+  .pres-card{min-height:0}
+  .pres-content{font-size:14px}
+  .pres-table-wrap table{min-width:620px}
+}

@@ -43,13 +43,15 @@
 <input type="text" id="searchInput" placeholder="🔍 Buscar no documento ou na DC Wiki..." autocomplete="off">
 <button id="searchBtn">Buscar</button>
 </div>
-<div class="topbar-actions">
-<button id="readingBtn">📖 Modo Leitura</button>
-<button id="presentationBtn">▶ Apresentação</button>
-<button id="favoritesBtn">⭐ Favoritos</button>
-<button id="spoilerToggle" aria-pressed="false">🙈 Ocultar spoilers</button>
-<button id="adminPanelBtn">⚙️ Administração</button>
-<button id="themeToggle">🌙 Modo Escuro</button>
+<div class="topbar-actions" aria-label="Ferramentas do dossiê">
+<button id="favoritesBtn" title="Abrir sua seleção de cards favoritos">⭐ Favoritos</button>
+<span class="topbar-separator" aria-hidden="true"></span>
+<button id="readingBtn" title="Ocultar a interface e priorizar a leitura contínua">📖 Modo Leitura</button>
+<button id="presentationBtn" title="Apresentar a seção atual como um dossiê em slides">▶ Modo Apresentação</button>
+<button id="spoilerToggle" aria-pressed="false" title="Ocultar revelações, informações restritas e conteúdo do Mestre">🛡️ Modo Jogador</button>
+<button id="themeToggle" title="Alternar entre tema claro e escuro">🌙 Modo Escuro</button>
+<span class="topbar-separator" aria-hidden="true"></span>
+<button id="adminPanelBtn" title="Abrir as ferramentas privadas de administração">⚙️ Administração</button>
 
 <div class="legacy-admin-actions" hidden>
 <button id="editBtn">✏️ Editar</button>
@@ -305,7 +307,7 @@
 <div data-edit-id="tz-0017" data-legacy-edit-id="e_16" class="fc-value">Janeiro de 2027</div>
 <div data-edit-id="tz-0018" data-legacy-edit-id="e_17" class="fc-desc">Documento revisado e publicado. Versão 1.3.2.</div>
 </div>
-<div class="feature-card warning">
+<div class="feature-card warning" data-visibility="restricted">
 <div class="fc-label">Próximo Evento</div>
 <div data-edit-id="tz-0019" data-legacy-edit-id="e_18" class="fc-value">Dinah &amp; Oliver</div>
 <div data-edit-id="tz-0020" data-legacy-edit-id="e_19" class="fc-desc">Investigam a anomalia em Gotham. Ligada à Fenda de Vanguard Bay.</div>
@@ -329,7 +331,7 @@
 <div class="section-label">📌 Em Destaque</div>
 <div class="event-item"><span class="date">Janeiro de 2027</span><div data-edit-id="tz-0028" data-legacy-edit-id="e_27" class="title">O Encontro</div><div data-edit-id="tz-0029" data-legacy-edit-id="e_28" class="desc">Tristan, Riot e M'ark se encontram pela primeira vez em Vanguard Bay.</div></div>
 <div class="event-item"><span class="date">2026</span><div data-edit-id="tz-0030" data-legacy-edit-id="e_29" class="title">Rei Ômega</div><div data-edit-id="tz-0031" data-legacy-edit-id="e_30" class="desc">Superman derrota Darkseid e ascende. A energia distorce a Fenda.</div></div>
-<div class="event-item"><span class="date">2022</span><div data-edit-id="tz-0032" data-legacy-edit-id="e_31" class="title">A Promessa de Lobo</div><div data-edit-id="tz-0033" data-legacy-edit-id="e_32" class="desc">Lobo dá 50 anos ao clone. Em 2072, voltará para caçá-lo.</div></div>
+<div class="event-item" data-visibility="restricted"><span class="date">2022</span><div data-edit-id="tz-0032" data-legacy-edit-id="e_31" class="title">A Promessa de Lobo</div><div data-edit-id="tz-0033" data-legacy-edit-id="e_32" class="desc">Lobo dá 50 anos ao clone. Em 2072, voltará para caçá-lo.</div></div>
 <div class="event-item"><span class="date">2019</span><div data-edit-id="tz-0034" data-legacy-edit-id="e_33" class="title">A Tragédia de Gotham</div><div data-edit-id="tz-0035" data-legacy-edit-id="e_34" class="desc">Bárbara baleada. Jason morto. A família Wayne nunca mais foi a mesma.</div></div>
 </div>
 </div>
@@ -596,14 +598,14 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2
 <div class="card"><h4 data-edit-id="tz-0370" data-legacy-edit-id="e_369">👑 Divergência Principal</h4><p data-edit-id="tz-0371" data-legacy-edit-id="e_370">Superman derrotou Darkseid em 2026 e ascendeu como <strong>Rei Ômega</strong>.</p></div>
 <div class="card"><h4 data-edit-id="tz-0372" data-legacy-edit-id="e_371">🦸 Liga da Justiça Sem Limites</h4><p data-edit-id="tz-0373" data-legacy-edit-id="e_372">Em 2024, a Liga expandiu o recrutamento.</p></div>
 <div class="card"><h4 data-edit-id="tz-0374" data-legacy-edit-id="e_373">📍 Palco Central</h4><p data-edit-id="tz-0375" data-legacy-edit-id="e_374"><strong>Vanguard Bay</strong>, sem família heroica fixa.</p></div>
-<div class="card"><h4 data-edit-id="tz-0376" data-legacy-edit-id="e_375">⏳ O Prazo de 2072</h4><p data-edit-id="tz-0377" data-legacy-edit-id="e_376">Lobo prometeu caçar Riot em 2072. Kendra e Riot sabem — mas nenhum revelou ao outro.</p></div>
-<div class="card"><h4 data-edit-id="tz-0378" data-legacy-edit-id="e_377">🔐 O Grande Segredo</h4><p data-edit-id="tz-0379" data-legacy-edit-id="e_378">M'ark é publicamente apresentado como Marciano Verde. Na verdade, é Branco.</p></div>
+<div class="card" data-visibility="restricted"><h4 data-edit-id="tz-0376" data-legacy-edit-id="e_375">⏳ O Prazo de 2072</h4><p data-edit-id="tz-0377" data-legacy-edit-id="e_376">Lobo prometeu caçar Riot em 2072. Kendra e Riot sabem — mas nenhum revelou ao outro.</p></div>
+<div class="card" data-visibility="restricted"><h4 data-edit-id="tz-0378" data-legacy-edit-id="e_377">🔐 O Grande Segredo</h4><p data-edit-id="tz-0379" data-legacy-edit-id="e_378">M'ark é publicamente apresentado como Marciano Verde. Na verdade, é Branco.</p></div>
 </div>
 
 <div data-edit-id="tz-0380" data-legacy-edit-id="e_379" class="info-box"><div class="label">📌 Navegação</div>Clique em qualquer <strong>card de personagem</strong> para abrir a ficha completa. Use a <strong>busca no topo</strong> para alternar entre <strong>Busca Local</strong> e <strong>DC Wiki</strong>. Pressione <strong>Esc</strong> para fechar qualquer janela.</div>
 
-<div class="subsection-title">🔐 Quem Sabe o Quê</div>
-<table>
+<div class="subsection-title" data-visibility="restricted">🔐 Quem Sabe o Quê</div>
+<table data-visibility="restricted">
 <thead><tr><th data-edit-id="tz-0381" data-legacy-edit-id="e_380">Segredo</th><th data-edit-id="tz-0382" data-legacy-edit-id="e_381">Quem Sabe</th></tr></thead>
 <tbody>
 <tr><td data-edit-id="tz-0383" data-legacy-edit-id="e_382">M'gann é Marciana Branca</td><td data-edit-id="tz-0384" data-legacy-edit-id="e_383">J'onn, Conner, Dick, Garfield, Raven</td></tr>
