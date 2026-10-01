@@ -2,6 +2,11 @@ import { applyCors } from "./_lib/cors.js";
 import { requireEditor } from "./_lib/auth.js";
 import { getHead, readTextFile, readBinaryFile, commitFiles } from "./_lib/github.js";
 import { parseDataAssignment, renderCharacterMedia } from "./_lib/data-files.js";
+import {
+  PRIVATE_CHARACTER_DATA_PATH,
+  readPrivateCharacterData,
+  renderPrivateCharacterData
+} from "./_lib/private-character-data.js";
 
 const MAX_BYTES = 2 * 1024 * 1024;
 const EXTENSIONS = {
@@ -318,6 +323,22 @@ function statusUrl(req,sha){
   return proto + "://" + req.headers.host + "/api/status?sha=" + encodeURIComponent(sha);
 }
 
+function privateProfile(entry){
+  return entry && entry.profile && typeof entry.profile === "object" && !Array.isArray(entry.profile)
+    ? entry.profile
+    : null;
+}
+
+function privateCharacter(privateData,name){
+  const entry=privateData && privateData.characters && privateData.characters[name];
+  const profile=privateProfile(entry);
+  return profile ? {entry,profile} : null;
+}
+
+function privateMediaDefault(name){
+  return {src:"",alt:name,source:"local",credit:""};
+}
+
 export default async function handler(req,res){
   if(applyCors(req,res)) return;
 
@@ -364,18 +385,59 @@ export default async function handler(req,res){
       }
 
       const head=await getHead();
-      const mediaFile=await readTextFile("data/character-media.js");
+      const [mediaFile,privateData]=await Promise.all([
+        readTextFile("data/character-media.js"),
+        readPrivateCharacterData()
+      ]);
       const mediaData=parseDataAssignment(mediaFile.content,"characterMedia");
+      privateData.characters=privateData.characters && typeof privateData.characters === "object"
+        ? privateData.characters
+        : {};
+      const privateTarget=privateCharacter(privateData,character);
 
-      if(!Object.prototype.hasOwnProperty.call(mediaData,character)){
+      if(!Object.prototype.hasOwnProperty.call(mediaData,character) && !privateTarget){
         return res.status(404).json({error:"unknown_character",message:"Personagem não encontrado na camada de mídia."});
+      }
+
+      const auto=normalizeAutoSource(requestBody);
+
+      if(privateTarget){
+        const current=privateTarget.profile.media && typeof privateTarget.profile.media === "object"
+          ? privateTarget.profile.media
+          : privateMediaDefault(character);
+
+        privateTarget.profile.media={
+          ...current,
+          src:"",
+          source:auto ? "auto" : "local"
+        };
+        if(auto) privateTarget.profile.media.auto=auto;
+        else delete privateTarget.profile.media.auto;
+        delete privateTarget.profile.privatePortrait;
+
+        const commit=await commitFiles(
+          [{
+            path:PRIVATE_CHARACTER_DATA_PATH,
+            content:renderPrivateCharacterData(privateData),
+            encoding:"utf-8"
+          }],
+          "media: atualizar fonte privada de retrato de " + character,
+          head
+        );
+
+        return res.status(200).json({
+          ok:true,
+          sha:commit.sha,
+          character,
+          media:privateTarget.profile.media,
+          private:true,
+          status_url:statusUrl(req,commit.sha)
+        });
       }
 
       const current=mediaData[character] && typeof mediaData[character] === "object"
         ? mediaData[character]
-        : {src:"",alt:character,source:"local",credit:""};
-
-      const auto=normalizeAutoSource(requestBody);
+        : privateMediaDefault(character);
 
       mediaData[character]={
         ...current,
@@ -413,11 +475,55 @@ export default async function handler(req,res){
       }
 
       const head = await getHead();
-      const mediaFile = await readTextFile("data/character-media.js");
+      const [mediaFile,privateData] = await Promise.all([
+        readTextFile("data/character-media.js"),
+        readPrivateCharacterData()
+      ]);
       const mediaData = parseDataAssignment(mediaFile.content,"characterMedia");
+      privateData.characters=privateData.characters && typeof privateData.characters === "object"
+        ? privateData.characters
+        : {};
+      const privateTarget=privateCharacter(privateData,character);
 
-      if(!Object.prototype.hasOwnProperty.call(mediaData,character)){
+      if(!Object.prototype.hasOwnProperty.call(mediaData,character) && !privateTarget){
         return res.status(404).json({error:"unknown_character",message:"Personagem não encontrado na camada de mídia."});
+      }
+
+      if(privateTarget){
+        const current=privateTarget.profile.media && typeof privateTarget.profile.media === "object"
+          ? privateTarget.profile.media
+          : privateMediaDefault(character);
+        const hadPortrait=!!privateTarget.profile.privatePortrait || !!current.src;
+
+        if(!hadPortrait){
+          return res.status(409).json({error:"no_portrait",message:"Este personagem não possui retrato para remover."});
+        }
+
+        privateTarget.profile.media={
+          ...current,
+          src:"",
+          source:current.auto ? "auto" : "local",
+          credit:""
+        };
+        delete privateTarget.profile.privatePortrait;
+
+        const commit=await commitFiles(
+          [{
+            path:PRIVATE_CHARACTER_DATA_PATH,
+            content:renderPrivateCharacterData(privateData),
+            encoding:"utf-8"
+          }],
+          "media: remover retrato privado de " + character,
+          head
+        );
+
+        return res.status(200).json({
+          ok:true,
+          sha:commit.sha,
+          character,
+          private:true,
+          status_url:statusUrl(req,commit.sha)
+        });
       }
 
       const previousPath = mediaData[character] && mediaData[character].src
@@ -488,11 +594,51 @@ export default async function handler(req,res){
     }
 
     const head = await getHead();
-    const mediaFile = await readTextFile("data/character-media.js");
+    const [mediaFile,privateData] = await Promise.all([
+      readTextFile("data/character-media.js"),
+      readPrivateCharacterData()
+    ]);
     const mediaData = parseDataAssignment(mediaFile.content,"characterMedia");
+    privateData.characters=privateData.characters && typeof privateData.characters === "object"
+      ? privateData.characters
+      : {};
+    const privateTarget=privateCharacter(privateData,character);
 
-    if(!Object.prototype.hasOwnProperty.call(mediaData,character)){
+    if(!Object.prototype.hasOwnProperty.call(mediaData,character) && !privateTarget){
       return res.status(404).json({error:"unknown_character",message:"Personagem não encontrado na camada de mídia."});
+    }
+
+    if(privateTarget){
+      privateTarget.profile.media={
+        ...(privateTarget.profile.media && typeof privateTarget.profile.media === "object"
+          ? privateTarget.profile.media
+          : privateMediaDefault(character)),
+        src:"",
+        alt:String(body.alt || character).slice(0,160),
+        source:"private",
+        credit:String(body.credit || "").slice(0,240)
+      };
+      privateTarget.profile.privatePortrait={
+        mime,
+        dataBase64:buffer.toString("base64")
+      };
+
+      const commit=await commitFiles(
+        [{
+          path:PRIVATE_CHARACTER_DATA_PATH,
+          content:renderPrivateCharacterData(privateData),
+          encoding:"utf-8"
+        }],
+        "media: atualizar retrato privado de " + character,
+        head
+      );
+
+      return res.status(200).json({
+        ok:true,
+        sha:commit.sha,
+        private:true,
+        status_url:statusUrl(req,commit.sha)
+      });
     }
 
     const filename = slugify(character) + "." + extension;
