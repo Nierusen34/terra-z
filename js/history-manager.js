@@ -171,10 +171,17 @@ function renderHistory(){
     if(row.is_production) badges+='<span class="history-badge production">PRODUÇÃO</span>';
     if(row.is_checkpoint) badges+='<span class="history-badge checkpoint">CHECKPOINT</span>';
 
-    var restoreDisabled=row.is_head ? ' disabled' : '';
+    var restoreBlocked=row.restore_allowed === false;
+    var restoreDisabled=(row.is_head || restoreBlocked) ? ' disabled' : '';
     var restoreTitle=row.is_head
       ? 'Este já é o estado atual'
-      : 'Criar um novo commit restaurando somente o conteúdo deste ponto';
+      : (restoreBlocked
+        ? 'Checkpoint anterior à migração de privacidade real; restauração bloqueada'
+        : 'Criar um novo commit restaurando somente o conteúdo deste ponto');
+
+    if(restoreBlocked){
+      badges+='<span class="history-badge unsafe">PRÉ-PRIVACIDADE</span>';
+    }
 
     return '<article class="history-row" data-kind="'+escapeAttr(row.kind || 'system')+'">' +
       '<div class="history-row-icon">'+meta[0]+'</div>' +
