@@ -266,8 +266,17 @@ function checkGraph(data){
   if(!githubLib.includes("restoreContentSnapshot") || !githubLib.includes("createCheckpointCommit")){
     fail("Biblioteca GitHub não contém infraestrutura de histórico/restauração.");
   }
-  if(/RESTORABLE_CONTENT_(?:PATHS|PREFIXES)[\s\S]{0,1200}(?:api\/|js\/|index\.html|terra-z\.css)/.test(publishApi)){
-    fail("Escopo de restauração de conteúdo não pode incluir código da aplicação.");
+
+  const restoreScopeMatch=publishApi.match(
+    /const RESTORABLE_CONTENT_PATHS = \[([\s\S]*?)\];\s*const RESTORABLE_CONTENT_PREFIXES = \[([\s\S]*?)\];/
+  );
+  if(!restoreScopeMatch){
+    fail("Escopo de restauração não foi encontrado na API de publicação.");
+  }else{
+    const restoreScope=restoreScopeMatch[1]+"\n"+restoreScopeMatch[2];
+    if(/["'](?:api\/|js\/|index\.html|terra-z\.css)/.test(restoreScope)){
+      fail("Escopo de restauração de conteúdo não pode incluir código da aplicação.");
+    }
   }
   pass("Histórico/restauração e deploy inteligente usam APIs existentes sem restaurar código");
 }

@@ -93,6 +93,225 @@ export async function getCommit(sha){
   return request("/repos/" + repo() + "/git/commits/" + encodeURIComponent(sha));
 }
 
+export async function listCommits(limit=40){
+  const perPage=Math.max(1,Math.min(Number(limit) || 40,100));
+  return request(
+    "/repos/" + repo() + "/commits?sha=" + encodeURIComponent(branch()) +
+    "&per_page=" + perPage
+  );
+}
+
+export async function compareCommits(baseSha,headSha){
+  const base=String(baseSha || "");
+  const head=String(headSha || "");
+  if(!/^[a-f0-9]{40}$/i.test(base) || !/^[a-f0-9]{40}$/i.test(head)){
+    return {status:"unknown",ahead_by:0,behind_by:0,total_commits:0};
+  }
+  if(base === head) return {status:"identical",ahead_by:0,behind_by:0,total_commits:0};
+
+  return request(
+    "/repos/" + repo() + "/compare/" +
+    encodeURIComponent(base) + "..." + encodeURIComponent(head)
+  );
+}
+
+async function commitTree(sha){
+  const commit=await getCommit(sha);
+  const tree=await request(
+    "/repos/" + repo() + "/git/trees/" +
+    encodeURIComponent(commit.tree.sha) + "?recursive=1"
+  );
+  return {commit,tree};
+}
+
+async function createTreeCommit(treeSha,message,parentSha){
+  return request("/repos/" + repo() + "/git/commits",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      message,
+      tree:treeSha,
+      parents:[parentSha]
+    })
+  });
+}
+
+async function moveHead(sha){
+  return request("/repos/" + repo() + "/git/refs/heads/" + refPath(branch()),{
+    method:"PATCH",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({sha,force:false})
+  });
+}
+
+async function checkedHead(expectedHeadSha){
+  const head=await getHead();
+  if(expectedHeadSha && expectedHeadSha !== head){
+    const error=new Error("O repositório mudou desde que esta tela foi carregada.");
+    error.code="head_conflict";
+    error.status=409;
+    error.currentHead=head;
+    throw error;
+  }
+  return head;
+}
+
+export async function createCheckpointCommit(message,expectedHeadSha){
+  const head=await checkedHead(expectedHeadSha);
+  const current=await getCommit(head);
+  const commit=await createTreeCommit(
+    current.tree.sha,
+    String(message || "[vercel-hook] deploy: checkpoint Terra Z").slice(0,180),
+    head
+  );
+  await moveHead(commit.sha);
+
+  return {
+    sha:commit.sha,
+    previousHead:head,
+    repository:repo(),
+    branch:branch()
+  };
+}
+
+export async function restoreContentSnapshot(targetSha,expectedHeadSha,options={}){
+  const target=String(targetSha || "");
+  if(!/^[a-f0-9]{40}$/i.test(target)){
+    const error=new Error("Checkpoint de restauração inválido.");
+    error.code="invalid_restore_sha";
+    error.status=400;
+    throw error;
+  }
+
+  const head=await checkedHead(expectedHeadSha);
+  if(target === head){
+    const error=new Error("Este já é o estado atual do repositório.");
+    error.code="snapshot_already_current";
+    error.status=409;
+    throw error;
+  }
+
+  const exactPaths=new Set(Array.isArray(options.paths) ? options.paths : []);
+  const prefixes=(Array.isArray(options.prefixes) ? options.prefixes : [])
+    .map(value => String(value || ""))
+    .filter(Boolean);
+  const managed=path => exactPaths.has(path) || prefixes.some(prefix => path.startsWith(prefix));
+
+  const [currentInfo,targetInfo]=await Promise.all([
+    commitTree(head),
+    commitTree(target)
+  ]);
+
+  const currentEntries=(currentInfo.tree.tree || []).filter(item =>
+    item && item.type === "blob" && managed(String(item.path || ""))
+  );
+  const targetEntries=(targetInfo.tree.tree || []).filter(item =>
+    item && item.type === "blob" && managed(String(item.path || ""))
+  );
+
+  const currentMap=new Map(currentEntries.map(item => [item.path,item]));
+  const targetMap=new Map(targetEntries.map(item => [item.path,item]));
+
+  const missingRequired=[...exactPaths].filter(path => !targetMap.has(path));
+  if(missingRequired.length){
+    const error=new Error("Este ponto é antigo demais para uma restauração segura de conteúdo.");
+    error.code="incompatible_snapshot";
+    error.status=409;
+    error.missingPaths=missingRequired;
+    throw error;
+  }
+
+  const allPaths=new Set([...currentMap.keys(),...targetMap.keys()]);
+  const entries=[];
+  const changed=[];
+  const deleted=[];
+
+  [...allPaths].sort().forEach(path => {
+    const current=currentMap.get(path);
+    const desired=targetMap.get(path);
+
+    if(desired){
+      if(current && current.sha === desired.sha && current.mode === desired.mode) return;
+      entries.push({
+        path,
+        mode:desired.mode || "100644",
+        type:"blob",
+        sha:desired.sha
+      });
+      changed.push(path);
+      return;
+    }
+
+    if(current && prefixes.some(prefix => path.startsWith(prefix))){
+      entries.push({
+        path,
+        mode:current.mode || "100644",
+        type:"blob",
+        sha:null
+      });
+      deleted.push(path);
+    }
+  });
+
+  if(!entries.length){
+    const error=new Error("O conteúdo gerenciado já corresponde a este checkpoint.");
+    error.code="snapshot_already_current";
+    error.status=409;
+    throw error;
+  }
+
+  const tree=await request("/repos/" + repo() + "/git/trees",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      base_tree:currentInfo.commit.tree.sha,
+      tree:entries
+    })
+  });
+
+  const message=String(
+    options.message || ("restore: restaurar conteúdo de " + target.slice(0,7))
+  ).slice(0,180);
+
+  const commit=await createTreeCommit(tree.sha,message,head);
+  await moveHead(commit.sha);
+
+  return {
+    sha:commit.sha,
+    previousHead:head,
+    sourceSha:target,
+    changedPaths:changed,
+    deletedPaths:deleted,
+    repository:repo(),
+    branch:branch()
+  };
+}
+
+export async function workflowRunStatus(sha,workflowName){
+  const value=String(sha || "");
+  if(!/^[a-f0-9]{40}$/i.test(value)) return {status:"pending"};
+
+  const data=await request(
+    "/repos/" + repo() + "/actions/runs?head_sha=" +
+    encodeURIComponent(value) + "&per_page=30"
+  );
+
+  const needle=String(workflowName || "").toLowerCase();
+  const run=(data.workflow_runs || []).find(item =>
+    String(item.name || "").toLowerCase().includes(needle)
+  );
+
+  if(!run) return {status:"pending"};
+  if(run.status !== "completed") return {status:"pending",run_id:run.id};
+  if(run.conclusion === "success") return {status:"published",run_id:run.id};
+  if(run.conclusion === "skipped") return {status:"skipped",run_id:run.id};
+  return {
+    status:"failed",
+    run_id:run.id,
+    conclusion:run.conclusion
+  };
+}
+
 export async function readTextFile(path){
   const data = await request("/repos/" + repo() + "/contents/" + path.split("/").map(encodeURIComponent).join("/") + "?ref=" + encodeURIComponent(branch()));
   if(!data || data.type !== "file") throw new Error("Arquivo não encontrado: " + path);
