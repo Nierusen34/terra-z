@@ -29,6 +29,10 @@ const RESTORABLE_CONTENT_PREFIXES = [
   "images/characters/"
 ];
 
+// Primeiro commit em que os personagens privados já haviam sido removidos
+// dos arquivos públicos e migrados para o cofre criptografado.
+const SECURE_RESTORE_BASELINE_SHA = "41a39546a3e838da2d0e5f0350cc74b018066d13";
+
 function shortSha(value){
   return String(value || "").slice(0,7);
 }
@@ -57,7 +61,7 @@ function commitKind(message){
   return "system";
 }
 
-function historyRow(item,productionSha,headSha){
+function historyRow(item,productionSha,headSha,restoreAllowed){
   const commit=item && item.commit || {};
   const author=commit.author || {};
   const message=String(commit.message || "").split("\n")[0].slice(0,180);
@@ -71,7 +75,8 @@ function historyRow(item,productionSha,headSha){
     author:String(author.name || ""),
     is_head:String(item.sha || "") === headSha,
     is_production:String(item.sha || "") === productionSha,
-    is_checkpoint:/\[vercel-hook\]/i.test(message)
+    is_checkpoint:/\[vercel-hook\]/i.test(message),
+    restore_allowed:restoreAllowed !== false
   };
 }
 
@@ -245,6 +250,11 @@ export default async function handler(req,res){
         }catch{}
       }
 
+      const commitList=Array.isArray(commits) ? commits : [];
+      const baselineIndex=commitList.findIndex(item =>
+        String(item && item.sha || "") === SECURE_RESTORE_BASELINE_SHA
+      );
+
       res.setHeader("Cache-Control","no-store, max-age=0");
       return res.status(200).json({
         ok:true,
@@ -261,10 +271,16 @@ export default async function handler(req,res){
         capabilities:{
           restore_content:true,
           deploy_checkpoint:true,
-          restore_scope:"managed-content-v1"
+          restore_scope:"managed-content-v1",
+          secure_restore_baseline:SECURE_RESTORE_BASELINE_SHA
         },
-        history:(Array.isArray(commits) ? commits : []).map(item =>
-          historyRow(item,productionSha,head)
+        history:commitList.map((item,index) =>
+          historyRow(
+            item,
+            productionSha,
+            head,
+            baselineIndex === -1 || index <= baselineIndex
+          )
         )
       });
     }
@@ -281,6 +297,23 @@ export default async function handler(req,res){
 
       const targetSha=String(body.target_sha || "");
       const expectedHead=String(body.expected_head || "");
+
+      if(targetSha !== SECURE_RESTORE_BASELINE_SHA){
+        const baselineCompare=await compareCommits(
+          SECURE_RESTORE_BASELINE_SHA,
+          targetSha
+        ).catch(()=>null);
+
+        if(!baselineCompare ||
+           !["ahead","identical"].includes(String(baselineCompare.status || ""))){
+          return res.status(409).json({
+            error:"unsafe_snapshot",
+            message:"Este checkpoint é anterior à migração de privacidade real e não pode ser restaurado com segurança.",
+            secure_baseline:SECURE_RESTORE_BASELINE_SHA
+          });
+        }
+      }
+
       const restored=await restoreContentSnapshot(targetSha,expectedHead,{
         paths:RESTORABLE_CONTENT_PATHS,
         prefixes:RESTORABLE_CONTENT_PREFIXES,
