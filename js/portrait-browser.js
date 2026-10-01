@@ -532,6 +532,7 @@ function confirmUseImage(page,file,imageUrl){
           provider:'external-url',
           imageUrl:imageUrl,
           pageUrl:pageUrl(page),
+          fallbackWikiTitle:page.title,
           sourceLabel:'DC Database · Fandom · ' + page.title
         });
       });
@@ -805,10 +806,16 @@ function applyGoogleImage(){
     'Usar esta imagem como retrato de ' + currentCharacter + '? A ficha narrativa não será alterada.',
     function(){
       withLocalPortraitRemoved(function(){
+        var currentAuto=(mediaItem(currentCharacter).auto || {});
+        var fallbackWikiTitle=currentAuto.provider === 'dc-fandom'
+          ? (currentAuto.wikiTitle || '')
+          : (currentAuto.fallbackWikiTitle || '');
+
         saveSource({
           provider:'external-url',
           imageUrl:imageUrl,
           pageUrl:pageUrl,
+          fallbackWikiTitle:fallbackWikiTitle,
           sourceLabel:sourceLabel
         });
       });

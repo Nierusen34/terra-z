@@ -2270,3 +2270,45 @@ html[data-spoiler-mode="safe"] [data-visibility="master"]{display:none!important
   #sub-tz-personagens[data-card-size="large"]>.card-grid{grid-template-columns:1fr}
 }
 @media(max-width:480px){#sub-tz-personagens[data-card-size="compact"]>.card-grid{grid-template-columns:1fr}}
+
+
+/* ===== AJUSTE MOBILE · MENU FLUTUANTE E SWIPE ===== */
+@media(max-width:900px){
+  #menuBtn{
+    width:44px!important;
+    height:44px!important;
+    right:max(8px,env(safe-area-inset-right))!important;
+    bottom:calc(70px + env(safe-area-inset-bottom))!important;
+    font-size:18px!important;
+    opacity:.94;
+    box-shadow:0 5px 16px rgba(0,0,0,.28)!important;
+  }
+  #backTop{
+    width:44px!important;
+    height:44px!important;
+    right:max(8px,env(safe-area-inset-right))!important;
+    bottom:calc(16px + env(safe-area-inset-bottom))!important;
+    font-size:18px!important;
+    opacity:.92;
+    box-shadow:0 5px 16px rgba(0,0,0,.25)!important;
+  }
+  .sidebar{will-change:transform;overscroll-behavior:contain}
+  #drawerOverlay{touch-action:none}
+  .portrait-fallback-source::after{
+    content:'↻';
+    position:absolute;
+    right:3px;
+    bottom:3px;
+    width:16px;
+    height:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    background:rgba(0,0,0,.65);
+    color:#fff;
+    font-family:'Share Tech Mono',monospace;
+    font-size:9px;
+    pointer-events:none;
+  }
+}

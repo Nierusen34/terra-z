@@ -115,14 +115,26 @@ async function directFandom(config){
 
 async function fetchAutomatic(name,config){
   if(config && config.provider === 'external-url'){
+    var externalBackend = window.TerraZApp && window.TerraZApp.backend;
+    var proxiedUrl = config.imageUrl;
+
+    if(externalBackend &&
+       externalBackend.isConfigured &&
+       externalBackend.isConfigured() &&
+       externalBackend.endpoint){
+      proxiedUrl = externalBackend.endpoint('/api/media?external=1&name=' + encodeURIComponent(name));
+    }
+
     return {
       ok:true,
       found:true,
       provider:'external-url',
       source:automaticSourceLabel(config),
       title:config.sourceLabel || name,
-      imageUrl:config.imageUrl,
-      fullImageUrl:config.imageUrl,
+      imageUrl:proxiedUrl,
+      fullImageUrl:proxiedUrl,
+      originalImageUrl:config.imageUrl,
+      fallbackWikiTitle:config.fallbackWikiTitle || '',
       pageUrl:config.pageUrl || ''
     };
   }
@@ -190,6 +202,8 @@ function resolveAutomatic(name){
             title:result.title || config.wikiTitle || config.sourceLabel || name,
             imageUrl:result.imageUrl,
             fullImageUrl:result.fullImageUrl || result.imageUrl,
+            originalImageUrl:result.originalImageUrl || config.imageUrl || '',
+            fallbackWikiTitle:result.fallbackWikiTitle || config.fallbackWikiTitle || '',
             pageUrl:result.pageUrl || config.pageUrl || ''
           }
         : {found:false,provider:'dc-fandom'};
@@ -276,6 +290,7 @@ function replaceAutomaticPortrait(wrapper,result){
       ? 'Clique para ampliar o retrato'
       : automaticTitle(automaticConfig(item));
     wrapper.replaceWith(next);
+    bindPortraitErrorFallbacks(next);
     if(window.TerraZApp.media) window.TerraZApp.media.hydrate(next);
   }
 
@@ -339,8 +354,100 @@ function observeAutomaticPortraits(root){
   });
 }
 
+function replaceWithPortraitPlaceholder(wrapper,name,size){
+  if(!wrapper || !wrapper.isConnected) return;
+
+  var holder=document.createElement('div');
+  holder.innerHTML =
+    '<div class="character-portrait ' + (size === 'large' ? 'large' : 'small') +
+    ' placeholder portrait-load-failed" data-character="' + escapeAttr(name) +
+    '" aria-label="Retrato temporariamente indisponível para ' + escapeAttr(name) + '">' +
+    '<span>' + escapeHtml(initials(name)) + '</span></div>';
+
+  var next=holder.firstElementChild;
+  if(next){
+    next.title='Retrato temporariamente indisponível';
+    wrapper.replaceWith(next);
+  }
+}
+
+function loadPortraitFallback(wrapper,img){
+  if(!wrapper || !img || img.getAttribute('data-fallback-running') === '1') return;
+
+  var name=wrapper.getAttribute('data-character') || '';
+  var item=media[name] || {};
+  var config=automaticConfig(item);
+  var size=wrapper.classList.contains('large') ? 'large' : 'small';
+
+  if(!name || !config || config.provider !== 'external-url'){
+    replaceWithPortraitPlaceholder(wrapper,name,size);
+    return;
+  }
+
+  var original=config.imageUrl || '';
+  var current=img.currentSrc || img.src || img.getAttribute('data-src') || '';
+
+  if(original && current !== original && img.getAttribute('data-original-retried') !== '1'){
+    img.setAttribute('data-original-retried','1');
+    img.setAttribute('data-fallback-running','1');
+    img.src=original;
+    img.setAttribute('data-full-src',original);
+    window.setTimeout(function(){ img.removeAttribute('data-fallback-running'); },0);
+    return;
+  }
+
+  var fallbackTitle=config.fallbackWikiTitle || '';
+  if(!fallbackTitle){
+    replaceWithPortraitPlaceholder(wrapper,name,size);
+    return;
+  }
+
+  img.setAttribute('data-fallback-running','1');
+
+  directFandom({wikiTitle:fallbackTitle}).then(function(result){
+    if(!wrapper.isConnected) return;
+
+    if(result && result.found && result.imageUrl){
+      img.src=result.imageUrl;
+      img.setAttribute('data-src',result.imageUrl);
+      img.setAttribute('data-full-src',result.fullImageUrl || result.imageUrl);
+      img.setAttribute('data-fallback-source','dc-fandom');
+      img.removeAttribute('data-fallback-running');
+      wrapper.classList.add('portrait-fallback-source');
+      wrapper.title=size === 'large'
+        ? 'Clique para ampliar o retrato'
+        : 'Fonte externa indisponível · fallback DC Database';
+      return;
+    }
+
+    replaceWithPortraitPlaceholder(wrapper,name,size);
+  }).catch(function(){
+    replaceWithPortraitPlaceholder(wrapper,name,size);
+  });
+}
+
+function bindPortraitErrorFallbacks(root){
+  root=root || document;
+  var images=[];
+
+  if(root.matches && root.matches('img') && root.closest && root.closest('.character-portrait.auto-source')) images.push(root);
+  if(root.querySelectorAll){
+    root.querySelectorAll('.character-portrait.auto-source img').forEach(function(img){ images.push(img); });
+  }
+
+  images.forEach(function(img){
+    if(img.getAttribute('data-portrait-error-bound') === '1') return;
+    img.setAttribute('data-portrait-error-bound','1');
+    img.addEventListener('error',function(){
+      var wrapper=img.closest('.character-portrait');
+      if(wrapper) loadPortraitFallback(wrapper,img);
+    });
+  });
+}
+
 function hydratePortraits(root){
   root = root || document;
+  bindPortraitErrorFallbacks(root);
   if(window.TerraZApp.media) window.TerraZApp.media.hydrate(root);
   observeAutomaticPortraits(root);
 }

@@ -67,11 +67,13 @@ function normalizeAutoSource(body){
 
     const pageUrl=safeHttpsUrl(body.pageUrl);
     const sourceLabel=safeDcText(body.sourceLabel,160) || "Fonte externa";
+    const fallbackWikiTitle=cleanDcTitle(body.fallbackWikiTitle);
 
     return {
       provider:"external-url",
       imageUrl,
       ...(pageUrl ? {pageUrl} : {}),
+      ...(fallbackWikiTitle ? {fallbackWikiTitle} : {}),
       sourceLabel
     };
   }
@@ -242,6 +244,58 @@ async function handleDcPortrait(req,res){
   }
 }
 
+async function handleExternalPortrait(req,res){
+  const name=cleanDcTitle((req.query || {}).name);
+
+  if(!name){
+    return res.status(400).json({error:"missing_character",message:"Personagem não informado."});
+  }
+
+  try{
+    const mediaFile=await readTextFile("data/character-media.js");
+    const mediaData=parseDataAssignment(mediaFile.content,"characterMedia");
+    const item=mediaData[name] && typeof mediaData[name] === "object" ? mediaData[name] : {};
+    const auto=item.auto && typeof item.auto === "object" ? item.auto : {};
+    const imageUrl=auto.provider === "external-url" ? safeHttpsUrl(auto.imageUrl,1600) : "";
+
+    if(!imageUrl){
+      return res.status(404).json({
+        error:"external_portrait_not_found",
+        message:"Este personagem não possui retrato externo configurado."
+      });
+    }
+
+    const response=await fetch(imageUrl,{
+      redirect:"follow",
+      headers:{
+        "Accept":"image/avif,image/webp,image/apng,image/jpeg,image/png,image/*,*/*;q=0.8",
+        "User-Agent":"Mozilla/5.0 (compatible; Terra-Z/1.0; +https://terra-z.vercel.app)"
+      },
+      signal:AbortSignal.timeout(12000)
+    });
+
+    if(!response.ok) throw new Error("Fonte externa respondeu HTTP " + response.status);
+
+    const contentType=String(response.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
+    if(!contentType.startsWith("image/")) throw new Error("A fonte externa não retornou uma imagem.");
+
+    const buffer=Buffer.from(await response.arrayBuffer());
+    if(!buffer.length || buffer.length > 8 * 1024 * 1024) throw new Error("Imagem externa inválida ou grande demais.");
+
+    res.setHeader("Content-Type",contentType);
+    res.setHeader("Cache-Control","public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800");
+    res.setHeader("X-Content-Type-Options","nosniff");
+    return res.status(200).send(buffer);
+  }catch(error){
+    console.error("Terra Z external portrait proxy:",name,error);
+    res.setHeader("Cache-Control","no-store");
+    return res.status(502).json({
+      error:"external_source_unavailable",
+      message:"A fonte externa do retrato está temporariamente indisponível."
+    });
+  }
+}
+
 function slugify(value){
   return String(value)
     .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
@@ -270,6 +324,10 @@ export default async function handler(req,res){
   if(req.method === "GET"){
     if(String((req.query || {}).dc || "") === "1"){
       return handleDcPortrait(req,res);
+    }
+
+    if(String((req.query || {}).external || "") === "1"){
+      return handleExternalPortrait(req,res);
     }
 
     const path = String((req.query || {}).path || "");

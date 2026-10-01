@@ -62,6 +62,7 @@ window.TerraZData.characterMedia = {
     "auto": {
       "provider": "external-url",
       "imageUrl": "https://trello.com/1/cards/6a9b653884b277f7fdcb68b7/attachments/6a9b6587408796cd2bc62ac0/download/a7f7774264b01ebf51e1f67de5a7ab4c.jpg",
+      "fallbackWikiTitle": "J'onn J'onzz (Prime Earth)",
       "sourceLabel": "Google Imagens · imagem selecionada"
     }
   },
