@@ -213,7 +213,8 @@ function normalizeCharacterMeta(value,taxonomy,creating){
     featured:input.featured === true,
     nuclei:[...new Set(nuclei)],
     type,
-    status
+    status,
+    visibility:input.visibility === "private" ? "private" : "public"
   };
 }
 
