@@ -39,7 +39,8 @@ function fill(session){
   el('sessionCharacters').value = Array.isArray(session.characters) ? session.characters.join(', ') : '';
   el('sessionLocations').value = Array.isArray(session.locations) ? session.locations.join(', ') : '';
   el('sessionConsequences').value = Array.isArray(session.consequences) ? session.consequences.join('\n') : '';
-  el('sessionVisibility').value = session.visibility || 'public';
+  var visibility=session.visibility === 'rumor' ? 'spoiler' : (session.visibility || 'public');
+  el('sessionVisibility').value = visibility;
   var title = el('sessionEditorTitle');
   if(title) title.textContent = currentId ? '📓 Editar sessão' : '📓 Registrar sessão';
   var saveBtn = el('sessionSaveBtn');

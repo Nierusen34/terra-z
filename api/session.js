@@ -4,7 +4,7 @@ import { getHead, readTextFile, commitFiles } from "./_lib/github.js";
 import { parseDataAssignment, renderSessions } from "./_lib/data-files.js";
 import { PRIVATE_SESSIONS_PATH, readPrivateSessions, renderPrivateSessions } from "./_lib/private-sessions.js";
 
-const VISIBILITY = new Set(["public","rumor","master"]);
+const VISIBILITY = new Set(["public","spoiler","master"]);
 
 function text(value,max=2000){
   return String(value || "").replace(/[<>]/g,"").trim().slice(0,max);
@@ -115,7 +115,9 @@ export default async function handler(req,res){
       characters:list(input.characters),
       locations:list(input.locations),
       consequences:list(input.consequences,40,500),
-      visibility:VISIBILITY.has(input.visibility) ? input.visibility : "public",
+      visibility:(input.visibility === "rumor"
+        ? "spoiler"
+        : (VISIBILITY.has(input.visibility) ? input.visibility : "public")),
       links:list(input.links,20,500)
     };
 

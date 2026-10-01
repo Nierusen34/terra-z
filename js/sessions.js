@@ -36,10 +36,15 @@ function characterLink(name){
   return '<button class="session-chip session-character" data-character="' + escapeAttr(name) + '" data-character-slug="' + escapeAttr(slug) + '">' + escapeHtml(name) + '</button>';
 }
 
+function normalizeVisibility(level){
+  if(level === 'rumor') return 'spoiler';
+  return level === 'master' || level === 'spoiler' ? level : 'public';
+}
 function visibilityBadge(level){
+  level=normalizeVisibility(level);
   if(level === 'master') return '<span class="session-visibility master">🔒 Mestre</span>';
-  if(level === 'rumor') return '<span class="session-visibility rumor">◈ Rumor</span>';
-  return '<span class="session-visibility public">Público</span>';
+  if(level === 'spoiler') return '<span class="session-visibility spoiler">⚠️ Spoiler</span>';
+  return '<span class="session-visibility public">🌐 Público</span>';
 }
 
 function render(){
@@ -64,7 +69,7 @@ function render(){
 
   var html = '';
   ordered.forEach(function(session){
-    var visibility = session.visibility || 'public';
+    var visibility = normalizeVisibility(session.visibility);
     html += '<article class="session-entry session-' + escapeAttr(visibility) + '" data-session-id="' + escapeAttr(session.id || '') + '" data-visibility="' + escapeAttr(visibility) + '">';
     html += '<div class="session-meta">';
     if(session.realDate) html += '<span>' + escapeHtml(session.realDate) + '</span>';
@@ -146,6 +151,7 @@ function removeSession(id){
 function upsertSession(item){
   if(!item || !item.id) return;
 
+  item.visibility=normalizeVisibility(item.visibility);
   if(item.visibility === 'master'){
     var privateIndex = privateSessions.findIndex(function(row){ return row && row.id === item.id; });
     if(privateIndex >= 0) privateSessions[privateIndex] = item;
