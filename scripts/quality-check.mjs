@@ -245,6 +245,15 @@ function checkGraph(data){
     if(level==="master"||level==="private") fail("Relação Mestre vazou para o grafo público: "+String(edge.from)+" -> "+String(edge.to));
   }
   pass(nodes.length+" nós e "+edges.length+" relações validados");
+
+  const visibilityRuntime=read("js/visibility.js");
+  if(!/var\s+mode\s*=\s*['"]safe['"]/.test(visibilityRuntime)){
+    fail("Visibilidade deve iniciar em Modo Jogador (safe) por padrão.");
+  }
+  if(/localStorage\.setItem\([^\n]*spoiler_mode/.test(visibilityRuntime)){
+    fail("Preferência de exibir spoilers não deve persistir entre recarregamentos.");
+  }
+  pass("Modo Jogador é o padrão seguro de inicialização");
 }
 
 function checkEncryptedFiles(){

@@ -2,8 +2,15 @@
 "use strict";
 
 window.TerraZApp = window.TerraZApp || {};
-var STORAGE_KEY='terraZ_spoiler_mode';
-var mode=localStorage.getItem(STORAGE_KEY) || 'full';
+var LEGACY_STORAGE_KEY='terraZ_spoiler_mode';
+
+// Segurança por padrão: toda nova abertura/recarregamento começa em Modo Jogador.
+// A escolha de exibir spoilers vale apenas para a página atualmente aberta.
+var mode='safe';
+
+try {
+  localStorage.removeItem(LEGACY_STORAGE_KEY);
+} catch(e){}
 
 function backend(){ return window.TerraZApp && window.TerraZApp.backend; }
 function authenticated(){
@@ -70,7 +77,6 @@ function apply(options){
 }
 function toggle(){
   mode=mode === 'safe' ? 'full' : 'safe';
-  localStorage.setItem(STORAGE_KEY,mode);
   var hiddenCount=apply({closeSensitive:true});
   var core=window.TerraZCore;
   if(core && core.showToast){
