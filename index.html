@@ -688,6 +688,12 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2
     <button id="characterMoreFiltersBtn" class="character-filter-action" type="button" aria-expanded="false">⚙️ Mais filtros</button>
     <button id="addCharacterBtn" class="character-add-btn" type="button" disabled>＋ Novo personagem</button>
     <span id="characterCount"></span>
+    <div id="characterCardSizeControl" class="character-card-size-control" aria-label="Tamanho dos cards">
+      <span class="character-card-size-label">Cards</span>
+      <button type="button" data-character-size="compact" title="Cards compactos" aria-label="Cards compactos">▦</button>
+      <button type="button" data-character-size="standard" title="Cards padrão" aria-label="Cards padrão">▦</button>
+      <button type="button" data-character-size="large" title="Cards ampliados" aria-label="Cards ampliados">▦</button>
+    </div>
   </div>
   <div id="characterNucleiFilters" class="character-nuclei" aria-label="Filtrar personagens por núcleo"></div>
   <div id="characterAdvancedFilters" class="character-advanced-filters" hidden>
@@ -929,7 +935,9 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <label>Tipo<select id="characterEditorType"></select></label>
 <label>Status<select id="characterEditorStatusMeta"></select></label>
 <label class="character-featured-toggle"><input id="characterEditorFeatured" type="checkbox"> <span>Personagem principal</span></label>
+<label class="character-private-toggle"><input id="characterEditorPrivate" type="checkbox"> <span>🔒 Somente editor</span></label>
 </div>
+<p class="character-editor-note character-private-note">Quando ativo, o card e a ficha ficam ocultos para visitantes/jogadores sem sessão de editor.</p>
 <div class="character-editor-nuclei">
 <div class="character-editor-note">Núcleos narrativos — um personagem pode pertencer a vários.</div>
 <div id="characterEditorNuclei"></div>
