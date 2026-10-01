@@ -10,7 +10,7 @@ var escapeHtml = core.escapeHtml;
 var escapeAttr = core.escapeAttr;
 var media = (window.TerraZData && window.TerraZData.characterMedia) || {};
 
-var AUTO_CACHE_PREFIX = 'terraZ_dc_portrait_v1:';
+var AUTO_CACHE_PREFIX = 'terraZ_dc_portrait_v2:';
 var AUTO_CACHE_MS = 24 * 60 * 60 * 1000;
 var autoResolved = Object.create(null);
 var autoResolvedKeys = Object.create(null);
