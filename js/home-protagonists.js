@@ -27,7 +27,7 @@ function isEligible(name, meta){
   var characters = window.TerraZApp && window.TerraZApp.characters;
   if(!characters || !characters.get || !characters.get(name)) return false;
   if(characters.isDeleted && characters.isDeleted(name)) return false;
-
+  if(characters.canView && !characters.canView(name)) return false;
   return true;
 }
 
@@ -117,6 +117,9 @@ if(allCharactersBtn){
 
 document.addEventListener('terra-z:characters-rendered',render);
 document.addEventListener('terra-z:runtime-data-loaded',function(){
+  window.setTimeout(render,0);
+});
+document.addEventListener('terra-z:auth-changed',function(){
   window.setTimeout(render,0);
 });
 
