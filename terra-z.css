@@ -2457,3 +2457,29 @@ html[data-spoiler-mode="safe"] [data-visibility="master"]{display:none!important
   .visibility-manager-row{align-items:flex-start}
   .visibility-manager-footer{padding-left:16px;padding-right:16px;flex-direction:column}
 }
+
+
+/* ===== REVISÃO VISUAL · CENTRAL DE VISIBILIDADE ===== */
+.visibility-manager-head{position:sticky;top:0;z-index:3}
+.visibility-level-guide>div[data-level="public"]{border-top:3px solid #5a9b68}
+.visibility-level-guide>div[data-level="spoiler"]{border-top:3px solid #bd8a28}
+.visibility-level-guide>div[data-level="master"]{border-top:3px solid #b44242}
+.visibility-manager-summary button[data-visibility-manager-level="public"].active{border-color:#5a9b68;box-shadow:inset 0 -2px 0 #5a9b68}
+.visibility-manager-summary button[data-visibility-manager-level="spoiler"].active{border-color:#bd8a28;box-shadow:inset 0 -2px 0 #bd8a28}
+.visibility-manager-summary button[data-visibility-manager-level="master"].active{border-color:#b44242;box-shadow:inset 0 -2px 0 #b44242}
+.visibility-manager-backend{margin:8px 22px 4px;padding:9px 11px;border:1px solid var(--line);background:var(--paper);font-family:'Share Tech Mono',monospace;font-size:8px;line-height:1.55}
+.visibility-manager-backend.ready{border-left:4px solid #5a9b68}
+.visibility-manager-backend.staging{border-left:4px solid #bd8a28}
+.visibility-manager-backend.warning{border-left:4px solid #b44242}
+.visibility-manager-backend.checking{opacity:.76}
+.visibility-manager-row-main strong,.visibility-manager-row-main small{overflow-wrap:anywhere}
+@media(max-width:520px){
+  .visibility-manager-head{padding:16px}
+  .visibility-manager-head h3{font-size:19px;line-height:1.05}
+  .visibility-manager-eyebrow{font-size:8px;letter-spacing:1.3px}
+  .visibility-manager-backend{margin-left:16px;margin-right:16px}
+  .visibility-manager-row{flex-direction:column;align-items:stretch}
+  .visibility-manager-row>button{width:100%;min-height:36px}
+  .visibility-manager-row-main{grid-template-columns:auto 1fr}
+  .visibility-manager-level,.visibility-manager-type{font-size:7px}
+}

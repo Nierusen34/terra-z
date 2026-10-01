@@ -21,10 +21,27 @@ function normalizeLevel(value){
   return 'public';
 }
 
+function levelRank(level){
+  level=normalizeLevel(level);
+  return level === 'master' ? 2 : (level === 'spoiler' ? 1 : 0);
+}
+
+function effectiveLevel(){
+  var levels=Array.prototype.slice.call(arguments).map(normalizeLevel);
+  return levels.sort(function(a,b){ return levelRank(b)-levelRank(a); })[0] || 'public';
+}
+
 function levelLabel(level){
   if(level === 'master') return '🔒 Mestre';
   if(level === 'spoiler') return '⚠️ Spoiler';
   return '🌐 Público';
+}
+
+function inheritedDetail(direct,effective,source){
+  direct=normalizeLevel(direct);
+  effective=normalizeLevel(effective);
+  if(direct === effective) return '';
+  return ' · herda '+levelLabel(effective).replace(/^[^ ]+\s/,'')+' de '+source;
 }
 
 function typeLabel(type){
@@ -51,19 +68,27 @@ function collect(){
     rows.push({
       type:'character',
       level:characterLevel,
+      directLevel:characterLevel,
       title:name,
-      detail:characterLevel === 'master' ? 'Ficha inteira protegida pelo cofre.' : 'Visibilidade do card e da ficha.',
+      detail:characterLevel === 'master'
+        ? 'Ficha inteira protegida pelo cofre criptografado.'
+        : (characterLevel === 'spoiler'
+          ? 'Card e ficha desaparecem no Modo Jogador.'
+          : 'Card e ficha visíveis para todos.'),
       entity:name,
       action:'character'
     });
 
     var ficha=characters && characters.get ? characters.get(name) : null;
     (ficha && Array.isArray(ficha.sections) ? ficha.sections : []).forEach(function(section,index){
+      var directSectionLevel=normalizeLevel(section && section.visibility);
+      var sectionLevel=effectiveLevel(characterLevel,directSectionLevel);
       rows.push({
         type:'section',
-        level:normalizeLevel(section && section.visibility),
+        level:sectionLevel,
+        directLevel:directSectionLevel,
         title:(section && section.title) || ('Seção '+(index+1)),
-        detail:'Ficha de '+name,
+        detail:'Ficha de '+name+inheritedDetail(directSectionLevel,sectionLevel,'personagem'),
         entity:name,
         action:'character'
       });
@@ -87,12 +112,15 @@ function collect(){
   var graph=app().graph;
   var graphData=graph && graph.getData ? graph.getData() : {nodes:[],edges:[]};
   var nodeNames={};
+  var nodeLevels={};
   (graphData.nodes || []).forEach(function(node){
     if(!node) return;
     nodeNames[node.id]=node.label || node.id;
+    nodeLevels[node.id]=normalizeLevel(node.visibility);
     rows.push({
       type:'graph-node',
-      level:normalizeLevel(node.visibility),
+      level:nodeLevels[node.id],
+      directLevel:nodeLevels[node.id],
       title:node.label || node.id,
       detail:'Nó '+node.id,
       entity:node.id,
@@ -101,11 +129,15 @@ function collect(){
   });
   (graphData.edges || []).forEach(function(edge){
     if(!edge) return;
+    var directEdgeLevel=normalizeLevel(edge.visibility);
+    var edgeLevel=effectiveLevel(directEdgeLevel,nodeLevels[edge.from],nodeLevels[edge.to]);
+    var inherited=edgeLevel !== directEdgeLevel ? ' · acesso elevado pelo nó conectado' : '';
     rows.push({
       type:'graph-edge',
-      level:normalizeLevel(edge.visibility),
+      level:edgeLevel,
+      directLevel:directEdgeLevel,
       title:(nodeNames[edge.from] || edge.from)+' ↔ '+(nodeNames[edge.to] || edge.to),
-      detail:edge.label || edge.type || 'Relação',
+      detail:(edge.label || edge.type || 'Relação')+inherited,
       entity:'',
       action:'graph'
     });
@@ -167,8 +199,10 @@ function render(){
   }
 
   if(el('visibilityManagerStatus')){
+    var visibleCount=rows.length;
     el('visibilityManagerStatus').textContent=
-      total.public+' público(s) · '+total.spoiler+' spoiler(s) · '+total.master+' Mestre';
+      'Exibindo '+visibleCount+' de '+total.all+' itens · '+
+      total.public+' Públicos · '+total.spoiler+' Spoilers · '+total.master+' Mestre';
   }
 
   root.querySelectorAll('[data-visibility-action]').forEach(function(button){
@@ -195,6 +229,42 @@ function setLevel(level){
   render();
 }
 
+async function refreshBackendNote(){
+  var note=el('visibilityManagerBackendNote');
+  if(!note) return;
+
+  var backend=app().backend;
+  if(!backend || !backend.health){
+    note.className='visibility-manager-backend warning';
+    note.textContent='⚠️ Backend não disponível para verificar as proteções Mestre.';
+    return;
+  }
+
+  note.className='visibility-manager-backend checking';
+  note.textContent='↻ Verificando compatibilidade do backend seguro…';
+
+  try{
+    var health=await backend.health();
+    var ready=!!(
+      health &&
+      health.visibility_system === 'public-spoiler-master' &&
+      health.secure_master_sections === true &&
+      health.secure_master_relations === true
+    );
+
+    if(ready){
+      note.className='visibility-manager-backend ready';
+      note.textContent='✓ Backend compatível: níveis Mestre podem ser gravados no cofre criptografado.';
+    }else{
+      note.className='visibility-manager-backend staging';
+      note.textContent='STAGING · Revisão disponível, mas novos níveis Spoiler/Mestre continuam bloqueados para salvamento até o próximo deploy consolidado da Vercel.';
+    }
+  }catch(error){
+    note.className='visibility-manager-backend warning';
+    note.textContent='⚠️ Não foi possível confirmar a capacidade do backend. O Terra Z mantém o salvamento avançado bloqueado por segurança.';
+  }
+}
+
 function open(){
   var panel=el('visibilityManagerPanel');
   if(!panel) return;
@@ -207,6 +277,7 @@ function open(){
   panel.classList.add('show');
   document.body.style.overflow='hidden';
   render();
+  refreshBackendNote();
 }
 
 function close(){
@@ -227,6 +298,10 @@ function setup(){
 
   var panel=el('visibilityManagerPanel');
   if(panel) panel.addEventListener('click',function(event){ if(event.target === panel) close(); });
+
+  document.addEventListener('keydown',function(event){
+    if(event.key === 'Escape' && panel && panel.classList.contains('show')) close();
+  });
 
   ['terra-z:runtime-data-loaded','terra-z:private-content-loaded','terra-z:private-content-cleared','terra-z:visibility-changed'].forEach(function(eventName){
     document.addEventListener(eventName,function(){
