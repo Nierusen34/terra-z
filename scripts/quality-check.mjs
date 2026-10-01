@@ -130,8 +130,23 @@ function checkCharacterData(data){
     if(!meta[name]) fail("Personagem sem taxonomia: "+name);
     if(!media[name]) fail("Personagem sem registro de mídia: "+name);
 
+    const characterMeta=meta[name] || {};
+    const visibility=String(characterMeta.visibility || "public");
+    if(!["public","spoiler"].includes(visibility)){
+      fail("Personagem Mestre/privado vazou para a taxonomia pública: "+name+" ("+visibility+")");
+    }
+
     const row=overrides[name] || {};
     if(!Array.isArray(row.sections) || !row.sections.length) warn("Ficha sem seções: "+name);
+    for(const section of Array.isArray(row.sections)?row.sections:[]){
+      const level=String(section&&section.visibility||"public");
+      if(level==="master"||level==="private"){
+        fail("Seção Mestre vazou para character-overrides.js: "+name+" / "+String(section&&section.title||"sem título"));
+      }
+      if(!["public","spoiler","rumor","restricted"].includes(level)){
+        fail("Visibilidade de seção inválida em "+name+": "+level);
+      }
+    }
   }
 
   for(const name of Object.keys(meta)){
@@ -193,6 +208,9 @@ function checkSessions(data,characters){
     else ids.add(row.id);
 
     if(row.realDate&&!/^\d{4}-\d{2}-\d{2}$/.test(String(row.realDate))) warn("Data de sessão fora de YYYY-MM-DD: "+row.realDate);
+    const visibility=String(row.visibility||"public");
+    if(visibility==="master") fail("Sessão Mestre vazou para data/sessions.js: "+String(row.id||row.title||"sem ID"));
+    if(!["public","spoiler","rumor"].includes(visibility)) fail("Visibilidade pública de sessão inválida: "+visibility);
     for(const name of Array.isArray(row.characters)?row.characters:[]){
       if(characters&&!characters.has(name)) warn("Sessão "+row.id+" referencia personagem não público: "+name);
     }
@@ -214,10 +232,17 @@ function checkGraph(data){
     ids.add(node.id);
   }
 
+  for(const node of nodes){
+    const level=String(node&&node.visibility||"public");
+    if(level==="master"||level==="private") fail("Nó Mestre vazou para o grafo público: "+String(node&&node.id||"sem ID"));
+  }
+
   for(const edge of edges){
     if(!ids.has(edge.from)||!ids.has(edge.to)){
       fail("Relação aponta para nó inexistente: "+String(edge.from)+" -> "+String(edge.to));
     }
+    const level=String(edge&&edge.visibility||"public");
+    if(level==="master"||level==="private") fail("Relação Mestre vazou para o grafo público: "+String(edge.from)+" -> "+String(edge.to));
   }
   pass(nodes.length+" nós e "+edges.length+" relações validados");
 }

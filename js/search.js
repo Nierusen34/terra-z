@@ -79,10 +79,13 @@ function searchLocalDocument(query){
       while(parent && parent !== document.body){
         if(parent.matches && parent.matches(skipSelectors)) return NodeFilter.FILTER_REJECT;
 
-        if(parent.getAttribute && parent.getAttribute('data-character-visibility') === 'private'){
-          var backend = window.TerraZApp && window.TerraZApp.backend;
-          var editor = !!(backend && backend.isAuthenticated && backend.isAuthenticated());
-          if(!editor) return NodeFilter.FILTER_REJECT;
+        if(parent.getAttribute && parent.hasAttribute('data-character-visibility')){
+          var characterLevel=parent.getAttribute('data-character-visibility') || 'public';
+          var characterVisibility=window.TerraZApp && window.TerraZApp.visibility;
+          if(characterVisibility && characterVisibility.isLevelAllowed &&
+             !characterVisibility.isLevelAllowed(characterLevel)){
+            return NodeFilter.FILTER_REJECT;
+          }
         }
 
         if(parent.hasAttribute && parent.hasAttribute('data-visibility')){

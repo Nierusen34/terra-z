@@ -605,12 +605,14 @@ async function save(){
       if(window.TerraZApp.privateContent.setCharacterSecrets){
         window.TerraZApp.privateContent.setCharacterSecrets(name,payload.secrets || []);
       }
-      if(window.TerraZApp.privateContent.setCharacterMasterSections){
+      if(payload.meta.visibility === 'master' && window.TerraZApp.privateContent.reload){
+        await window.TerraZApp.privateContent.reload();
+      } else if(window.TerraZApp.privateContent.setCharacterMasterSections){
         window.TerraZApp.privateContent.setCharacterMasterSections(
           name,
-          sections.filter(function(section){ return section.visibility === 'master'; }).map(function(section,index){
-            return {...section,position:index};
-          })
+          sections.map(function(section,index){ return {section:section,position:index}; })
+            .filter(function(item){ return item.section.visibility === 'master'; })
+            .map(function(item){ return {...item.section,position:item.position}; })
         );
       }
     }

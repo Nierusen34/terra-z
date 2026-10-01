@@ -81,6 +81,9 @@ export default async function handler(req,res){
     master_content:masterContent,
     private_character_profiles:true,
     private_character_encryption:editorReady ? "aes-256-gcm" : "unavailable",
+    visibility_system:"public-spoiler-master",
+    secure_master_sections:true,
+    secure_master_relations:true,
     deployment_commit:String(process.env.VERCEL_GIT_COMMIT_SHA || ""),
     deployment_env:String(process.env.VERCEL_ENV || ""),
     ...githubConfig()

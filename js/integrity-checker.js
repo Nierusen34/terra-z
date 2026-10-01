@@ -379,7 +379,7 @@ function auditSessions(report){
       if(row.realDate && !/^\d{4}-\d{2}-\d{2}$/.test(String(row.realDate))){
         issue(report,"warning","Sessões","Data fora do padrão","\"" + row.realDate + "\" deveria usar YYYY-MM-DD.");
       }
-      if(["public","rumor","master"].indexOf(String(row.visibility || "public")) === -1){
+      if(["public","spoiler","rumor","master"].indexOf(String(row.visibility || "public")) === -1){
         issue(report,"warning","Sessões","Visibilidade inválida","Valor: \"" + String(row.visibility) + "\".");
       }
     });
@@ -456,7 +456,7 @@ function auditPrivacy(report){
     var pending = [];
     Object.keys(tx.characters || {}).forEach(function(name){
       var meta = tx.characters[name] || {};
-      if(meta.visibility === "private" && !secure.has(name)) pending.push(name);
+      if((meta.visibility === "private" || meta.visibility === "master") && !secure.has(name)) pending.push(name);
     });
 
     if(pending.length){
