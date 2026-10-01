@@ -157,8 +157,9 @@ window.TerraZData.characterTaxonomy = {
       "featured": false,
       "nuclei": [
         "queen",
-        "jlu",
-        "gotham"
+        "gotham",
+        "lobo-cadmus",
+        "jlu"
       ],
       "type": "hero",
       "status": "active"
