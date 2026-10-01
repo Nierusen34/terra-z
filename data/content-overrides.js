@@ -33,13 +33,20 @@ window.TerraZData.contentOverrides = {
   "tz-0436": "Gotham",
   "tz-0441": "Vanguard Bay",
   "tz-0435": "Líder dos Novos Titãs",
-  "tz-0476": "<strong>Idade:</strong> 23 (2004)<br><strong>Papel:</strong> Treinou Tristan. Líder dos Jovens Titãs",
+  "tz-0476": "<strong>Codinome: </strong>Capuz Vermelho<br><strong>Idade: </strong>23 anos (nascido em 2004)<br><strong>Origem: </strong>—<br><strong>Status: </strong>Vivo — ressuscitado em 2021",
   "tz-0532": "Jovens Titãs (1ª)",
   "tz-0544": "Novos Titãs (2ª)",
-  "tz-0464": "<strong>Codinome:</strong> Ranger<br><strong>Idade:</strong> 20 (2007)<br><strong>Pais:</strong> Oliver e Dinah<br><strong>Local:</strong>&nbsp;Downtown",
-  "tz-0466": "<strong>Origem:</strong> Clone da Cadmus<br><strong>Idade:</strong> Aparência 20 (cron. 5)<br><strong>Local:</strong>&nbsp;Vanguard Bay<br><strong>Prazo:</strong> Caçado em 2072",
-  "tz-0468": "<strong>Idade:</strong> 23 (2004)<br><strong>Pai:</strong> Armek<br><strong>Mãe:</strong> M'gann<br><strong>Local:</strong>&nbsp;Vanguard Bay",
-  "tz-0482": "<strong>Idade:</strong> ~29<br><strong>Origem:</strong> Clone Superman/Luthor<br>"
+  "tz-0464": "<strong>Codinome: </strong>Ranger<br><strong>Idade: </strong>20 anos (nascido em 2007)<br><strong>Origem: </strong>—<br><strong>Status: </strong>Ativo",
+  "tz-0466": "<strong>Codinome: </strong>—<br><strong>Idade: </strong>Aparência 20 anos (cronológico: 5)<br><strong>Origem: </strong>Clone da Cadmus, resgatado em 2022<br><strong>Status: </strong>Em missão pessoal em Vanguard Bay (sem local fixo)",
+  "tz-0468": "<strong>Codinome: </strong>—<br><strong>Idade: </strong>23 anos (nascido em 2004)<br><strong>Origem: </strong>—<br><strong>Status: </strong>Prisioneiro da Sumdac — em local secreto",
+  "tz-0482": "<strong>Codinome: </strong>Superboy<br><strong>Idade: </strong>~29 anos (clone)<br><strong>Origem: </strong>Clone híbrido de Superman e Lex Luthor<br><strong>Status: </strong>Ativo",
+  "tz-0470": "<strong>Codinome: </strong>O Queen (ex-Arqueiro Verde)<br><strong>Idade: </strong>47 anos (nascido em 1980)<br><strong>Origem: </strong>—<br><strong>Status: </strong>Vivo — ressuscitado em 2022",
+  "tz-0472": "<strong>Codinome: </strong>Canário Negro<br><strong>Idade: </strong>40 anos (nascida em 1987)<br><strong>Origem: </strong>—<br><strong>Status: </strong>Viva",
+  "tz-0474": "<strong>Codinome: </strong>Arqueiro Verde (atual)<br><strong>Idade: </strong>25 anos (nascido em 2002)<br><strong>Origem: </strong>—<br><strong>Status: </strong>Solteiro",
+  "tz-0478": "<strong>Codinome: </strong>Hawkgirl<br><strong>Idade: </strong>~32 anos<br><strong>Origem: </strong>Humana que herdou a alma de Shiera Hall<br><strong>Status: </strong>Ativo",
+  "tz-0480": "<strong>Codinome: </strong>—<br><strong>Idade: </strong>~39 anos<br><strong>Origem: </strong>Marciana Branca fugitiva<br><strong>Status: </strong>Ativo",
+  "tz-0484": "<strong>Codinome: </strong>—<br><strong>Idade: </strong>400+ anos (imortal)<br><strong>Origem: </strong>Czarniano<br><strong>Status: </strong>Ativo",
+  "tz-0486": "<strong>Codinome: </strong>Caçador de Marte<br><strong>Idade: </strong>~227 anos<br><strong>Origem: </strong>Marciano Verde (último)<br><strong>Status: </strong>Ativo"
 };
 
 })();
