@@ -495,7 +495,10 @@ export default async function handler(req,res){
     const cardInput = input.card && typeof input.card === "object" ? input.card : null;
     const card = cardInput ? {
       icon:text(cardInput.icon,12) || "👤",
-      summary:text(cardInput.summary,700)
+      codename:text(cardInput.codename,160),
+      age:text(cardInput.age,160),
+      origin:text(cardInput.origin,200),
+      status:text(cardInput.status,200)
     } : previousOverride.card;
 
     overrides[name] = {

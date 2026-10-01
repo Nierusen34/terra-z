@@ -186,31 +186,122 @@ function inferredCardIcon(name,ficha){
   return '👤';
 }
 
-function inferredCardSummary(name,ficha){
-  var override = characterOverrides[name] || {};
-  if(override.card && override.card.summary) return String(override.card.summary).trim();
+function parseCardLines(value){
+  var result = {};
+  String(value || '').split(/\r?\n/).forEach(function(line){
+    var match = String(line || '').trim().match(/^([^:]{1,40}):\s*(.*)$/);
+    if(!match) return;
+    var key = match[1].trim().toLocaleLowerCase('pt-BR');
+    result[key] = match[2].trim();
+  });
+  return result;
+}
 
+function basicFieldsFromFicha(ficha){
   var sections = Array.isArray(ficha && ficha.sections) ? ficha.sections : [];
   var basic = sections.find(function(section){
     return /ficha básica/i.test(String(section && section.title || ''));
   }) || sections[0];
 
-  if(basic && basic.content){
-    var temp = document.createElement('div');
-    temp.innerHTML = String(basic.content)
-      .replace(/<br\s*\/?>/gi,'\n')
-      .replace(/<\/p>/gi,'\n');
+  if(!basic || !basic.content) return {};
 
-    var lines = String(temp.textContent || '')
-      .split(/\n+/)
-      .map(function(line){ return line.trim(); })
-      .filter(Boolean)
-      .slice(0,4);
+  var html = String(basic.content)
+    .replace(/<br\s*\/?>/gi,'\n')
+    .replace(/<\/p>/gi,'\n')
+    .replace(/<\/li>/gi,'\n');
 
-    if(lines.length) return lines.join('\n');
+  var temp = document.createElement('div');
+  temp.innerHTML = html;
+
+  return parseCardLines(temp.textContent || '');
+}
+
+function taxonomyStatusLabel(name){
+  var taxonomy = (window.TerraZData && window.TerraZData.characterTaxonomy) || {};
+  var meta = taxonomy.characters && taxonomy.characters[name] || {};
+  var statusId = String(meta.status || '');
+  var defs = Array.isArray(taxonomy.statuses) ? taxonomy.statuses : [];
+  var found = defs.find(function(item){ return String(item && item.id || '') === statusId; });
+  return found ? String(found.label || '') : '';
+}
+
+function structuredCardData(name,ficha){
+  var override = characterOverrides[name] || {};
+  var card = override.card && typeof override.card === 'object' ? override.card : {};
+  var basic = basicFieldsFromFicha(ficha);
+  var legacy = parseCardLines(card.summary || '');
+
+  function pick(){
+    for(var i=0;i<arguments.length;i++){
+      var value = String(arguments[i] == null ? '' : arguments[i]).trim();
+      if(value) return value;
+    }
+    return '—';
   }
 
-  return String((ficha && ficha.eyebrow) || 'Personagem do universo Terra Z').trim();
+  return {
+    icon:pick(card.icon,inferredCardIcon(name,ficha),'👤'),
+    codename:pick(card.codename,legacy['codinome'],basic['codinome']),
+    age:pick(card.age,legacy['idade'],basic['idade']),
+    origin:pick(card.origin,legacy['origem'],basic['origem'],basic['espécie']),
+    status:pick(card.status,legacy['status'],basic['status'],taxonomyStatusLabel(name))
+  };
+}
+
+function inferredCardSummary(name,ficha){
+  var data = structuredCardData(name,ficha);
+  return [
+    'Codinome: ' + data.codename,
+    'Idade: ' + data.age,
+    'Origem: ' + data.origin,
+    'Status: ' + data.status
+  ].join('\n');
+}
+
+function applyStandardCard(card,name){
+  if(!card || !name) return;
+
+  var ficha = fichasPersonagens[name] || {};
+  var data = structuredCardData(name,ficha);
+  var h4 = card.querySelector('h4');
+  var p = card.querySelector('p');
+
+  if(!h4){
+    h4 = document.createElement('h4');
+    card.insertBefore(h4,card.firstChild || null);
+  }
+  h4.textContent = data.icon + ' ' + name;
+
+  if(!p){
+    p = document.createElement('p');
+    card.appendChild(p);
+  }
+
+  p.innerHTML = '';
+  [
+    ['Codinome',data.codename],
+    ['Idade',data.age],
+    ['Origem',data.origin],
+    ['Status',data.status]
+  ].forEach(function(row,index){
+    if(index) p.appendChild(document.createElement('br'));
+    var strong = document.createElement('strong');
+    strong.textContent = row[0] + ': ';
+    p.appendChild(strong);
+    p.appendChild(document.createTextNode(row[1]));
+  });
+
+  card.setAttribute('data-card-standard','1');
+}
+
+function standardizeCharacterCards(){
+  var grid = document.querySelector('#sub-tz-personagens .card-grid');
+  if(!grid) return;
+
+  Array.from(grid.querySelectorAll('.card')).forEach(function(card){
+    var name = characterNameFromCard(card) || card.getAttribute('data-generated-character') || '';
+    if(name && fichasPersonagens[name]) applyStandardCard(card,name);
+  });
 }
 
 function renderMissingCharacterCards(){
@@ -243,7 +334,8 @@ function renderMissingCharacterCards(){
     if(represented.has(name)) return;
 
     var ficha = fichasPersonagens[name] || {};
-    var icon = inferredCardIcon(name,ficha);
+    var cardData = structuredCardData(name,ficha);
+    var icon = cardData.icon;
     var summary = inferredCardSummary(name,ficha);
 
     var wrapper = document.createElement('div');
@@ -302,6 +394,7 @@ function attachFichaHandlers(){
 function refreshCharactersFromRuntime(){
   rebuildFichas();
   renderMissingCharacterCards();
+  standardizeCharacterCards();
   attachFichaHandlers();
 
   document.dispatchEvent(new CustomEvent('terra-z:characters-rendered'));
@@ -323,6 +416,7 @@ window.TerraZApp.characters = {
   isCreated:function(name){ return !!(characterOverrides[name] && characterOverrides[name].created); },
   isDeleted:function(name){ return deletedCharacterNames.has(name); },
   card:function(name){ return (characterOverrides[name] && characterOverrides[name].card) || null; },
+  cardData:function(name){ return structuredCardData(name,fichasPersonagens[name] || {}); },
   refresh:refreshCharactersFromRuntime
 };
 

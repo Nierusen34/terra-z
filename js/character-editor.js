@@ -115,7 +115,7 @@ function sectionHtml(section,index){
 
 function defaultSections(){
   return [
-    {title:'📋 Ficha Básica',content:'<p><strong>Nome:</strong> <br><strong>Codinome:</strong> <br><strong>Idade:</strong> <br><strong>Local:</strong> </p>'},
+    {title:'📋 Ficha Básica',content:'<p><strong>Nome:</strong> <br><strong>Codinome:</strong> <br><strong>Idade:</strong> <br><strong>Origem:</strong> <br><strong>Status:</strong> <br><strong>Local:</strong> </p>'},
     {title:'📖 História',content:'<p>Escreva aqui a história do personagem.</p>'},
     {title:'🎯 Personalidade',content:'<p>Descreva a personalidade do personagem.</p>'},
     {title:'⚔️ Habilidades',content:'<ul><li>Adicione uma habilidade.</li></ul>'},
@@ -414,13 +414,13 @@ async function open(name){
   el('characterEditorEyebrow').value = ficha.eyebrow || '';
   renderSections(Array.isArray(ficha.sections) ? ficha.sections : []);
 
-  var isCreated = !!(manager && manager.isCreated && manager.isCreated(name));
-  setCreateFieldsVisible(isCreated);
-  if(isCreated){
-    var card = manager.card ? (manager.card(name) || {}) : {};
-    el('characterEditorIcon').value = card.icon || '👤';
-    el('characterEditorCardSummary').value = card.summary || '';
-  }
+  setCreateFieldsVisible(true);
+  var card = manager && manager.cardData ? manager.cardData(name) : {};
+  el('characterEditorIcon').value = card.icon || '👤';
+  el('characterEditorCardCodename').value = card.codename === '—' ? '' : (card.codename || '');
+  el('characterEditorCardAge').value = card.age === '—' ? '' : (card.age || '');
+  el('characterEditorCardOrigin').value = card.origin === '—' ? '' : (card.origin || '');
+  el('characterEditorCardStatus').value = card.status === '—' ? '' : (card.status || '');
 
   setCreateDependentButtons(false);
   refreshPortraitRemoval(name);
@@ -458,7 +458,10 @@ function openCreate(){
 
   el('characterEditorEyebrow').value = '';
   el('characterEditorIcon').value = '👤';
-  el('characterEditorCardSummary').value = '';
+  el('characterEditorCardCodename').value = '';
+  el('characterEditorCardAge').value = '';
+  el('characterEditorCardOrigin').value = '';
+  el('characterEditorCardStatus').value = '';
   el('characterEditorSecrets').value = '';
   el('characterEditorSecrets').disabled = false;
   el('characterEditorSecrets').placeholder = 'Um segredo por linha';
@@ -544,14 +547,13 @@ async function save(){
       meta:collectOrganization()
     };
 
-    var manager = window.TerraZApp.characters;
-    var hasCard = wasCreating || !!(manager && manager.isCreated && manager.isCreated(name));
-    if(hasCard){
-      payload.card = {
-        icon:el('characterEditorIcon').value.trim() || '👤',
-        summary:el('characterEditorCardSummary').value.trim()
-      };
-    }
+    payload.card = {
+      icon:el('characterEditorIcon').value.trim() || '👤',
+      codename:el('characterEditorCardCodename').value.trim(),
+      age:el('characterEditorCardAge').value.trim(),
+      origin:el('characterEditorCardOrigin').value.trim(),
+      status:el('characterEditorCardStatus').value.trim()
+    };
 
     if(privateLoaded){
       payload.secrets = splitSecrets(el('characterEditorSecrets').value);
