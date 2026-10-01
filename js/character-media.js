@@ -46,8 +46,11 @@ function automaticTitle(config){
 function getMeta(name){
   var item = media[name] || {};
   var resolved = autoResolved[name] || null;
+  var runtime = window.TerraZApp && window.TerraZApp.runtimeData;
+  var localSrc = item.src && runtime && runtime.mediaUrl ? runtime.mediaUrl(item.src) : item.src;
   return {
-    src: item.src || (resolved && resolved.imageUrl) || '',
+    src: localSrc || (resolved && resolved.imageUrl) || '',
+    fullImageUrl: localSrc || (resolved && (resolved.fullImageUrl || resolved.imageUrl)) || '',
     alt: item.alt || name,
     source: item.src ? (item.source || 'local') : (resolved ? resolved.provider : (automaticConfig(item) ? 'auto' : (item.source || ''))),
     credit: item.credit || (resolved && resolved.source) || '',
@@ -103,6 +106,7 @@ async function directFandom(config){
     source:'DC Database · Fandom',
     title:page.title || config.wikiTitle,
     imageUrl:imageUrl,
+    fullImageUrl:(page.original && page.original.source) || imageUrl,
     pageUrl:page.fullurl || ''
   };
 }
@@ -116,6 +120,7 @@ async function fetchAutomatic(name,config){
       source:automaticSourceLabel(config),
       title:config.sourceLabel || name,
       imageUrl:config.imageUrl,
+      fullImageUrl:config.imageUrl,
       pageUrl:config.pageUrl || ''
     };
   }
@@ -161,6 +166,7 @@ function resolveAutomatic(name){
             source:result.source || automaticSourceLabel(config),
             title:result.title || config.wikiTitle || config.sourceLabel || name,
             imageUrl:result.imageUrl,
+            fullImageUrl:result.fullImageUrl || result.imageUrl,
             pageUrl:result.pageUrl || config.pageUrl || ''
           }
         : {found:false,provider:'dc-fandom'};
@@ -187,12 +193,16 @@ function renderPortraitHtml(name, size){
   var cls = 'character-portrait ' + (size === 'large' ? 'large' : 'small');
 
   if(meta.src){
-    var runtime = window.TerraZApp && window.TerraZApp.runtimeData;
-    var src = item.src && runtime && runtime.mediaUrl ? runtime.mediaUrl(item.src) : meta.src;
+    var src = meta.src;
     var sourceClass = meta.automatic ? ' auto-source' : '';
-    var title = meta.automatic ? ' title="' + escapeAttr(automaticTitle(auto)) + '"' : '';
-    return '<div class="' + cls + sourceClass + '" data-character="' + escapeAttr(name) + '"' + title + '>' +
-      '<img data-src="' + escapeAttr(src) + '" alt="' + escapeAttr(meta.alt) + '" loading="lazy" decoding="async" referrerpolicy="no-referrer">' +
+    var zoomAttrs = size === 'large'
+      ? ' data-portrait-zoom="1" role="button" tabindex="0" aria-label="Abrir retrato de ' + escapeAttr(name) + ' em tamanho maior"'
+      : '';
+    var title = size === 'large'
+      ? ' title="Clique para ampliar o retrato"'
+      : (meta.automatic ? ' title="' + escapeAttr(automaticTitle(auto)) + '"' : '');
+    return '<div class="' + cls + sourceClass + '" data-character="' + escapeAttr(name) + '"' + zoomAttrs + title + '>' +
+      '<img data-src="' + escapeAttr(src) + '" data-full-src="' + escapeAttr(meta.fullImageUrl || src) + '" alt="' + escapeAttr(meta.alt) + '" loading="lazy" decoding="async" referrerpolicy="no-referrer">' +
       '</div>';
   }
 
@@ -233,7 +243,9 @@ function replaceAutomaticPortrait(wrapper,result){
   if(next){
     next.classList.add('auto-source');
     var item = media[name] || {};
-    next.title = automaticTitle(automaticConfig(item));
+    next.title = size === 'large'
+      ? 'Clique para ampliar o retrato'
+      : automaticTitle(automaticConfig(item));
     wrapper.replaceWith(next);
     if(window.TerraZApp.media) window.TerraZApp.media.hydrate(next);
   }

@@ -91,6 +91,15 @@ function dcPageImage(page){
   );
 }
 
+function dcPageOriginal(page){
+  if(!page || page.missing) return "";
+  return (
+    (page.original && page.original.source) ||
+    (page.thumbnail && page.thumbnail.source) ||
+    ""
+  );
+}
+
 function dcPageUrl(page){
   if(page && page.fullurl) return page.fullurl;
   if(page && page.title){
@@ -218,6 +227,7 @@ async function handleDcPortrait(req,res){
       requestedTitle:title,
       title:page.title || title,
       imageUrl,
+      fullImageUrl:dcPageOriginal(page),
       pageUrl:dcPageUrl(page),
       provider:"dc-fandom",
       source:"DC Database · Fandom"

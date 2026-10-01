@@ -90,6 +90,34 @@ function openFichaModal(characterName){
   document.body.style.overflow = 'hidden';
   if(window.TerraZApp.characterMedia) window.TerraZApp.characterMedia.hydrate(header);
   if(window.TerraZApp.visibility) window.TerraZApp.visibility.apply();
+
+  function openPortraitLightbox(target){
+    var wrapper = target && target.closest ? target.closest('.character-portrait.large[data-portrait-zoom]') : null;
+    if(!wrapper) return false;
+    var img = wrapper.querySelector('img');
+    if(!img) return false;
+
+    var src = img.getAttribute('data-full-src') || img.currentSrc || img.src || img.getAttribute('data-src');
+    var nav = window.TerraZApp && window.TerraZApp.navigation;
+    if(nav && nav.openLightbox) nav.openLightbox(src,img.alt || characterName);
+    else if(window.openLightbox) window.openLightbox(src,img.alt || characterName);
+    return true;
+  }
+
+  header.onclick = function(event){
+    if(openPortraitLightbox(event.target)){
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  };
+
+  header.onkeydown = function(event){
+    if(event.key !== 'Enter' && event.key !== ' ') return;
+    if(openPortraitLightbox(event.target)){
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  };
   document.getElementById('fichaCloseBtn').addEventListener('click', closeFichaModal);
   var editCharacterBtn = document.getElementById('fichaEditCharacterBtn');
   if(editCharacterBtn) editCharacterBtn.addEventListener('click', function(){
