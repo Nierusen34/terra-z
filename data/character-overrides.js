@@ -57,7 +57,7 @@ window.TerraZData.characterOverrides = {
     ],
     "created": true,
     "card": {
-      "icon": "👤",
+      "icon": "🍺",
       "summary": ""
     }
   },
