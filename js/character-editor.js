@@ -175,16 +175,35 @@ function setCreateFieldsVisible(visible){
 
 function refreshPortraitRemoval(name){
   var button = el('characterEditorRemovePortraitBtn');
-  if(!button) return;
+  var portrait = el('characterEditorPortraitBtn');
 
   if(createMode || !name){
-    button.hidden = true;
+    if(button) button.hidden = true;
+    if(portrait) portrait.textContent = '🖼️ Trocar retrato';
     return;
   }
 
   var media = (window.TerraZData && window.TerraZData.characterMedia) || {};
   var item = media[name] || {};
-  button.hidden = !item.src;
+  var hasLocal = !!item.src;
+  var hasAutomatic = !!(item.auto && item.auto.provider === 'dc-fandom' && item.auto.wikiTitle);
+
+  if(button){
+    button.hidden = !hasLocal;
+    if(hasLocal && hasAutomatic) button.title = 'Remover a imagem própria e voltar ao retrato automático da DC Database';
+  }
+
+  if(portrait){
+    portrait.textContent = hasLocal
+      ? '🖼️ Trocar retrato'
+      : (hasAutomatic ? '🖼️ Usar imagem própria' : '🖼️ Adicionar retrato');
+
+    portrait.title = hasLocal
+      ? 'Trocar retrato'
+      : (hasAutomatic
+        ? 'Substituir o retrato automático da DC Database por uma imagem própria'
+        : 'Adicionar retrato');
+  }
 }
 
 function setCreateDependentButtons(disabled){

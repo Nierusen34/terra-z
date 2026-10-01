@@ -4,7 +4,7 @@
 window.TerraZData = window.TerraZData || {};
 
 // Metadados visuais de personagens.
-// src vazio = usar placeholder do Terra Z.
+// Prioridade: src local > fonte automática configurada > placeholder do Terra Z.
 window.TerraZData.characterMedia = {
   "Tristan Queen": {
     "src": "images/characters/tristan-queen.jpg",
@@ -27,86 +27,142 @@ window.TerraZData.characterMedia = {
   "Kendra Saunders": {
     "src": "",
     "alt": "Kendra Saunders",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "dc-fandom",
+      "wikiTitle": "Kendra Saunders (Prime Earth)"
+    }
   },
   "Lobo": {
     "src": "",
     "alt": "Lobo",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "dc-fandom",
+      "wikiTitle": "Lobo (Prime Earth)"
+    }
   },
   "M'gann M'orzz": {
     "src": "",
     "alt": "M'gann M'orzz",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "dc-fandom",
+      "wikiTitle": "M'gann M'orzz (Prime Earth)"
+    }
   },
   "J'onn J'onzz": {
     "src": "",
     "alt": "J'onn J'onzz",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "dc-fandom",
+      "wikiTitle": "J'onn J'onzz (Prime Earth)"
+    }
   },
   "Oliver Queen": {
     "src": "",
     "alt": "Oliver Queen",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "dc-fandom",
+      "wikiTitle": "Oliver Queen (Prime Earth)"
+    }
   },
   "Dinah Lance": {
     "src": "",
     "alt": "Dinah Lance",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "dc-fandom",
+      "wikiTitle": "Dinah Lance (Prime Earth)"
+    }
   },
   "Connor Hawke": {
     "src": "",
     "alt": "Connor Hawke",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "dc-fandom",
+      "wikiTitle": "Connor Hawke (Prime Earth)"
+    }
   },
   "Jason Todd": {
     "src": "",
     "alt": "Jason Todd",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "dc-fandom",
+      "wikiTitle": "Jason Todd (Prime Earth)"
+    }
   },
   "Conner Kent": {
     "src": "",
     "alt": "Conner Kent",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "dc-fandom",
+      "wikiTitle": "Conner Kent (Prime Earth)"
+    }
   },
   "Bruce Wayne": {
     "src": "",
     "alt": "Bruce Wayne",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "dc-fandom",
+      "wikiTitle": "Bruce Wayne (Prime Earth)"
+    }
   },
   "Dick Grayson": {
     "src": "",
     "alt": "Dick Grayson",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "dc-fandom",
+      "wikiTitle": "Dick Grayson (Prime Earth)"
+    }
   },
   "Barbara Gordon": {
     "src": "",
     "alt": "Barbara Gordon",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "dc-fandom",
+      "wikiTitle": "Barbara Gordon (Prime Earth)"
+    }
   },
   "Damian Wayne": {
     "src": "",
     "alt": "Damian Wayne",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "dc-fandom",
+      "wikiTitle": "Damian Wayne (Prime Earth)"
+    }
   },
   "Tim Drake": {
     "src": "",
     "alt": "Tim Drake",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "dc-fandom",
+      "wikiTitle": "Tim Drake (Prime Earth)"
+    }
   },
   "Verity Pennyworth": {
     "src": "",
@@ -117,8 +173,12 @@ window.TerraZData.characterMedia = {
   "Lian Harper": {
     "src": "",
     "alt": "Lian Harper",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "dc-fandom",
+      "wikiTitle": "Lian Harper (Prime Earth)"
+    }
   },
   "Camila Vargas": {
     "src": "",
@@ -129,8 +189,12 @@ window.TerraZData.characterMedia = {
   "Roy Harper": {
     "src": "",
     "alt": "Roy Harper",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "dc-fandom",
+      "wikiTitle": "Roy Harper (Prime Earth)"
+    }
   },
   "George Gandenzio Toombs": {
     "src": "images/characters/george-gandenzio-toombs.png",

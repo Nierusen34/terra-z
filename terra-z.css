@@ -1464,3 +1464,34 @@ html[data-spoiler-mode="safe"] [data-visibility="master"]{display:none!important
   .pres-content{font-size:14px}
   .pres-table-wrap table{min-width:620px}
 }
+
+
+/* ===== RETRATOS AUTOMÁTICOS · DC DATABASE ===== */
+.character-portrait.auto-pending{
+  position:relative;
+  overflow:hidden;
+}
+.character-portrait.auto-pending::after{
+  content:'';
+  position:absolute;
+  left:12%;
+  right:12%;
+  bottom:7px;
+  height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  opacity:.45;
+  animation:autoPortraitScan 1.6s ease-in-out infinite;
+}
+.character-portrait.auto-source{
+  position:relative;
+}
+.character-portrait.auto-source img{
+  transition:opacity .25s ease;
+}
+@keyframes autoPortraitScan{
+  0%,100%{transform:translateX(-18%);opacity:.2}
+  50%{transform:translateX(18%);opacity:.65}
+}
+@media(prefers-reduced-motion:reduce){
+  .character-portrait.auto-pending::after{animation:none}
+}
