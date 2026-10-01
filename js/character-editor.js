@@ -28,7 +28,8 @@ function metaFor(name){
     featured:meta.featured === true,
     nuclei:Array.isArray(meta.nuclei) ? meta.nuclei.slice() : [],
     type:meta.type || 'other',
-    status:meta.status || 'unknown'
+    status:meta.status || 'unknown',
+    visibility:meta.visibility === 'private' ? 'private' : 'public'
   };
 }
 
@@ -78,6 +79,9 @@ function fillOrganization(meta){
   var featured = el('characterEditorFeatured');
   if(featured) featured.checked = meta.featured === true;
 
+  var privateToggle = el('characterEditorPrivate');
+  if(privateToggle) privateToggle.checked = meta.visibility === 'private';
+
   renderEditorNuclei(meta.nuclei || []);
 }
 
@@ -91,7 +95,8 @@ function collectOrganization(){
     featured:!!(el('characterEditorFeatured') && el('characterEditorFeatured').checked),
     nuclei:nuclei,
     type:el('characterEditorType') ? el('characterEditorType').value : 'other',
-    status:el('characterEditorStatusMeta') ? el('characterEditorStatusMeta').value : 'unknown'
+    status:el('characterEditorStatusMeta') ? el('characterEditorStatusMeta').value : 'unknown',
+    visibility:el('characterEditorPrivate') && el('characterEditorPrivate').checked ? 'private' : 'public'
   };
 }
 
@@ -471,7 +476,7 @@ function openCreate(){
   setCreateDependentButtons(true);
   refreshPortraitRemoval('');
   fillMediaSource('');
-  fillOrganization({featured:false,nuclei:['other'],type:'npc',status:'active'});
+  fillOrganization({featured:false,nuclei:['other'],type:'npc',status:'active',visibility:'public'});
 
   var title = el('characterEditorTitle');
   if(title) title.textContent = '＋ Novo personagem';
