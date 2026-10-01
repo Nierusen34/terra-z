@@ -1,0 +1,18 @@
+name: Vercel emergency deploy hook
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  trigger-vercel:
+    if: contains(github.event.head_commit.message, '[vercel-hook]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger latest main deployment
+        env:
+          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          test -n "$VERCEL_DEPLOY_HOOK_URL"
+          curl --fail-with-body --silent --show-error -X POST "$VERCEL_DEPLOY_HOOK_URL"
