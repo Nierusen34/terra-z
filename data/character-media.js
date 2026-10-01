@@ -213,6 +213,12 @@ window.TerraZData.characterMedia = {
     "alt": "George Gandenzio Toombs",
     "source": "local",
     "credit": ""
+  },
+  "Michael Carter": {
+    "src": "",
+    "alt": "Michael Carter",
+    "source": "local",
+    "credit": ""
   }
 };
 

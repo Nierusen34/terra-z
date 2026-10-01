@@ -287,6 +287,15 @@ window.TerraZData.characterTaxonomy = {
       ],
       "type": "npc",
       "status": "active"
+    },
+    "Michael Carter": {
+      "featured": false,
+      "nuclei": [
+        "jlu",
+        "lobo-cadmus"
+      ],
+      "type": "npc",
+      "status": "active"
     }
   }
 };
