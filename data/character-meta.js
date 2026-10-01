@@ -6,6 +6,14 @@ window.TerraZData = window.TerraZData || {};
 window.TerraZData.characterTaxonomy = {
   "nuclei": [
     {
+      "id": "vanguard",
+      "label": "Vanguard Bay"
+    },
+    {
+      "id": "jlu",
+      "label": "Liga da Justiça"
+    },
+    {
       "id": "queen",
       "label": "Queen / Arqueiros"
     },
@@ -26,12 +34,8 @@ window.TerraZData.characterTaxonomy = {
       "label": "Jovens Titãs"
     },
     {
-      "id": "jlu",
-      "label": "JLU"
-    },
-    {
-      "id": "vanguard",
-      "label": "Vanguard Bay"
+      "id": "novos-titas",
+      "label": "Novos Titãs"
     },
     {
       "id": "other",
