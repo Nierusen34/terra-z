@@ -4,5 +4,8 @@
     "api/*.js": {
       "maxDuration": 15
     }
+  },
+  "git": {
+    "deploymentEnabled": false
   }
 }
