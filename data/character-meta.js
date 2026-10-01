@@ -143,7 +143,8 @@ window.TerraZData.characterTaxonomy = {
     "M'gann M'orzz": {
       "featured": false,
       "nuclei": [
-        "martian"
+        "martian",
+        "novos-titas"
       ],
       "type": "hero",
       "status": "active"
