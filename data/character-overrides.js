@@ -3,9 +3,8 @@
 
 window.TerraZData = window.TerraZData || {};
 
-// Registro público canônico de personagens.
-// Personagens privados não devem permanecer neste arquivo: o backend os move para
-// data/private-character-data.enc.json e os entrega apenas ao editor autenticado.
+// Sobrescritas estruturadas de personagens existentes.
+// A base canônica continua em data/characters.js.
 window.TerraZData.characterOverrides = {
   "Tristan Queen": {
     "eyebrow": "🏹 Ranger · Filho de Arqueiros",
@@ -485,39 +484,6 @@ window.TerraZData.characterOverrides = {
       }
     ],
     "created": true
-  },
-  "Camila Vargas": {
-    "eyebrow": "🧠 Telepata · Braço-direito de Shaw",
-    "sections": [
-      {
-        "title": "📋 Ficha Básica",
-        "content": "<p><strong>Nome:</strong> Camila Vargas<br><strong>Idade:</strong> 35–45 anos<br><strong>Origem:</strong> Humana<br><strong>Status:</strong> Ativa<br><strong>Papel:</strong> Braço-direito de Leland Shaw (CEO da Shaw Innovations)<br><strong>Local:</strong> Vanguard Bay</p>"
-      },
-      {
-        "title": "🧠 Poderes",
-        "content": "<ul><li><strong>Telepatia:</strong> recém-desperta — ainda em desenvolvimento.</li><li><strong>Elo com M'ark:</strong> criado acidentalmente ao despertar os poderes. Conversam periodicamente.</li></ul>"
-      },
-      {
-        "title": "🎯 Personalidade",
-        "content": "<p>Estratégica, corajosa. Leal à empresa (Shaw Innovations), mas <strong>não a Leland Shaw</strong>. Esconde seus poderes meta-humanos dele.</p>"
-      },
-      {
-        "title": "🔗 Relações",
-        "content": "<ul><li><strong>M'ark:</strong> Elo telepático. Sabe que ele está preso e em perigo, mas não sabe a localização.</li><li><strong>Leland Shaw:</strong> Chefe. Leal à empresa, não a ele.</li><li><strong>Tristan Queen:</strong> Aliada. Comunicam-se por ligação ou telepatia.</li><li><strong>Riot:</strong> Aliada. Comunicam-se por ligação ou telepatia.</li></ul>"
-      },
-      {
-        "title": "🎯 Objetivo",
-        "content": "<p>Procurar M'ark junto com Tristan e Riot. Propôs a aliança — já que a Sumdac também é parte do objetivo deles.</p>"
-      }
-    ],
-    "created": true,
-    "card": {
-      "icon": "🧠",
-      "codename": "",
-      "age": "35–45 anos",
-      "origin": "Humana",
-      "status": "Ativa"
-    }
   },
   "Roy Harper": {
     "eyebrow": "🏹 Arsenal · Pai de Lian",

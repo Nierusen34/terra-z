@@ -264,15 +264,6 @@ window.TerraZData.characterTaxonomy = {
       "type": "hero",
       "status": "active"
     },
-    "Camila Vargas": {
-      "featured": false,
-      "nuclei": [
-        "vanguard"
-      ],
-      "type": "npc",
-      "status": "active",
-      "visibility": "private"
-    },
     "Roy Harper": {
       "featured": false,
       "nuclei": [
