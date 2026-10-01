@@ -198,7 +198,8 @@ window.TerraZData.characterTaxonomy = {
     "Conner Kent": {
       "featured": false,
       "nuclei": [
-        "martian"
+        "martian",
+        "novos-titas"
       ],
       "type": "hero",
       "status": "active"

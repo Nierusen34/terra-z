@@ -152,6 +152,31 @@ window.TerraZData.characterOverrides = {
         "content": "<ul><li><strong>M'ark:</strong> Filho. Superprotetora, mas apoiou a ida dele para Vanguard Bay — com preocupação.</li><li><strong>Conner Kent:</strong> Namorado. Relação sólida em 2027.</li><li><strong>J'onn J'onzz:</strong> Mentor e figura paterna.</li><li><strong>Armek:</strong> Violentador (falecido).</li><li><strong>Novos Titãs:</strong> Ex-membro.</li></ul>"
       }
     ]
+  },
+  "Conner Kent": {
+    "eyebrow": "🦸 Superboy · Clone de Superman e Lex Luthor",
+    "sections": [
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Conner Kent (Kon-El)<br><strong>Codinome:</strong> Superboy<br><strong>Idade:</strong> ~29 anos (clone)<br><strong>Origem:</strong> Clone híbrido de Superman e Lex Luthor<br><strong>Papel:</strong> Figura paterna de M'ark. Namorado de M'gann.<br><strong>Local:</strong> A caminho de Vanguard Bay</p>"
+      },
+      {
+        "title": "📖 História",
+        "content": "<p>Criado em laboratório como clone híbrido de Superman e Lex Luthor. Conheceu M'gann nos Novos Titãs (~2010–2012). Em 2019, M'gann terminou com ele sem explicação. Em 2021, investigou e descobriu M'ark — e toda a verdade sobre Armek. Reataram e passou a ser figura paterna para o garoto.</p><p>Em 2027, Conner e M'gann são vistos como casal pela comunidade heroica. Tinha contato regular com Superman antes dele virar Rei Ômega.</p>"
+      },
+      {
+        "title": "🎯 Personalidade",
+        "content": "<p>Protetor com M'ark, leal a M'gann. Ainda tem <strong>receio de se tornar como Lex</strong> — o que piorou porque <strong>Lex está na JLU atualmente</strong>. Assume papel de pai para M'ark.</p>"
+      },
+      {
+        "title": "⚔️ Habilidades",
+        "content": "<ul><li><strong>Superforça:</strong> nível Superman.</li><li><strong>Super-velocidade:</strong> sim.</li><li><strong>Invulnerabilidade:</strong> sim.</li><li><strong>Voo:</strong> sim.</li><li><strong>Visão de calor:</strong> sim.</li><li><strong>Super-audição:</strong> sim.</li></ul>"
+      },
+      {
+        "title": "🔗 Relações",
+        "content": "<ul><li><strong>M'gann M'orzz:</strong> Namorada. Relação sólida.</li><li><strong>M'ark:</strong> Filho adotivo de fato.</li><li><strong>Superman:</strong> Doador genético. Contato regular antes do Rei Ômega.</li><li><strong>Lex Luthor:</strong> Doador genético. Odeia. Lex está na JLU — o que aumenta o receio.</li><li><strong>J'onn J'onzz:</strong> Aliado.</li></ul>"
+      }
+    ]
   }
 };
 
