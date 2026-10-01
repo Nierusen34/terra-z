@@ -6,6 +6,7 @@ var core = window.TerraZCore;
 if(!core) throw new Error('Terra Z: núcleo não carregado antes de js/admin-panel.js');
 
 var showToast = core.showToast;
+var showConfirm = core.showConfirm;
 
 function el(id){ return document.getElementById(id); }
 function backend(){ return window.TerraZApp && window.TerraZApp.backend; }
@@ -234,6 +235,59 @@ function handleAction(action){
     requireEditorAction(function(){
       close();
       if(app.taxonomyManager && app.taxonomyManager.open) app.taxonomyManager.open();
+    });
+    return;
+  }
+
+  if(action === 'privacy-migrate'){
+    requireEditorAction(async function(){
+      var b = backend();
+
+      try{
+        var health = await b.health();
+        if(!health || health.private_character_profiles !== true){
+          showToast('A migração criptografada será ativada no próximo deploy consolidado do backend.','info',6000);
+          return;
+        }
+
+        showConfirm(
+          'Migrar personagens privados',
+          'Mover agora todas as fichas marcadas “Somente editor” para o armazenamento criptografado? Elas deixarão de existir nos arquivos públicos e continuarão disponíveis após o login.',
+          async function(){
+            try{
+              var result = await b.request('/api/character',{
+                method:'POST',
+                body:{action:'migrate-private-characters'}
+              });
+
+              var count = Array.isArray(result.migrated) ? result.migrated.length : 0;
+
+              if(app.runtimeData && app.runtimeData.refresh){
+                await app.runtimeData.refresh({force:true,bust:result.sha || Date.now(),silent:true});
+              }
+              if(app.privateContent && app.privateContent.reload){
+                await app.privateContent.reload();
+              }
+
+              showToast(
+                count
+                  ? count + (count === 1 ? ' personagem migrado para o cofre criptografado.' : ' personagens migrados para o cofre criptografado.')
+                  : 'Nenhum personagem aguardava migração.',
+                'success',
+                6000
+              );
+              refresh();
+            }catch(error){
+              console.error('Terra Z privacy migration:',error);
+              showToast(error.message || 'Não foi possível migrar as fichas privadas.','error',6500);
+            }
+          },
+          'Migrar agora'
+        );
+      }catch(error){
+        console.error('Terra Z privacy capability:',error);
+        showToast('Não foi possível verificar a capacidade de privacidade do backend.','warning',5500);
+      }
     });
     return;
   }
