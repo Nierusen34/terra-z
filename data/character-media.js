@@ -60,8 +60,9 @@ window.TerraZData.characterMedia = {
     "source": "auto",
     "credit": "",
     "auto": {
-      "provider": "dc-fandom",
-      "wikiTitle": "J'onn J'onzz (Prime Earth)"
+      "provider": "external-url",
+      "imageUrl": "https://64.media.tumblr.com/97de10b59cdb203bc9b129d3dca609ce/11cdf65cf657d6a6-e9/s2048x3072/62d22900f4e3b7312076e15a291cece580e51412.jpg",
+      "sourceLabel": "Google Imagens · Dan Mora"
     }
   },
   "Oliver Queen": {
