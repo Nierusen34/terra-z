@@ -214,7 +214,8 @@ window.TerraZData.characterTaxonomy = {
     "Dick Grayson": {
       "featured": false,
       "nuclei": [
-        "gotham"
+        "gotham",
+        "novos-titas"
       ],
       "type": "hero",
       "status": "active"
