@@ -38,7 +38,8 @@ window.TerraZData.contentOverrides = {
   "tz-0544": "Novos Titãs (2ª)",
   "tz-0464": "<strong>Codinome:</strong> Ranger<br><strong>Idade:</strong> 20 (2007)<br><strong>Pais:</strong> Oliver e Dinah<br><strong>Local:</strong>&nbsp;Downtown",
   "tz-0466": "<strong>Origem:</strong> Clone da Cadmus<br><strong>Idade:</strong> Aparência 20 (cron. 5)<br><strong>Local:</strong>&nbsp;Vanguard Bay<br><strong>Prazo:</strong> Caçado em 2072",
-  "tz-0468": "<strong>Idade:</strong> 23 (2004)<br><strong>Pai:</strong> Armek<br><strong>Mãe:</strong> M'gann<br><strong>Local:</strong>&nbsp;Vanguard Bay"
+  "tz-0468": "<strong>Idade:</strong> 23 (2004)<br><strong>Pai:</strong> Armek<br><strong>Mãe:</strong> M'gann<br><strong>Local:</strong>&nbsp;Vanguard Bay",
+  "tz-0482": "<strong>Idade:</strong> ~29<br><strong>Origem:</strong> Clone Superman/Luthor<br>"
 };
 
 })();
