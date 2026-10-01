@@ -218,6 +218,70 @@ function normalizeCharacterMeta(value,taxonomy,creating){
   };
 }
 
+const PRIVATE_MIME_BY_EXT = {
+  png:"image/png",
+  jpg:"image/jpeg",
+  jpeg:"image/jpeg",
+  webp:"image/webp"
+};
+const PRIVATE_EXT_BY_MIME = {
+  "image/png":"png",
+  "image/jpeg":"jpg",
+  "image/webp":"webp"
+};
+
+function privateSlug(value){
+  return String(value || "")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .toLowerCase()
+    .replace(/['’]/g,"")
+    .replace(/[^a-z0-9]+/g,"-")
+    .replace(/^-+|-+$/g,"")
+    .slice(0,80);
+}
+
+async function capturePrivatePortrait(mediaEntry){
+  const media=mediaEntry && typeof mediaEntry === "object"
+    ? {...mediaEntry}
+    : null;
+  const src=media && typeof media.src === "string" ? media.src.trim() : "";
+
+  if(!src || !/^images\/characters\/[a-z0-9._-]+\.(png|jpe?g|webp)$/i.test(src)){
+    return {media,privatePortrait:null,deletePath:""};
+  }
+
+  const file=await readBinaryFile(src);
+  const ext=src.split(".").pop().toLowerCase();
+  const mime=PRIVATE_MIME_BY_EXT[ext] || "image/jpeg";
+
+  return {
+    media:{...media,src:"",source:"private"},
+    privatePortrait:{
+      mime,
+      dataBase64:file.buffer.toString("base64")
+    },
+    deletePath:src
+  };
+}
+
+function publicPortraitFromPrivate(name,profile){
+  const portrait=profile && profile.privatePortrait;
+  if(!portrait || !portrait.mime || !portrait.dataBase64) return null;
+  const ext=PRIVATE_EXT_BY_MIME[portrait.mime];
+  if(!ext) return null;
+
+  const path="images/characters/" + privateSlug(name) + "." + ext;
+  return {
+    path,
+    content:portrait.dataBase64,
+    media:{
+      ...(profile.media && typeof profile.media === "object" ? profile.media : defaultCharacterMedia(name)),
+      src:path,
+      source:"local"
+    }
+  };
+}
+
 function defaultCharacterMedia(name){
   return {src:"",alt:name,source:"local",credit:""};
 }
@@ -361,17 +425,22 @@ export default async function handler(req,res){
         : {};
 
       const migrated=[];
+      const privateDeletes=[];
 
-      Object.keys(taxonomy.characters).forEach(name => {
+      for(const name of Object.keys(taxonomy.characters)){
         const meta=taxonomy.characters[name] || {};
-        if(meta.visibility !== "private") return;
+        if(meta.visibility !== "private") continue;
 
         const override=overrides[name] && typeof overrides[name] === "object" ? overrides[name] : null;
-        if(!override || override.deleted === true) return;
+        if(!override || override.deleted === true) continue;
 
         const previous=privateData.characters[name] && typeof privateData.characters[name] === "object"
           ? privateData.characters[name]
           : {};
+        const currentMedia=media[name] && typeof media[name] === "object"
+          ? media[name]
+          : defaultCharacterMedia(name);
+        const captured=await capturePrivatePortrait(currentMedia);
 
         privateData.characters[name]={
           ...previous,
@@ -381,15 +450,18 @@ export default async function handler(req,res){
             sections:Array.isArray(override.sections) ? override.sections : [],
             card:override.card && typeof override.card === "object" ? override.card : {},
             meta:{...meta,visibility:"private"},
-            media:media[name] && typeof media[name] === "object" ? media[name] : defaultCharacterMedia(name)
+            media:captured.media || defaultCharacterMedia(name),
+            ...(captured.privatePortrait ? {privatePortrait:captured.privatePortrait} : {})
           }
         };
+
+        if(captured.deletePath) privateDeletes.push({path:captured.deletePath,delete:true});
 
         delete overrides[name];
         delete taxonomy.characters[name];
         delete media[name];
         migrated.push(name);
-      });
+      }
 
       if(!migrated.length){
         return res.status(200).json({ok:true,migrated:[],message:"Nenhum personagem aguardando migração privada."});
@@ -400,7 +472,8 @@ export default async function handler(req,res){
         {path:"data/character-overrides.js",content:renderCharacterOverrides(overrides),encoding:"utf-8"},
         {path:"data/character-meta.js",content:renderCharacterTaxonomy(taxonomy),encoding:"utf-8"},
         {path:"data/character-media.js",content:renderCharacterMedia(media),encoding:"utf-8"},
-        {path:PRIVATE_CHARACTER_DATA_PATH,content:renderPrivateCharacterData(privateData),encoding:"utf-8"}
+        {path:PRIVATE_CHARACTER_DATA_PATH,content:renderPrivateCharacterData(privateData),encoding:"utf-8"},
+        ...privateDeletes
       ],"security: migrar personagens privados para armazenamento criptografado",head);
 
       return res.status(200).json({
@@ -621,6 +694,10 @@ export default async function handler(req,res){
       : (previousPrivateProfile && previousPrivateProfile.media) || defaultCharacterMedia(name);
 
     if(characterMeta.visibility === "private"){
+      const captured=previousPrivateProfile
+        ? {media:existingMedia,privatePortrait:previousPrivateProfile.privatePortrait || null,deletePath:""}
+        : await capturePrivatePortrait(existingMedia);
+
       privateData.characters[name] = {
         ...previousPrivateEntry,
         ...(secrets !== null ? {secrets} : {}),
@@ -630,7 +707,8 @@ export default async function handler(req,res){
           sections,
           card:card || {},
           meta:{...characterMeta,visibility:"private"},
-          media:existingMedia
+          media:captured.media || defaultCharacterMedia(name),
+          ...(captured.privatePortrait ? {privatePortrait:captured.privatePortrait} : {})
         }
       };
 
@@ -644,6 +722,7 @@ export default async function handler(req,res){
         {path:"data/character-media.js",content:renderCharacterMedia(media),encoding:"utf-8"},
         {path:PRIVATE_CHARACTER_DATA_PATH,content:renderPrivateCharacterData(privateData),encoding:"utf-8"}
       );
+      if(captured.deletePath) files.push({path:captured.deletePath,delete:true});
     }else{
       overrides[name] = {
         ...previousOverride,
@@ -654,7 +733,12 @@ export default async function handler(req,res){
       };
       taxonomy.characters[name] = characterMeta;
 
-      if(!media[name]) media[name] = existingMedia;
+      const restoredPortrait=previousPrivateProfile
+        ? publicPortraitFromPrivate(name,previousPrivateProfile)
+        : null;
+
+      if(restoredPortrait) media[name]=restoredPortrait.media;
+      else if(!media[name]) media[name]=existingMedia;
 
       if(secrets !== null){
         privateData.characters[name] = {
@@ -673,6 +757,14 @@ export default async function handler(req,res){
         {path:"data/character-meta.js",content:renderCharacterTaxonomy(taxonomy),encoding:"utf-8"},
         {path:"data/character-media.js",content:renderCharacterMedia(media),encoding:"utf-8"}
       );
+
+      if(restoredPortrait){
+        files.push({
+          path:restoredPortrait.path,
+          content:restoredPortrait.content,
+          encoding:"base64"
+        });
+      }
 
       if(previousPrivateProfile || secrets !== null){
         files.push({
@@ -705,7 +797,9 @@ export default async function handler(req,res){
           : overrides[name])
       },
       meta:characterMeta,
-      media:characterMeta.visibility === "private" ? existingMedia : (media[name] || null),
+      media:characterMeta.visibility === "private"
+        ? ((privateData.characters[name] && privateProfile(privateData.characters[name]) && privateProfile(privateData.characters[name]).media) || null)
+        : (media[name] || null),
       status_url:statusUrl(req,commit.sha)
     });
   } catch(error){
