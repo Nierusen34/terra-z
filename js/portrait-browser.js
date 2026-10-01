@@ -376,7 +376,7 @@ async function loadGallery(page){
     if(currentPage !== page) return;
 
     var files = data && data.query && Array.isArray(data.query.pages)
-      ? data.query.pages.filter(imageIsUseful).slice(0,36)
+      ? data.query.pages.filter(imageIsUseful).slice(0,50)
       : [];
 
     renderGallery(page,files);
