@@ -336,7 +336,13 @@ window.TerraZApp.graph = {
   render: renderGraph,
   openEditor: openGraphEditor,
   closeEditor: closeGraphEditor,
-  reset: resetGraph
+  reset: resetGraph,
+  getData:function(){
+    return graphData ? JSON.parse(JSON.stringify(graphData)) : {quadrants:[],nodes:[],edges:[]};
+  },
+  getCharacterMap:function(){
+    return Object.assign({},graphCharacterMap);
+  }
 };
 
 })();

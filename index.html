@@ -176,12 +176,64 @@
       <div class="admin-section">
         <div class="admin-section-title">Backup e manutenção</div>
         <div class="admin-grid compact">
+          <button class="admin-action integrity-action" data-admin-action="integrity">
+            🩺 <strong>Verificar Terra Z</strong>
+            <small>Diagnosticar personagens, mídia, sessões, relações e estrutura.</small>
+          </button>
           <button class="admin-action" data-admin-action="backup">📤 <strong>Backup JSON</strong></button>
           <button class="admin-action" data-admin-action="import">📂 <strong>Importar backup</strong></button>
           <button class="admin-action" data-admin-action="export-html">📥 <strong>Exportar HTML</strong></button>
           <button class="admin-action danger" data-admin-action="reset">🔄 <strong>Resetar rascunho local</strong></button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<div id="integrityPanel" class="integrity-panel" role="dialog" aria-modal="true" aria-labelledby="integrityTitle">
+  <div class="integrity-card">
+    <div class="integrity-head">
+      <div>
+        <div class="integrity-eyebrow">MANUTENÇÃO · DIAGNÓSTICO</div>
+        <h3 id="integrityTitle">🩺 Verificar Terra Z</h3>
+      </div>
+      <button id="integrityClose" type="button" aria-label="Fechar">✕</button>
+    </div>
+
+    <div class="integrity-summary">
+      <button type="button" data-integrity-filter="critical">
+        <span>Críticos</span><strong id="integrityCriticalCount">0</strong>
+      </button>
+      <button type="button" data-integrity-filter="warning">
+        <span>Atenção</span><strong id="integrityWarningCount">0</strong>
+      </button>
+      <button type="button" data-integrity-filter="info">
+        <span>Informativos</span><strong id="integrityInfoCount">0</strong>
+      </button>
+      <div class="integrity-summary-pass">
+        <span>Verificações OK</span><strong id="integrityPassedCount">0</strong>
+      </div>
+    </div>
+
+    <div class="integrity-toolbar">
+      <div class="integrity-filter-row">
+        <button type="button" class="active" data-integrity-filter="all">Todos</button>
+        <button type="button" data-integrity-filter="critical">Críticos</button>
+        <button type="button" data-integrity-filter="warning">Atenção</button>
+        <button type="button" data-integrity-filter="info">Informativos</button>
+      </div>
+      <div class="integrity-toolbar-actions">
+        <input id="integritySearch" type="search" placeholder="Buscar no relatório..." autocomplete="off">
+        <button id="integrityRun" type="button">↻ Verificar novamente</button>
+      </div>
+    </div>
+
+    <div id="integrityStatus" class="integrity-status" data-state="idle"></div>
+    <div id="integrityResults" class="integrity-results"></div>
+
+    <div class="integrity-footer">
+      <span id="integrityLastRun">Ainda não verificado.</span>
+      <span>Somente leitura · nenhuma correção é aplicada automaticamente.</span>
     </div>
   </div>
 </div>
@@ -1133,6 +1185,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="js/router.js" defer></script>
 <script src="js/sessions.js" defer></script>
 <script src="js/session-editor.js" defer></script>
+<script src="js/integrity-checker.js" defer></script>
 <script src="js/world-links.js" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){

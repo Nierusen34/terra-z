@@ -2312,3 +2312,72 @@ html[data-spoiler-mode="safe"] [data-visibility="master"]{display:none!important
     pointer-events:none;
   }
 }
+
+/* ===== VERIFICADOR DE INTEGRIDADE ===== */
+.integrity-panel{display:none;position:fixed;inset:0;z-index:445;background:rgba(0,0,0,.86);backdrop-filter:blur(8px);overflow:auto;padding:24px 16px}
+.integrity-panel.show{display:block;animation:fadeIn .2s ease}
+.integrity-card{width:min(1060px,100%);min-height:600px;margin:0 auto;background:var(--paper2);border:1px solid var(--line);box-shadow:0 24px 80px rgba(0,0,0,.62)}
+.integrity-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:20px 22px 16px;background:var(--paper);border-bottom:3px double var(--accent)}
+.integrity-eyebrow{font-family:'Share Tech Mono',monospace;color:var(--accent);font-size:9px;letter-spacing:2px;margin-bottom:5px}
+.integrity-head h3{margin:0;font-family:var(--font-title);font-size:25px;text-transform:uppercase;color:var(--ink)}
+.integrity-head>button{width:36px;height:36px;border:1px solid var(--line);border-radius:50%;background:transparent;color:var(--ink2);cursor:pointer}
+.integrity-head>button:hover{border-color:var(--accent);color:var(--accent)}
+.integrity-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:16px 22px 10px}
+.integrity-summary button,.integrity-summary-pass{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-height:70px;padding:10px 12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);text-align:left}
+.integrity-summary button{cursor:pointer}
+.integrity-summary button:hover,.integrity-summary button.active{border-color:var(--accent)}
+.integrity-summary span{font-family:'Share Tech Mono',monospace;color:var(--ink3);font-size:8px;letter-spacing:.8px;text-transform:uppercase}
+.integrity-summary strong{font-family:var(--font-title);font-size:26px;line-height:1}
+.integrity-toolbar{display:flex;justify-content:space-between;gap:10px;padding:8px 22px 12px;border-bottom:1px solid var(--line2)}
+.integrity-filter-row,.integrity-toolbar-actions{display:flex;gap:6px;align-items:center}
+.integrity-filter-row button,.integrity-toolbar-actions button{border:1px solid var(--line);background:var(--paper);color:var(--ink2);padding:8px 10px;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:.5px;text-transform:uppercase;cursor:pointer}
+.integrity-filter-row button:hover,.integrity-filter-row button.active,.integrity-toolbar-actions button:hover{border-color:var(--accent);color:var(--accent)}
+.integrity-toolbar-actions input{min-width:220px;background:var(--paper);border:1px solid var(--line);color:var(--ink);padding:8px 10px;font:inherit}
+.integrity-status{min-height:20px;padding:10px 22px 4px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--ink3)}
+.integrity-status[data-state="working"]{color:var(--accent2)}
+.integrity-status[data-state="success"]{color:#5a9b68}
+.integrity-status[data-state="warning"]{color:#bd8a28}
+.integrity-status[data-state="error"]{color:#c44747}
+.integrity-results{padding:10px 22px 20px;display:flex;flex-direction:column;gap:8px}
+.integrity-issue{border:1px solid var(--line);border-left-width:4px;background:var(--paper);padding:10px 12px}
+.integrity-issue.severity-critical{border-left-color:#c44747}
+.integrity-issue.severity-warning{border-left-color:#bd8a28}
+.integrity-issue.severity-info{border-left-color:var(--accent2)}
+.integrity-issue-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.integrity-severity,.integrity-area,.integrity-entity{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:.6px;text-transform:uppercase}
+.severity-critical .integrity-severity{color:#c44747}
+.severity-warning .integrity-severity{color:#bd8a28}
+.severity-info .integrity-severity{color:var(--accent2)}
+.integrity-area{color:var(--ink3)}
+.integrity-issue-main{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.integrity-issue-main>div{min-width:0}
+.integrity-issue-main strong{display:block;color:var(--ink);font-family:var(--font-title);font-size:14px}
+.integrity-entity{display:inline-block;margin-top:3px;color:var(--accent)}
+.integrity-issue-main p{margin:5px 0 0;color:var(--ink2);font-size:11px;line-height:1.5}
+.integrity-issue-main button{flex:0 0 auto;border:1px solid var(--line);background:var(--paper2);color:var(--ink2);padding:7px 9px;font-family:'Share Tech Mono',monospace;font-size:8px;cursor:pointer}
+.integrity-issue-main button:hover{border-color:var(--accent);color:var(--accent)}
+.integrity-loading,.integrity-empty{min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;color:var(--ink3)}
+.integrity-empty strong{font-family:var(--font-title);font-size:17px;color:var(--ink)}
+.integrity-empty span{font-size:10px}
+.integrity-footer{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--line2);padding:10px 22px 16px;color:var(--ink3);font-family:'Share Tech Mono',monospace;font-size:8px}
+.admin-action.integrity-action{border-color:color-mix(in srgb,var(--accent2) 45%,var(--line))}
+@media(max-width:760px){
+  .integrity-panel{padding:8px}
+  .integrity-head{padding:16px}
+  .integrity-summary{grid-template-columns:1fr 1fr;padding:12px 16px 8px}
+  .integrity-toolbar{padding:8px 16px 10px;flex-direction:column;align-items:stretch}
+  .integrity-filter-row{display:grid;grid-template-columns:repeat(4,1fr)}
+  .integrity-filter-row button{padding-left:4px;padding-right:4px}
+  .integrity-toolbar-actions{display:grid;grid-template-columns:1fr auto}
+  .integrity-toolbar-actions input{min-width:0}
+  .integrity-status{padding-left:16px;padding-right:16px}
+  .integrity-results{padding:8px 16px 16px}
+  .integrity-issue-main{align-items:flex-start}
+  .integrity-footer{padding:10px 16px 14px;flex-direction:column}
+}
+@media(max-width:480px){
+  .integrity-filter-row{grid-template-columns:1fr 1fr}
+  .integrity-toolbar-actions{grid-template-columns:1fr}
+  .integrity-issue-main{flex-direction:column}
+  .integrity-issue-main button{width:100%}
+}

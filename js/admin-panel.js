@@ -239,6 +239,14 @@ function handleAction(action){
     return;
   }
 
+  if(action === 'integrity'){
+    requireEditorAction(function(){
+      close();
+      if(app.integrityChecker && app.integrityChecker.open) app.integrityChecker.open();
+    });
+    return;
+  }
+
   if(action === 'privacy-migrate'){
     requireEditorAction(async function(){
       var b = backend();
