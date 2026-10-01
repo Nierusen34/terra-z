@@ -262,7 +262,7 @@ window.TerraZData.characterOverrides = {
     ],
     "card": {
       "icon": "💀",
-      "codename": "",
+      "codename": "R10T",
       "age": "5 (Aparenta ter 35)",
       "origin": "Clone da Cadmus",
       "status": "Ativo"
