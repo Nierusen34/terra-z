@@ -4,8 +4,7 @@
 window.TerraZData = window.TerraZData || {};
 
 // Metadados visuais de personagens.
-// O nome da ficha pode ser diferente do título usado pela fonte de retrato.
-// Prioridade: src local > fonte automática configurada > placeholder do Terra Z.
+// src vazio = usar placeholder do Terra Z.
 window.TerraZData.characterMedia = {
   "Tristan Queen": {
     "src": "images/characters/tristan-queen.jpg",
@@ -106,9 +105,9 @@ window.TerraZData.characterMedia = {
     }
   },
   "Conner Kent": {
-    "src": "",
+    "src": "images/characters/conner-kent.jpg",
     "alt": "Conner Kent",
-    "source": "auto",
+    "source": "local",
     "credit": "",
     "auto": {
       "provider": "dc-fandom",
