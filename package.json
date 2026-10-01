@@ -8,5 +8,10 @@
   },
   "dependencies": {
     "sanitize-html": "^2.17.0"
+  },
+  "scripts": {
+    "test": "npm run test:quality",
+    "test:quality": "node scripts/quality-check.mjs",
+    "test:smoke": "node scripts/smoke-test.mjs"
   }
 }
