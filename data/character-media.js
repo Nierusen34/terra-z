@@ -81,7 +81,7 @@ window.TerraZData.characterMedia = {
     "credit": "",
     "auto": {
       "provider": "dc-fandom",
-      "wikiTitle": "Dinah Drake (Prime Earth)"
+      "wikiTitle": "Dinah Drake"
     }
   },
   "Connor Hawke": {
