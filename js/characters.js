@@ -68,9 +68,10 @@ function openFichaModal(characterName){
   var canUploadPortrait = window.TerraZApp.mediaManager && window.TerraZApp.mediaManager.canUpload();
   var backend = window.TerraZApp && window.TerraZApp.backend;
   var canEditCharacter = !!(backend && backend.isConfigured && backend.isConfigured() && backend.isAuthenticated && backend.isAuthenticated());
-  var uploadBtn = canUploadPortrait ? '<button class="fh-link" id="fichaUploadPortraitBtn" title="Atualizar retrato">🖼️</button>' : '';
+  var uploadBtn = canUploadPortrait ? '<button class="fh-link" id="fichaUploadPortraitBtn" title="Enviar imagem própria">🖼️</button>' : '';
+  var browsePortraitBtn = canEditCharacter ? '<button class="fh-link" id="fichaBrowsePortraitBtn" title="Escolher versão ou imagem na DC Database">🎴</button>' : '';
   var editBtn = canEditCharacter ? '<button class="fh-link" id="fichaEditCharacterBtn" title="Editar personagem">✏️</button>' : '';
-  header.innerHTML = portrait + '<div class="fh-info"><div class="fh-eyebrow">' + escapeHtml(ficha.eyebrow) + '</div><h2>' + escapeHtml(characterName) + '</h2></div><div class="fh-actions">' + editBtn + uploadBtn + '<button class="fh-link" id="fichaCopyLinkBtn" title="Copiar link direto">🔗</button><button class="fh-close" id="fichaCloseBtn">✕</button></div>';
+  header.innerHTML = portrait + '<div class="fh-info"><div class="fh-eyebrow">' + escapeHtml(ficha.eyebrow) + '</div><h2>' + escapeHtml(characterName) + '</h2></div><div class="fh-actions">' + editBtn + browsePortraitBtn + uploadBtn + '<button class="fh-link" id="fichaCopyLinkBtn" title="Copiar link direto">🔗</button><button class="fh-close" id="fichaCloseBtn">✕</button></div>';
   var bodyHtml = '';
   var privateSecrets = (window.TerraZApp.privateContent && window.TerraZApp.privateContent.getCharacterSecrets)
     ? window.TerraZApp.privateContent.getCharacterSecrets(characterName)
@@ -123,6 +124,11 @@ function openFichaModal(characterName){
   if(editCharacterBtn) editCharacterBtn.addEventListener('click', function(){
     if(window.TerraZApp.characterEditor) window.TerraZApp.characterEditor.open(characterName);
   });
+  var browsePortraitBtn = document.getElementById('fichaBrowsePortraitBtn');
+  if(browsePortraitBtn) browsePortraitBtn.addEventListener('click', function(){
+    if(window.TerraZApp.portraitBrowser) window.TerraZApp.portraitBrowser.open(characterName);
+  });
+
   var uploadPortraitBtn = document.getElementById('fichaUploadPortraitBtn');
   if(uploadPortraitBtn) uploadPortraitBtn.addEventListener('click', function(){
     if(window.TerraZApp.mediaManager) window.TerraZApp.mediaManager.choose(characterName);

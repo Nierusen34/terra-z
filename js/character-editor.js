@@ -755,6 +755,9 @@ function setup(){
   if(el('characterEditorRemovePortraitBtn')) el('characterEditorRemovePortraitBtn').addEventListener('click',removePortrait);
   if(el('characterEditorGraphBtn')) el('characterEditorGraphBtn').addEventListener('click',openGraph);
   if(el('characterEditorMediaProvider')) el('characterEditorMediaProvider').addEventListener('change',syncMediaSourceFields);
+  if(el('characterEditorMediaBrowseBtn')) el('characterEditorMediaBrowseBtn').addEventListener('click',function(){
+    if(currentName && window.TerraZApp.portraitBrowser) window.TerraZApp.portraitBrowser.open(currentName);
+  });
   if(el('characterEditorMediaSaveBtn')) el('characterEditorMediaSaveBtn').addEventListener('click',saveMediaSource);
   if(el('characterEditorMediaRefreshBtn')) el('characterEditorMediaRefreshBtn').addEventListener('click',refreshAutomaticPortrait);
 

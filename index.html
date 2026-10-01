@@ -874,6 +874,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 </label>
 </div>
 <div class="character-editor-media-actions">
+<button id="characterEditorMediaBrowseBtn" type="button">🎴 Explorar imagens da DC</button>
 <button id="characterEditorMediaRefreshBtn" type="button">↻ Atualizar agora</button>
 <button id="characterEditorMediaSaveBtn" class="primary" type="button">💾 Salvar fonte do retrato</button>
 </div>
@@ -913,6 +914,28 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <div class="ficha-header" id="fichaHeader"></div>
 <div class="ficha-body" id="fichaBody"></div>
 </div>
+</div>
+
+
+<div id="portraitBrowserModal" class="portrait-browser-modal" aria-hidden="true">
+  <div class="portrait-browser-shell">
+    <div class="portrait-browser-head">
+      <div>
+        <div class="portrait-browser-eyebrow">ARQUIVO VISUAL · DC DATABASE</div>
+        <h3 id="portraitBrowserTitle">Escolher retrato</h3>
+      </div>
+      <button id="portraitBrowserClose" class="portrait-browser-close" type="button" aria-label="Fechar">✕</button>
+    </div>
+
+    <div class="portrait-browser-search">
+      <input id="portraitBrowserQuery" type="search" maxlength="180" placeholder="Busque nome, identidade ou versão...">
+      <button id="portraitBrowserSearchBtn" type="button">🔎 Buscar versões</button>
+    </div>
+
+    <div id="portraitBrowserCurrent" class="portrait-browser-current"></div>
+    <div id="portraitBrowserStatus" class="portrait-browser-status" aria-live="polite"></div>
+    <div id="portraitBrowserBody" class="portrait-browser-body"></div>
+  </div>
 </div>
 
 <div id="presentationModal">
@@ -1000,6 +1023,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="js/media.js" defer></script>
 <script src="js/character-media.js" defer></script>
 <script src="js/media-manager.js" defer></script>
+<script src="js/portrait-browser.js" defer></script>
 <script src="js/navigation.js" defer></script>
 <script src="js/mobile-polish.js" defer></script>
 <script src="js/search.js" defer></script>
