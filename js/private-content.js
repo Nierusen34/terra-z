@@ -4,8 +4,101 @@
 window.TerraZApp = window.TerraZApp || {};
 
 var cache = null;
+var appliedSnapshots = Object.create(null);
 
 function backend(){ return window.TerraZApp && window.TerraZApp.backend; }
+
+function clone(value){
+  if(value === undefined) return undefined;
+  return JSON.parse(JSON.stringify(value));
+}
+
+function ensureRuntimeContainers(){
+  window.TerraZData = window.TerraZData || {};
+  window.TerraZData.characterOverrides = window.TerraZData.characterOverrides || {};
+  window.TerraZData.characterTaxonomy = window.TerraZData.characterTaxonomy || {nuclei:[],types:[],statuses:[],characters:{}};
+  window.TerraZData.characterTaxonomy.characters = window.TerraZData.characterTaxonomy.characters || {};
+  window.TerraZData.characterMedia = window.TerraZData.characterMedia || {};
+}
+
+function restorePrivateProfiles(silent){
+  ensureRuntimeContainers();
+
+  Object.keys(appliedSnapshots).forEach(function(name){
+    var snapshot=appliedSnapshots[name];
+
+    if(snapshot.overrideHad) window.TerraZData.characterOverrides[name]=snapshot.override;
+    else delete window.TerraZData.characterOverrides[name];
+
+    if(snapshot.metaHad) window.TerraZData.characterTaxonomy.characters[name]=snapshot.meta;
+    else delete window.TerraZData.characterTaxonomy.characters[name];
+
+    if(snapshot.mediaHad) window.TerraZData.characterMedia[name]=snapshot.media;
+    else delete window.TerraZData.characterMedia[name];
+  });
+
+  appliedSnapshots=Object.create(null);
+
+  if(!silent){
+    document.dispatchEvent(new CustomEvent('terra-z:private-profiles-changed',{
+      detail:{names:[],cleared:true}
+    }));
+  }
+}
+
+function applyPrivateProfiles(){
+  restorePrivateProfiles(true);
+  ensureRuntimeContainers();
+
+  var characters=cache && cache.characters && typeof cache.characters === 'object'
+    ? cache.characters
+    : {};
+  var applied=[];
+
+  Object.keys(characters).forEach(function(name){
+    var entry=characters[name] || {};
+    var profile=entry.profile && typeof entry.profile === 'object' ? entry.profile : null;
+    if(!profile) return;
+
+    appliedSnapshots[name]={
+      overrideHad:Object.prototype.hasOwnProperty.call(window.TerraZData.characterOverrides,name),
+      override:clone(window.TerraZData.characterOverrides[name]),
+      metaHad:Object.prototype.hasOwnProperty.call(window.TerraZData.characterTaxonomy.characters,name),
+      meta:clone(window.TerraZData.characterTaxonomy.characters[name]),
+      mediaHad:Object.prototype.hasOwnProperty.call(window.TerraZData.characterMedia,name),
+      media:clone(window.TerraZData.characterMedia[name])
+    };
+
+    window.TerraZData.characterOverrides[name]={
+      eyebrow:String(profile.eyebrow || ''),
+      sections:Array.isArray(profile.sections) ? clone(profile.sections) : [],
+      card:profile.card && typeof profile.card === 'object' ? clone(profile.card) : {},
+      created:true,
+      privateRuntime:true
+    };
+
+    window.TerraZData.characterTaxonomy.characters[name]={
+      ...(profile.meta && typeof profile.meta === 'object' ? clone(profile.meta) : {}),
+      visibility:'private'
+    };
+
+    var profileMedia=profile.media && typeof profile.media === 'object'
+      ? clone(profile.media)
+      : {src:'',alt:name,source:'local',credit:''};
+
+    if(profile.privatePortrait && profile.privatePortrait.mime && profile.privatePortrait.dataBase64){
+      profileMedia.src='data:' + profile.privatePortrait.mime + ';base64,' + profile.privatePortrait.dataBase64;
+      profileMedia.source='private';
+    }
+
+    window.TerraZData.characterMedia[name]=profileMedia;
+    applied.push(name);
+  });
+
+  document.dispatchEvent(new CustomEvent('terra-z:private-profiles-changed',{
+    detail:{names:applied,cleared:false}
+  }));
+}
 
 async function load(){
   var b = backend();
@@ -15,6 +108,7 @@ async function load(){
   try {
     var result = await b.request('/api/master',{method:'GET'});
     cache = result.content || {};
+    applyPrivateProfiles();
     document.dispatchEvent(new CustomEvent('terra-z:private-content-loaded'));
     return cache;
   } catch(err){
@@ -26,6 +120,19 @@ async function load(){
 function getCharacterSecrets(name){
   if(!cache || !cache.characters || !cache.characters[name]) return null;
   return cache.characters[name].secrets || null;
+}
+
+function getCharacterProfile(name){
+  if(!cache || !cache.characters || !cache.characters[name]) return null;
+  var profile=cache.characters[name].profile;
+  return profile && typeof profile === 'object' ? profile : null;
+}
+
+function getPrivateCharacterNames(){
+  if(!cache || !cache.characters) return [];
+  return Object.keys(cache.characters).filter(function(name){
+    return !!getCharacterProfile(name);
+  });
 }
 
 
@@ -52,7 +159,9 @@ function setMasterState(master){
 }
 
 function clear(){
+  restorePrivateProfiles(false);
   cache = null;
+  document.dispatchEvent(new CustomEvent('terra-z:private-content-cleared'));
 }
 
 
@@ -90,6 +199,8 @@ window.TerraZApp.privateContent = {
   setCharacterSecrets:setCharacterSecrets,
   removeCharacter:removeCharacter,
   getCharacterSecrets:getCharacterSecrets,
+  getCharacterProfile:getCharacterProfile,
+  getPrivateCharacterNames:getPrivateCharacterNames,
   getMasterState:getMasterState,
   setMasterState:setMasterState,
   isLoaded:function(){ return !!cache; }
