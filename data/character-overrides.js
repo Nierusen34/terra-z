@@ -158,7 +158,7 @@ window.TerraZData.characterOverrides = {
     "sections": [
       {
         "title": "📋 Ficha Básica",
-        "content": "<p><strong>Nome:</strong> Conner Kent (Kon-El)<br><strong>Codinome:</strong> Superboy<br><strong>Idade:</strong> ~29 anos (clone)<br><strong>Origem:</strong> Clone híbrido de Superman e Lex Luthor<br><strong>Papel:</strong> Figura paterna de M'ark. Namorado de M'gann.<br><strong>Local:</strong> A caminho de Vanguard Bay</p>"
+        "content": "<p><strong>Nome:</strong> Conner Kent (Kon-El)<br><strong>Codinome:</strong> Superboy<br><strong>Idade:</strong> ~29 anos (clone)<br><strong>Origem:</strong> Clone híbrido de Superman e Lex Luthor<br><strong>Local:</strong> A caminho de Vanguard Bay</p>"
       },
       {
         "title": "📖 História",
