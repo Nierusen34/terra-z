@@ -116,8 +116,8 @@ window.TerraZData.characterTaxonomy = {
     "M'ark": {
       "featured": true,
       "nuclei": [
-        "martian",
-        "vanguard"
+        "vanguard",
+        "martian"
       ],
       "type": "protagonist",
       "status": "missing"
