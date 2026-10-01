@@ -257,6 +257,14 @@ function handleAction(action){
     return;
   }
 
+  if(action === 'history'){
+    requireEditorAction(function(){
+      close();
+      if(app.historyManager && app.historyManager.open) app.historyManager.open();
+    });
+    return;
+  }
+
   if(action === 'privacy-migrate'){
     requireEditorAction(async function(){
       var b = backend();

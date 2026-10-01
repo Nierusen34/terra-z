@@ -228,14 +228,22 @@ export default async function handler(req,res){
       const limit=Math.max(10,Math.min(Number((req.query || {}).limit) || 40,80));
       const head=await getHead();
       const productionSha=String(process.env.VERCEL_GIT_COMMIT_SHA || "");
-      const [commits,comparison]=await Promise.all([
+      const [commits,comparison,vercelConfigFile]=await Promise.all([
         listCommits(limit),
         productionSha && /^[a-f0-9]{40}$/i.test(productionSha)
           ? compareCommits(productionSha,head).catch(()=>null)
-          : Promise.resolve(null)
+          : Promise.resolve(null),
+        readTextFile("vercel.json").catch(()=>null)
       ]);
 
       const state=syncState(comparison,productionSha,head);
+      let autoDeployPaused=null;
+      if(vercelConfigFile){
+        try{
+          const parsed=JSON.parse(vercelConfigFile.content);
+          autoDeployPaused=!!(parsed.git && parsed.git.deploymentEnabled === false);
+        }catch{}
+      }
 
       res.setHeader("Cache-Control","no-store, max-age=0");
       return res.status(200).json({
@@ -243,6 +251,7 @@ export default async function handler(req,res){
         head_sha:head,
         production_sha:productionSha,
         deployment_env:String(process.env.VERCEL_ENV || ""),
+        auto_deploy_paused:autoDeployPaused,
         sync:{
           state,
           ahead_by:Number(comparison && comparison.ahead_by || 0),

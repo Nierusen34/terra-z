@@ -185,12 +185,90 @@
             🩺 <strong>Verificar Terra Z</strong>
             <small>Diagnosticar personagens, mídia, sessões, relações e estrutura.</small>
           </button>
+          <button class="admin-action history-action" data-admin-action="history">
+            🕘 <strong>Histórico e Produção</strong>
+            <small>Revisar alterações, restaurar conteúdo e publicar checkpoints seguros.</small>
+          </button>
           <button class="admin-action" data-admin-action="backup">📤 <strong>Backup JSON</strong></button>
           <button class="admin-action" data-admin-action="import">📂 <strong>Importar backup</strong></button>
           <button class="admin-action" data-admin-action="export-html">📥 <strong>Exportar HTML</strong></button>
           <button class="admin-action danger" data-admin-action="reset">🔄 <strong>Resetar rascunho local</strong></button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<div id="historyManagerPanel" class="history-manager-panel" role="dialog" aria-modal="true" aria-labelledby="historyManagerTitle">
+  <div class="history-manager-card">
+    <div class="history-manager-head">
+      <div>
+        <div class="history-manager-eyebrow">CONTINUIDADE · VERSIONAMENTO · PRODUÇÃO</div>
+        <h3 id="historyManagerTitle">🕘 Histórico e Produção</h3>
+      </div>
+      <button id="historyManagerClose" type="button" aria-label="Fechar">✕</button>
+    </div>
+
+    <div class="history-sync-grid">
+      <div class="history-sync-card">
+        <span>GitHub · Main</span>
+        <strong id="historyHeadSha">—</strong>
+        <small id="historyHeadNote">Carregando…</small>
+      </div>
+      <div class="history-sync-card">
+        <span>Vercel · Produção</span>
+        <strong id="historyProductionSha">—</strong>
+        <small id="historyProductionNote">Carregando…</small>
+      </div>
+      <div class="history-sync-card status-card" id="historySyncCard">
+        <span>Estado</span>
+        <strong id="historySyncState">Verificando…</strong>
+        <small id="historySyncNote"></small>
+      </div>
+    </div>
+
+    <div id="historyDeployPolicy" class="history-deploy-policy">
+      Verificando política de deploy…
+    </div>
+
+    <div class="history-manager-actions">
+      <div>
+        <strong>Checkpoint de produção</strong>
+        <span>Executa Quality Gate → Vercel → smoke test do SHA publicado.</span>
+      </div>
+      <button id="historyDeployBtn" class="primary" type="button" disabled>🚀 Publicar checkpoint</button>
+    </div>
+
+    <div id="historyOperationStatus" class="history-operation-status" data-state="idle"></div>
+
+    <div class="history-manager-toolbar">
+      <select id="historyKindFilter">
+        <option value="all">Todos os tipos</option>
+        <option value="character">Personagens</option>
+        <option value="session">Sessões</option>
+        <option value="graph">Relações</option>
+        <option value="content">Conteúdo</option>
+        <option value="media">Mídia</option>
+        <option value="security">Segurança</option>
+        <option value="deploy">Deploys</option>
+        <option value="restore">Restaurações</option>
+        <option value="system">Sistema / código</option>
+      </select>
+      <input id="historySearch" type="search" autocomplete="off" placeholder="Buscar mensagem, SHA ou autor…">
+      <button id="historyRefreshBtn" type="button">↻ Atualizar</button>
+    </div>
+
+    <div class="history-manager-copy">
+      <strong>Restauração segura:</strong> cria um novo commit com o conteúdo do ponto escolhido.
+      O código atual não volta para trás e nenhum commit é apagado.
+      Conteúdo Mestre continua armazenado apenas no envelope criptografado.
+    </div>
+
+    <div id="historyList" class="history-manager-list"></div>
+
+    <div class="history-manager-footer">
+      <span id="historyLoadedCount">—</span>
+      <span>Auditoria mostra metadados dos commits, nunca o texto descriptografado do Mestre.</span>
     </div>
   </div>
 </div>
@@ -1258,6 +1336,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="js/sessions.js" defer></script>
 <script src="js/session-editor.js" defer></script>
 <script src="js/integrity-checker.js" defer></script>
+<script src="js/history-manager.js" defer></script>
 <script src="js/visibility-manager.js" defer></script>
 <script src="js/world-links.js" defer></script>
 <script>
