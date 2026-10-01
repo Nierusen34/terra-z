@@ -58,7 +58,8 @@ function applyPrivateProfiles(){
   Object.keys(characters).forEach(function(name){
     var entry=characters[name] || {};
     var profile=entry.profile && typeof entry.profile === 'object' ? entry.profile : null;
-    if(!profile) return;
+    var masterSections=Array.isArray(entry.masterSections) ? clone(entry.masterSections) : [];
+    if(!profile && !masterSections.length) return;
 
     appliedSnapshots[name]={
       overrideHad:Object.prototype.hasOwnProperty.call(window.TerraZData.characterOverrides,name),
@@ -69,29 +70,47 @@ function applyPrivateProfiles(){
       media:clone(window.TerraZData.characterMedia[name])
     };
 
-    window.TerraZData.characterOverrides[name]={
-      eyebrow:String(profile.eyebrow || ''),
-      sections:Array.isArray(profile.sections) ? clone(profile.sections) : [],
-      card:profile.card && typeof profile.card === 'object' ? clone(profile.card) : {},
-      created:true,
-      privateRuntime:true
-    };
+    if(profile){
+      window.TerraZData.characterOverrides[name]={
+        eyebrow:String(profile.eyebrow || ''),
+        sections:Array.isArray(profile.sections) ? clone(profile.sections) : [],
+        card:profile.card && typeof profile.card === 'object' ? clone(profile.card) : {},
+        created:true,
+        privateRuntime:true
+      };
 
-    window.TerraZData.characterTaxonomy.characters[name]={
-      ...(profile.meta && typeof profile.meta === 'object' ? clone(profile.meta) : {}),
-      visibility:'private'
-    };
+      window.TerraZData.characterTaxonomy.characters[name]={
+        ...(profile.meta && typeof profile.meta === 'object' ? clone(profile.meta) : {}),
+        visibility:'master'
+      };
 
-    var profileMedia=profile.media && typeof profile.media === 'object'
-      ? clone(profile.media)
-      : {src:'',alt:name,source:'local',credit:''};
+      var profileMedia=profile.media && typeof profile.media === 'object'
+        ? clone(profile.media)
+        : {src:'',alt:name,source:'local',credit:''};
 
-    if(profile.privatePortrait && profile.privatePortrait.mime && profile.privatePortrait.dataBase64){
-      profileMedia.src='data:' + profile.privatePortrait.mime + ';base64,' + profile.privatePortrait.dataBase64;
-      profileMedia.source='private';
+      if(profile.privatePortrait && profile.privatePortrait.mime && profile.privatePortrait.dataBase64){
+        profileMedia.src='data:' + profile.privatePortrait.mime + ';base64,' + profile.privatePortrait.dataBase64;
+        profileMedia.source='private';
+      }
+
+      window.TerraZData.characterMedia[name]=profileMedia;
+    }else{
+      var publicOverride=window.TerraZData.characterOverrides[name];
+      if(publicOverride && typeof publicOverride === 'object'){
+        var publicSections=Array.isArray(publicOverride.sections) ? clone(publicOverride.sections) : [];
+        var combined=publicSections.concat(masterSections).map(function(section,index){
+          var item=section && typeof section === 'object' ? section : {};
+          return {
+            ...item,
+            visibility:item.visibility === 'master' ? 'master' : (item.visibility === 'spoiler' ? 'spoiler' : 'public'),
+            position:Number.isFinite(Number(item.position)) ? Number(item.position) : index
+          };
+        }).sort(function(a,b){ return a.position-b.position; });
+
+        window.TerraZData.characterOverrides[name]={...publicOverride,sections:combined};
+      }
     }
 
-    window.TerraZData.characterMedia[name]=profileMedia;
     applied.push(name);
   });
 
@@ -126,6 +145,21 @@ function getCharacterProfile(name){
   if(!cache || !cache.characters || !cache.characters[name]) return null;
   var profile=cache.characters[name].profile;
   return profile && typeof profile === 'object' ? profile : null;
+}
+
+function getCharacterMasterSections(name){
+  if(!cache || !cache.characters || !cache.characters[name]) return [];
+  return Array.isArray(cache.characters[name].masterSections)
+    ? clone(cache.characters[name].masterSections)
+    : [];
+}
+
+function setCharacterMasterSections(name,sections){
+  if(!cache) cache={};
+  if(!cache.characters || typeof cache.characters !== 'object') cache.characters={};
+  cache.characters[name]=cache.characters[name] || {};
+  cache.characters[name].masterSections=Array.isArray(sections) ? clone(sections) : [];
+  applyPrivateProfiles();
 }
 
 function getPrivateCharacterNames(){
@@ -200,6 +234,8 @@ window.TerraZApp.privateContent = {
   removeCharacter:removeCharacter,
   getCharacterSecrets:getCharacterSecrets,
   getCharacterProfile:getCharacterProfile,
+  getCharacterMasterSections:getCharacterMasterSections,
+  setCharacterMasterSections:setCharacterMasterSections,
   getPrivateCharacterNames:getPrivateCharacterNames,
   getMasterState:getMasterState,
   setMasterState:setMasterState,

@@ -994,9 +994,15 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <label>Tipo<select id="characterEditorType"></select></label>
 <label>Status<select id="characterEditorStatusMeta"></select></label>
 <label class="character-featured-toggle"><input id="characterEditorFeatured" type="checkbox"> <span>Personagem principal</span></label>
-<label class="character-private-toggle"><input id="characterEditorPrivate" type="checkbox"> <span>🔒 Somente editor</span></label>
+<label class="character-visibility-field">Visibilidade
+<select id="characterEditorVisibility">
+<option value="public">🌐 Público</option>
+<option value="spoiler">⚠️ Spoiler</option>
+<option value="master">🔒 Mestre</option>
+</select>
+</label>
 </div>
-<p class="character-editor-note character-private-note">Quando ativo, o card e a ficha ficam ocultos para visitantes/jogadores sem sessão de editor.</p>
+<p class="character-editor-note character-private-note">Público aparece sempre. Spoiler é ocultado no Modo Jogador. Mestre remove card, ficha e mídia dos arquivos públicos e usa o cofre criptografado.</p>
 <div class="character-editor-nuclei">
 <div class="character-editor-note">Núcleos narrativos — um personagem pode pertencer a vários.</div>
 <div id="characterEditorNuclei"></div>

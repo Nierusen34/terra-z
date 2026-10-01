@@ -29,7 +29,9 @@ function metaFor(name){
     nuclei:Array.isArray(meta.nuclei) ? meta.nuclei.slice() : [],
     type:meta.type || 'other',
     status:meta.status || 'unknown',
-    visibility:meta.visibility === 'private' ? 'private' : 'public'
+    visibility:(meta.visibility === 'master' || meta.visibility === 'private')
+      ? 'master'
+      : (meta.visibility === 'spoiler' ? 'spoiler' : 'public')
   };
 }
 
@@ -79,8 +81,11 @@ function fillOrganization(meta){
   var featured = el('characterEditorFeatured');
   if(featured) featured.checked = meta.featured === true;
 
-  var privateToggle = el('characterEditorPrivate');
-  if(privateToggle) privateToggle.checked = meta.visibility === 'private';
+  var visibilitySelect=el('characterEditorVisibility');
+  if(visibilitySelect){
+    var value=meta.visibility === 'private' ? 'master' : (meta.visibility || 'public');
+    visibilitySelect.value=(value === 'master' || value === 'spoiler') ? value : 'public';
+  }
 
   renderEditorNuclei(meta.nuclei || []);
 }
@@ -96,7 +101,7 @@ function collectOrganization(){
     nuclei:nuclei,
     type:el('characterEditorType') ? el('characterEditorType').value : 'other',
     status:el('characterEditorStatusMeta') ? el('characterEditorStatusMeta').value : 'unknown',
-    visibility:el('characterEditorPrivate') && el('characterEditorPrivate').checked ? 'private' : 'public'
+    visibility:el('characterEditorVisibility') ? el('characterEditorVisibility').value : 'public'
   };
 }
 
@@ -108,10 +113,16 @@ function setStatus(message,state){
 }
 
 function sectionHtml(section,index){
-  section = section || {};
+  section=section || {};
+  var visibility=section.visibility === 'master' ? 'master' : (section.visibility === 'spoiler' ? 'spoiler' : 'public');
   return '<div class="character-editor-section" data-character-section="' + index + '">' +
     '<div class="character-editor-section-head">' +
       '<input class="character-section-title" type="text" maxlength="160" value="' + escapeAttr(section.title || '') + '" placeholder="Título da seção">' +
+      '<select class="character-section-visibility" title="Visibilidade desta seção">' +
+        '<option value="public"' + (visibility === 'public' ? ' selected' : '') + '>🌐 Público</option>' +
+        '<option value="spoiler"' + (visibility === 'spoiler' ? ' selected' : '') + '>⚠️ Spoiler</option>' +
+        '<option value="master"' + (visibility === 'master' ? ' selected' : '') + '>🔒 Mestre</option>' +
+      '</select>' +
       '<button type="button" class="character-section-remove" title="Remover seção">🗑</button>' +
     '</div>' +
     '<div class="character-section-content" contenteditable="true" spellcheck="true">' + (section.content || '') + '</div>' +
@@ -138,7 +149,7 @@ function addSection(){
   var root = el('characterEditorSections');
   if(!root) return;
   var index = root.querySelectorAll('[data-character-section]').length;
-  root.insertAdjacentHTML('beforeend',sectionHtml({title:'Nova seção',content:'<p>Conteúdo da seção.</p>'},index));
+  root.insertAdjacentHTML('beforeend',sectionHtml({title:'Nova seção',visibility:'public',content:'<p>Conteúdo da seção.</p>'},index));
   var items = root.querySelectorAll('[data-character-section]');
   var latest = items[items.length-1];
   if(latest){
@@ -151,11 +162,13 @@ function collectSections(){
   var root = el('characterEditorSections');
   if(!root) return [];
   return Array.from(root.querySelectorAll('[data-character-section]')).map(function(row){
-    var title = row.querySelector('.character-section-title');
-    var content = row.querySelector('.character-section-content');
+    var title=row.querySelector('.character-section-title');
+    var content=row.querySelector('.character-section-content');
+    var visibility=row.querySelector('.character-section-visibility');
     return {
       title:title ? title.value.trim() : '',
-      content:content ? content.innerHTML.trim() : ''
+      content:content ? content.innerHTML.trim() : '',
+      visibility:visibility ? visibility.value : 'public'
     };
   }).filter(function(section){ return section.title || section.content; });
 }
@@ -588,8 +601,18 @@ async function save(){
       window.TerraZData.characterMedia[name] = result.media;
     }
 
-    if(privateLoaded && window.TerraZApp.privateContent && window.TerraZApp.privateContent.setCharacterSecrets){
-      window.TerraZApp.privateContent.setCharacterSecrets(name,payload.secrets || []);
+    if(privateLoaded && window.TerraZApp.privateContent){
+      if(window.TerraZApp.privateContent.setCharacterSecrets){
+        window.TerraZApp.privateContent.setCharacterSecrets(name,payload.secrets || []);
+      }
+      if(window.TerraZApp.privateContent.setCharacterMasterSections){
+        window.TerraZApp.privateContent.setCharacterMasterSections(
+          name,
+          sections.filter(function(section){ return section.visibility === 'master'; }).map(function(section,index){
+            return {...section,position:index};
+          })
+        );
+      }
     }
 
     var filters = window.TerraZApp && window.TerraZApp.characterFilters;

@@ -2394,3 +2394,20 @@ html[data-spoiler-mode="safe"] [data-visibility="master"]{display:none!important
   .integrity-issue-main{flex-direction:column}
   .integrity-issue-main button{width:100%}
 }
+
+
+/* ===== VISIBILIDADE PÚBLICO / SPOILER / MESTRE ===== */
+.character-section-visibility,#characterEditorVisibility{background:var(--paper);color:var(--ink);border:1px solid var(--line);padding:7px 8px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.3px}
+.character-editor-section-head .character-section-visibility{flex:0 0 auto;max-width:132px}
+.character-spoiler-card,.character-private-card{position:relative}
+.character-spoiler-card::after,.character-private-card::after{position:absolute;top:7px;left:7px;z-index:4;padding:2px 5px;background:rgba(20,17,14,.86);font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:1px;pointer-events:none}
+.character-spoiler-card::after{content:'SPOILER';border:1px solid rgba(189,138,40,.48);color:#bd8a28}
+.character-private-card::after{content:'MESTRE';border:1px solid rgba(139,26,26,.6);color:#d05a5a}
+.ficha-section[data-visibility="spoiler"]{border-left:3px solid rgba(189,138,40,.55);padding-left:12px}
+.ficha-section[data-visibility="master"]{border-left:3px solid rgba(139,26,26,.7);padding-left:12px}
+.session-visibility.spoiler{color:#bd8a28}
+@media(max-width:620px){
+  .character-editor-section-head{flex-wrap:wrap}
+  .character-editor-section-head .character-section-title{flex:1 1 calc(100% - 44px)}
+  .character-editor-section-head .character-section-visibility{order:3;flex:1 1 100%;max-width:none}
+}

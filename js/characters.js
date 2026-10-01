@@ -68,8 +68,12 @@ function editorAuthenticated(){
 }
 
 function canViewCharacter(name){
-  var meta = characterAccessMeta(name);
-  return meta.visibility !== 'private' || editorAuthenticated();
+  var meta=characterAccessMeta(name);
+  var level=meta.visibility === 'private' ? 'master' : (meta.visibility || 'public');
+  var visibility=window.TerraZApp && window.TerraZApp.visibility;
+  if(visibility && visibility.isLevelAllowed) return visibility.isLevelAllowed(level);
+  if(level === 'master') return editorAuthenticated();
+  return level !== 'spoiler';
 }
 
 function openFichaModal(characterName){
@@ -99,7 +103,11 @@ function openFichaModal(characterName){
     : null;
   var secrets = Array.isArray(privateSecrets) ? privateSecrets : ficha.secrets;
   ficha.sections.forEach(function(sec){
-    bodyHtml += '<div class="ficha-section"><h3>' + sec.title + '</h3>' + sec.content + '</div>';
+    var sectionVisibility=sec && sec.visibility === 'master'
+      ? 'master'
+      : (sec && sec.visibility === 'spoiler' ? 'spoiler' : 'public');
+    bodyHtml += '<div class="ficha-section" data-visibility="' + sectionVisibility + '">' +
+      '<h3>' + sec.title + '</h3>' + sec.content + '</div>';
   });
   if(secrets && secrets.length > 0){
     bodyHtml += '<div class="ficha-secrets" id="fichaSecretsBox" data-visibility="master"><button class="ficha-secrets-toggle" id="fichaSecretsToggle"><span>🔒 Mostrar Segredos (' + secrets.length + ')</span><span class="arrow">▶</span></button><div class="ficha-secrets-content"><ul>';

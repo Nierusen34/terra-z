@@ -60,7 +60,9 @@ function metaFor(name){
     nuclei:Array.isArray(meta.nuclei) && meta.nuclei.length ? meta.nuclei : ['other'],
     type:meta.type || 'other',
     status:meta.status || 'unknown',
-    visibility:meta.visibility === 'private' ? 'private' : 'public'
+    visibility:(meta.visibility === 'master' || meta.visibility === 'private')
+      ? 'master'
+      : (meta.visibility === 'spoiler' ? 'spoiler' : 'public')
   };
 }
 
@@ -166,7 +168,13 @@ function editorAuthenticated(){
   var backend = window.TerraZApp && window.TerraZApp.backend;
   return !!(backend && backend.isAuthenticated && backend.isAuthenticated());
 }
-function canView(meta){ return !meta || meta.visibility !== 'private' || editorAuthenticated(); }
+function canView(meta){
+  if(!meta) return true;
+  var visibility=window.TerraZApp && window.TerraZApp.visibility;
+  if(visibility && visibility.isLevelAllowed) return visibility.isLevelAllowed(meta.visibility);
+  if(meta.visibility === 'master') return editorAuthenticated();
+  return meta.visibility !== 'spoiler';
+}
 function applyCardSize(size,persist){
   if(size !== 'compact' && size !== 'large') size = 'standard';
   cardSize = size;
@@ -188,7 +196,8 @@ function apply(){
 
     var permitted = canView(meta);
     card.setAttribute('data-character-visibility',meta.visibility);
-    card.classList.toggle('character-private-card',meta.visibility === 'private' && editorAuthenticated());
+    card.classList.toggle('character-private-card',meta.visibility === 'master' && editorAuthenticated());
+    card.classList.toggle('character-spoiler-card',meta.visibility === 'spoiler');
     var show =
       permitted &&
       (!term || searchableText(card,name,meta).includes(term)) &&
@@ -264,6 +273,7 @@ document.addEventListener('terra-z:runtime-data-loaded',refreshTaxonomy);
 document.addEventListener('terra-z:private-profiles-changed',refreshTaxonomy);
 document.addEventListener('terra-z:private-content-cleared',refreshTaxonomy);
 document.addEventListener('terra-z:auth-changed',apply);
+document.addEventListener('terra-z:visibility-changed',apply);
 
 window.TerraZApp.characterFilters = {
   apply:apply,

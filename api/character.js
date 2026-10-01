@@ -97,10 +97,18 @@ function sanitizeHtml(value){
 
 function normalizeSections(value){
   if(!Array.isArray(value)) return [];
-  return value.slice(0,20).map(section => ({
-    title:text(section && section.title,160),
-    content:sanitizeHtml(section && section.content)
-  })).filter(section => section.title || section.content);
+  return value.slice(0,20).map((section,index) => {
+    const raw=String(section && section.visibility || "public");
+    const visibility=raw === "master"
+      ? "master"
+      : (raw === "spoiler" || raw === "rumor" || raw === "restricted" ? "spoiler" : "public");
+    return {
+      title:text(section && section.title,160),
+      content:sanitizeHtml(section && section.content),
+      visibility,
+      position:index
+    };
+  }).filter(section => section.title || section.content);
 }
 
 function normalizeSecrets(value){
@@ -214,7 +222,9 @@ function normalizeCharacterMeta(value,taxonomy,creating){
     nuclei:[...new Set(nuclei)],
     type,
     status,
-    visibility:input.visibility === "private" ? "private" : "public"
+    visibility:(input.visibility === "master" || input.visibility === "private")
+      ? "master"
+      : (input.visibility === "spoiler" ? "spoiler" : "public")
   };
 }
 
@@ -297,7 +307,8 @@ function cleanPrivateEntry(container,name){
   if(!entry || typeof entry !== "object") return;
   const hasSecrets=Array.isArray(entry.secrets) && entry.secrets.length > 0;
   const hasProfile=!!privateProfile(entry);
-  if(!hasSecrets && !hasProfile) delete container[name];
+  const hasMasterSections=Array.isArray(entry.masterSections) && entry.masterSections.length > 0;
+  if(!hasSecrets && !hasProfile && !hasMasterSections) delete container[name];
 }
 
 function statusUrl(req,sha){
@@ -429,7 +440,7 @@ export default async function handler(req,res){
 
       for(const name of Object.keys(taxonomy.characters)){
         const meta=taxonomy.characters[name] || {};
-        if(meta.visibility !== "private") continue;
+        if(meta.visibility !== "private" && meta.visibility !== "master") continue;
 
         const override=overrides[name] && typeof overrides[name] === "object" ? overrides[name] : null;
         if(!override || override.deleted === true) continue;
@@ -449,7 +460,7 @@ export default async function handler(req,res){
             eyebrow:String(override.eyebrow || ""),
             sections:Array.isArray(override.sections) ? override.sections : [],
             card:override.card && typeof override.card === "object" ? override.card : {},
-            meta:{...meta,visibility:"private"},
+            meta:{...meta,visibility:"master"},
             media:captured.media || defaultCharacterMedia(name),
             ...(captured.privatePortrait ? {privatePortrait:captured.privatePortrait} : {})
           }
@@ -693,7 +704,10 @@ export default async function handler(req,res){
       ? media[name]
       : (previousPrivateProfile && previousPrivateProfile.media) || defaultCharacterMedia(name);
 
-    if(characterMeta.visibility === "private"){
+    const publicSections=sections.filter(section => section.visibility !== "master");
+    const masterSections=sections.filter(section => section.visibility === "master");
+
+    if(characterMeta.visibility === "master"){
       const captured=previousPrivateProfile
         ? {media:existingMedia,privatePortrait:previousPrivateProfile.privatePortrait || null,deletePath:""}
         : await capturePrivatePortrait(existingMedia);
@@ -706,7 +720,7 @@ export default async function handler(req,res){
           eyebrow,
           sections,
           card:card || {},
-          meta:{...characterMeta,visibility:"private"},
+          meta:{...characterMeta,visibility:"master"},
           media:captured.media || defaultCharacterMedia(name),
           ...(captured.privatePortrait ? {privatePortrait:captured.privatePortrait} : {})
         }
@@ -727,7 +741,7 @@ export default async function handler(req,res){
       overrides[name] = {
         ...previousOverride,
         eyebrow,
-        sections,
+        sections:publicSections,
         created:true,
         ...(card ? {card} : {})
       };
@@ -740,15 +754,17 @@ export default async function handler(req,res){
       if(restoredPortrait) media[name]=restoredPortrait.media;
       else if(!media[name]) media[name]=existingMedia;
 
-      if(secrets !== null){
+      if(secrets !== null || masterSections.length || previousPrivateEntry.masterSections){
         privateData.characters[name] = {
           ...previousPrivateEntry,
-          secrets
+          ...(secrets !== null ? {secrets} : {}),
+          masterSections
         };
       }
 
       if(privateData.characters[name]){
         delete privateData.characters[name].profile;
+        if(!masterSections.length) delete privateData.characters[name].masterSections;
         cleanPrivateEntry(privateData.characters,name);
       }
 
@@ -766,7 +782,7 @@ export default async function handler(req,res){
         });
       }
 
-      if(previousPrivateProfile || secrets !== null){
+      if(previousPrivateProfile || secrets !== null || masterSections.length || previousPrivateEntry.masterSections){
         files.push({
           path:PRIVATE_CHARACTER_DATA_PATH,
           content:renderPrivateCharacterData(privateData),
@@ -786,7 +802,7 @@ export default async function handler(req,res){
       sha:commit.sha,
       character:{
         name,
-        ...(characterMeta.visibility === "private"
+        ...(characterMeta.visibility === "master"
           ? {
               eyebrow,
               sections,
@@ -794,10 +810,13 @@ export default async function handler(req,res){
               created:true,
               privateRuntime:true
             }
-          : overrides[name])
+          : {
+              ...overrides[name],
+              sections
+            })
       },
       meta:characterMeta,
-      media:characterMeta.visibility === "private"
+      media:characterMeta.visibility === "master"
         ? ((privateData.characters[name] && privateProfile(privateData.characters[name]) && privateProfile(privateData.characters[name]).media) || null)
         : (media[name] || null),
       status_url:statusUrl(req,commit.sha)
