@@ -224,6 +224,42 @@ window.TerraZData.characterOverrides = {
         "content": "<p>Em 2019 (aos 12 anos), deduziu as identidades de Bruce e Dick — tornou-se Robin. Em 2022, com a morte de Alfred, começou a sentir que a vida de vigilante não era para ele. Passou o manto para Damian, tornou-se Robin Vermelho por um tempo e, eventualmente, <strong>aposentou-se</strong>. Em 2027, vive como civil em Gotham e namora Bernard Dowd.</p>"
       }
     ]
+  },
+  "Riot": {
+    "eyebrow": "💀 Clone Czarniano · Aprendiz de Kendra",
+    "sections": [
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Riot<br><strong>Idade:</strong> Aparência 20 anos (cronológico: 5)<br><strong>Origem:</strong> Clone da Cadmus, resgatado em 2022<br><strong>Mãe adotiva:</strong> Kendra Saunders (Hawkgirl)<br><strong>Pai genético:</strong> Lobo (Czarniano)<br><strong>Status:</strong> Em missão pessoal em Vanguard Bay (sem local fixo)</p>"
+      },
+      {
+        "title": "📖 História",
+        "content": "<p>Criado por uma equipe dissidente da Cadmus — que depois se tornaria a organização <strong>Sumdac</strong> — como clone do Lobo. Seria descartado, mas foi resgatado em 2022 na <em>Tower of Fate</em> por uma equipe formada por <strong>Kendra Saunders, Oliver Queen, Metamorfo (Rex Mason) e Gladiador Dourado (Michael Carter)</strong>.</p><p>Durante o resgate, o clone bebê mordeu Lobo — e o Czarniano, divertido, prometeu dar 50 anos antes de caçá-lo. Kendra o criou por 5 anos (2022–2027), treinando-o intensamente e <strong>contando a ele sobre a promessa</strong>. Em janeiro de 2027, Kendra o apoiou a ir para Vanguard Bay para investigar a Sumdac sozinho — ele não fugiu.</p>"
+      },
+      {
+        "title": "🎯 Personalidade",
+        "content": "<p>Rebelde no geral — odeia autoridade e regras — mas <strong>respeita e gosta muito de Kendra</strong>, sentindo-se calmo na presença dela. Impulsivo, age antes de pensar. Carrega um <em>rage</em> interno constante, e sua consciência às vezes divaga entre memórias genéticas de Lobo e memórias próprias — quando isso acontece, ele anda sem rumo, quase como um sonâmbulo. Em relação ao destino de 2072, tende a <strong>desafiar</strong> em vez de aceitar.</p>"
+      },
+      {
+        "title": "⚔️ Habilidades",
+        "content": "<ul><li><strong>Superforça:</strong> capacidade física sobre-humana.</li><li><strong>Resistência:</strong> suporta danos extremos.</li><li><strong>Regeneração acelerada:</strong> cura rápida.</li><li><strong>Crescimento acelerado:</strong> aparência de 20 anos em apenas 5 de vida.</li><li><strong>Estilo de luta:</strong> cru e bruto — mesmo treinado por Kendra, luta por instinto. Sem armas.</li></ul>"
+      },
+      {
+        "title": "🔗 Relações",
+        "content": "<ul><li><strong>Kendra (mãe adotiva):</strong> Respeito e afeto genuínos. Sente-se calmo com ela. A rebeldia dele dificilmente é direcionada a ela.</li><li><strong>Lobo:</strong> Origem genética. Promessa de caça em 2072. Riot sente raiva e é perturbado pelas memórias genéticas.</li><li><strong>Oliver, Metamorfo e Gladiador Dourado:</strong> Colegas da missão de resgate de 2022. Relação positiva, mas distante — sempre checavam com Kendra se ele estava bem.</li><li><strong>Tristan Queen:</strong> Dois estranhos que estão se ajudando em um mesmo objetivo. Riot confia em Tristan por conhecer Oliver — como se a familiaridade fosse uma garantia.</li></ul>"
+      },
+      {
+        "title": "🆕 A ORGANIZAÇÃO SUMDAC",
+        "content": "<p>A equipe da Cadmus que criou Riot era <strong>dissidente</strong>. Separaram-se da Cadmus e formaram a <strong>Sumdac</strong> — mesma logotipo da Cadmus, mas toda em <strong>vermelho</strong>. Estão operando em <strong>Vanguard Bay</strong>, fazendo experimentos. Riot descobriu isso durante eventos recentes.</p>"
+      }
+    ],
+    "card": {
+      "icon": "💀",
+      "codename": "",
+      "age": "5 (Aparenta ter 35)",
+      "origin": "Clone da Cadmus",
+      "status": "Ativo"
+    }
   }
 };
 
