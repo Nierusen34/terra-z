@@ -222,6 +222,96 @@ function statusUrl(req,sha){
   return proto + "://" + req.headers.host + "/api/status?sha=" + encodeURIComponent(sha);
 }
 
+function normalizeNucleusId(value){
+  return String(value || "")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g,"-")
+    .replace(/^-+|-+$/g,"")
+    .slice(0,60);
+}
+
+function normalizeNucleusDefinitions(value){
+  if(!Array.isArray(value)){
+    const error = new Error("Lista de núcleos inválida.");
+    error.status = 400;
+    error.code = "invalid_nuclei";
+    throw error;
+  }
+
+  const seen = new Set();
+  const items = value.slice(0,40).map(item => {
+    const raw = item && typeof item === "object" ? item : {};
+    const id = normalizeNucleusId(raw.id);
+    const label = text(raw.label,100);
+
+    if(!id || !label){
+      const error = new Error("Todo núcleo precisa de identificador e nome.");
+      error.status = 400;
+      error.code = "invalid_nucleus";
+      throw error;
+    }
+
+    if(id === "all" || id === "featured"){
+      const error = new Error("“Todos” e “Principais” são filtros reservados do sistema.");
+      error.status = 400;
+      error.code = "reserved_nucleus";
+      throw error;
+    }
+
+    if(seen.has(id)){
+      const error = new Error("Existem núcleos com identificadores duplicados.");
+      error.status = 400;
+      error.code = "duplicate_nucleus";
+      throw error;
+    }
+
+    seen.add(id);
+    return {id,label};
+  });
+
+  if(!items.some(item => item.id === "other")){
+    const error = new Error("O núcleo interno “Outros” não pode ser excluído.");
+    error.status = 400;
+    error.code = "missing_other_nucleus";
+    throw error;
+  }
+
+  return items;
+}
+
+function applyNucleusDefinitionChanges(taxonomy,nextNuclei){
+  taxonomy.nuclei = nextNuclei;
+
+  const allowed = new Set(nextNuclei.map(item => item.id));
+  const fallback = allowed.has("other") ? "other" : "";
+
+  taxonomy.characters = taxonomy.characters && typeof taxonomy.characters === "object" && !Array.isArray(taxonomy.characters)
+    ? taxonomy.characters
+    : {};
+
+  Object.keys(taxonomy.characters).forEach(name => {
+    const current = taxonomy.characters[name] && typeof taxonomy.characters[name] === "object"
+      ? taxonomy.characters[name]
+      : {};
+
+    let nuclei = Array.isArray(current.nuclei)
+      ? current.nuclei.map(value => String(value || "")).filter(value => allowed.has(value))
+      : [];
+
+    nuclei = [...new Set(nuclei)];
+
+    if(!nuclei.length && fallback) nuclei = [fallback];
+
+    taxonomy.characters[name] = {
+      ...current,
+      nuclei
+    };
+  });
+
+  return taxonomy;
+}
+
 export default async function handler(req,res){
   if(applyCors(req,res)) return;
   if(req.method !== "POST" && req.method !== "DELETE"){
@@ -231,7 +321,41 @@ export default async function handler(req,res){
   if(!requireEditor(req,res)) return;
 
   try {
-    const input = (req.body || {}).character || req.body || {};
+    const body = req.body || {};
+
+    if(req.method === "POST" && body.action === "update-taxonomy"){
+      const metaFile = await readTextFile("data/character-meta.js");
+      const taxonomy = parseDataAssignment(metaFile.content,"characterTaxonomy");
+      const currentNuclei = Array.isArray(taxonomy.nuclei) ? taxonomy.nuclei : [];
+      const nextNuclei = normalizeNucleusDefinitions(body.nuclei);
+
+      const currentIds = new Set(currentNuclei.map(item => String(item && item.id || "")));
+      const nextIds = new Set(nextNuclei.map(item => item.id));
+      const deletedIds = [...currentIds].filter(id => id && !nextIds.has(id));
+
+      applyNucleusDefinitionChanges(taxonomy,nextNuclei);
+
+      const head = await getHead();
+      const commit = await commitFiles(
+        [{
+          path:"data/character-meta.js",
+          content:renderCharacterTaxonomy(taxonomy),
+          encoding:"utf-8"
+        }],
+        "characters: atualizar filtros e núcleos",
+        head
+      );
+
+      return res.status(200).json({
+        ok:true,
+        sha:commit.sha,
+        taxonomy,
+        deleted:deletedIds,
+        status_url:statusUrl(req,commit.sha)
+      });
+    }
+
+    const input = body.character || body || {};
     const name = text(input.name,160);
     if(!name) return res.status(400).json({error:"missing_character",message:"Personagem não informado."});
 

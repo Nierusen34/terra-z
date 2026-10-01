@@ -160,6 +160,11 @@
             <strong>Ir para personagens</strong>
             <small>Abrir a área de personagens e seus filtros.</small>
           </button>
+          <button class="admin-action" data-admin-action="taxonomy">
+            <span class="admin-action-icon">🏷️</span>
+            <strong>Filtros / Núcleos</strong>
+            <small>Adicionar, renomear, ordenar ou excluir grupos de personagens.</small>
+          </button>
         </div>
       </div>
 
@@ -172,6 +177,41 @@
           <button class="admin-action danger" data-admin-action="reset">🔄 <strong>Resetar rascunho local</strong></button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<div id="taxonomyManagerPanel" class="taxonomy-manager-panel" role="dialog" aria-modal="true" aria-labelledby="taxonomyManagerTitle">
+  <div class="taxonomy-manager-card">
+    <div class="taxonomy-manager-head">
+      <div>
+        <div class="taxonomy-manager-eyebrow">PERSONAGENS · ORGANIZAÇÃO</div>
+        <h3 id="taxonomyManagerTitle">🏷️ Filtros e Núcleos</h3>
+      </div>
+      <button id="taxonomyManagerClose" type="button" aria-label="Fechar">✕</button>
+    </div>
+
+    <div class="taxonomy-manager-system">
+      <div class="taxonomy-system-chip"><strong>Todos</strong><span>Filtro fixo do sistema</span></div>
+      <div class="taxonomy-system-chip"><strong>Principais</strong><span>Personagens marcados como destaque</span></div>
+    </div>
+
+    <div class="taxonomy-manager-copy">
+      Os núcleos abaixo alimentam os chips da página de Personagens e as opções do editor. Renomear mantém os vínculos existentes; excluir remove o vínculo daquele núcleo. Personagens que ficarem sem nenhum núcleo passam automaticamente para <strong>Outros</strong>.
+    </div>
+
+    <div class="taxonomy-manager-toolbar">
+      <input id="taxonomyManagerNewLabel" type="text" maxlength="100" placeholder="Nome do novo núcleo, ex.: Sociedade da Justiça">
+      <button id="taxonomyManagerAdd" type="button">＋ Adicionar núcleo</button>
+    </div>
+
+    <div id="taxonomyManagerList" class="taxonomy-manager-list"></div>
+
+    <div id="taxonomyManagerStatus" class="taxonomy-manager-status" data-state="idle"></div>
+
+    <div class="taxonomy-manager-actions">
+      <button id="taxonomyManagerCancel" type="button">Cancelar</button>
+      <button id="taxonomyManagerSave" type="button" class="primary">💾 Salvar filtros</button>
     </div>
   </div>
 </div>
@@ -1083,6 +1123,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="js/presentation.js" defer></script>
 <script src="js/graph.js" defer></script>
 <script src="js/character-filters.js" defer></script>
+<script src="js/taxonomy-manager.js" defer></script>
 <script src="js/router.js" defer></script>
 <script src="js/sessions.js" defer></script>
 <script src="js/session-editor.js" defer></script>

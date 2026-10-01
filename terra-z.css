@@ -1990,3 +1990,245 @@ html[data-spoiler-mode="safe"] [data-visibility="master"]{display:none!important
   .portrait-google-actions button{width:100%;min-height:42px}
   .portrait-google-note{margin:0 16px 18px}
 }
+
+
+/* ===== GERENCIADOR DE FILTROS / NÚCLEOS ===== */
+.taxonomy-manager-panel{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:430;
+  background:rgba(0,0,0,.84);
+  backdrop-filter:blur(7px);
+  overflow:auto;
+  padding:28px 18px;
+}
+.taxonomy-manager-panel.show{display:block;animation:fadeIn .2s ease}
+.taxonomy-manager-card{
+  width:min(860px,100%);
+  margin:0 auto;
+  background:var(--paper2);
+  border:1px solid var(--line);
+  box-shadow:0 24px 80px rgba(0,0,0,.6);
+}
+.taxonomy-manager-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  padding:20px 22px 16px;
+  border-bottom:3px double var(--accent);
+  background:var(--paper);
+}
+.taxonomy-manager-eyebrow{
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  letter-spacing:2px;
+  color:var(--accent);
+  margin-bottom:5px;
+}
+.taxonomy-manager-head h3{
+  margin:0;
+  font-family:var(--font-title);
+  font-size:24px;
+  color:var(--ink);
+  text-transform:uppercase;
+}
+.taxonomy-manager-head>button{
+  width:36px;
+  height:36px;
+  border:1px solid var(--line);
+  border-radius:50%;
+  background:transparent;
+  color:var(--ink2);
+  cursor:pointer;
+}
+.taxonomy-manager-head>button:hover{border-color:var(--accent);color:var(--accent)}
+.taxonomy-manager-system{
+  display:flex;
+  gap:8px;
+  padding:16px 22px 8px;
+  flex-wrap:wrap;
+}
+.taxonomy-system-chip{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border:1px dashed var(--line);
+  border-radius:18px;
+  padding:6px 10px;
+  background:var(--paper);
+}
+.taxonomy-system-chip strong{
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  color:var(--ink);
+}
+.taxonomy-system-chip span{font-size:9px;color:var(--ink3)}
+.taxonomy-manager-copy{
+  margin:0 22px 14px;
+  padding:10px 12px;
+  border-left:3px solid var(--accent2);
+  background:var(--paper3);
+  color:var(--ink2);
+  font-size:11px;
+  line-height:1.55;
+}
+.taxonomy-manager-toolbar{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:8px;
+  padding:0 22px 14px;
+}
+.taxonomy-manager-toolbar input{
+  min-width:0;
+  background:var(--paper);
+  border:1px solid var(--line);
+  color:var(--ink);
+  padding:10px 12px;
+  font:inherit;
+}
+.taxonomy-manager-toolbar button,
+.taxonomy-manager-actions button,
+.taxonomy-manager-order button,
+.taxonomy-manager-delete{
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink2);
+  cursor:pointer;
+  font-family:'Share Tech Mono',monospace;
+}
+.taxonomy-manager-toolbar button{
+  padding:9px 12px;
+  font-size:9px;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+}
+.taxonomy-manager-toolbar button:hover,
+.taxonomy-manager-actions button:hover,
+.taxonomy-manager-order button:hover:not(:disabled),
+.taxonomy-manager-delete:hover:not(:disabled){
+  border-color:var(--accent);
+  color:var(--accent);
+}
+.taxonomy-manager-list{
+  margin:0 22px;
+  border:1px solid var(--line);
+  max-height:460px;
+  overflow:auto;
+  background:var(--paper);
+}
+.taxonomy-manager-row{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  padding:10px;
+  border-bottom:1px solid var(--line2);
+}
+.taxonomy-manager-row:last-child{border-bottom:0}
+.taxonomy-manager-order{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.taxonomy-manager-order button{
+  width:28px;
+  height:26px;
+  font-size:11px;
+}
+.taxonomy-manager-order button:disabled,
+.taxonomy-manager-delete:disabled{
+  opacity:.28;
+  cursor:not-allowed;
+}
+.taxonomy-manager-main{min-width:0}
+.taxonomy-manager-label{
+  width:100%;
+  box-sizing:border-box;
+  background:var(--paper2);
+  border:1px solid var(--line);
+  color:var(--ink);
+  padding:8px 9px;
+  font:inherit;
+}
+.taxonomy-manager-label:focus{
+  outline:none;
+  border-color:var(--accent);
+}
+.taxonomy-manager-meta{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:5px;
+  flex-wrap:wrap;
+  font-size:9px;
+  color:var(--ink3);
+}
+.taxonomy-manager-meta code{
+  color:var(--accent2);
+  background:var(--paper3);
+  padding:2px 5px;
+}
+.taxonomy-protected{
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:2px 6px;
+  text-transform:uppercase;
+  font-family:'Share Tech Mono',monospace;
+  letter-spacing:.4px;
+}
+.taxonomy-manager-delete{
+  width:36px;
+  height:36px;
+  font-size:14px;
+}
+.taxonomy-manager-empty{
+  min-height:180px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--ink3);
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+}
+.taxonomy-manager-status{
+  min-height:18px;
+  margin:10px 22px 0;
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  color:var(--ink3);
+}
+.taxonomy-manager-status[data-state="working"]{color:var(--accent2)}
+.taxonomy-manager-status[data-state="success"]{color:#4f9b69}
+.taxonomy-manager-status[data-state="warning"]{color:#b8860b}
+.taxonomy-manager-status[data-state="error"]{color:#c44}
+.taxonomy-manager-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  padding:12px 22px 20px;
+}
+.taxonomy-manager-actions button{
+  padding:9px 13px;
+  font-size:9px;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+}
+.taxonomy-manager-actions button.primary{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+
+@media(max-width:700px){
+  .taxonomy-manager-panel{padding:10px}
+  .taxonomy-manager-head{padding:16px}
+  .taxonomy-manager-system{padding:12px 16px 8px}
+  .taxonomy-manager-copy{margin:0 16px 12px}
+  .taxonomy-manager-toolbar{grid-template-columns:1fr;padding:0 16px 12px}
+  .taxonomy-manager-toolbar button{min-height:42px}
+  .taxonomy-manager-list{margin:0 16px;max-height:none}
+  .taxonomy-manager-row{grid-template-columns:auto minmax(0,1fr) auto;padding:9px 7px}
+  .taxonomy-manager-actions{padding:12px 16px 18px;flex-direction:column}
+  .taxonomy-manager-actions button{width:100%;min-height:42px}
+}

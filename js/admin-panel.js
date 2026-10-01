@@ -230,6 +230,14 @@ function handleAction(action){
     return;
   }
 
+  if(action === 'taxonomy'){
+    requireEditorAction(function(){
+      close();
+      if(app.taxonomyManager && app.taxonomyManager.open) app.taxonomyManager.open();
+    });
+    return;
+  }
+
   if(action === 'backup'){
     requireEditorAction(function(){
       if(app.editor && app.editor.exportEdits) app.editor.exportEdits();
