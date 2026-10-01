@@ -207,6 +207,23 @@ window.TerraZData.characterOverrides = {
       "icon": "👤",
       "summary": "Codinome: Gladiador Dourado"
     }
+  },
+  "Tim Drake": {
+    "eyebrow": "📚 Ex-Robin · Vida civil",
+    "sections": [
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Timothy Jackson Drake<br><strong>Idade:</strong> 20 anos (nascido em 2007)<br><strong>Status:</strong> Aposentado — vida civil<br><strong>Namorado:</strong> Bernard Dowd<br><strong>Local:</strong> Gotham (como civil)</p>"
+      },
+      {
+        "title": "🎯 Personalidade",
+        "content": "<p>Focado em si mesmo — prioriza sua vida pessoal, amorosa e independência. Evita assuntos sobre a Bat-Família, mas mantém contato com todos. Foca na vida fora do vigilantismo.</p>"
+      },
+      {
+        "title": "📖 História",
+        "content": "<p>Em 2019 (aos 12 anos), deduziu as identidades de Bruce e Dick — tornou-se Robin. Em 2022, com a morte de Alfred, começou a sentir que a vida de vigilante não era para ele. Passou o manto para Damian, tornou-se Robin Vermelho por um tempo e, eventualmente, <strong>aposentou-se</strong>. Em 2027, vive como civil em Gotham e namora Bernard Dowd.</p>"
+      }
+    ]
   }
 };
 
