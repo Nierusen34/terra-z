@@ -422,6 +422,8 @@ function refreshCharactersFromRuntime(){
 }
 
 document.addEventListener('terra-z:runtime-data-loaded',refreshCharactersFromRuntime);
+document.addEventListener('terra-z:private-profiles-changed',refreshCharactersFromRuntime);
+document.addEventListener('terra-z:private-content-cleared',refreshCharactersFromRuntime);
 
 refreshCharactersFromRuntime();
 
