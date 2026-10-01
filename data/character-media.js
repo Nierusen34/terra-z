@@ -188,8 +188,13 @@ window.TerraZData.characterMedia = {
   "Camila Vargas": {
     "src": "",
     "alt": "Camila Vargas",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "external-url",
+      "imageUrl": "https://trello.com/1/cards/6a94389328921bcd4169b170/attachments/6abada6bf68edb1bfc6c0664/download/Camila_2.0.png",
+      "sourceLabel": "Google Imagens · imagem selecionada"
+    }
   },
   "Roy Harper": {
     "src": "",
