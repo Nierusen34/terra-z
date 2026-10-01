@@ -29,7 +29,14 @@ window.TerraZData.characterOverrides = {
         "title": "🔗 Relações",
         "content": "<ul><li><strong>Oliver (pai):</strong> Relação fraturada — mas o silêncio parte de Oliver, não de Tristan. Oliver é teimoso e orgulhoso e não aceita a escolha do filho de ir para Gotham em 2022.</li><li><strong>Dinah (mãe):</strong> Distante, mas sem culpa de Tristan. A culpa é dela — por ter ido para Gotham em 2019 e não ter estado presente em 2020. Conversam por mensagem.</li><li><strong>Connor (irmão):</strong> Irmãos próximos. Connor é o elo de comunicação com a família — figura fraterna estável.</li><li><strong>Jason Todd:</strong> Mentor e figura fraterna oposta a Connor — o contraponto rebelde ao irmão estável.</li><li><strong>Lian Harper:</strong> Amiga de infância, filha de Roy Harper. Conversam frequentemente por mensagem. Atualmente é a Cheshire Cat nos Titãs de Jason.</li></ul>"
       }
-    ]
+    ],
+    "card": {
+      "icon": "🏹",
+      "codename": "Ranger",
+      "age": "20 anos",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "George Gandenzio Toombs": {
     "eyebrow": "",
