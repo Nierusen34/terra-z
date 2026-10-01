@@ -13,7 +13,9 @@ var media = (window.TerraZData && window.TerraZData.characterMedia) || {};
 var AUTO_CACHE_PREFIX = 'terraZ_dc_portrait_v1:';
 var AUTO_CACHE_MS = 24 * 60 * 60 * 1000;
 var autoResolved = Object.create(null);
+var autoResolvedKeys = Object.create(null);
 var autoPending = Object.create(null);
+var autoPendingKeys = Object.create(null);
 var autoObserver = null;
 
 function initials(name){
@@ -148,15 +150,36 @@ function resolveAutomatic(name){
   var config = automaticConfig(item);
   if(!config) return Promise.resolve(null);
 
-  if(autoResolved[name]) return Promise.resolve(autoResolved[name]);
-  if(autoPending[name]) return autoPending[name];
+  var expectedKey = cacheKey(name,config);
+
+  if(autoResolved[name] && autoResolvedKeys[name] === expectedKey){
+    return Promise.resolve(autoResolved[name]);
+  }
+
+  if(autoResolvedKeys[name] !== expectedKey){
+    delete autoResolved[name];
+    delete autoResolvedKeys[name];
+  }
+
+  if(autoPending[name] && autoPendingKeys[name] === expectedKey){
+    return autoPending[name];
+  }
+
+  if(autoPendingKeys[name] !== expectedKey){
+    delete autoPending[name];
+    delete autoPendingKeys[name];
+  }
 
   var cached = readCache(name,config);
   if(cached){
-    if(cached.found && cached.imageUrl) autoResolved[name] = cached;
+    if(cached.found && cached.imageUrl){
+      autoResolved[name] = cached;
+      autoResolvedKeys[name] = expectedKey;
+    }
     return Promise.resolve(cached);
   }
 
+  autoPendingKeys[name] = expectedKey;
   autoPending[name] = fetchAutomatic(name,config)
     .then(function(result){
       var normalized = result && result.found && result.imageUrl
@@ -172,7 +195,10 @@ function resolveAutomatic(name){
         : {found:false,provider:'dc-fandom'};
 
       writeCache(name,config,normalized);
-      if(normalized.found) autoResolved[name] = normalized;
+      if(normalized.found){
+        autoResolved[name] = normalized;
+        autoResolvedKeys[name] = expectedKey;
+      }
       return normalized;
     })
     .catch(function(error){
@@ -180,7 +206,10 @@ function resolveAutomatic(name){
       return {found:false,provider:'dc-fandom'};
     })
     .finally(function(){
-      delete autoPending[name];
+      if(autoPendingKeys[name] === expectedKey){
+        delete autoPending[name];
+        delete autoPendingKeys[name];
+      }
     });
 
   return autoPending[name];
@@ -325,7 +354,9 @@ function clearAutomaticCache(name){
     }
   }catch(e){}
   delete autoResolved[name];
+  delete autoResolvedKeys[name];
   delete autoPending[name];
+  delete autoPendingKeys[name];
 }
 
 function refreshPortraits(root){
