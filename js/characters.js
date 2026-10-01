@@ -56,7 +56,28 @@ if(!window.TerraZData || !window.TerraZData.characters){
   console.error('Terra Z: data/characters.js não foi carregado.');
 }
 
+function characterAccessMeta(name){
+  var taxonomy = (window.TerraZData && window.TerraZData.characterTaxonomy) || {};
+  var all = taxonomy.characters && typeof taxonomy.characters === 'object' ? taxonomy.characters : {};
+  return all[name] || {};
+}
+
+function editorAuthenticated(){
+  var backend = window.TerraZApp && window.TerraZApp.backend;
+  return !!(backend && backend.isAuthenticated && backend.isAuthenticated());
+}
+
+function canViewCharacter(name){
+  var meta = characterAccessMeta(name);
+  return meta.visibility !== 'private' || editorAuthenticated();
+}
+
 function openFichaModal(characterName){
+  if(!canViewCharacter(characterName)){
+    showToast('Esta ficha é visível apenas para editores autorizados.','warning',4500);
+    return;
+  }
+
   var ficha = fichasPersonagens[characterName];
   if(!ficha){ showToast('Ficha não disponível para: ' + characterName, 'warning'); return; }
   var modal = document.getElementById('fichaModal');
@@ -417,6 +438,7 @@ window.TerraZApp.characters = {
   isDeleted:function(name){ return deletedCharacterNames.has(name); },
   card:function(name){ return (characterOverrides[name] && characterOverrides[name].card) || null; },
   cardData:function(name){ return structuredCardData(name,fichasPersonagens[name] || {}); },
+  canView:canViewCharacter,
   refresh:refreshCharactersFromRuntime
 };
 
