@@ -79,6 +79,8 @@ export default async function handler(req,res){
     github_write:githubAppReady || tokenReady,
     github_mode:githubAppReady ? "app" : (tokenReady ? "token" : "none"),
     master_content:masterContent,
+    private_character_profiles:true,
+    private_character_encryption:editorReady ? "aes-256-gcm" : "unavailable",
     ...githubConfig()
   });
 }
