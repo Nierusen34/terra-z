@@ -80,8 +80,9 @@ window.TerraZData.characterMedia = {
     "source": "auto",
     "credit": "",
     "auto": {
-      "provider": "dc-fandom",
-      "wikiTitle": "Dinah Drake"
+      "provider": "external-url",
+      "imageUrl": "https://i.pinimg.com/736x/7c/c8/3f/7cc83fd1736c5f0544a82fe2cb56eb2f.jpg",
+      "sourceLabel": "Google Imagens · Dan Mora"
     }
   },
   "Connor Hawke": {
