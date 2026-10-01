@@ -81,31 +81,39 @@ window.TerraZData.characterOverrides = {
     "sections": [
       {
         "title": "📋 Ficha Básica",
-        "content": "<p><strong>Nome:</strong> M'ark (provisório — o jogador definirá o nome final)<br><strong>Idade:</strong> 23 anos (nascido em 2004)<br><strong>Mãe:</strong> M'gann M'orzz (Miss Martian)<br><strong>Pai biológico:</strong> Armek (falecido, Marciano Branco)<br><strong>Criação:</strong> Criado por M'gann e J'onn J'onzz<br><strong>Status:</strong> <strong>Prisioneiro da Sumdac</strong> — em local secreto</p>"
+        "content": "<p><strong>Nome:</strong> M'ark (provisório — o jogador definirá o nome final)<br><strong>Idade:</strong> 23 anos (nascido em 2004)<br><strong>Mãe:</strong> M'gann M'orzz (Miss Martian)<br><strong>Pai biológico:</strong> Armek (falecido, Marciano Branco)<br><strong>Criação:</strong> Criado por M'gann e J'onn J'onzz<br><strong>Status:</strong> <strong>Prisioneiro da Sumdac</strong> — em local secreto</p>",
+        "visibility": "public",
+        "position": 0
       },
       {
         "title": "📖 História",
-        "content": "<p>Concebido em 2003–2004, quando Armek — um Marciano Branco cruel — enganou e violentou M'gann na Terra. J'onn descobriu, viajou a Marte e matou Armek antes que ele soubesse da gravidez. Criado em segredo por M'gann e J'onn até 2021, quando Conner descobriu sua existência.</p><p>Em outubro/novembro de 2026, foi apresentado publicamente como um <strong>Marciano Verde sobrevivente de uma colônia perdida</strong> — identidade que ele <strong>concordou</strong> em assumir. Em dezembro de 2026, viajou para Vanguard Bay. Ao chegar, foi <strong>emboscado pela Sumdac</strong> e capturado. A Sumdac quer estudar seu DNA alienígena.</p>"
+        "content": "<p>Concebido em 2003–2004, quando Armek — um Marciano Branco cruel — enganou e violentou M'gann na Terra. J'onn descobriu, viajou a Marte e matou Armek antes que ele soubesse da gravidez. Criado em segredo por M'gann e J'onn até 2021, quando Conner descobriu sua existência.</p><p>Em outubro/novembro de 2026, foi apresentado publicamente como um <strong>Marciano Verde sobrevivente de uma colônia perdida</strong> — identidade que ele <strong>concordou</strong> em assumir. Em dezembro de 2026, viajou para Vanguard Bay. Ao chegar, foi <strong>emboscado pela Sumdac</strong> e capturado. A Sumdac quer estudar seu DNA alienígena.</p>",
+        "visibility": "public",
+        "position": 1
       },
       {
         "title": "🎯 Personalidade",
-        "content": "<p><em>A definir pelo jogador.</em></p>"
+        "content": "<p><em>A definir pelo jogador.</em></p>",
+        "visibility": "public",
+        "position": 2
       },
       {
         "title": "⚔️ Habilidades",
-        "content": "<ul><li><strong>Telepatia:</strong> confirmada.</li><li><strong>Telecinese:</strong> confirmada.</li><li><strong>Intangibilidade:</strong> confirmada.</li><li><strong>Invisibilidade:</strong> confirmada.</li><li><strong>Disfarce marciano:</strong> confirmado (usa forma Verde publicamente).</li><li><em>Outros poderes a definir pelo jogador.</em></li></ul>"
+        "content": "<ul><li><strong>Telepatia:</strong> confirmada.</li><li><strong>Telecinese:</strong> confirmada.</li><li><strong>Intangibilidade:</strong> confirmada.</li><li><strong>Invisibilidade:</strong> confirmada.</li><li><strong>Disfarce marciano:</strong> confirmado (usa forma Verde publicamente).</li><li><em>Outros poderes a definir pelo jogador.</em></li></ul>",
+        "visibility": "public",
+        "position": 3
       },
       {
         "title": "🔗 Relações",
-        "content": "<p><em>Todas as relações ainda a definir com o jogador (M'gann, J'onn, Conner, Armek).</em></p>"
-      },
-      {
-        "title": "🆕 O CATIVEIRO E CAMILA VARGAS",
-        "content": "<p><strong>Como foi capturado:</strong> emboscado pela Sumdac ao chegar em Vanguard Bay.<br><strong>Motivo:</strong> estudar seu DNA alienígena.<br><strong>Duração:</strong> não sabe quantos dias está preso. Perdeu a noção do tempo.<br><strong>Quem sabe:</strong> ninguém — nem M'gann, nem J'onn, nem Conner. <strong>Apenas Camila Vargas.</strong></p><p><strong>Camila Vargas</strong> é uma meta-humana recém-desperta (telepata), braço-direito de Leland Shaw na Shaw Innovations. Ao despertar seus poderes, criou acidentalmente um <strong>elo telepático</strong> com M'ark. Ela não sabe a localização dele, mas sabe que ele está preso e em perigo. É leal à empresa, mas <strong>não a Shaw</strong>, e esconde seus poderes dele. Propôs uma <strong>aliança com Tristan e Riot</strong> para resgatar M'ark — já que a Sumdac também é parte do objetivo deles. A Sumdac não sabe do elo.</p>"
+        "content": "<p><em>Todas as relações ainda a definir com o jogador (M'gann, J'onn, Conner, Armek).</em></p>",
+        "visibility": "public",
+        "position": 4
       },
       {
         "title": "💀 A VOZ DE ARMek",
-        "content": "<p>Às vezes, M'ark <strong>conversa com Armek na própria cabeça</strong>. A natureza disso ainda não foi definida — pode ser alucinação, loucura (herança genética) ou um resquício da existência de seu falecido pai. Um dos maiores mistérios do personagem.</p>"
+        "content": "<p>Às vezes, M'ark <strong>conversa com Armek na própria cabeça</strong>. A natureza disso ainda não foi definida — pode ser alucinação, loucura (herança genética) ou um resquício da existência de seu falecido pai. Um dos maiores mistérios do personagem.</p>",
+        "visibility": "public",
+        "position": 6
       }
     ],
     "created": true,

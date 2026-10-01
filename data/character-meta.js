@@ -120,7 +120,8 @@ window.TerraZData.characterTaxonomy = {
         "martian"
       ],
       "type": "protagonist",
-      "status": "missing"
+      "status": "missing",
+      "visibility": "public"
     },
     "Kendra Saunders": {
       "featured": false,
