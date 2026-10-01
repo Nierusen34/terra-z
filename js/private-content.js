@@ -46,8 +46,18 @@ function restorePrivateProfiles(silent){
   }
 }
 
-function applyPrivateProfiles(){
-  restorePrivateProfiles(true);
+function applyPrivateProfiles(options){
+  options=options || {};
+
+  if(options.freshBase){
+    // runtime-data acabou de substituir os contêineres públicos pela versão
+    // canônica mais recente. Snapshots anteriores pertencem à base antiga e
+    // não podem ser restaurados por cima dela.
+    appliedSnapshots=Object.create(null);
+  }else{
+    restorePrivateProfiles(true);
+  }
+
   ensureRuntimeContainers();
 
   var characters=cache && cache.characters && typeof cache.characters === 'object'
@@ -97,7 +107,12 @@ function applyPrivateProfiles(){
     }else{
       var publicOverride=window.TerraZData.characterOverrides[name];
       if(publicOverride && typeof publicOverride === 'object'){
-        var publicSections=Array.isArray(publicOverride.sections) ? clone(publicOverride.sections) : [];
+        var publicSections=Array.isArray(publicOverride.sections)
+          ? clone(publicOverride.sections).filter(function(section){
+              return !section || section.visibility !== 'master';
+            })
+          : [];
+
         var combined=publicSections.concat(masterSections).map(function(section,index){
           var item=section && typeof section === 'object' ? section : {};
           return {
@@ -233,7 +248,7 @@ document.addEventListener('terra-z:auth-changed',function(){
 });
 
 document.addEventListener('terra-z:runtime-data-loaded',function(){
-  if(cache) applyPrivateProfiles();
+  if(cache) applyPrivateProfiles({freshBase:true});
 });
 
 if(backend() && backend().isAuthenticated()) load();

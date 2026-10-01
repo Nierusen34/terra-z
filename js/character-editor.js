@@ -617,40 +617,37 @@ async function save(){
       body:{character:payload}
     });
 
-    window.TerraZData = window.TerraZData || {};
-    window.TerraZData.characterOverrides = window.TerraZData.characterOverrides || {};
-    window.TerraZData.characterTaxonomy = window.TerraZData.characterTaxonomy || {characters:{}};
-    window.TerraZData.characterTaxonomy.characters = window.TerraZData.characterTaxonomy.characters || {};
+    // A API separa dados públicos e Mestre no armazenamento. Para evitar que
+    // uma resposta combinada seja aplicada sobre um overlay privado já ativo,
+    // recarregamos primeiro a base pública canônica e depois o cofre.
+    var runtime = window.TerraZApp && window.TerraZApp.runtimeData;
+    var runtimeResult = null;
 
-    if(result.character){
-      var savedCharacter = Object.assign({},result.character);
-      delete savedCharacter.name;
-      window.TerraZData.characterOverrides[name] = savedCharacter;
-    }
-    if(result.meta){
-      window.TerraZData.characterTaxonomy.characters[name] = result.meta;
-      taxonomy = window.TerraZData.characterTaxonomy;
-    }
-    if(result.media){
-      window.TerraZData.characterMedia = window.TerraZData.characterMedia || {};
-      window.TerraZData.characterMedia[name] = result.media;
+    if(runtime && runtime.refresh){
+      runtimeResult = await runtime.refresh({
+        force:true,
+        bust:result.sha,
+        silent:true
+      });
     }
 
-    if(privateLoaded && window.TerraZApp.privateContent){
-      if(window.TerraZApp.privateContent.setCharacterSecrets){
-        window.TerraZApp.privateContent.setCharacterSecrets(name,payload.secrets || []);
-      }
-      if(payload.meta.visibility === 'master' && window.TerraZApp.privateContent.reload){
-        await window.TerraZApp.privateContent.reload();
-      } else if(window.TerraZApp.privateContent.setCharacterMasterSections){
-        window.TerraZApp.privateContent.setCharacterMasterSections(
-          name,
-          sections.map(function(section,index){ return {section:section,position:index}; })
-            .filter(function(item){ return item.section.visibility === 'master'; })
-            .map(function(item){ return {...item.section,position:item.position}; })
-        );
-      }
+    var privateApi = window.TerraZApp && window.TerraZApp.privateContent;
+    if(privateLoaded && privateApi && privateApi.reload){
+      await privateApi.reload();
     }
+
+    if(!runtimeResult){
+      // O commit já foi salvo com segurança no backend. Evitamos reconstruir
+      // localmente uma ficha parcialmente pública/privada porque isso poderia
+      // duplicar overlays. A próxima atualização/reload buscará a versão canônica.
+      showToast(
+        'Ficha salva. A sincronização visual não terminou; recarregue a página para ver o estado mais recente.',
+        'warning',
+        6500
+      );
+    }
+
+    taxonomy = (window.TerraZData && window.TerraZData.characterTaxonomy) || taxonomy;
 
     var filters = window.TerraZApp && window.TerraZApp.characterFilters;
     if(filters && filters.refreshTaxonomy) filters.refreshTaxonomy();
@@ -669,9 +666,6 @@ async function save(){
       'success',
       4500
     );
-
-    var runtime = window.TerraZApp && window.TerraZApp.runtimeData;
-    if(runtime && runtime.refresh) runtime.refresh({force:true,bust:result.sha,silent:true});
 
     var publishing = window.TerraZApp && window.TerraZApp.publishing;
     if(publishing && publishing.trackDeployment && result.status_url){
