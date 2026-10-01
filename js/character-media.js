@@ -98,7 +98,7 @@ async function fetchAutomatic(name,config){
   if(backend && backend.isConfigured && backend.isConfigured() && backend.publicJson){
     try{
       return await backend.publicJson(
-        '/api/dc-character-image?name=' + encodeURIComponent(name) +
+        '/api/media?dc=1&name=' + encodeURIComponent(name) +
         '&title=' + encodeURIComponent(config.wikiTitle)
       );
     }catch(error){

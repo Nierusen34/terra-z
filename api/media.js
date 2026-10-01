@@ -17,6 +17,167 @@ const MIME_BY_EXT = {
   webp:"image/webp"
 };
 
+const FANDOM_API = "https://dc.fandom.com/api.php";
+const MAX_DC_TITLE_LENGTH = 180;
+
+function safeDcText(value,max=MAX_DC_TITLE_LENGTH){
+  return String(value || "").trim().slice(0,max);
+}
+
+function cleanDcTitle(value){
+  return safeDcText(value).replace(/[\u0000-\u001f\u007f]/g,"");
+}
+
+function dcPageImage(page){
+  if(!page || page.missing) return "";
+  return (
+    (page.thumbnail && page.thumbnail.source) ||
+    (page.original && page.original.source) ||
+    ""
+  );
+}
+
+function dcPageUrl(page){
+  if(page && page.fullurl) return page.fullurl;
+  if(page && page.title){
+    return "https://dc.fandom.com/wiki/" + encodeURIComponent(page.title.replace(/ /g,"_"));
+  }
+  return "";
+}
+
+async function fandomQuery(params){
+  const url = new URL(FANDOM_API);
+  Object.entries(params).forEach(([key,value])=>{
+    if(value !== undefined && value !== null && value !== "") url.searchParams.set(key,String(value));
+  });
+
+  const response = await fetch(url,{
+    headers:{
+      "Accept":"application/json",
+      "User-Agent":"Terra-Z/1.0 (character portrait resolver)"
+    },
+    signal:AbortSignal.timeout(9000)
+  });
+
+  if(!response.ok){
+    const error = new Error("DC Database respondeu HTTP " + response.status);
+    error.status = response.status;
+    throw error;
+  }
+
+  return response.json();
+}
+
+async function exactDcPage(title){
+  const data = await fandomQuery({
+    action:"query",
+    format:"json",
+    formatversion:"2",
+    redirects:"1",
+    prop:"pageimages|info",
+    inprop:"url",
+    piprop:"thumbnail|original|name",
+    pithumbsize:"900",
+    pilicense:"any",
+    titles:title
+  });
+
+  return data && data.query && Array.isArray(data.query.pages)
+    ? data.query.pages[0]
+    : null;
+}
+
+function scoreDcCandidate(page,name,preferredTitle){
+  const title=String((page && page.title) || "").toLowerCase();
+  const n=String(name || "").toLowerCase();
+  const preferred=String(preferredTitle || "").toLowerCase();
+  let score=0;
+  if(title === preferred) score += 100;
+  if(title.includes("(prime earth)")) score += 50;
+  if(n && title.startsWith(n)) score += 30;
+  if(dcPageImage(page)) score += 20;
+  return score;
+}
+
+async function searchDcPage(name,preferredTitle){
+  const query = [name,"Prime Earth"].filter(Boolean).join(" ");
+  const data = await fandomQuery({
+    action:"query",
+    format:"json",
+    formatversion:"2",
+    generator:"search",
+    gsrsearch:query,
+    gsrnamespace:"0",
+    gsrlimit:"8",
+    prop:"pageimages|info",
+    inprop:"url",
+    piprop:"thumbnail|original|name",
+    pithumbsize:"900",
+    pilicense:"any"
+  });
+
+  const pages = data && data.query && Array.isArray(data.query.pages)
+    ? data.query.pages.filter(page=>page && !page.missing)
+    : [];
+
+  pages.sort((a,b)=>scoreDcCandidate(b,name,preferredTitle)-scoreDcCandidate(a,name,preferredTitle));
+  return pages.find(page=>dcPageImage(page)) || pages[0] || null;
+}
+
+async function handleDcPortrait(req,res){
+  const title=cleanDcTitle((req.query || {}).title);
+  const name=cleanDcTitle((req.query || {}).name || title.replace(/\s*\([^)]*\)\s*$/,""));
+
+  if(!title || title.length > MAX_DC_TITLE_LENGTH){
+    return res.status(400).json({
+      error:"invalid_title",
+      message:"Título da página da DC Database inválido."
+    });
+  }
+
+  try{
+    let page=await exactDcPage(title);
+
+    if(!page || page.missing || !dcPageImage(page)){
+      page=await searchDcPage(name,title);
+    }
+
+    const imageUrl=dcPageImage(page);
+
+    if(!page || !imageUrl){
+      res.setHeader("Cache-Control","public, max-age=300, s-maxage=21600, stale-while-revalidate=86400");
+      return res.status(200).json({
+        ok:true,
+        found:false,
+        name,
+        requestedTitle:title,
+        provider:"dc-fandom"
+      });
+    }
+
+    res.setHeader("Cache-Control","public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800");
+
+    return res.status(200).json({
+      ok:true,
+      found:true,
+      name,
+      requestedTitle:title,
+      title:page.title || title,
+      imageUrl,
+      pageUrl:dcPageUrl(page),
+      provider:"dc-fandom",
+      source:"DC Database · Fandom"
+    });
+  }catch(error){
+    console.error("Terra Z DC portrait resolver:",error);
+    res.setHeader("Cache-Control","no-store");
+    return res.status(502).json({
+      error:"dc_source_unavailable",
+      message:"A fonte automática de retratos da DC está temporariamente indisponível."
+    });
+  }
+}
+
 function slugify(value){
   return String(value)
     .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
@@ -43,6 +204,10 @@ export default async function handler(req,res){
   if(applyCors(req,res)) return;
 
   if(req.method === "GET"){
+    if(String((req.query || {}).dc || "") === "1"){
+      return handleDcPortrait(req,res);
+    }
+
     const path = String((req.query || {}).path || "");
     if(!/^images\/characters\/[a-z0-9._-]+\.(png|jpe?g|webp)$/i.test(path)){
       return res.status(400).json({error:"invalid_media_path"});
