@@ -142,8 +142,9 @@ window.TerraZData.characterMedia = {
     "source": "auto",
     "credit": "",
     "auto": {
-      "provider": "dc-fandom",
-      "wikiTitle": "Barbara Gordon (Prime Earth)"
+      "provider": "external-url",
+      "imageUrl": "https://i.pinimg.com/736x/ee/f0/38/eef0385e1a2dac794f9794e528db89d5.jpg",
+      "sourceLabel": "Google Imagens · Dan Mora"
     }
   },
   "Damian Wayne": {
