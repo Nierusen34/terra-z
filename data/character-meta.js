@@ -11,19 +11,19 @@ window.TerraZData.characterTaxonomy = {
     },
     {
       "id": "gotham",
-      "label": "Gotham / Wayne"
+      "label": "Gotham / Bat Família"
     },
     {
       "id": "martian",
-      "label": "Marciano"
+      "label": "Marcianos"
     },
     {
       "id": "lobo-cadmus",
-      "label": "Lobo / Cadmus"
+      "label": "Projeto Sumdac"
     },
     {
       "id": "new-titans",
-      "label": "Novos Titãs"
+      "label": "Jovens Titãs"
     },
     {
       "id": "jlu",
