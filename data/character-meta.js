@@ -275,8 +275,7 @@ window.TerraZData.characterTaxonomy = {
     "George Gandenzio Toombs": {
       "featured": false,
       "nuclei": [
-        "vanguard",
-        "other"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active"
