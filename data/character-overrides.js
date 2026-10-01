@@ -110,6 +110,12 @@ window.TerraZData.characterOverrides = {
         "position": 4
       },
       {
+        "title": "🆕 O CATIVEIRO E CAMILA VARGAS",
+        "content": "<p><strong>Como foi capturado:</strong> emboscado pela Sumdac ao chegar em Vanguard Bay.<br><strong>Motivo:</strong> estudar seu DNA alienígena.<br><strong>Duração:</strong> não sabe quantos dias está preso. Perdeu a noção do tempo.<br><strong>Quem sabe:</strong> ninguém — nem M'gann, nem J'onn, nem Conner. <strong>Apenas Camila Vargas.</strong></p><p><strong>Camila Vargas</strong> é uma meta-humana recém-desperta (telepata), braço-direito de Leland Shaw na Shaw Innovations. Ao despertar seus poderes, criou acidentalmente um <strong>elo telepático</strong> com M'ark. Ela não sabe a localização dele, mas sabe que ele está preso e em perigo. É leal à empresa, mas <strong>não a Shaw</strong>, e esconde seus poderes dele. Propôs uma <strong>aliança com Tristan e Riot</strong> para resgatar M'ark — já que a Sumdac também é parte do objetivo deles. A Sumdac não sabe do elo.</p>",
+        "visibility": "spoiler",
+        "position": 5
+      },
+      {
         "title": "💀 A VOZ DE ARMek",
         "content": "<p>Às vezes, M'ark <strong>conversa com Armek na própria cabeça</strong>. A natureza disso ainda não foi definida — pode ser alucinação, loucura (herança genética) ou um resquício da existência de seu falecido pai. Um dos maiores mistérios do personagem.</p>",
         "visibility": "public",
