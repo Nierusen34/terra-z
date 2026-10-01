@@ -2232,3 +2232,41 @@ html[data-spoiler-mode="safe"] [data-visibility="master"]{display:none!important
   .taxonomy-manager-actions{padding:12px 16px 18px;flex-direction:column}
   .taxonomy-manager-actions button{width:100%;min-height:42px}
 }
+
+
+/* ===== DENSIDADE DOS CARDS DE PERSONAGENS ===== */
+.character-card-size-control{display:inline-flex;align-items:center;gap:3px;margin-left:2px;padding:3px;border:1px solid var(--line);background:var(--paper2)}
+.character-card-size-label{padding:0 5px 0 3px;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:.7px;text-transform:uppercase;color:var(--ink3)}
+.character-card-size-control button{width:29px;height:29px;padding:0;border:1px solid transparent;background:transparent;color:var(--ink3);cursor:pointer;font-size:13px;line-height:1}
+.character-card-size-control button:nth-of-type(1){font-size:10px}.character-card-size-control button:nth-of-type(3){font-size:17px}
+.character-card-size-control button:hover{color:var(--accent);border-color:var(--line)}
+.character-card-size-control button.active{color:#fff;background:var(--accent);border-color:var(--accent)}
+#sub-tz-personagens[data-card-size="compact"]>.card-grid{grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:10px}
+#sub-tz-personagens[data-card-size="compact"]>.card-grid>.card{padding:10px}
+#sub-tz-personagens[data-card-size="compact"] .character-card{grid-template-columns:54px minmax(0,1fr);column-gap:8px;min-height:82px}
+#sub-tz-personagens[data-card-size="compact"] .character-portrait.small{width:54px;height:66px}
+#sub-tz-personagens[data-card-size="compact"] .character-portrait.small.placeholder span{font-size:18px}
+#sub-tz-personagens[data-card-size="compact"] .card h4{font-size:12px;margin-bottom:5px;padding-bottom:4px;padding-right:36px}
+#sub-tz-personagens[data-card-size="compact"] .card p{font-size:10.5px;line-height:1.42}
+#sub-tz-personagens[data-card-size="large"]>.card-grid{grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px}
+#sub-tz-personagens[data-card-size="large"]>.card-grid>.card{padding:20px}
+#sub-tz-personagens[data-card-size="large"] .character-card{grid-template-columns:110px minmax(0,1fr);column-gap:16px;min-height:154px}
+#sub-tz-personagens[data-card-size="large"] .character-portrait.small{width:110px;height:132px}
+#sub-tz-personagens[data-card-size="large"] .character-portrait.small.placeholder span{font-size:32px}
+#sub-tz-personagens[data-card-size="large"] .card h4{font-size:18px;margin-bottom:10px;padding-bottom:8px}
+#sub-tz-personagens[data-card-size="large"] .card p{font-size:13.5px;line-height:1.7}
+
+/* ===== PERSONAGEM SOMENTE EDITOR ===== */
+.character-private-toggle{border:1px solid color-mix(in srgb,var(--accent) 42%,var(--line));background:color-mix(in srgb,var(--accent) 5%,var(--paper));padding:8px 10px}
+.character-private-toggle input{accent-color:var(--accent)}
+.character-private-note{margin-top:7px;border-left:3px solid var(--accent);padding-left:8px}
+#sub-tz-personagens .card.character-private-card{border-color:color-mix(in srgb,var(--accent) 65%,var(--line));background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 4%,var(--paper2)),var(--paper2) 60%)}
+#sub-tz-personagens .card.character-private-card::before{background:var(--accent);transform:scaleX(1)}
+#sub-tz-personagens .card.character-private-card h4::after{content:'  🔒';font-size:.78em;opacity:.75}
+@media(max-width:760px){
+  .character-card-size-control{width:100%;justify-content:center;margin-left:0}
+  .character-card-size-label{margin-right:4px}
+  #sub-tz-personagens[data-card-size="compact"]>.card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #sub-tz-personagens[data-card-size="large"]>.card-grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){#sub-tz-personagens[data-card-size="compact"]>.card-grid{grid-template-columns:1fr}}
