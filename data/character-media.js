@@ -91,7 +91,7 @@ window.TerraZData.characterMedia = {
     "credit": "",
     "auto": {
       "provider": "dc-fandom",
-      "wikiTitle": "Connor Hawke (Prime Earth)"
+      "wikiTitle": "Connor Hawke"
     }
   },
   "Jason Todd": {
