@@ -261,6 +261,8 @@ function refreshTaxonomy(){
 }
 
 document.addEventListener('terra-z:runtime-data-loaded',refreshTaxonomy);
+document.addEventListener('terra-z:private-profiles-changed',refreshTaxonomy);
+document.addEventListener('terra-z:private-content-cleared',refreshTaxonomy);
 document.addEventListener('terra-z:auth-changed',apply);
 
 window.TerraZApp.characterFilters = {
