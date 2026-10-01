@@ -79,6 +79,10 @@ function attachFavoriteButtons(){
 function showFavoritesPanel(){
   var panel = document.getElementById('favoritesPanel');
   var favs = getFavorites();
+  var characters = window.TerraZApp && window.TerraZApp.characters;
+  if(characters && characters.canView){
+    favs = favs.filter(function(name){ return characters.canView(name); });
+  }
   var body = panel.querySelector('.fav-body') || panel;
   var html = '';
   if(favs.length === 0){
@@ -143,6 +147,10 @@ initFavoritesPanel();
 
 document.addEventListener('terra-z:characters-rendered',function(){
   attachFavoriteButtons();
+});
+document.addEventListener('terra-z:auth-changed',function(){
+  var panel = document.getElementById('favoritesPanel');
+  if(panel && panel.classList.contains('show')) showFavoritesPanel();
 });
 
 window.toggleFavorite = toggleFavorite;
