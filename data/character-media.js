@@ -217,8 +217,12 @@ window.TerraZData.characterMedia = {
   "Michael Carter": {
     "src": "",
     "alt": "Michael Carter",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "dc-fandom",
+      "wikiTitle": "Michael Carter (New Earth)"
+    }
   }
 };
 
