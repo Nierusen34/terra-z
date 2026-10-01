@@ -202,6 +202,16 @@ function handleAction(action){
     return;
   }
 
+  if(action === 'visibility'){
+    requireEditorAction(async function(){
+      close();
+      if(app.privateContent && app.privateContent.load) await app.privateContent.load();
+      if(app.sessions && app.sessions.reloadPrivate) await app.sessions.reloadPrivate();
+      if(app.visibilityManager && app.visibilityManager.open) app.visibilityManager.open();
+    });
+    return;
+  }
+
   if(action === 'new-character'){
     requireEditorAction(function(){
       close();

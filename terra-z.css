@@ -2411,3 +2411,49 @@ html[data-spoiler-mode="safe"] [data-visibility="master"]{display:none!important
   .character-editor-section-head .character-section-title{flex:1 1 calc(100% - 44px)}
   .character-editor-section-head .character-section-visibility{order:3;flex:1 1 100%;max-width:none}
 }
+
+
+/* ===== CENTRAL DE VISIBILIDADE ===== */
+.visibility-manager-panel{display:none;position:fixed;inset:0;z-index:446;background:rgba(0,0,0,.86);backdrop-filter:blur(8px);overflow:auto;padding:24px 16px}
+.visibility-manager-panel.show{display:block;animation:fadeIn .2s ease}
+.visibility-manager-card{width:min(1040px,100%);margin:0 auto;background:var(--paper2);border:1px solid var(--line);box-shadow:0 24px 80px rgba(0,0,0,.62)}
+.visibility-manager-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:20px 22px 16px;background:var(--paper);border-bottom:3px double var(--accent)}
+.visibility-manager-eyebrow{font-family:'Share Tech Mono',monospace;color:var(--accent);font-size:9px;letter-spacing:2px;margin-bottom:5px}
+.visibility-manager-head h3{margin:0;font-family:var(--font-title);font-size:24px;text-transform:uppercase}
+.visibility-manager-head>button{width:36px;height:36px;border:1px solid var(--line);border-radius:50%;background:transparent;color:var(--ink2);cursor:pointer}
+.visibility-level-guide{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:16px 22px 8px}
+.visibility-level-guide>div{border:1px solid var(--line);background:var(--paper);padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.visibility-level-guide strong{font-family:'Share Tech Mono',monospace;font-size:9px}
+.visibility-level-guide span{font-size:10px;line-height:1.45;color:var(--ink3)}
+.visibility-manager-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:8px 22px}
+.visibility-manager-summary button{border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:9px 11px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.visibility-manager-summary button.active,.visibility-manager-summary button:hover{border-color:var(--accent)}
+.visibility-manager-summary span{font-family:'Share Tech Mono',monospace;font-size:8px;text-transform:uppercase}
+.visibility-manager-summary strong{font-family:var(--font-title);font-size:18px}
+.visibility-manager-toolbar{display:grid;grid-template-columns:190px 1fr auto;gap:8px;padding:10px 22px;border-bottom:1px solid var(--line2)}
+.visibility-manager-toolbar select,.visibility-manager-toolbar input,.visibility-manager-toolbar button{background:var(--paper);border:1px solid var(--line);color:var(--ink);padding:9px 10px}
+.visibility-manager-toolbar button{cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:8px;text-transform:uppercase}
+.visibility-manager-status{padding:10px 22px 2px;color:var(--ink3);font-family:'Share Tech Mono',monospace;font-size:8px}
+.visibility-manager-list{padding:10px 22px 18px;display:flex;flex-direction:column;gap:7px}
+.visibility-manager-row{display:flex;justify-content:space-between;align-items:center;gap:14px;border:1px solid var(--line);border-left-width:4px;background:var(--paper);padding:10px 12px}
+.visibility-manager-row.level-public{border-left-color:#5a9b68}
+.visibility-manager-row.level-spoiler{border-left-color:#bd8a28}
+.visibility-manager-row.level-master{border-left-color:#b44242}
+.visibility-manager-row-main{min-width:0;display:grid;grid-template-columns:auto auto 1fr;align-items:center;gap:6px 9px}
+.visibility-manager-level,.visibility-manager-type{font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:.6px;text-transform:uppercase}
+.visibility-manager-type{color:var(--ink3)}
+.visibility-manager-row-main strong{grid-column:1/-1;font-family:var(--font-title);font-size:14px}
+.visibility-manager-row-main small{grid-column:1/-1;color:var(--ink3);font-size:9px}
+.visibility-manager-row>button{flex:0 0 auto;background:var(--paper2);border:1px solid var(--line);color:var(--ink2);padding:7px 9px;font-family:'Share Tech Mono',monospace;font-size:8px;cursor:pointer}
+.visibility-manager-row>button:hover{border-color:var(--accent);color:var(--accent)}
+.visibility-manager-empty{min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;color:var(--ink3)}
+.visibility-manager-footer{display:flex;justify-content:space-between;gap:14px;border-top:1px solid var(--line2);padding:10px 22px 15px;color:var(--ink3);font-family:'Share Tech Mono',monospace;font-size:8px}
+@media(max-width:720px){
+  .visibility-manager-panel{padding:8px}
+  .visibility-level-guide{grid-template-columns:1fr;padding:12px 16px 6px}
+  .visibility-manager-summary{grid-template-columns:1fr 1fr;padding:8px 16px}
+  .visibility-manager-toolbar{grid-template-columns:1fr;padding:10px 16px}
+  .visibility-manager-status,.visibility-manager-list{padding-left:16px;padding-right:16px}
+  .visibility-manager-row{align-items:flex-start}
+  .visibility-manager-footer{padding-left:16px;padding-right:16px;flex-direction:column}
+}

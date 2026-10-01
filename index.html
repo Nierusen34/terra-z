@@ -134,6 +134,11 @@
             <strong>Conteúdo Mestre</strong>
             <small>Notas, revelações, objetivos, pistas e NPCs privados.</small>
           </button>
+          <button class="admin-action" data-admin-action="visibility">
+            <span class="admin-action-icon">👁️</span>
+            <strong>Visibilidade e acesso</strong>
+            <small>Revisar o que está Público, Spoiler ou Mestre em toda a campanha.</small>
+          </button>
         </div>
       </div>
 
@@ -186,6 +191,52 @@
           <button class="admin-action danger" data-admin-action="reset">🔄 <strong>Resetar rascunho local</strong></button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<div id="visibilityManagerPanel" class="visibility-manager-panel" role="dialog" aria-modal="true" aria-labelledby="visibilityManagerTitle">
+  <div class="visibility-manager-card">
+    <div class="visibility-manager-head">
+      <div>
+        <div class="visibility-manager-eyebrow">CONTROLE DE ACESSO · CAMPANHA</div>
+        <h3 id="visibilityManagerTitle">👁️ Público · Spoiler · Mestre</h3>
+      </div>
+      <button id="visibilityManagerClose" type="button" aria-label="Fechar">✕</button>
+    </div>
+
+    <div class="visibility-level-guide">
+      <div data-level="public"><strong>🌐 Público</strong><span>Visível para todos.</span></div>
+      <div data-level="spoiler"><strong>⚠️ Spoiler</strong><span>Oculto no Modo Jogador, mas continua no bundle público.</span></div>
+      <div data-level="master"><strong>🔒 Mestre</strong><span>Criptografado e carregado somente após autenticação.</span></div>
+    </div>
+
+    <div class="visibility-manager-summary">
+      <button type="button" data-visibility-manager-level="all" class="active"><span>Todos</span><strong id="visibilityManagerAllCount">0</strong></button>
+      <button type="button" data-visibility-manager-level="public"><span>Público</span><strong id="visibilityManagerPublicCount">0</strong></button>
+      <button type="button" data-visibility-manager-level="spoiler"><span>Spoiler</span><strong id="visibilityManagerSpoilerCount">0</strong></button>
+      <button type="button" data-visibility-manager-level="master"><span>Mestre</span><strong id="visibilityManagerMasterCount">0</strong></button>
+    </div>
+
+    <div class="visibility-manager-toolbar">
+      <select id="visibilityManagerType">
+        <option value="all">Todos os tipos</option>
+        <option value="character">Personagens</option>
+        <option value="section">Seções de ficha</option>
+        <option value="session">Sessões</option>
+        <option value="graph-node">Nós do grafo</option>
+        <option value="graph-edge">Relações</option>
+      </select>
+      <input id="visibilityManagerSearch" type="search" placeholder="Buscar personagem, seção, sessão ou relação..." autocomplete="off">
+      <button id="visibilityManagerRefresh" type="button">↻ Atualizar</button>
+    </div>
+
+    <div id="visibilityManagerStatus" class="visibility-manager-status"></div>
+    <div id="visibilityManagerList" class="visibility-manager-list"></div>
+
+    <div class="visibility-manager-footer">
+      <span>Alterações são feitas nos editores originais para evitar regras duplicadas.</span>
+      <span>Itens Mestre não devem existir nos arquivos públicos.</span>
     </div>
   </div>
 </div>
@@ -1205,6 +1256,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="js/sessions.js" defer></script>
 <script src="js/session-editor.js" defer></script>
 <script src="js/integrity-checker.js" defer></script>
+<script src="js/visibility-manager.js" defer></script>
 <script src="js/world-links.js" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
