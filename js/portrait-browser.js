@@ -16,6 +16,7 @@ var currentCharacter = '';
 var currentPage = null;
 var requestSerial = 0;
 var versions = [];
+var activeSource = 'dc';
 
 function el(id){ return document.getElementById(id); }
 function backend(){ return window.TerraZApp && window.TerraZApp.backend; }
@@ -173,7 +174,7 @@ async function searchPages(query){
     generator:'search',
     gsrsearch:query,
     gsrnamespace:'0',
-    gsrlimit:'18',
+    gsrlimit:'50',
     prop:'pageimages|info',
     inprop:'url',
     piprop:'thumbnail|original|name',
@@ -295,7 +296,7 @@ async function runSearch(){
       .sort(function(a,b){
         return relevance(b,query) - relevance(a,query);
       })
-      .slice(0,16);
+      .slice(0,40);
 
     renderVersions(query);
 
@@ -617,6 +618,7 @@ function open(name){
   currentPage = null;
   versions = [];
   requestSerial++;
+  activeSource = 'dc';
 
   var modal = el('portraitBrowserModal');
   if(!modal) return;
@@ -626,6 +628,15 @@ function open(name){
 
   var query = el('portraitBrowserQuery');
   if(query) query.value = configuredQuery(name);
+
+  var googleQuery = el('portraitGoogleQuery');
+  if(googleQuery) googleQuery.value = name + ' comic art';
+
+  if(el('portraitGoogleImageUrl')) el('portraitGoogleImageUrl').value = '';
+  if(el('portraitGooglePageUrl')) el('portraitGooglePageUrl').value = '';
+  if(el('portraitGoogleCredit')) el('portraitGoogleCredit').value = '';
+  updateGooglePreview();
+  switchSource('dc');
 
   setCurrentSummary();
   setStatus('Busque uma versão do personagem na DC Database.','ready');
@@ -656,20 +667,197 @@ function close(){
   document.body.style.overflow = keepLocked ? 'hidden' : '';
 }
 
+function switchSource(source){
+  activeSource = source === 'google' ? 'google' : 'dc';
+
+  var dcBtn = el('portraitSourceDc');
+  var googleBtn = el('portraitSourceGoogle');
+  var dcPanel = el('portraitDcPanel');
+  var googlePanel = el('portraitGooglePanel');
+
+  var googleActive = activeSource === 'google';
+
+  if(dcBtn){
+    dcBtn.classList.toggle('active',!googleActive);
+    dcBtn.setAttribute('aria-selected',googleActive ? 'false' : 'true');
+  }
+
+  if(googleBtn){
+    googleBtn.classList.toggle('active',googleActive);
+    googleBtn.setAttribute('aria-selected',googleActive ? 'true' : 'false');
+  }
+
+  if(dcPanel) dcPanel.hidden = googleActive;
+  if(googlePanel) googlePanel.hidden = !googleActive;
+
+  if(googleActive){
+    seedGoogleQuery();
+    updateGooglePreview();
+  }
+}
+
+function seedGoogleQuery(){
+  var input = el('portraitGoogleQuery');
+  if(!input) return;
+
+  var current = input.value.trim();
+  if(!current || current.indexOf(currentCharacter) < 0){
+    input.value = currentCharacter ? (currentCharacter + ' comic art') : '';
+  }
+}
+
+function googleSearchUrl(query){
+  return 'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(query);
+}
+
+function openGoogleImages(){
+  var input = el('portraitGoogleQuery');
+  var query = input ? input.value.trim() : '';
+
+  if(!query){
+    query = currentCharacter ? (currentCharacter + ' comic art') : '';
+    if(input) input.value = query;
+  }
+
+  if(!query){
+    showToast('Digite algo para pesquisar no Google Imagens.','warning',3500);
+    return;
+  }
+
+  window.open(googleSearchUrl(query),'_blank','noopener,noreferrer');
+}
+
+function validHttpsUrl(value){
+  var raw = String(value || '').trim();
+  if(!raw) return '';
+
+  try{
+    var url = new URL(raw);
+    return url.protocol === 'https:' ? url.toString() : '';
+  }catch(error){
+    return '';
+  }
+}
+
+function updateGooglePreview(){
+  var box = el('portraitGooglePreview');
+  var input = el('portraitGoogleImageUrl');
+
+  if(!box || !input) return;
+
+  var imageUrl = validHttpsUrl(input.value);
+
+  if(!imageUrl){
+    box.innerHTML = '<div class="portrait-google-placeholder">Cole uma URL HTTPS direta de imagem para visualizar antes de aplicar.</div>';
+    return;
+  }
+
+  box.innerHTML =
+    '<img src="' + escapeAttr(imageUrl) + '" alt="Prévia do retrato de ' + escapeAttr(currentCharacter) + '" referrerpolicy="no-referrer">' +
+    '<div class="portrait-google-preview-caption">Prévia · ' + escapeHtml(currentCharacter) + '</div>';
+
+  var img = box.querySelector('img');
+  if(img){
+    img.addEventListener('error',function(){
+      box.innerHTML =
+        '<div class="portrait-google-placeholder error">Não foi possível carregar essa URL como imagem direta. No Google Imagens, abra a imagem e use “Copiar endereço da imagem”.</div>';
+    },{once:true});
+  }
+}
+
+async function pasteGoogleImageUrl(){
+  if(!navigator.clipboard || !navigator.clipboard.readText){
+    showToast('Seu navegador não liberou acesso à área de transferência. Cole a URL manualmente.','info',4500);
+    return;
+  }
+
+  try{
+    var value = await navigator.clipboard.readText();
+    var input = el('portraitGoogleImageUrl');
+
+    if(input){
+      input.value = value || '';
+      updateGooglePreview();
+    }
+  }catch(error){
+    showToast('Não foi possível ler a área de transferência. Use Ctrl+V no campo da URL.','info',4500);
+  }
+}
+
+function applyGoogleImage(){
+  if(!currentCharacter) return;
+
+  var imageUrl = validHttpsUrl(el('portraitGoogleImageUrl') ? el('portraitGoogleImageUrl').value : '');
+  var pageUrl = validHttpsUrl(el('portraitGooglePageUrl') ? el('portraitGooglePageUrl').value : '');
+  var credit = el('portraitGoogleCredit') ? el('portraitGoogleCredit').value.trim() : '';
+
+  if(!imageUrl){
+    showToast('Informe uma URL HTTPS direta para a imagem escolhida.','warning',4500);
+    return;
+  }
+
+  var sourceLabel = credit
+    ? ('Google Imagens · ' + credit)
+    : 'Google Imagens · imagem selecionada';
+
+  showConfirm(
+    'Aplicar imagem do Google',
+    'Usar esta imagem como retrato de ' + currentCharacter + '? A ficha narrativa não será alterada.',
+    function(){
+      withLocalPortraitRemoved(function(){
+        saveSource({
+          provider:'external-url',
+          imageUrl:imageUrl,
+          pageUrl:pageUrl,
+          sourceLabel:sourceLabel
+        });
+      });
+    },
+    'Aplicar retrato'
+  );
+}
+
 function setup(){
   var closeBtn = el('portraitBrowserClose');
   var searchBtn = el('portraitBrowserSearchBtn');
   var query = el('portraitBrowserQuery');
   var modal = el('portraitBrowserModal');
+  var dcSourceBtn = el('portraitSourceDc');
+  var googleSourceBtn = el('portraitSourceGoogle');
+  var googleOpenBtn = el('portraitGoogleOpenBtn');
+  var googlePasteBtn = el('portraitGooglePasteBtn');
+  var googlePreviewBtn = el('portraitGooglePreviewBtn');
+  var googleApplyBtn = el('portraitGoogleApplyBtn');
+  var googleImageUrl = el('portraitGoogleImageUrl');
+  var googleQuery = el('portraitGoogleQuery');
 
   if(closeBtn) closeBtn.addEventListener('click',close);
   if(searchBtn) searchBtn.addEventListener('click',runSearch);
+  if(dcSourceBtn) dcSourceBtn.addEventListener('click',function(){ switchSource('dc'); });
+  if(googleSourceBtn) googleSourceBtn.addEventListener('click',function(){ switchSource('google'); });
+  if(googleOpenBtn) googleOpenBtn.addEventListener('click',openGoogleImages);
+  if(googlePasteBtn) googlePasteBtn.addEventListener('click',pasteGoogleImageUrl);
+  if(googlePreviewBtn) googlePreviewBtn.addEventListener('click',updateGooglePreview);
+  if(googleApplyBtn) googleApplyBtn.addEventListener('click',applyGoogleImage);
+  if(googleImageUrl) googleImageUrl.addEventListener('input',function(){
+    clearTimeout(googleImageUrl._previewTimer);
+    googleImageUrl._previewTimer = setTimeout(updateGooglePreview,250);
+  });
 
   if(query){
     query.addEventListener('keydown',function(event){
       if(event.key === 'Enter'){
         event.preventDefault();
         runSearch();
+      }
+    });
+  }
+
+  if(googleQuery){
+    googleQuery.addEventListener('keydown',function(event){
+      if(event.key === 'Enter'){
+        event.preventDefault();
+        openGoogleImages();
       }
     });
   }

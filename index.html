@@ -921,20 +921,69 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
   <div class="portrait-browser-shell">
     <div class="portrait-browser-head">
       <div>
-        <div class="portrait-browser-eyebrow">ARQUIVO VISUAL · DC DATABASE</div>
+        <div class="portrait-browser-eyebrow">ARQUIVO VISUAL · PERSONAGENS</div>
         <h3 id="portraitBrowserTitle">Escolher retrato</h3>
       </div>
       <button id="portraitBrowserClose" class="portrait-browser-close" type="button" aria-label="Fechar">✕</button>
     </div>
 
-    <div class="portrait-browser-search">
-      <input id="portraitBrowserQuery" type="search" maxlength="180" placeholder="Busque nome, identidade ou versão...">
-      <button id="portraitBrowserSearchBtn" type="button">🔎 Buscar versões</button>
+    <div class="portrait-source-tabs" role="tablist" aria-label="Fonte de busca do retrato">
+      <button id="portraitSourceDc" class="active" type="button" role="tab" aria-selected="true">🗂️ DC Database</button>
+      <button id="portraitSourceGoogle" type="button" role="tab" aria-selected="false">🔎 Google Imagens</button>
     </div>
 
-    <div id="portraitBrowserCurrent" class="portrait-browser-current"></div>
-    <div id="portraitBrowserStatus" class="portrait-browser-status" aria-live="polite"></div>
-    <div id="portraitBrowserBody" class="portrait-browser-body"></div>
+    <div id="portraitDcPanel" class="portrait-source-panel">
+      <div class="portrait-browser-search">
+        <input id="portraitBrowserQuery" type="search" maxlength="180" placeholder="Busque nome, identidade ou versão...">
+        <button id="portraitBrowserSearchBtn" type="button">🔎 Buscar versões</button>
+      </div>
+
+      <div id="portraitBrowserCurrent" class="portrait-browser-current"></div>
+      <div id="portraitBrowserStatus" class="portrait-browser-status" aria-live="polite"></div>
+      <div id="portraitBrowserBody" class="portrait-browser-body"></div>
+    </div>
+
+    <div id="portraitGooglePanel" class="portrait-source-panel" hidden>
+      <div class="portrait-google-intro">
+        <strong>Busca livre por artista, capa ou versão</strong>
+        <span>Ex.: “Connor Hawke Dan Mora”, “Batman Jim Lee”, “Nightwing Bruno Redondo”. O Google abre em uma nova aba; depois cole aqui a URL direta da imagem escolhida.</span>
+      </div>
+
+      <div class="portrait-google-search">
+        <input id="portraitGoogleQuery" type="search" maxlength="240" placeholder="Ex.: Connor Hawke Dan Mora comic art">
+        <button id="portraitGoogleOpenBtn" type="button">Abrir Google Imagens ↗</button>
+      </div>
+
+      <div class="portrait-google-form">
+        <label>URL direta da imagem
+          <div class="portrait-google-url-row">
+            <input id="portraitGoogleImageUrl" type="url" maxlength="1600" placeholder="https://...jpg">
+            <button id="portraitGooglePasteBtn" type="button">Colar</button>
+          </div>
+        </label>
+
+        <label>Página de origem <span>(opcional, recomendado)</span>
+          <input id="portraitGooglePageUrl" type="url" maxlength="1600" placeholder="https://site-do-artista-ou-publicação/...">
+        </label>
+
+        <label>Crédito / artista
+          <input id="portraitGoogleCredit" type="text" maxlength="160" placeholder="Ex.: Dan Mora">
+        </label>
+      </div>
+
+      <div id="portraitGooglePreview" class="portrait-google-preview">
+        <div class="portrait-google-placeholder">Cole uma URL direta de imagem para visualizar antes de aplicar.</div>
+      </div>
+
+      <div class="portrait-google-actions">
+        <button id="portraitGooglePreviewBtn" type="button">👁️ Atualizar prévia</button>
+        <button id="portraitGoogleApplyBtn" class="primary" type="button">✓ Aplicar esta imagem</button>
+      </div>
+
+      <div class="portrait-google-note">
+        Google Imagens é usado apenas para localizar a arte. Sempre que possível, informe a página de origem e o crédito do artista.
+      </div>
+    </div>
   </div>
 </div>
 
