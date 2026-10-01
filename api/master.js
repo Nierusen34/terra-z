@@ -180,6 +180,12 @@ export default async function handler(req,res){
     });
 
     data.master = normalizeMasterState(privateOverrides && privateOverrides.master);
+    data.graph = privateOverrides && privateOverrides.graph && typeof privateOverrides.graph === "object"
+      ? {
+          nodes:Array.isArray(privateOverrides.graph.nodes) ? privateOverrides.graph.nodes : [],
+          edges:Array.isArray(privateOverrides.graph.edges) ? privateOverrides.graph.edges : []
+        }
+      : {nodes:[],edges:[]};
 
     return res.status(200).json({ok:true,content:data});
   } catch(error){

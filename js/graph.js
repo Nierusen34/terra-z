@@ -39,19 +39,76 @@ var graphCharacterMap = {
   riot:'Riot',
   kendra:'Kendra Saunders'
 };
-function loadGraph(){
-  if(publishedGraph && Array.isArray(publishedGraph.nodes) && Array.isArray(publishedGraph.edges)){
-    return JSON.parse(JSON.stringify(publishedGraph));
-  }
-  try { var saved = localStorage.getItem(GRAPH_KEY); if(saved) return JSON.parse(saved); } catch(e){ console.error(e); }
-  return JSON.parse(JSON.stringify(defaultGraph));
+function normalizeVisibility(value){
+  var raw=String(value || 'public');
+  if(raw === 'master' || raw === 'private') return 'master';
+  if(raw === 'spoiler' || raw === 'rumor' || raw === 'restricted') return 'spoiler';
+  return 'public';
 }
+
+function privateGraph(){
+  var api=window.TerraZApp && window.TerraZApp.privateContent;
+  return api && api.getPrivateGraph ? api.getPrivateGraph() : {nodes:[],edges:[]};
+}
+
+function normalizeGraphVisibility(graph){
+  graph=graph || {quadrants:[],nodes:[],edges:[]};
+  graph.nodes=(Array.isArray(graph.nodes) ? graph.nodes : []).map(function(node){
+    return {...node,visibility:normalizeVisibility(node.visibility)};
+  });
+  graph.edges=(Array.isArray(graph.edges) ? graph.edges : []).map(function(edge){
+    return {...edge,visibility:normalizeVisibility(edge.visibility)};
+  });
+  return graph;
+}
+
+function mergePrivateGraph(base){
+  var graph=normalizeGraphVisibility(JSON.parse(JSON.stringify(base || {quadrants:[],nodes:[],edges:[]})));
+  var secure=privateGraph();
+  var nodeIds=new Set(graph.nodes.map(function(node){ return node.id; }));
+  (secure.nodes || []).forEach(function(node){
+    if(!nodeIds.has(node.id)){
+      graph.nodes.push({...node,visibility:'master'});
+      nodeIds.add(node.id);
+    }
+  });
+  (secure.edges || []).forEach(function(edge){
+    graph.edges.push({...edge,visibility:'master'});
+  });
+  return graph;
+}
+
+function publicGraphSnapshot(graph){
+  graph=normalizeGraphVisibility(JSON.parse(JSON.stringify(graph || {quadrants:[],nodes:[],edges:[]})));
+  var masterNodes=new Set(graph.nodes.filter(function(node){ return node.visibility === 'master'; }).map(function(node){ return node.id; }));
+  return {
+    quadrants:graph.quadrants || [],
+    nodes:graph.nodes.filter(function(node){ return node.visibility !== 'master'; }),
+    edges:graph.edges.filter(function(edge){
+      return edge.visibility !== 'master' && !masterNodes.has(edge.from) && !masterNodes.has(edge.to);
+    })
+  };
+}
+
+function loadGraph(){
+  var base=publishedGraph && Array.isArray(publishedGraph.nodes) ? publishedGraph : defaultGraph;
+  if(!publishedGraph){
+    try {
+      var saved=localStorage.getItem(GRAPH_KEY);
+      if(saved) base=JSON.parse(saved);
+    } catch(e){ console.error(e); }
+  }
+  return mergePrivateGraph(base);
+}
+
 function saveGraph(){
   try {
-    localStorage.setItem(GRAPH_BACKUP_KEY, localStorage.getItem(GRAPH_KEY) || JSON.stringify(defaultGraph));
-    localStorage.setItem(GRAPH_KEY, JSON.stringify(graphData));
+    var publicOnly=publicGraphSnapshot(graphData);
+    localStorage.setItem(GRAPH_BACKUP_KEY,localStorage.getItem(GRAPH_KEY) || JSON.stringify(publicOnly));
+    localStorage.setItem(GRAPH_KEY,JSON.stringify(publicOnly));
   } catch(e){ console.error(e); }
 }
+
 function edgeColor(type){
   return { family:'#c4186f', ally:'#0064a8', tension:'#cc2222', clone:'#7a4aff' }[type] || '#3a3028';
 }
@@ -69,8 +126,14 @@ function renderGraph(){
   graphData.nodes.forEach(function(n){ nodeMap[n.id] = n; });
   graphData.edges.forEach(function(e){
     if(graphRelationFilter !== 'all' && e.type !== graphRelationFilter) return;
-    var a = nodeMap[e.from], b = nodeMap[e.to];
+    var visibility=window.TerraZApp && window.TerraZApp.visibility;
+    if(visibility && visibility.isLevelAllowed && !visibility.isLevelAllowed(normalizeVisibility(e.visibility))) return;
+    var a=nodeMap[e.from], b=nodeMap[e.to];
     if(!a || !b) return;
+    if(visibility && visibility.isLevelAllowed){
+      if(!visibility.isLevelAllowed(normalizeVisibility(a.visibility))) return;
+      if(!visibility.isLevelAllowed(normalizeVisibility(b.visibility))) return;
+    }
     var stroke = edgeColor(e.type);
     var dash = (e.type === 'tension' || e.type === 'clone') ? ' stroke-dasharray="5,4"' : '';
     html += '<line x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '" stroke="' + stroke + '" stroke-width="2"' + dash + ' opacity="0.75"/>';
@@ -81,6 +144,8 @@ function renderGraph(){
     html += '<text x="' + (mx + offX) + '" y="' + (my + offY) + '" font-family="Share Tech Mono,monospace" font-size="9" fill="' + stroke + '" text-anchor="middle" style="paint-order:stroke;stroke:var(--paper3);stroke-width:4px;stroke-linejoin:round">' + escapeHtml(e.label) + '</text>';
   });
   graphData.nodes.forEach(function(n){
+    var visibility=window.TerraZApp && window.TerraZApp.visibility;
+    if(visibility && visibility.isLevelAllowed && !visibility.isLevelAllowed(normalizeVisibility(n.visibility))) return;
     var character = graphCharacterMap[n.id] || '';
     var manager = window.TerraZApp && window.TerraZApp.characters;
     var hasActiveFicha = !!(character && manager && manager.get && manager.get(character));
@@ -124,6 +189,12 @@ function renderGraphEditorForm(){
     html += '<td><input type="number" value="' + n.y + '" data-graph-kind="node" data-index="' + i + '" data-field="y" data-value-type="number"></td>';
     html += '<td><input type="number" value="' + n.r + '" data-graph-kind="node" data-index="' + i + '" data-field="r" data-value-type="number"></td>';
     html += '<td><input type="color" value="' + escapeAttr(n.color) + '" data-graph-kind="node" data-index="' + i + '" data-field="color"></td>';
+    html += '<td><select data-graph-kind="node" data-index="' + i + '" data-field="visibility">';
+    ['public','spoiler','master'].forEach(function(level){
+      var label=level === 'public' ? '🌐 Público' : (level === 'spoiler' ? '⚠️ Spoiler' : '🔒 Mestre');
+      html += '<option value="' + level + '"' + (normalizeVisibility(n.visibility) === level ? ' selected' : '') + '>' + label + '</option>';
+    });
+    html += '</select></td>';
     html += '<td><button class="ge-btn-remove" data-graph-action="remove-node" data-index="' + i + '">🗑</button></td></tr>';
   });
   nodesBody.innerHTML = html;
@@ -145,6 +216,12 @@ function renderGraphEditorForm(){
       htmlE += '<option value="' + t + '"' + (e.type === t ? ' selected' : '') + '>' + t + '</option>';
     });
     htmlE += '</select></td>';
+    htmlE += '<td><select data-graph-kind="edge" data-index="' + i + '" data-field="visibility">';
+    ['public','spoiler','master'].forEach(function(level){
+      var label=level === 'public' ? '🌐 Público' : (level === 'spoiler' ? '⚠️ Spoiler' : '🔒 Mestre');
+      htmlE += '<option value="' + level + '"' + (normalizeVisibility(e.visibility) === level ? ' selected' : '') + '>' + label + '</option>';
+    });
+    htmlE += '</select></td>';
     htmlE += '<td><button class="ge-btn-remove" data-graph-action="remove-edge" data-index="' + i + '">🗑</button></td></tr>';
   });
   edgesBody.innerHTML = htmlE;
@@ -154,7 +231,7 @@ function updateGraphNode(index, field, value){ if(graphData.nodes[index]) graphD
 function updateGraphEdge(index, field, value){ if(graphData.edges[index]) graphData.edges[index][field] = value; }
 function addGraphNode(){
   var id = 'novo_' + Date.now();
-  graphData.nodes.push({ id: id, label:'NOVO', x:500, y:400, color:'#3a3028', r:34 });
+  graphData.nodes.push({ id:id, label:'NOVO', x:500, y:400, color:'#3a3028', r:34, visibility:'public' });
   renderGraphEditorForm();
 }
 function removeGraphNode(index){
@@ -167,7 +244,7 @@ function removeGraphNode(index){
 }
 function addGraphEdge(){
   if(graphData.nodes.length < 2){ showToast('Adicione pelo menos 2 nós antes.', 'warning'); return; }
-  graphData.edges.push({ from: graphData.nodes[0].id, to: graphData.nodes[1].id, type:'ally', label:'nova' });
+  graphData.edges.push({ from:graphData.nodes[0].id, to:graphData.nodes[1].id, type:'ally', label:'nova', visibility:'public' });
   renderGraphEditorForm();
 }
 function removeGraphEdge(index){ graphData.edges.splice(index, 1); renderGraphEditorForm(); }
@@ -197,7 +274,10 @@ async function saveGraphEditor(){
       body:{graph:graphData}
     });
 
-    publishedGraph = JSON.parse(JSON.stringify(graphData));
+    if(result.publicGraph) publishedGraph=JSON.parse(JSON.stringify(result.publicGraph));
+    if(result.graph) graphData=normalizeGraphVisibility(JSON.parse(JSON.stringify(result.graph)));
+    saveGraph();
+    renderGraph();
     closeGraphEditor();
     showToast('Grafo salvo. Sincronização estática continua em segundo plano.','success',4500);
 
@@ -311,17 +391,22 @@ function setupGraphEditorEvents(){
 
 
 
-document.addEventListener('terra-z:runtime-data-loaded',function(){
-  publishedGraph = (window.TerraZData && window.TerraZData.graphOverride) || publishedGraph;
-  var modal = document.getElementById('graphEditorModal');
-  var editing = !!(modal && modal.classList.contains('show'));
+function refreshGraphFromSources(){
+  var modal=document.getElementById('graphEditorModal');
+  var editing=!!(modal && modal.classList.contains('show'));
+  if(editing) return;
+  graphData=loadGraph();
+  saveGraph();
+  renderGraph();
+}
 
-  if(!editing && publishedGraph && Array.isArray(publishedGraph.nodes) && Array.isArray(publishedGraph.edges)){
-    graphData = JSON.parse(JSON.stringify(publishedGraph));
-    saveGraph();
-    renderGraph();
-  }
+document.addEventListener('terra-z:runtime-data-loaded',function(){
+  publishedGraph=(window.TerraZData && window.TerraZData.graphOverride) || publishedGraph;
+  refreshGraphFromSources();
 });
+document.addEventListener('terra-z:private-content-loaded',refreshGraphFromSources);
+document.addEventListener('terra-z:private-content-cleared',refreshGraphFromSources);
+document.addEventListener('terra-z:visibility-changed',renderGraph);
 
 try {
   graphData = loadGraph();

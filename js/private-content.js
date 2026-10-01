@@ -169,6 +169,14 @@ function getPrivateCharacterNames(){
   });
 }
 
+function getPrivateGraph(){
+  if(!cache || !cache.graph || typeof cache.graph !== 'object') return {nodes:[],edges:[]};
+  return {
+    nodes:Array.isArray(cache.graph.nodes) ? clone(cache.graph.nodes) : [],
+    edges:Array.isArray(cache.graph.edges) ? clone(cache.graph.edges) : []
+  };
+}
+
 
 function emptyMasterState(){
   return {
@@ -237,6 +245,7 @@ window.TerraZApp.privateContent = {
   getCharacterMasterSections:getCharacterMasterSections,
   setCharacterMasterSections:setCharacterMasterSections,
   getPrivateCharacterNames:getPrivateCharacterNames,
+  getPrivateGraph:getPrivateGraph,
   getMasterState:getMasterState,
   setMasterState:setMasterState,
   isLoaded:function(){ return !!cache; }

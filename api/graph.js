@@ -2,6 +2,11 @@ import { applyCors } from "./_lib/cors.js";
 import { requireEditor } from "./_lib/auth.js";
 import { getHead, commitFiles } from "./_lib/github.js";
 import { renderGraphOverride } from "./_lib/data-files.js";
+import {
+  PRIVATE_CHARACTER_DATA_PATH,
+  readPrivateCharacterData,
+  renderPrivateCharacterData
+} from "./_lib/private-character-data.js";
 
 function text(value,max=240){
   return String(value == null ? "" : value).replace(/[<>]/g,"").trim().slice(0,max);
@@ -21,6 +26,13 @@ function color(value,fallback="#3a3028"){
 function rgba(value,fallback="rgba(0,0,0,.04)"){
   const v = String(value || "").trim();
   return /^rgba?\([0-9.,\s%]+\)$/i.test(v) ? v.slice(0,80) : fallback;
+}
+
+function visibility(value){
+  const raw=String(value || "public");
+  if(raw === "master" || raw === "private") return "master";
+  if(raw === "spoiler" || raw === "rumor" || raw === "restricted") return "spoiler";
+  return "public";
 }
 
 function normalizeGraph(input){
@@ -48,7 +60,8 @@ function normalizeGraph(input){
     x:number(n && n.x,-5000,5000,500),
     y:number(n && n.y,-5000,5000,400),
     color:color(n && n.color),
-    r:number(n && n.r,8,200,34)
+    r:number(n && n.r,8,200,34),
+    visibility:visibility(n && n.visibility)
   })) : [];
 
   const nodeIds = new Set(nodes.map(n=>n.id));
@@ -64,8 +77,15 @@ function normalizeGraph(input){
     from:text(e && e.from,80),
     to:text(e && e.to,80),
     type:allowedTypes.has(e && e.type) ? e.type : "ally",
-    label:text(e && e.label,120)
+    label:text(e && e.label,120),
+    visibility:visibility(e && e.visibility)
   })).filter(e=>nodeIds.has(e.from) && nodeIds.has(e.to) && e.from !== e.to) : [];
+
+  const byId=new Map(nodes.map(node => [node.id,node]));
+  edges.forEach(edge => {
+    const from=byId.get(edge.from), to=byId.get(edge.to);
+    if((from && from.visibility === "master") || (to && to.visibility === "master")) edge.visibility="master";
+  });
 
   return {quadrants,nodes,edges};
 }
@@ -84,19 +104,42 @@ export default async function handler(req,res){
   if(!requireEditor(req,res)) return;
 
   try {
-    const graph = normalizeGraph((req.body || {}).graph);
-    const head = await getHead();
-    const commit = await commitFiles([
-      {
-        path:"data/graph-overrides.js",
-        content:renderGraphOverride(graph),
-        encoding:"utf-8"
-      }
-    ],"relations: atualizar grafo pelo editor",head);
+    const graph=normalizeGraph((req.body || {}).graph);
+    const masterNodeIds=new Set(graph.nodes.filter(node => node.visibility === "master").map(node => node.id));
+
+    const publicGraph={
+      quadrants:graph.quadrants,
+      nodes:graph.nodes.filter(node => node.visibility !== "master"),
+      edges:graph.edges.filter(edge =>
+        edge.visibility !== "master" &&
+        !masterNodeIds.has(edge.from) &&
+        !masterNodeIds.has(edge.to)
+      )
+    };
+
+    const privateGraph={
+      nodes:graph.nodes.filter(node => node.visibility === "master"),
+      edges:graph.edges.filter(edge =>
+        edge.visibility === "master" ||
+        masterNodeIds.has(edge.from) ||
+        masterNodeIds.has(edge.to)
+      ).map(edge => ({...edge,visibility:"master"}))
+    };
+
+    const privateData=await readPrivateCharacterData();
+    privateData.graph=privateGraph;
+
+    const head=await getHead();
+    const commit=await commitFiles([
+      {path:"data/graph-overrides.js",content:renderGraphOverride(publicGraph),encoding:"utf-8"},
+      {path:PRIVATE_CHARACTER_DATA_PATH,content:renderPrivateCharacterData(privateData),encoding:"utf-8"}
+    ],"relations: atualizar grafo com visibilidade",head);
 
     return res.status(200).json({
       ok:true,
       sha:commit.sha,
+      graph,
+      publicGraph,
       status_url:statusUrl(req,commit.sha)
     });
   } catch(error){
