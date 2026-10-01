@@ -14,6 +14,14 @@ var typeSelect = document.getElementById('characterTypeFilter');
 var statusSelect = document.getElementById('characterStatusFilter');
 var mediaSelect = document.getElementById('characterMediaFilter');
 var clearBtn = document.getElementById('characterClearFilters');
+var sizeControl = document.getElementById('characterCardSizeControl');
+var sizeButtons = sizeControl ? Array.from(sizeControl.querySelectorAll('[data-character-size]')) : [];
+var CARD_SIZE_KEY = 'terraZ_character_card_size';
+var cardSize = 'standard';
+try {
+  var savedSize = localStorage.getItem(CARD_SIZE_KEY);
+  if(savedSize === 'compact' || savedSize === 'standard' || savedSize === 'large') cardSize = savedSize;
+} catch(e){}
 
 var taxonomy = (window.TerraZData && window.TerraZData.characterTaxonomy) || {
   nuclei:[],types:[],statuses:[],characters:{}
@@ -51,7 +59,8 @@ function metaFor(name){
     featured:meta.featured === true,
     nuclei:Array.isArray(meta.nuclei) && meta.nuclei.length ? meta.nuclei : ['other'],
     type:meta.type || 'other',
-    status:meta.status || 'unknown'
+    status:meta.status || 'unknown',
+    visibility:meta.visibility === 'private' ? 'private' : 'public'
   };
 }
 
@@ -153,6 +162,22 @@ function refreshActionStates(){
   }
 }
 
+function editorAuthenticated(){
+  var backend = window.TerraZApp && window.TerraZApp.backend;
+  return !!(backend && backend.isAuthenticated && backend.isAuthenticated());
+}
+function canView(meta){ return !meta || meta.visibility !== 'private' || editorAuthenticated(); }
+function applyCardSize(size,persist){
+  if(size !== 'compact' && size !== 'large') size = 'standard';
+  cardSize = size;
+  if(root) root.setAttribute('data-card-size',size);
+  sizeButtons.forEach(function(button){
+    var active = button.getAttribute('data-character-size') === size;
+    button.classList.toggle('active',active);
+    button.setAttribute('aria-pressed',active ? 'true' : 'false');
+  });
+  if(persist !== false){ try { localStorage.setItem(CARD_SIZE_KEY,size); } catch(e){} }
+}
 function apply(){
   var term = normalize(input ? input.value : '').trim();
   var visible = 0;
@@ -161,13 +186,16 @@ function apply(){
     var name = characterName(card);
     var meta = metaFor(name);
 
+    var permitted = canView(meta);
+    card.setAttribute('data-character-visibility',meta.visibility);
+    card.classList.toggle('character-private-card',meta.visibility === 'private' && editorAuthenticated());
     var show =
+      permitted &&
       (!term || searchableText(card,name,meta).includes(term)) &&
       matchesNucleus(meta) &&
       (!favoritesOnly || card.classList.contains('is-favorite')) &&
       matchesAdvanced(meta) &&
       matchesMedia(card);
-
     card.hidden = !show;
     if(show) visible++;
   });
@@ -191,6 +219,10 @@ fillSelect(typeSelect,taxonomy.types);
 fillSelect(statusSelect,taxonomy.statuses);
 renderNuclei();
 
+applyCardSize(cardSize,false);
+sizeButtons.forEach(function(button){
+  button.addEventListener('click',function(){ applyCardSize(button.getAttribute('data-character-size'),true); });
+});
 if(input) input.addEventListener('input',apply);
 if(typeSelect) typeSelect.addEventListener('change',apply);
 if(statusSelect) statusSelect.addEventListener('change',apply);
@@ -229,11 +261,14 @@ function refreshTaxonomy(){
 }
 
 document.addEventListener('terra-z:runtime-data-loaded',refreshTaxonomy);
+document.addEventListener('terra-z:auth-changed',apply);
 
 window.TerraZApp.characterFilters = {
   apply:apply,
   refreshTaxonomy:refreshTaxonomy,
   clear:clearFilters,
+  setCardSize:function(size){ applyCardSize(size,true); },
+  getCardSize:function(){ return cardSize; },
   nucleus:function(id){
     activeNucleus = id || 'all';
     renderNuclei();
