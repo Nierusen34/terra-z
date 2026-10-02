@@ -1419,20 +1419,23 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0
   <button class="primary" id="graphOpenBtn" type="button" disabled>⚙️ Organização avançada</button>
 </div>
 
-<div class="relations-layout">
+<div class="relations-layout" id="graphRelationsLayout">
   <div class="graph-canvas-card">
     <div class="graph-canvas-head">
       <div>
         <strong>Mapa de relações</strong>
         <span>Arraste as bolinhas para reorganizar só na sua tela · clique para inspecionar · duplo clique abre a entidade.</span>
       </div>
-      <div class="graph-zoom-controls" aria-label="Tamanho do grafo">
-        <button id="graphZoomOut" type="button" title="Diminuir grafo">−</button>
-        <input id="graphZoomRange" type="range" min="75" max="200" step="5" value="130" aria-label="Escala do grafo">
-        <span id="graphZoomLabel">130%</span>
-        <button id="graphZoomIn" type="button" title="Ampliar grafo">＋</button>
-        <button id="graphZoomReset" type="button" title="Voltar para 100%">100%</button>
+      <div class="graph-zoom-controls" aria-label="Navegação do grafo">
+        <button id="graphZoomOut" type="button" title="Diminuir zoom">−</button>
+        <input id="graphZoomRange" type="range" min="60" max="300" step="5" value="115" aria-label="Zoom do grafo">
+        <span id="graphZoomLabel">115%</span>
+        <button id="graphZoomIn" type="button" title="Aumentar zoom">＋</button>
+        <button id="graphFitBtn" type="button" title="Enquadrar toda a rede">⊙ Ajustar</button>
+        <button id="graphFocusBtn" type="button" title="Selecione uma entidade para focar" disabled>🎯 Foco</button>
         <button id="graphViewResetBtn" type="button" title="Restaurar as posições publicadas" disabled>↺ Posições</button>
+        <button id="graphInspectorToggleBtn" type="button" title="Mostrar ou ocultar painel lateral">☰ Ocultar painel</button>
+        <button id="graphFullscreenBtn" type="button" aria-pressed="false" title="Abrir mapa expandido">⛶ Tela cheia</button>
       </div>
     </div>
     <div id="graphConnectBar" class="graph-connect-bar" hidden>
