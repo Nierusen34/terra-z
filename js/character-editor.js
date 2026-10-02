@@ -12,7 +12,7 @@ var escapeAttr = core.escapeAttr;
 var currentName = '';
 var createMode = false;
 var privateLoaded = false;
-var taxonomy = (window.TerraZData && window.TerraZData.characterTaxonomy) || {nuclei:[],types:[],statuses:[],characters:{}};
+var taxonomy = (window.TerraZData && window.TerraZData.characterTaxonomy) || {nuclei:[],types:[],statuses:[],tags:[],characters:{}};
 
 function el(id){ return document.getElementById(id); }
 function backend(){ return window.TerraZApp && window.TerraZApp.backend; }
@@ -74,6 +74,7 @@ function metaFor(name){
     nuclei:Array.isArray(meta.nuclei) ? meta.nuclei.slice() : [],
     type:meta.type || 'other',
     status:meta.status || 'unknown',
+    tags:Array.isArray(meta.tags) ? meta.tags.slice() : [],
     visibility:(meta.visibility === 'master' || meta.visibility === 'private')
       ? 'master'
       : (meta.visibility === 'spoiler' ? 'spoiler' : 'public')
@@ -118,6 +119,26 @@ function renderEditorNuclei(selected){
   });
 }
 
+function renderEditorTags(selected){
+  var root=el('characterEditorTags');
+  if(!root) return;
+  var chosen=new Set(Array.isArray(selected)?selected:[]);
+  var defs=definitions('tags');
+  if(!defs.length){
+    root.innerHTML='<span class="character-editor-empty-taxonomy">Nenhuma tag cadastrada. Crie tags em Administração → Taxonomias.</span>';
+    return;
+  }
+  root.innerHTML='';
+  defs.forEach(function(item){
+    var label=document.createElement('label');
+    label.className='character-editor-nucleus-option';
+    var input=document.createElement('input');
+    input.type='checkbox';input.value=item.id;input.checked=chosen.has(item.id);
+    var span=document.createElement('span');span.textContent=item.label;
+    label.appendChild(input);label.appendChild(span);root.appendChild(label);
+  });
+}
+
 function fillOrganization(meta){
   meta = meta || {};
   fillSelect('characterEditorType',definitions('types'),meta.type || 'other');
@@ -133,17 +154,24 @@ function fillOrganization(meta){
   }
 
   renderEditorNuclei(meta.nuclei || []);
+  renderEditorTags(meta.tags || []);
 }
 
 function collectOrganization(){
   var nucleiRoot = el('characterEditorNuclei');
+  var tagsRoot=el('characterEditorTags');
   var nuclei = nucleiRoot
     ? Array.from(nucleiRoot.querySelectorAll('input[type="checkbox"]:checked')).map(function(input){ return input.value; })
+    : [];
+
+  var tags=tagsRoot
+    ? Array.from(tagsRoot.querySelectorAll('input[type="checkbox"]:checked')).map(function(input){ return input.value; })
     : [];
 
   return {
     featured:!!(el('characterEditorFeatured') && el('characterEditorFeatured').checked),
     nuclei:nuclei,
+    tags:tags,
     type:el('characterEditorType') ? el('characterEditorType').value : 'other',
     status:el('characterEditorStatusMeta') ? el('characterEditorStatusMeta').value : 'unknown',
     visibility:el('characterEditorVisibility') ? el('characterEditorVisibility').value : 'public'

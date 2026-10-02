@@ -548,7 +548,8 @@ async function loadState(force){
   }
 }
 
-async function open(){
+async function open(tab){
+  if(DEFINITIONS[tab]) activeTab=tab;
   if(!authenticated()){
     showToast('Entre como editor para acessar o Conteúdo Mestre.','warning',5000);
     if(window.TerraZApp.publishing) window.TerraZApp.publishing.open();
@@ -559,6 +560,8 @@ async function open(){
   if(panel) panel.classList.add('show');
   document.body.style.overflow = 'hidden';
   closeEditor();
+  var search=el('masterWorkspaceSearch');
+  if(search) search.value='';
   await loadState(false);
 }
 

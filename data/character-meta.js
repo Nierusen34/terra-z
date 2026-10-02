@@ -94,6 +94,7 @@ window.TerraZData.characterTaxonomy = {
       "label": "Desconhecido"
     }
   ],
+  "tags": [],
   "characters": {
     "Tristan Queen": {
       "featured": true,

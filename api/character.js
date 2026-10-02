@@ -217,11 +217,18 @@ function normalizeCharacterMeta(value,taxonomy,creating){
     ? String(input.status)
     : (creating && allowedStatuses.has("active") ? "active" : "unknown");
 
+  const tagDefs = Array.isArray(taxonomy.tags) ? taxonomy.tags : [];
+  const allowedTags = new Set(tagDefs.map(item => String(item && item.id || "")));
+  const tags = Array.isArray(input.tags)
+    ? [...new Set(input.tags.map(v => String(v || "")).filter(v => allowedTags.has(v)))]
+    : [];
+
   return {
     featured:input.featured === true,
     nuclei:[...new Set(nuclei)],
     type,
     status,
+    tags,
     visibility:(input.visibility === "master" || input.visibility === "private")
       ? "master"
       : (input.visibility === "spoiler" ? "spoiler" : "public")
@@ -316,7 +323,7 @@ function statusUrl(req,sha){
   return proto + "://" + req.headers.host + "/api/status?sha=" + encodeURIComponent(sha);
 }
 
-function normalizeNucleusId(value){
+function normalizeTaxonomyId(value){
   return String(value || "")
     .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
     .toLowerCase()
@@ -325,38 +332,44 @@ function normalizeNucleusId(value){
     .slice(0,60);
 }
 
-function normalizeNucleusDefinitions(value){
-  if(!Array.isArray(value)){
-    const error = new Error("Lista de núcleos inválida.");
-    error.status = 400;
-    error.code = "invalid_nuclei";
+const TAXONOMY_RULES = {
+  nuclei:{max:40,required:"other",reserved:new Set(["all","featured"])},
+  types:{max:30,required:"other",reserved:new Set()},
+  statuses:{max:30,required:"unknown",reserved:new Set()},
+  tags:{max:80,required:"",reserved:new Set()}
+};
+
+function normalizeDefinitionList(kind,value){
+  const rule=TAXONOMY_RULES[kind];
+  if(!rule || !Array.isArray(value)){
+    const error=new Error("Lista de taxonomia inválida.");
+    error.status=400;
+    error.code="invalid_taxonomy";
     throw error;
   }
 
-  const seen = new Set();
-  const items = value.slice(0,40).map(item => {
-    const raw = item && typeof item === "object" ? item : {};
-    const id = normalizeNucleusId(raw.id);
-    const label = text(raw.label,100);
+  const seen=new Set();
+  const items=value.slice(0,rule.max).map(item=>{
+    const raw=item && typeof item==="object" ? item : {};
+    const id=normalizeTaxonomyId(raw.id);
+    const label=text(raw.label,100);
 
     if(!id || !label){
-      const error = new Error("Todo núcleo precisa de identificador e nome.");
-      error.status = 400;
-      error.code = "invalid_nucleus";
+      const error=new Error("Toda categoria precisa de identificador e nome.");
+      error.status=400;
+      error.code="invalid_taxonomy_item";
       throw error;
     }
-
-    if(id === "all" || id === "featured"){
-      const error = new Error("“Todos” e “Principais” são filtros reservados do sistema.");
-      error.status = 400;
-      error.code = "reserved_nucleus";
+    if(rule.reserved.has(id)){
+      const error=new Error("Este identificador é reservado pelo sistema: "+id);
+      error.status=400;
+      error.code="reserved_taxonomy_id";
       throw error;
     }
-
     if(seen.has(id)){
-      const error = new Error("Existem núcleos com identificadores duplicados.");
-      error.status = 400;
-      error.code = "duplicate_nucleus";
+      const error=new Error("Existem categorias com identificadores duplicados.");
+      error.status=400;
+      error.code="duplicate_taxonomy_id";
       throw error;
     }
 
@@ -364,46 +377,112 @@ function normalizeNucleusDefinitions(value){
     return {id,label};
   });
 
-  if(!items.some(item => item.id === "other")){
-    const error = new Error("O núcleo interno “Outros” não pode ser excluído.");
-    error.status = 400;
-    error.code = "missing_other_nucleus";
+  if(rule.required && !items.some(item=>item.id===rule.required)){
+    const error=new Error("A categoria interna “"+rule.required+"” não pode ser excluída.");
+    error.status=400;
+    error.code="missing_required_taxonomy";
     throw error;
   }
 
   return items;
 }
 
-function applyNucleusDefinitionChanges(taxonomy,nextNuclei){
-  taxonomy.nuclei = nextNuclei;
-
-  const allowed = new Set(nextNuclei.map(item => item.id));
-  const fallback = allowed.has("other") ? "other" : "";
-
-  taxonomy.characters = taxonomy.characters && typeof taxonomy.characters === "object" && !Array.isArray(taxonomy.characters)
+function reconcileTaxonomyCharacters(taxonomy){
+  taxonomy.characters=taxonomy.characters && typeof taxonomy.characters==="object" && !Array.isArray(taxonomy.characters)
     ? taxonomy.characters
     : {};
 
-  Object.keys(taxonomy.characters).forEach(name => {
-    const current = taxonomy.characters[name] && typeof taxonomy.characters[name] === "object"
+  const nuclei=new Set((taxonomy.nuclei||[]).map(item=>item.id));
+  const types=new Set((taxonomy.types||[]).map(item=>item.id));
+  const statuses=new Set((taxonomy.statuses||[]).map(item=>item.id));
+  const tags=new Set((taxonomy.tags||[]).map(item=>item.id));
+
+  Object.keys(taxonomy.characters).forEach(name=>{
+    const current=taxonomy.characters[name] && typeof taxonomy.characters[name]==="object"
       ? taxonomy.characters[name]
       : {};
 
-    let nuclei = Array.isArray(current.nuclei)
-      ? current.nuclei.map(value => String(value || "")).filter(value => allowed.has(value))
+    let characterNuclei=Array.isArray(current.nuclei)
+      ? [...new Set(current.nuclei.map(String).filter(id=>nuclei.has(id)))]
       : [];
+    if(!characterNuclei.length && nuclei.has("other")) characterNuclei=["other"];
 
-    nuclei = [...new Set(nuclei)];
-
-    if(!nuclei.length && fallback) nuclei = [fallback];
-
-    taxonomy.characters[name] = {
+    taxonomy.characters[name]={
       ...current,
-      nuclei
+      nuclei:characterNuclei,
+      type:types.has(String(current.type||"")) ? String(current.type) : (types.has("other") ? "other" : ""),
+      status:statuses.has(String(current.status||"")) ? String(current.status) : (statuses.has("unknown") ? "unknown" : ""),
+      tags:Array.isArray(current.tags)
+        ? [...new Set(current.tags.map(String).filter(id=>tags.has(id)))]
+        : []
     };
   });
 
   return taxonomy;
+}
+
+function normalizeTaxonomyPayload(current,body){
+  const next={
+    ...current,
+    nuclei:normalizeDefinitionList("nuclei",body.nuclei),
+    types:normalizeDefinitionList("types",body.types),
+    statuses:normalizeDefinitionList("statuses",body.statuses),
+    tags:normalizeDefinitionList("tags",body.tags || [])
+  };
+  return reconcileTaxonomyCharacters(next);
+}
+
+function applyMetaPatch(meta,patch,taxonomy,isPrivate){
+  const current=meta && typeof meta==="object" ? meta : {};
+  const nucleiAllowed=new Set((taxonomy.nuclei||[]).map(item=>item.id));
+  const typesAllowed=new Set((taxonomy.types||[]).map(item=>item.id));
+  const statusesAllowed=new Set((taxonomy.statuses||[]).map(item=>item.id));
+  const tagsAllowed=new Set((taxonomy.tags||[]).map(item=>item.id));
+
+  let nuclei=Array.isArray(current.nuclei) ? current.nuclei.filter(id=>nucleiAllowed.has(id)) : [];
+  let tags=Array.isArray(current.tags) ? current.tags.filter(id=>tagsAllowed.has(id)) : [];
+
+  if(Array.isArray(patch.nucleiReplace)){
+    nuclei=[...new Set(patch.nucleiReplace.map(String).filter(id=>nucleiAllowed.has(id)))];
+  }
+  if(Array.isArray(patch.nucleiAdd)){
+    nuclei=[...new Set(nuclei.concat(patch.nucleiAdd.map(String).filter(id=>nucleiAllowed.has(id))))];
+  }
+  if(Array.isArray(patch.nucleiRemove)){
+    const remove=new Set(patch.nucleiRemove.map(String));
+    nuclei=nuclei.filter(id=>!remove.has(id));
+  }
+  if(!nuclei.length && nucleiAllowed.has("other")) nuclei=["other"];
+
+  if(Array.isArray(patch.tagsReplace)){
+    tags=[...new Set(patch.tagsReplace.map(String).filter(id=>tagsAllowed.has(id)))];
+  }
+  if(Array.isArray(patch.tagsAdd)){
+    tags=[...new Set(tags.concat(patch.tagsAdd.map(String).filter(id=>tagsAllowed.has(id))))];
+  }
+  if(Array.isArray(patch.tagsRemove)){
+    const remove=new Set(patch.tagsRemove.map(String));
+    tags=tags.filter(id=>!remove.has(id));
+  }
+
+  const next={
+    ...current,
+    nuclei,
+    tags
+  };
+
+  if(typesAllowed.has(String(patch.type||""))) next.type=String(patch.type);
+  if(statusesAllowed.has(String(patch.status||""))) next.status=String(patch.status);
+  if(!typesAllowed.has(String(next.type||""))) next.type=typesAllowed.has("other") ? "other" : "";
+  if(!statusesAllowed.has(String(next.status||""))) next.status=statusesAllowed.has("unknown") ? "unknown" : "";
+  if(typeof patch.featured==="boolean") next.featured=patch.featured;
+
+  if(!isPrivate && (patch.visibility==="public" || patch.visibility==="spoiler")){
+    next.visibility=patch.visibility;
+  }
+  if(isPrivate) next.visibility="master";
+
+  return next;
 }
 
 export default async function handler(req,res){
@@ -496,33 +575,114 @@ export default async function handler(req,res){
     }
 
     if(req.method === "POST" && body.action === "update-taxonomy"){
-      const metaFile = await readTextFile("data/character-meta.js");
-      const taxonomy = parseDataAssignment(metaFile.content,"characterTaxonomy");
-      const currentNuclei = Array.isArray(taxonomy.nuclei) ? taxonomy.nuclei : [];
-      const nextNuclei = normalizeNucleusDefinitions(body.nuclei);
+      const [metaFile,privateData]=await Promise.all([
+        readTextFile("data/character-meta.js"),
+        readPrivateCharacterData()
+      ]);
+      const current=parseDataAssignment(metaFile.content,"characterTaxonomy");
+      const taxonomy=normalizeTaxonomyPayload(current,body);
 
-      const currentIds = new Set(currentNuclei.map(item => String(item && item.id || "")));
-      const nextIds = new Set(nextNuclei.map(item => item.id));
-      const deletedIds = [...currentIds].filter(id => id && !nextIds.has(id));
+      privateData.characters=privateData.characters && typeof privateData.characters==="object" && !Array.isArray(privateData.characters)
+        ? privateData.characters
+        : {};
 
-      applyNucleusDefinitionChanges(taxonomy,nextNuclei);
+      for(const name of Object.keys(privateData.characters)){
+        const profile=privateProfile(privateData.characters[name]);
+        if(!profile) continue;
+        profile.meta=applyMetaPatch(profile.meta||{}, {
+          nucleiReplace:Array.isArray(profile.meta&&profile.meta.nuclei) ? profile.meta.nuclei : [],
+          tagsReplace:Array.isArray(profile.meta&&profile.meta.tags) ? profile.meta.tags : [],
+          type:String(profile.meta&&profile.meta.type||""),
+          status:String(profile.meta&&profile.meta.status||"")
+        },taxonomy,true);
+      }
 
-      const head = await getHead();
-      const commit = await commitFiles(
-        [{
+      const head=await getHead();
+      const commit=await commitFiles([
+        {
           path:"data/character-meta.js",
           content:renderCharacterTaxonomy(taxonomy),
           encoding:"utf-8"
-        }],
-        "characters: atualizar filtros e núcleos",
-        head
-      );
+        },
+        {
+          path:PRIVATE_CHARACTER_DATA_PATH,
+          content:renderPrivateCharacterData(privateData),
+          encoding:"utf-8"
+        }
+      ],"characters: atualizar taxonomias do universo",head);
 
       return res.status(200).json({
         ok:true,
         sha:commit.sha,
         taxonomy,
-        deleted:deletedIds,
+        status_url:statusUrl(req,commit.sha)
+      });
+    }
+
+    if(req.method === "POST" && body.action === "bulk-update-meta"){
+      const names=Array.isArray(body.characters)
+        ? [...new Set(body.characters.map(name=>text(name,160)).filter(Boolean))].slice(0,300)
+        : [];
+      if(!names.length){
+        return res.status(400).json({error:"missing_characters",message:"Selecione ao menos um personagem."});
+      }
+
+      const [metaFile,privateData]=await Promise.all([
+        readTextFile("data/character-meta.js"),
+        readPrivateCharacterData()
+      ]);
+      const taxonomy=parseDataAssignment(metaFile.content,"characterTaxonomy");
+      taxonomy.tags=Array.isArray(taxonomy.tags) ? taxonomy.tags : [];
+      taxonomy.characters=taxonomy.characters && typeof taxonomy.characters==="object" && !Array.isArray(taxonomy.characters)
+        ? taxonomy.characters
+        : {};
+      privateData.characters=privateData.characters && typeof privateData.characters==="object" && !Array.isArray(privateData.characters)
+        ? privateData.characters
+        : {};
+
+      const patch=body.patch && typeof body.patch==="object" && !Array.isArray(body.patch) ? body.patch : {};
+      const updated=[];
+      const skipped=[];
+
+      for(const requestedName of names){
+        const publicName=findCaseInsensitiveKey(Object.keys(taxonomy.characters),requestedName);
+        const privateName=findCaseInsensitiveKey(
+          Object.keys(privateData.characters).filter(key=>privateProfile(privateData.characters[key])),
+          requestedName
+        );
+
+        if(publicName){
+          taxonomy.characters[publicName]=applyMetaPatch(taxonomy.characters[publicName],patch,taxonomy,false);
+          updated.push(publicName);
+          continue;
+        }
+
+        if(privateName){
+          const profile=privateProfile(privateData.characters[privateName]);
+          profile.meta=applyMetaPatch(profile.meta,patch,taxonomy,true);
+          updated.push(privateName);
+          continue;
+        }
+
+        skipped.push(requestedName);
+      }
+
+      if(!updated.length){
+        return res.status(404).json({error:"no_characters_updated",message:"Nenhum personagem selecionado pôde ser atualizado.",skipped});
+      }
+
+      const head=await getHead();
+      const commit=await commitFiles([
+        {path:"data/character-meta.js",content:renderCharacterTaxonomy(taxonomy),encoding:"utf-8"},
+        {path:PRIVATE_CHARACTER_DATA_PATH,content:renderPrivateCharacterData(privateData),encoding:"utf-8"}
+      ],"characters: edição em lote de "+updated.length+" personagens",head);
+
+      return res.status(200).json({
+        ok:true,
+        sha:commit.sha,
+        updated,
+        skipped,
+        taxonomy,
         status_url:statusUrl(req,commit.sha)
       });
     }

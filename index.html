@@ -232,8 +232,18 @@
           </button>
           <button class="admin-action" data-admin-action="taxonomy">
             <span class="admin-action-icon">🏷️</span>
-            <strong>Filtros / Núcleos</strong>
-            <small>Adicionar, renomear, ordenar ou excluir grupos de personagens.</small>
+            <strong>Taxonomias</strong>
+            <small>Gerenciar núcleos, tipos, status e tags do universo.</small>
+          </button>
+          <button class="admin-action" data-admin-action="bulk-edit">
+            <span class="admin-action-icon">🧰</span>
+            <strong>Edição em lote</strong>
+            <small>Organizar vários personagens em uma única operação.</small>
+          </button>
+          <button class="admin-action private" data-admin-action="master-quick">
+            <span class="admin-action-icon">🎲</span>
+            <strong>Sala do Mestre</strong>
+            <small>Objetivos, pistas, NPCs, revelações e últimos acontecimentos.</small>
           </button>
           <button class="admin-action private" data-admin-action="privacy-migrate">
             <span class="admin-action-icon">🔐</span>
@@ -456,33 +466,162 @@
   <div class="taxonomy-manager-card">
     <div class="taxonomy-manager-head">
       <div>
-        <div class="taxonomy-manager-eyebrow">PERSONAGENS · ORGANIZAÇÃO</div>
-        <h3 id="taxonomyManagerTitle">🏷️ Filtros e Núcleos</h3>
+        <div class="taxonomy-manager-eyebrow">ETAPA 11 · ORGANIZAÇÃO DO UNIVERSO</div>
+        <h3 id="taxonomyManagerTitle">🏷️ Taxonomias</h3>
       </div>
       <button id="taxonomyManagerClose" type="button" aria-label="Fechar">✕</button>
     </div>
 
     <div class="taxonomy-manager-system">
-      <div class="taxonomy-system-chip"><strong>Todos</strong><span>Filtro fixo do sistema</span></div>
-      <div class="taxonomy-system-chip"><strong>Principais</strong><span>Personagens marcados como destaque</span></div>
+      <div class="taxonomy-system-chip"><strong>Todos</strong><span>Filtro fixo</span></div>
+      <div class="taxonomy-system-chip"><strong>Principais</strong><span>Destaques</span></div>
+      <div class="taxonomy-system-chip"><strong>Fallbacks</strong><span>Outros / Desconhecido protegidos</span></div>
     </div>
 
-    <div class="taxonomy-manager-copy">
-      Os núcleos abaixo alimentam os chips da página de Personagens e as opções do editor. Renomear mantém os vínculos existentes; excluir remove o vínculo daquele núcleo. Personagens que ficarem sem nenhum núcleo passam automaticamente para <strong>Outros</strong>.
-    </div>
+    <div id="taxonomyManagerTabs" class="taxonomy-manager-tabs"></div>
+    <div id="taxonomyManagerHelp" class="taxonomy-manager-copy"></div>
 
     <div class="taxonomy-manager-toolbar">
-      <input id="taxonomyManagerNewLabel" type="text" maxlength="100" placeholder="Nome do novo núcleo, ex.: Sociedade da Justiça">
-      <button id="taxonomyManagerAdd" type="button">＋ Adicionar núcleo</button>
+      <input id="taxonomyManagerNewLabel" type="text" maxlength="100" placeholder="Nova categoria">
+      <button id="taxonomyManagerAdd" type="button">＋ Adicionar</button>
     </div>
 
     <div id="taxonomyManagerList" class="taxonomy-manager-list"></div>
-
     <div id="taxonomyManagerStatus" class="taxonomy-manager-status" data-state="idle"></div>
 
     <div class="taxonomy-manager-actions">
       <button id="taxonomyManagerCancel" type="button">Cancelar</button>
-      <button id="taxonomyManagerSave" type="button" class="primary">💾 Salvar filtros</button>
+      <button id="taxonomyManagerSave" type="button" class="primary">💾 Salvar taxonomias</button>
+    </div>
+  </div>
+</div>
+
+<div id="bulkEditorPanel" class="bulk-editor-panel" role="dialog" aria-modal="true" aria-labelledby="bulkEditorTitle">
+  <div class="bulk-editor-card">
+    <div class="bulk-editor-head">
+      <div>
+        <div class="bulk-editor-eyebrow">ETAPA 12 · OPERAÇÕES EM LOTE</div>
+        <h3 id="bulkEditorTitle">🧰 Edição em Lote</h3>
+        <p>Selecione personagens e aplique organização em uma única publicação.</p>
+      </div>
+      <button id="bulkEditorClose" type="button">✕</button>
+    </div>
+
+    <div class="bulk-editor-toolbar">
+      <input id="bulkEditorSearch" type="search" placeholder="Buscar personagem, núcleo, tipo, status ou tag..." autocomplete="off">
+      <select id="bulkEditorNucleusFilter"><option value="all">Todos os núcleos</option></select>
+      <button id="bulkEditorSelectVisible" type="button">Selecionar visíveis</button>
+      <button id="bulkEditorClearSelection" type="button">Limpar seleção</button>
+    </div>
+
+    <div class="bulk-editor-summary">
+      <strong id="bulkEditorSelectedCount">0</strong><span>selecionados</span>
+      <span id="bulkEditorVisibleCount">0 visíveis</span>
+    </div>
+
+    <div class="bulk-editor-layout">
+      <div id="bulkEditorCharacters" class="bulk-editor-characters"></div>
+
+      <div class="bulk-editor-actions-panel">
+        <h4>Alterações</h4>
+        <label>Tipo
+          <select id="bulkEditorType"><option value="">Não alterar</option></select>
+        </label>
+        <label>Status
+          <select id="bulkEditorStatus"><option value="">Não alterar</option></select>
+        </label>
+        <label>Destaque
+          <select id="bulkEditorFeatured">
+            <option value="">Não alterar</option>
+            <option value="true">Marcar como principal</option>
+            <option value="false">Remover destaque</option>
+          </select>
+        </label>
+        <label>Visibilidade pública
+          <select id="bulkEditorVisibility">
+            <option value="">Não alterar</option>
+            <option value="public">🌐 Público</option>
+            <option value="spoiler">⚠️ Spoiler</option>
+          </select>
+        </label>
+
+        <div class="bulk-editor-operation">
+          <strong>Núcleos</strong>
+          <select id="bulkEditorNucleiMode">
+            <option value="add">Adicionar aos atuais</option>
+            <option value="remove">Remover dos atuais</option>
+            <option value="replace">Substituir todos</option>
+          </select>
+          <div id="bulkEditorNuclei" class="bulk-editor-checks"></div>
+        </div>
+
+        <div class="bulk-editor-operation">
+          <strong>Tags</strong>
+          <select id="bulkEditorTagsMode">
+            <option value="add">Adicionar às atuais</option>
+            <option value="remove">Remover das atuais</option>
+            <option value="replace">Substituir todas</option>
+          </select>
+          <div id="bulkEditorTags" class="bulk-editor-checks"></div>
+        </div>
+
+        <div class="bulk-editor-note">Personagens Mestre podem receber tipo, status, núcleos, tags e destaque em lote, mas permanecem Mestre. Mudança para/de Mestre continua no editor individual para preservar a migração criptografada.</div>
+        <div id="bulkEditorStatusText" class="bulk-editor-status" data-state="idle"></div>
+        <button id="bulkEditorApply" class="primary" type="button">Aplicar aos selecionados</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="masterQuickPanel" class="master-quick-panel" role="dialog" aria-modal="true" aria-labelledby="masterQuickTitle">
+  <div class="master-quick-card">
+    <div class="master-quick-head">
+      <div>
+        <div class="master-quick-eyebrow">ETAPA 13 · CONDUÇÃO DA CAMPANHA</div>
+        <h3 id="masterQuickTitle">🎲 Sala do Mestre</h3>
+        <p>O que merece sua atenção antes e durante a próxima sessão.</p>
+      </div>
+      <div class="master-quick-head-actions">
+        <button id="masterQuickRefresh" type="button">↻ Atualizar</button>
+        <button id="masterQuickClose" type="button">✕</button>
+      </div>
+    </div>
+
+    <div id="masterQuickStats" class="master-quick-stats"></div>
+
+    <div class="master-quick-toolbar">
+      <input id="masterQuickSearch" type="search" placeholder="Buscar pista, objetivo, NPC, revelação ou nota..." autocomplete="off">
+      <button id="masterQuickWorkspace" type="button">🗝️ Abrir conteúdo Mestre</button>
+      <button id="masterQuickNewSession" type="button">📓 Registrar sessão</button>
+    </div>
+
+    <div id="masterQuickAlerts" class="master-quick-alerts"></div>
+
+    <div class="master-quick-grid">
+      <section>
+        <div class="master-quick-section-head"><strong>🎯 Objetivos ativos</strong><span id="masterQuickGoalsCount">0</span></div>
+        <div id="masterQuickGoals" class="master-quick-list"></div>
+      </section>
+      <section>
+        <div class="master-quick-section-head"><strong>🧩 Pistas pendentes</strong><span id="masterQuickCluesCount">0</span></div>
+        <div id="masterQuickClues" class="master-quick-list"></div>
+      </section>
+      <section>
+        <div class="master-quick-section-head"><strong>🔮 Revelações planejadas</strong><span id="masterQuickRevelationsCount">0</span></div>
+        <div id="masterQuickRevelations" class="master-quick-list"></div>
+      </section>
+      <section>
+        <div class="master-quick-section-head"><strong>👤 NPCs em jogo</strong><span id="masterQuickNpcsCount">0</span></div>
+        <div id="masterQuickNpcs" class="master-quick-list"></div>
+      </section>
+      <section class="master-quick-wide">
+        <div class="master-quick-section-head"><strong>📝 Notas recentes</strong><span id="masterQuickNotesCount">0</span></div>
+        <div id="masterQuickNotes" class="master-quick-list compact"></div>
+      </section>
+      <section class="master-quick-wide">
+        <div class="master-quick-section-head"><strong>📅 Últimos acontecimentos</strong><span id="masterQuickRecentCount">0</span></div>
+        <div id="masterQuickRecent" class="master-quick-list compact"></div>
+      </section>
     </div>
   </div>
 </div>
@@ -978,6 +1117,11 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2
         <option value="all">Todos</option>
       </select>
     </label>
+    <label>Tag
+      <select id="characterTagFilter">
+        <option value="all">Todas</option>
+      </select>
+    </label>
     <label>Retrato
       <select id="characterMediaFilter">
         <option value="all">Todos</option>
@@ -1354,6 +1498,10 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <div class="character-editor-nuclei">
 <div class="character-editor-note">Núcleos narrativos — um personagem pode pertencer a vários.</div>
 <div id="characterEditorNuclei"></div>
+</div>
+<div class="character-editor-nuclei character-editor-tags">
+<div class="character-editor-note">Tags — etiquetas livres para busca, organização e edição em lote.</div>
+<div id="characterEditorTags"></div>
 </div>
 
 <div class="character-editor-section-title">Seções da ficha</div>

@@ -15,6 +15,8 @@ var scripts=[
   "js/master-workspace.js",
   "js/character-editor.js",
   "js/taxonomy-manager.js",
+  "js/bulk-editor.js",
+  "js/master-quick.js",
   "js/session-editor.js",
   "js/timeline-editor.js",
   "js/integrity-checker.js",
