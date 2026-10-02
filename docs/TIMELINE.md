@@ -65,3 +65,31 @@ Sessões Mestre só entram em memória depois da autenticação. Eventos e chips
 Não criar um segundo cadastro de sessões dentro da linha do tempo.
 
 A Linha do Tempo é uma **visão cronológica agregada** sobre fontes canônicas já existentes.
+
+
+## Editor de eventos
+
+O Mestre autenticado pode administrar eventos de lore diretamente em **Universo → Linha do Tempo**.
+
+Controles disponíveis:
+
+- **＋ Novo evento**
+- **✏️ Editar**
+- **🗑️ Excluir**
+
+O formulário gerencia título opcional, data exibida, ordem cronológica, camada, visibilidade, descrição e conexões com personagens, locais e equipes.
+
+Eventos derivados de sessões não são duplicados nem apagados pelo Editor de Eventos. O botão de edição desses registros abre o **Diário da Campanha**.
+
+### Armazenamento
+
+- Público e Spoiler → `data/timeline.js`
+- Mestre → `data/private-character-data.enc.json`, dentro de `master.timelineEvents`
+
+Ao converter um evento público em Mestre, a API remove o registro de `data/timeline.js` e também limpa eventuais `content-overrides` públicos associados aos antigos `data-edit-id`. O evento privado não recebe IDs do editor visual genérico.
+
+O CRUD usa ações dentro de `/api/publish`; nenhuma função serverless adicional é criada.
+
+### Compatibilidade com edição antiga
+
+Os 16 eventos históricos originais preservam seus IDs de edição visual. Eventos novos criados pelo Editor de Eventos usam exclusivamente o editor estruturado, portanto não precisam receber novos IDs globais `tz-####`.
