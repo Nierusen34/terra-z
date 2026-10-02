@@ -1382,6 +1382,7 @@ function layoutEditorNodeVisual(node){
       '<text x="0" y="4" text-anchor="middle" class="ge-layout-node-icon">'+escapeHtml(node.icon||kind.icon)+'</text>';
   }
   return '<g class="ge-layout-node'+(node.id===editorSelectedId?" selected":"")+'" data-layout-node-id="'+escapeAttr(node.id)+'" transform="translate('+node.x+' '+node.y+')" tabindex="0" role="button">'+
+    '<circle class="ge-layout-hit" cx="0" cy="0" r="'+Math.max(48,r+18)+'" fill="transparent" style="touch-action:none"/>'+
     visual+
     '<text x="0" y="'+(r+17)+'" text-anchor="middle" class="ge-layout-node-label">'+escapeHtml(node.label)+'</text>'+
   '</g>';
@@ -1407,6 +1408,11 @@ function refreshLayoutSelection(root){
   var del=root.querySelector("#geLayoutDeleteSelected");
   if(edit) edit.disabled=!selected;
   if(del) del.disabled=!selected;
+}
+
+function updateLayoutPositionStatus(root,node){
+  var status=root && root.querySelector("#geLayoutSelection");
+  if(status && node) status.textContent=node.label+" · X "+Math.round(node.x)+" · Y "+Math.round(node.y);
 }
 
 function updateLayoutNodeDom(svg,node){
@@ -1463,9 +1469,12 @@ function renderLayoutEditor(root){
     group.addEventListener("pointerdown",function(event){
       if(event.button!==undefined && event.button!==0) return;
       event.preventDefault();
+      event.stopPropagation();
       var node=nodeById(id,editorDraft);if(!node)return;
       editorSelectedId=id;
       refreshLayoutSelection(root);
+      var canvas=svg.closest(".ge-layout-canvas");
+      if(canvas) canvas.classList.add("is-node-dragging");
       editorLayoutDrag={
         id:id,
         pointerId:event.pointerId,
@@ -1479,6 +1488,8 @@ function renderLayoutEditor(root){
     });
     group.addEventListener("pointermove",function(event){
       if(!editorLayoutDrag||editorLayoutDrag.id!==id||editorLayoutDrag.pointerId!==event.pointerId)return;
+      event.preventDefault();
+      event.stopPropagation();
       var distance=Math.hypot(event.clientX-editorLayoutDrag.startClientX,event.clientY-editorLayoutDrag.startClientY);
       if(distance<3&&!editorLayoutDrag.moved)return;
       if(!editorLayoutDrag.undoPushed){
@@ -1491,11 +1502,15 @@ function renderLayoutEditor(root){
       node.x=Math.round(Math.max(node.r+8,Math.min(1000-node.r-8,point.x)));
       node.y=Math.round(Math.max(node.r+8,Math.min(720-node.r-34,point.y)));
       updateLayoutNodeDom(svg,node);
-      refreshLayoutSelection(root);
+      updateLayoutPositionStatus(root,node);
     });
     var end=function(event){
       if(!editorLayoutDrag||editorLayoutDrag.id!==id||editorLayoutDrag.pointerId!==event.pointerId)return;
+      event.preventDefault();
+      event.stopPropagation();
       try{group.releasePointerCapture(event.pointerId);}catch(error){}
+      var canvas=svg.closest(".ge-layout-canvas");
+      if(canvas) canvas.classList.remove("is-node-dragging");
       editorLayoutDrag=null;
     };
     group.addEventListener("pointerup",end);
