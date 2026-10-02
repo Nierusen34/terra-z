@@ -108,8 +108,67 @@
         <div><span>Pendências</span><strong id="adminPendingCount">0</strong></div>
         <div><span>Personagens</span><strong id="adminCharacterCount">0</strong></div>
         <div><span>Sessões</span><strong id="adminSessionCount">0</strong></div>
+        <div><span>Privados</span><strong id="adminPrivateCount">—</strong></div>
         <button id="adminLogoutBtn" type="button">Sair</button>
       </div>
+
+      <section class="admin-dashboard" aria-labelledby="adminDashboardTitle">
+        <div class="admin-dashboard-head">
+          <div>
+            <div class="admin-section-title">Visão geral</div>
+            <h4 id="adminDashboardTitle">Central de Continuidade</h4>
+            <p>Saúde do projeto, privacidade, produção e alterações recentes em um único lugar.</p>
+          </div>
+          <button id="adminDashboardRefresh" type="button">↻ Atualizar</button>
+        </div>
+
+        <div id="adminDashboardStatus" class="admin-dashboard-status" data-state="idle">Pronto para verificar o projeto.</div>
+
+        <div class="admin-continuity-grid">
+          <article id="adminContinuityCard" class="admin-continuity-card" data-state="unknown">
+            <span>Sistema</span>
+            <strong id="adminContinuityState">Verificando…</strong>
+            <small id="adminContinuityNote">Conferindo backend e escrita no GitHub.</small>
+          </article>
+          <article id="adminProductionCard" class="admin-continuity-card" data-state="unknown">
+            <span>Produção</span>
+            <strong id="adminProductionState">Verificando…</strong>
+            <small id="adminProductionNote">Comparando main com o SHA publicado.</small>
+          </article>
+          <article id="adminPrivacyCard" class="admin-continuity-card" data-state="unknown">
+            <span>Privacidade</span>
+            <strong id="adminPrivacyState">Verificando…</strong>
+            <small id="adminPrivacyNote">Validando cofre Mestre e criptografia.</small>
+          </article>
+          <article id="adminCheckpointCard" class="admin-continuity-card" data-state="unknown">
+            <span>Último checkpoint</span>
+            <strong id="adminCheckpointState">—</strong>
+            <small id="adminCheckpointNote">Nenhum dado carregado ainda.</small>
+          </article>
+        </div>
+
+        <div class="admin-dashboard-columns">
+          <section class="admin-dashboard-block">
+            <div class="admin-dashboard-block-head">
+              <strong>Avisos e pendências</strong>
+              <button type="button" data-admin-action="integrity">Abrir diagnóstico</button>
+            </div>
+            <ul id="adminDashboardAlerts" class="admin-dashboard-alerts">
+              <li class="neutral">Aguardando verificação.</li>
+            </ul>
+          </section>
+
+          <section class="admin-dashboard-block">
+            <div class="admin-dashboard-block-head">
+              <strong>Alterações recentes</strong>
+              <button type="button" data-admin-action="history">Ver histórico</button>
+            </div>
+            <div id="adminRecentChanges" class="admin-recent-changes">
+              <div class="admin-recent-empty">Aguardando histórico.</div>
+            </div>
+          </section>
+        </div>
+      </section>
 
       <div class="admin-section">
         <div class="admin-section-title">Conteúdo</div>
