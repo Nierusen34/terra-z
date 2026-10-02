@@ -678,6 +678,105 @@ function checkGraph(data){
   pass("Fluxo oficial GitHub → Actions → Deploy Hook → Vercel está documentado e testado");
 }
 
+function checkAdvancedAdmin(data){
+  const taxonomy=data.characterTaxonomy||{};
+  const requiredCollections=["nuclei","types","statuses","tags"];
+
+  for(const key of requiredCollections){
+    if(!Array.isArray(taxonomy[key])){
+      fail("Taxonomia "+key+" ausente ou inválida.");
+      continue;
+    }
+    const ids=new Set();
+    const labels=new Set();
+    for(const item of taxonomy[key]){
+      const id=String(item&&item.id||"");
+      const label=String(item&&item.label||"").trim();
+      if(!id||!label) fail("Item inválido na taxonomia "+key);
+      if(ids.has(id)) fail("ID duplicado em "+key+": "+id);
+      if(labels.has(label.toLocaleLowerCase("pt-BR"))) fail("Nome duplicado em "+key+": "+label);
+      ids.add(id);labels.add(label.toLocaleLowerCase("pt-BR"));
+    }
+  }
+
+  if(!taxonomy.nuclei.some(item=>item&&item.id==="other")) fail("Núcleo fallback 'other' ausente.");
+  if(!taxonomy.types.some(item=>item&&item.id==="other")) fail("Tipo fallback 'other' ausente.");
+  if(!taxonomy.statuses.some(item=>item&&item.id==="unknown")) fail("Status fallback 'unknown' ausente.");
+
+  const allowedNuclei=new Set(taxonomy.nuclei.map(item=>item.id));
+  const allowedTypes=new Set(taxonomy.types.map(item=>item.id));
+  const allowedStatuses=new Set(taxonomy.statuses.map(item=>item.id));
+  const allowedTags=new Set(taxonomy.tags.map(item=>item.id));
+
+  for(const [name,meta] of Object.entries(taxonomy.characters||{})){
+    for(const id of Array.isArray(meta.nuclei)?meta.nuclei:[]){
+      if(!allowedNuclei.has(id)) fail("Personagem com núcleo inválido: "+name+" / "+id);
+    }
+    for(const id of Array.isArray(meta.tags)?meta.tags:[]){
+      if(!allowedTags.has(id)) fail("Personagem com tag inválida: "+name+" / "+id);
+    }
+    if(meta.type&&!allowedTypes.has(meta.type)) fail("Personagem com tipo inválido: "+name+" / "+meta.type);
+    if(meta.status&&!allowedStatuses.has(meta.status)) fail("Personagem com status inválido: "+name+" / "+meta.status);
+  }
+
+  const html=read("index.html");
+  const characterApi=read("api/character.js");
+  const taxonomyRuntime=read("js/taxonomy-manager.js");
+  const bulkRuntime=read("js/bulk-editor.js");
+  const masterQuick=read("js/master-quick.js");
+  const adminLoader=read("js/admin-loader.js");
+  const adminPanel=read("js/admin-panel.js");
+  const health=read("api/health.js");
+
+  for(const id of [
+    "taxonomyManagerTabs","taxonomyManagerList","taxonomyManagerSave",
+    "characterEditorTags","characterTagFilter",
+    "bulkEditorPanel","bulkEditorCharacters","bulkEditorApply",
+    "masterQuickPanel","masterQuickStats","masterQuickGoals","masterQuickClues"
+  ]){
+    if(!html.includes('id="'+id+'"')) fail("Interface de Administração Avançada ausente: "+id);
+  }
+
+  if(!taxonomyRuntime.includes('activeKind="nuclei"') ||
+     !taxonomyRuntime.includes('types:{label:"Tipos"') ||
+     !taxonomyRuntime.includes('tags:{label:"Tags"')){
+    fail("Taxonomias v2 não administram núcleos, tipos, status e tags.");
+  }
+  if(!characterApi.includes('body.action === "update-taxonomy"') ||
+     !characterApi.includes('body.action === "bulk-update-meta"')){
+    fail("API de personagens não oferece Taxonomias v2 + edição em lote.");
+  }
+  if(!bulkRuntime.includes("bulk-update-meta") ||
+     !bulkRuntime.includes("createSelection")){
+    fail("Edição em lote não utiliza a infraestrutura compartilhada esperada.");
+  }
+  if(!masterQuick.includes("getMasterState") ||
+     !masterQuick.includes("getAll") ||
+     !masterQuick.includes("timeline.events")){
+    fail("Sala do Mestre não agrega conteúdo privado, sessões e timeline.");
+  }
+
+  for(const module of ['"js/taxonomy-manager.js"','"js/bulk-editor.js"','"js/master-quick.js"']){
+    if(!adminLoader.includes(module)) fail("Módulo administrativo não registrado no lazy loader: "+module);
+  }
+  if(!adminPanel.includes("action === 'bulk-edit'") ||
+     !adminPanel.includes("action === 'master-quick'")){
+    fail("Painel administrativo não conecta Etapas 12 e 13.");
+  }
+
+  if(!health.includes("taxonomy_manager_v2:true") ||
+     !health.includes("bulk_editor_v1:true") ||
+     !health.includes("master_quick_panel_v1:true")){
+    fail("Backend não anuncia capacidades das Etapas 11–13.");
+  }
+
+  if(!exists("docs/ADVANCED_ADMIN.md")) fail("docs/ADVANCED_ADMIN.md ausente.");
+
+  pass("Etapa 11 · Taxonomias v2 validada");
+  pass("Etapa 12 · Edição em Lote validada");
+  pass("Etapa 13 · Sala do Mestre validada");
+}
+
 function checkEncryptedFiles(){
   for(const file of ["data/private-character-data.enc.json","data/private-sessions.enc.json"]){
     if(!exists(file)){ fail("Arquivo criptografado ausente: "+file); continue; }
@@ -756,6 +855,7 @@ checkMediaLibrary(data);
 checkSessions(data,characters);
 checkTimeline(data,characters);
 checkGraph(data);
+checkAdvancedAdmin(data);
 checkEncryptedFiles();
 checkVercel();
 checkSensitivePublicPatterns();
