@@ -247,8 +247,10 @@ test("DC Wiki oferece Card, Grafo e Card + Grafo ao editor",async({page})=>{
   await expect(page.locator("#characterEditorName")).toHaveValue("Zatanna Zatara");
   await expect(page.locator("#characterEditorTitle")).toContainText("Importar personagem da DC");
   await expect(page.locator(".character-editor-jumpnav")).toBeVisible();
-  await page.locator('[data-character-editor-jump="characterEditorPortraitSection"]').click();
-  await expect(page.locator("#characterEditorPortraitSection")).toBeVisible();
+  await expect(page.locator('[data-character-editor-jump="characterEditorPortraitSection"]')).toBeDisabled();
+  await expect(page.locator('[data-character-editor-jump="characterEditorOrganizationSection"]')).toBeEnabled();
+  await page.locator('[data-character-editor-jump="characterEditorOrganizationSection"]').click();
+  await expect(page.locator("#characterEditorOrganizationSection")).toBeVisible();
   await page.evaluate(()=>window.TerraZApp.characterEditor.close());
 
   await page.evaluate(()=>window.TerraZApp.search.openImport("Zatanna Zatara (Prime Earth)"));
@@ -334,6 +336,8 @@ test("editor conecta duas entidades diretamente pelo mapa",async({page})=>{
       ok:true,
       relations_graph_v3:true,
       relations_entity_editor:true,
+      media_library_v1:true,
+      graph_independent_media:true,
       visibility_system:"public-spoiler-master",
       secure_master_relations:true
     });
@@ -413,7 +417,7 @@ test("visitante pode mover nós localmente e restaurar o layout publicado",async
   });
   expect(await page.evaluate(()=>window.TerraZApp.graph.getViewPositions())).toEqual({});
 
-  const box=await node.locator(".graph-node-drag-hit").boundingBox();
+  const box=await node.boundingBox();
   expect(box).not.toBeNull();
   const sx=box.x+box.width/2;
   const sy=box.y+box.height/2;
