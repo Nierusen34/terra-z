@@ -349,6 +349,12 @@ function checkMediaLibrary(data){
         fail("Caminho local inválido no ativo: "+id+" / "+src);
       }
       if(src&&!exists(src)) fail("Arquivo da Biblioteca inexistente: "+src);
+    }else if(source==="project"){
+      if(!asset.readOnly) fail("Ativo estrutural precisa ser readOnly: "+id);
+      if(!/^images\/[a-z0-9_./-]+\.(png|jpe?g|webp)$/i.test(src)){
+        fail("Caminho de ativo estrutural inválido: "+id+" / "+src);
+      }
+      if(src&&!exists(src)) fail("Ativo estrutural inexistente: "+src);
     }else{
       fail("Fonte inválida no ativo da Biblioteca: "+id+" / "+source);
     }
