@@ -197,7 +197,7 @@ test("visitante pode mover nós localmente e restaurar o layout publicado",async
   });
   expect(await page.evaluate(()=>window.TerraZApp.graph.getViewPositions())).toEqual({});
 
-  const box=await node.boundingBox();
+  const box=await node.locator(".graph-node-drag-hit").boundingBox();
   expect(box).not.toBeNull();
   const sx=box.x+box.width/2;
   const sy=box.y+box.height/2;
