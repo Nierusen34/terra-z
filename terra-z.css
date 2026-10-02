@@ -5427,5 +5427,5 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
 @media(max-width:480px){
   .session-mode-meta{grid-template-columns:1fr}
   #commandPaletteBtn{font-size:0}
-  #commandPaletteBtn::after{content:"⌘K";font-size:8px}
+  #commandPaletteBtn::after{content:"⚡ Central";font-size:11px}
 }
