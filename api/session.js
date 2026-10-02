@@ -32,13 +32,22 @@ function statusUrl(req,sha){
 
 export default async function handler(req,res){
   if(applyCors(req,res)) return;
-  if(req.method !== "POST" && req.method !== "DELETE"){
-    res.setHeader("Allow","POST, DELETE, OPTIONS");
+  if(req.method !== "GET" && req.method !== "POST" && req.method !== "DELETE"){
+    res.setHeader("Allow","GET, POST, DELETE, OPTIONS");
     return res.status(405).json({error:"method_not_allowed"});
   }
   if(!requireEditor(req,res)) return;
 
   try {
+    const action=String((req.query || {}).action || "").toLowerCase();
+    if(req.method === "GET"){
+      if(action !== "private"){
+        return res.status(400).json({error:"missing_action",message:"Ação de sessão não informada."});
+      }
+      const sessions=await readPrivateSessions();
+      return res.status(200).json({ok:true,sessions});
+    }
+
     const input = (req.body || {}).session || req.body || {};
     const deleting = req.method === "DELETE";
 
