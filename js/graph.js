@@ -949,8 +949,9 @@ function bindGraphViewDrag(svg,group){
       if(!base) return;
       var point=svgPointFromEvent(svg,moveEvent);
       var pad=Math.max(8,Number(base.r)||38);
-      var x=Math.round(Math.max(pad,Math.min(1000-pad,point.x)));
-      var y=Math.round(Math.max(pad,Math.min(720-pad-30,point.y)));
+      var dragBounds=graphCanvasBounds();
+      var x=Math.round(Math.max(dragBounds.x+pad,Math.min(dragBounds.x+dragBounds.w-pad,point.x)));
+      var y=Math.round(Math.max(dragBounds.y+pad,Math.min(dragBounds.y+dragBounds.h-pad-30,point.y)));
 
       graphViewDrag.moved=true;
       graphViewPositions[id]={x:x,y:y};
@@ -1517,6 +1518,7 @@ function renderInspector(){
       '</div>'+
       '<div class="graph-inspector-actions">'+
         (route ? '<button type="button" id="graphInspectorOpen">Abrir entidade →</button>' : '')+
+        '<button type="button" id="graphInspectorFocus">'+(graphFocusNodeId===node.id?'◎ Rede completa':'🎯 Focar conexões')+'</button>'+
         (canEdit() ? '<button type="button" id="graphInspectorConnect" class="primary">🔗 Conectar</button><button type="button" id="graphInspectorEdit">⚙️ Editar</button>' : '')+
       '</div>'+
       '<div class="graph-inspector-relations">'+
@@ -1535,6 +1537,10 @@ function renderInspector(){
     hydrateInspectorPortraits(root);
     var open=document.getElementById("graphInspectorOpen");
     if(open) open.addEventListener("click",function(){ openNodeRoute(node); });
+    var focus=document.getElementById("graphInspectorFocus");
+    if(focus) focus.addEventListener("click",function(){
+      setGraphFocus(node.id,graphFocusNodeId===node.id ? false : true);
+    });
     var connect=document.getElementById("graphInspectorConnect");
     if(connect) connect.addEventListener("click",function(){ beginQuickPick(node.id,{draft:false}); });
     var edit=document.getElementById("graphInspectorEdit");
@@ -1580,6 +1586,7 @@ function renderInspector(){
       button.addEventListener("click",function(){
         selectedNodeId=button.getAttribute("data-inspector-node");
         selectedEdgeId="";
+        graphFocusNodeId=selectedNodeId;
         renderGraph();renderInspector();
       });
     });
@@ -1701,28 +1708,53 @@ function setupGraphView(){
 
   var zoomOut=document.getElementById("graphZoomOut");
   var zoomIn=document.getElementById("graphZoomIn");
-  var zoomReset=document.getElementById("graphZoomReset");
   var zoomRange=document.getElementById("graphZoomRange");
+  var fit=document.getElementById("graphFitBtn");
+  var focus=document.getElementById("graphFocusBtn");
+  var fullscreen=document.getElementById("graphFullscreenBtn");
+  var inspectorToggle=document.getElementById("graphInspectorToggleBtn");
 
   if(zoomOut) zoomOut.addEventListener("click",function(){ setGraphScale(graphScale-.1,true); });
   if(zoomIn) zoomIn.addEventListener("click",function(){ setGraphScale(graphScale+.1,true); });
-  if(zoomReset) zoomReset.addEventListener("click",function(){ setGraphScale(1,true); });
   if(zoomRange) zoomRange.addEventListener("input",function(){ setGraphScale(Number(zoomRange.value)/100,true); });
+  if(fit) fit.addEventListener("click",function(){ fitGraphView(true); });
+  if(focus) focus.addEventListener("click",function(){
+    if(!selectedNodeId) return;
+    setGraphFocus(selectedNodeId,graphFocusNodeId===selectedNodeId ? false : true);
+  });
+  if(fullscreen) fullscreen.addEventListener("click",function(){ toggleGraphFullscreen(); });
+  if(inspectorToggle) inspectorToggle.addEventListener("click",toggleGraphInspector);
+
   applyGraphScale();
+  updateGraphFocusButton();
+  updateFullscreenUi();
   updateConnectBar();
 
   var svg=document.getElementById("graphSvg");
-  if(svg) svg.addEventListener("click",function(event){
-    if(event.target===svg || event.target.classList.contains("graph-grid-bg")){
-      if(quickRelationState.picking){
-        showToast("Escolha uma bolinha de destino ou cancele a conexão.","info",2800);
-        return;
+  if(svg){
+    setupGraphPanZoom(svg);
+    svg.addEventListener("click",function(event){
+      if(Date.now()<graphPanSuppressClickUntil) return;
+      if(event.target===svg || event.target.classList.contains("graph-grid-bg")){
+        if(quickRelationState.picking){
+          showToast("Escolha uma bolinha de destino ou cancele a conexão.","info",2800);
+          return;
+        }
+        selectedNodeId="";
+        selectedEdgeId="";
+        graphFocusNodeId="";
+        renderGraph();
+        renderInspector();
       }
-      selectedNodeId="";
-      selectedEdgeId="";
-      renderGraph();
-      renderInspector();
-    }
+    });
+  }
+
+  document.addEventListener("keydown",function(event){
+    if(event.key!=="Escape" || !graphFullscreen) return;
+    var quickModal=document.getElementById("graphQuickRelationModal");
+    if((quickModal && quickModal.classList.contains("show")) || quickRelationState.picking) return;
+    event.preventDefault();
+    toggleGraphFullscreen(false);
   });
 
   refreshGraphAccess();
