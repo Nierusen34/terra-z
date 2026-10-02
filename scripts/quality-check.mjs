@@ -546,7 +546,7 @@ function checkGraph(data){
   }
   for(const id of [
     "graphEntityFilter","graphRelationFilter","graphInspector","graphEditorList","graphEditorDetail",
-    "graphZoomOut","graphZoomRange","graphZoomLabel","graphZoomIn","graphZoomReset",
+    "graphZoomOut","graphZoomRange","graphZoomLabel","graphZoomIn","graphZoomReset","graphViewResetBtn",
     "graphAutoArrangeBtn","graphUndoBtn","graphRestoreBtn",
     "characterEditorMediaFraming","characterEditorFramingContext","characterEditorFramingFit",
     "characterEditorFramingZoom","characterEditorFramingX","characterEditorFramingY",
@@ -578,6 +578,16 @@ function checkGraph(data){
      !graphRuntime.includes('addEventListener("pointerdown"') ||
      !graphRuntime.includes("smartArrangeGraph")){
     fail("Editor visual arrastável do grafo não está completo.");
+  }
+  if(!graphRuntime.includes("graphViewPositions") ||
+     !graphRuntime.includes("bindGraphViewDrag") ||
+     !graphRuntime.includes("resetGraphViewPositions") ||
+     !graphRuntime.includes("graph-node-drag-hit")){
+    fail("Reorganização local do grafo para visitantes não está completa.");
+  }
+  if(!graphRuntime.includes("updateLayoutPositionStatus") ||
+     !graphRuntime.includes("ge-layout-hit")){
+    fail("Otimização touch do editor visual do grafo não foi identificada.");
   }
   if(!graphRuntime.includes("storeLayoutBackup") ||
      !graphRuntime.includes('kind:"layout"') ||
