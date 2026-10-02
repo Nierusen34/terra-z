@@ -13,6 +13,7 @@ var advanced = document.getElementById('characterAdvancedFilters');
 var typeSelect = document.getElementById('characterTypeFilter');
 var statusSelect = document.getElementById('characterStatusFilter');
 var mediaSelect = document.getElementById('characterMediaFilter');
+var tagSelect = document.getElementById('characterTagFilter');
 var clearBtn = document.getElementById('characterClearFilters');
 var sizeControl = document.getElementById('characterCardSizeControl');
 var sizeButtons = sizeControl ? Array.from(sizeControl.querySelectorAll('[data-character-size]')) : [];
@@ -24,7 +25,7 @@ try {
 } catch(e){}
 
 var taxonomy = (window.TerraZData && window.TerraZData.characterTaxonomy) || {
-  nuclei:[],types:[],statuses:[],characters:{}
+  nuclei:[],types:[],statuses:[],tags:[],characters:{}
 };
 
 var activeNucleus = 'all';
@@ -60,6 +61,7 @@ function metaFor(name){
     nuclei:Array.isArray(meta.nuclei) && meta.nuclei.length ? meta.nuclei : ['other'],
     type:meta.type || 'other',
     status:meta.status || 'unknown',
+    tags:Array.isArray(meta.tags) ? meta.tags : [],
     visibility:(meta.visibility === 'master' || meta.visibility === 'private')
       ? 'master'
       : (meta.visibility === 'spoiler' ? 'spoiler' : 'public')
@@ -78,7 +80,8 @@ function searchableText(card,name,meta){
     card.textContent,
     nucleiLabels,
     labelFor(taxonomy.types,meta.type),
-    labelFor(taxonomy.statuses,meta.status)
+    labelFor(taxonomy.statuses,meta.status),
+    meta.tags.map(function(id){ return labelFor(taxonomy.tags,id); }).join(' ')
   ].join(' '));
 }
 
@@ -98,9 +101,11 @@ function matchesMedia(card){
 function matchesAdvanced(meta){
   var type = typeSelect ? typeSelect.value : 'all';
   var status = statusSelect ? statusSelect.value : 'all';
+  var tag = tagSelect ? tagSelect.value : 'all';
 
   if(type !== 'all' && meta.type !== type) return false;
   if(status !== 'all' && meta.status !== status) return false;
+  if(tag !== 'all' && meta.tags.indexOf(tag) === -1) return false;
   return true;
 }
 
@@ -219,6 +224,7 @@ function clearFilters(){
   if(input) input.value = '';
   if(typeSelect) typeSelect.value = 'all';
   if(statusSelect) statusSelect.value = 'all';
+  if(tagSelect) tagSelect.value = 'all';
   if(mediaSelect) mediaSelect.value = 'all';
   renderNuclei();
   apply();
@@ -226,6 +232,7 @@ function clearFilters(){
 
 fillSelect(typeSelect,taxonomy.types);
 fillSelect(statusSelect,taxonomy.statuses);
+fillSelect(tagSelect,taxonomy.tags);
 renderNuclei();
 
 applyCardSize(cardSize,false);
@@ -235,6 +242,7 @@ sizeButtons.forEach(function(button){
 if(input) input.addEventListener('input',apply);
 if(typeSelect) typeSelect.addEventListener('change',apply);
 if(statusSelect) statusSelect.addEventListener('change',apply);
+if(tagSelect) tagSelect.addEventListener('change',apply);
 if(mediaSelect) mediaSelect.addEventListener('change',apply);
 
 if(favoritesBtn){
@@ -259,6 +267,7 @@ function refreshTaxonomy(){
   taxonomy = (window.TerraZData && window.TerraZData.characterTaxonomy) || taxonomy;
   fillSelect(typeSelect,taxonomy.types);
   fillSelect(statusSelect,taxonomy.statuses);
+  fillSelect(tagSelect,taxonomy.tags);
 
   var available = ['all','featured'].concat(
     (Array.isArray(taxonomy.nuclei) ? taxonomy.nuclei : []).map(function(item){ return item.id; })
