@@ -82,6 +82,19 @@ Personagens continuam podendo reutilizar `data/character-media.js`. Entidades se
 
 O próprio nó guarda seu enquadramento para Biblioteca/URL, permitindo recorte e ampliação específicos no grafo.
 
+## Interação pública
+
+O mapa publicado também é interativo para visitantes que não estão autenticados como editor.
+
+- qualquer visitante pode arrastar uma bolinha com mouse ou toque;
+- a movimentação é apenas visual e local à sessão atual;
+- nenhuma posição movida por visitante é enviada para GitHub ou Vercel;
+- o conteúdo canônico do grafo permanece inalterado;
+- **↺ Posições** restaura imediatamente o layout publicado;
+- tocar/clicar continua abrindo a inspeção e duplo clique continua abrindo a entidade quando houver destino.
+
+Em telas touch, os nós possuem uma área de captura maior do que o círculo visível. Enquanto um nó está sendo arrastado, o canvas bloqueia rolagem concorrente para evitar que a página se mova junto com a entidade.
+
 ## Editor
 
 O editor autenticado possui três abas:
@@ -97,7 +110,7 @@ O editor autenticado possui três abas:
 O Layout visual mostra o grafo inteiro dentro do editor e permite:
 
 - arrastar qualquer nó diretamente com o mouse;
-- arrastar com o dedo em telas touch/mobile;
+- arrastar com o dedo em telas touch/mobile, com alvo de toque ampliado e bloqueio temporário da rolagem do canvas;
 - tocar para selecionar uma entidade;
 - editar os dados da entidade selecionada;
 - adicionar uma entidade e posicioná-la visualmente;
