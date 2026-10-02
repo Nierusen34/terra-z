@@ -181,6 +181,74 @@ test("Relações renderiza Armek com mídia independente e painel de inspeção"
   await expectNoPageErrors(errors);
 });
 
+test("editor visual do grafo auto-organiza e permite arrastar, adicionar e remover",async({page})=>{
+  const errors=watchRuntimeErrors(page);
+  await page.goto("/#/universo/relacoes",{waitUntil:"domcontentloaded"});
+
+  await page.evaluate(async()=>{
+    await window.TerraZApp.adminLoader.load();
+    window.TerraZApp.backend.isConfigured=()=>true;
+    window.TerraZApp.backend.isAuthenticated=()=>true;
+    window.TerraZApp.backend.health=async()=>({
+      ok:true,
+      relations_graph_v3:true,
+      relations_entity_editor:true,
+      media_library_v1:true,
+      graph_independent_media:true,
+      visibility_system:"public-spoiler-master",
+      secure_master_relations:true
+    });
+    document.dispatchEvent(new CustomEvent("terra-z:auth-changed",{detail:{authenticated:true}}));
+    await window.TerraZApp.graph.openLayout();
+  });
+
+  await expect(page.locator("#graphEditorModal")).toHaveClass(/show/);
+  await expect(page.locator("#graphEditorModal")).toHaveClass(/graph-editor-layout-mode/);
+  const layout=page.locator("#graphLayoutSvg");
+  await expect(layout).toBeVisible();
+  await expect.poll(()=>layout.locator("[data-layout-node-id]").count()).toBeGreaterThan(10);
+
+  await page.locator("#graphAutoArrangeBtn").click();
+  const arranged=await page.evaluate(()=>{
+    function pos(id){
+      const n=document.querySelector('#graphLayoutSvg [data-layout-node-id="'+id+'"]');
+      const m=String(n&&n.getAttribute("transform")||"").match(/translate\(([-\d.]+)\s+([-\d.]+)\)/);
+      return m?{x:Number(m[1]),y:Number(m[2])}:null;
+    }
+    return {oliver:pos("oliver"),bruce:pos("bruce"),mgann:pos("mgann"),lobo:pos("lobo")};
+  });
+  expect(arranged.oliver.x).toBeLessThan(500);
+  expect(arranged.oliver.y).toBeLessThan(360);
+  expect(arranged.bruce.x).toBeGreaterThan(500);
+  expect(arranged.bruce.y).toBeLessThan(360);
+  expect(arranged.mgann.x).toBeLessThan(500);
+  expect(arranged.mgann.y).toBeGreaterThan(380);
+  expect(arranged.lobo.x).toBeGreaterThan(500);
+  expect(arranged.lobo.y).toBeGreaterThan(380);
+
+  const bruce=layout.locator('[data-layout-node-id="bruce"]');
+  const before=await bruce.getAttribute("transform");
+  const box=await bruce.boundingBox();
+  expect(box).not.toBeNull();
+  await page.mouse.move(box.x+box.width/2,box.y+box.height/2);
+  await page.mouse.down();
+  await page.mouse.move(box.x+box.width/2+55,box.y+box.height/2+35,{steps:5});
+  await page.mouse.up();
+  const after=await bruce.getAttribute("transform");
+  expect(after).not.toBe(before);
+
+  const countBefore=await layout.locator("[data-layout-node-id]").count();
+  await page.locator("#graphEditorAdd").click();
+  await expect(layout.locator("[data-layout-node-id]")).toHaveCount(countBefore+1);
+  await page.locator("#geLayoutDeleteSelected").click();
+  await expect(page.locator("#confirmModal")).toHaveClass(/show/);
+  await page.locator("#confirmOk").click();
+  await expect(layout.locator("[data-layout-node-id]")).toHaveCount(countBefore);
+
+  await page.evaluate(()=>window.TerraZApp.graph.closeEditor());
+  await expectNoPageErrors(errors);
+});
+
 test("ficha pública abre sem quebrar o layout",async({page})=>{
   const errors=watchRuntimeErrors(page);
 
