@@ -67,15 +67,20 @@ A escala inicial é 130% para priorizar legibilidade. O botão **100%** retorna 
 
 O mapa usa formas distintas por tipo de entidade, linhas curvas, intensidade visual por força do vínculo e setas para relações direcionais.
 
-### Retratos de personagens
+### Imagens das entidades
 
-Nós do tipo `character` reutilizam o mesmo registro de `data/character-media.js` usado nas fichas. Quando existe retrato:
+A imagem do nó não depende mais da existência de uma ficha.
 
-- a imagem aparece recortada dentro do nó circular;
-- a imagem também aparece no painel de inspeção da entidade;
-- ao inspecionar uma relação entre personagens, os dois retratos aparecem lado a lado.
+Cada entidade pode usar:
 
-Retratos automáticos continuam sendo resolvidos pelo sistema já existente de `js/character-media.js`, incluindo DC Database e URLs externas. Não existe um segundo cadastro de imagem para o grafo.
+- **Sem imagem**;
+- **Retrato da referência/personagem**;
+- **Biblioteca de Mídia**;
+- **URL direta**.
+
+Personagens continuam podendo reutilizar `data/character-media.js`. Entidades sem ficha — como Armek — podem usar um ativo independente da Biblioteca, sem criar card de personagem.
+
+O próprio nó guarda seu enquadramento para Biblioteca/URL, permitindo recorte e ampliação específicos no grafo.
 
 ## Editor
 
