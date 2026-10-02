@@ -84,17 +84,43 @@ O próprio nó guarda seu enquadramento para Biblioteca/URL, permitindo recorte 
 
 ## Editor
 
-O editor autenticado possui duas abas:
+O editor autenticado possui três abas:
 
 1. **Entidades**
 2. **Relações**
+3. **Layout visual**
 
 É possível criar, editar e excluir itens. A exclusão de uma entidade também remove do rascunho as relações que apontam para ela.
 
+### Layout visual
+
+O Layout visual mostra o grafo inteiro dentro do editor e permite:
+
+- arrastar qualquer nó diretamente com o mouse;
+- arrastar com o dedo em telas touch/mobile;
+- tocar para selecionar uma entidade;
+- editar os dados da entidade selecionada;
+- adicionar uma entidade e posicioná-la visualmente;
+- remover a entidade selecionada;
+- desfazer movimentos e alterações de layout antes de salvar.
+
+As linhas ligadas ao nó acompanham o movimento em tempo real.
+
+### Auto-organização inteligente
+
+A auto-organização não agrupa mais entidades simplesmente pelo tipo. Personagens deixaram de ser colocados todos no mesmo círculo.
+
+O algoritmo usa os núcleos/quadrantes do mapa e as relações entre as entidades. Para os núcleos conhecidos, a posição canônica do grafo padrão ajuda a preservar a associação correta mesmo quando um layout publicado ficou desorganizado. Dentro de cada núcleo, entidades mais conectadas funcionam como pontos centrais e os demais nós são distribuídos em camadas com espaçamento seguro.
+
+### Layout anterior
+
+O botão **Layout anterior** restaura somente posições e tamanhos do último layout publicado neste dispositivo, sem substituir relações, entidades ou conteúdo Mestre. Isso evita que um simples carregamento/refresh sobrescreva o backup e também impede que conteúdo privado seja armazenado no localStorage.
+
 Há ações de:
 
-- auto-organização;
-- restauração do backup local anterior;
+- auto-organização inteligente;
+- desfazer alterações da edição atual;
+- restauração do layout publicado anterior;
 - carregamento do grafo padrão;
 - salvamento versionado no GitHub.
 
