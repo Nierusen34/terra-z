@@ -13,6 +13,7 @@ var foundation=window.TerraZApp.adminFoundation||{};
 
 var activeKind="nuclei";
 var draft={nuclei:[],types:[],statuses:[],tags:[]};
+var capability=null;
 
 var DEFINITIONS={
   nuclei:{label:"Núcleos",singular:"núcleo",icon:"🧭",required:"other",help:"Agrupamentos narrativos usados nos chips e filtros de personagens."},
@@ -30,6 +31,20 @@ function taxonomy(){
 function canEdit(){
   var b=backend();
   return !!(b&&b.isConfigured&&b.isConfigured()&&b.isAuthenticated&&b.isAuthenticated());
+}
+
+async function supported(force){
+  if(force) capability=null;
+  if(capability!==null) return capability;
+  var b=backend();
+  if(!b||!b.health) return false;
+  try{
+    var health=await b.health();
+    capability=!!(health&&health.taxonomy_manager_v2===true);
+  }catch(error){
+    capability=false;
+  }
+  return capability;
 }
 function slugify(value){
   if(foundation.slugify) return foundation.slugify(value);
@@ -168,6 +183,10 @@ function validate(){
 }
 async function save(){
   if(!canEdit()){showToast("Sua sessão de editor expirou.","warning",4500);close();return;}
+  if(!(await supported(false))){
+    showToast("Publique o checkpoint atual para ativar Taxonomias v2 no backend.","warning",6500);
+    return;
+  }
   var problem=validate();
   if(problem){setStatus(problem,"error");showToast(problem,"warning",4500);return;}
   var button=el("taxonomyManagerSave");
@@ -197,8 +216,12 @@ async function save(){
     if(button){button.disabled=false;button.textContent="💾 Salvar taxonomias";}
   }
 }
-function open(){
+async function open(){
   if(!canEdit()){showToast("Entre como editor para gerenciar taxonomias.","warning",4500);return;}
+  if(!(await supported(false))){
+    showToast("Taxonomias v2 aguardam o novo checkpoint da Vercel.","warning",6500);
+    return;
+  }
   resetDraft();render();setStatus("","idle");
   var panel=el("taxonomyManagerPanel");if(panel)panel.classList.add("show");
   document.body.style.overflow="hidden";
@@ -215,7 +238,10 @@ function setup(){
   var input=el("taxonomyManagerNewLabel");if(input)input.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();add();}});
   var panel=el("taxonomyManagerPanel");if(panel)panel.addEventListener("click",function(e){if(e.target===panel)close();});
   document.addEventListener("terra-z:runtime-data-loaded",function(){if(panel&&panel.classList.contains("show")){resetDraft();render();}});
-  document.addEventListener("terra-z:auth-changed",function(){if(panel&&panel.classList.contains("show")&&!canEdit())close();});
+  document.addEventListener("terra-z:auth-changed",function(){
+    capability=null;
+    if(panel&&panel.classList.contains("show")&&!canEdit())close();
+  });
 }
 setup();
 window.TerraZApp.taxonomyManager={open:open,close:close,refresh:function(){resetDraft();render();}};
