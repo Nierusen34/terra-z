@@ -237,7 +237,8 @@ function close(){
   if(modal) modal.classList.remove("show");
   var editor=el("mediaLibraryEditor");
   if(editor) editor.classList.remove("show");
-  document.body.style.overflow="";
+  var graphModal=document.getElementById("graphEditorModal");
+  document.body.style.overflow=graphModal && graphModal.classList.contains("show") ? "hidden" : "";
   selectedId="";
 }
 
@@ -375,7 +376,7 @@ async function saveAsset(){
     var result=await b.request("/api/media",{method:"POST",body:body});
     window.TerraZData=window.TerraZData || {};
     window.TerraZData.mediaLibrary=result.library || {version:1,assets:[]};
-    selectedId=result.asset && result.asset.id || selectedId;
+    var savedId=result.asset && result.asset.id || selectedId;
     closeEditor();
     render();
     showToast("Ativo salvo na Biblioteca de Mídia.","success",4200);
@@ -383,7 +384,7 @@ async function saveAsset(){
     var runtime=window.TerraZApp && window.TerraZApp.runtimeData;
     if(runtime && runtime.refresh) await runtime.refresh({force:true,bust:result.sha,silent:true});
 
-    document.dispatchEvent(new CustomEvent("terra-z:media-library-changed",{detail:{id:selectedId}}));
+    document.dispatchEvent(new CustomEvent("terra-z:media-library-changed",{detail:{id:savedId}}));
 
     var publishing=window.TerraZApp && window.TerraZApp.publishing;
     if(publishing && publishing.trackDeployment && result.status_url) publishing.trackDeployment(result.status_url);
@@ -454,6 +455,27 @@ function setup(){
 
   var source=el("mediaAssetSource");
   if(source) source.addEventListener("change",function(){ syncEditorSource();renderEditorPreview(); });
+
+  var fileInput=el("mediaAssetFile");
+  if(fileInput) fileInput.addEventListener("change",function(){
+    var file=fileInput.files && fileInput.files[0];
+    if(!file){ renderEditorPreview(); return; }
+    if(!["image/png","image/jpeg","image/webp"].includes(file.type)){
+      showToast("Use PNG, JPEG ou WebP.","warning");
+      fileInput.value="";
+      return;
+    }
+    var reader=new FileReader();
+    reader.onload=function(){
+      var root=el("mediaAssetPreview");
+      if(root){
+        root.innerHTML='<div class="media-library-asset-image" style="'+escapeAttr(framingStyle({framing:draftFraming()}))+'">'+
+          '<img src="'+escapeAttr(String(reader.result || ""))+'" alt="">'+
+        '</div>';
+      }
+    };
+    reader.readAsDataURL(file);
+  });
   ["mediaAssetUrl","mediaAssetFit","mediaAssetX","mediaAssetY","mediaAssetZoom"].forEach(function(id){
     var node=el(id);
     if(node) node.addEventListener("input",renderEditorPreview);
