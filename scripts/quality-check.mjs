@@ -359,8 +359,22 @@ function checkGraph(data){
   if(!graphHealthApi.includes("relations_graph_v3:true") || !graphHealthApi.includes("relations_entity_editor:true")){
     fail("Backend não anuncia capacidades do Grafo 2.0.");
   }
-  for(const id of ["graphEntityFilter","graphRelationFilter","graphInspector","graphEditorList","graphEditorDetail"]){
+  for(const id of [
+    "graphEntityFilter","graphRelationFilter","graphInspector","graphEditorList","graphEditorDetail",
+    "graphZoomOut","graphZoomRange","graphZoomLabel","graphZoomIn","graphZoomReset"
+  ]){
     if(!html.includes('id="'+id+'"')) fail("Interface de Relações 2.0 ausente: "+id);
+  }
+
+  if(!graphRuntime.includes("characterPortraitUrl") ||
+     !graphRuntime.includes("queueGraphPortrait") ||
+     !graphRuntime.includes("inspectorPortrait")){
+    fail("Grafo 2.0 não está integrado ao sistema de retratos dos personagens.");
+  }
+  if(!graphRuntime.includes("GRAPH_SCALE_KEY") ||
+     !graphRuntime.includes("setGraphScale") ||
+     !graphRuntime.includes("graphScale=1.3")){
+    fail("Controles persistentes de escala do grafo não foram encontrados.");
   }
   if(!exists("docs/RELATIONS.md")) fail("docs/RELATIONS.md ausente");
 
