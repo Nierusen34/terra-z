@@ -115,6 +115,50 @@ No **Layout visual**, a entidade selecionada também possui **🔗 Conectar**. N
 
 O editor avançado de Entidades e Relações continua disponível para manutenção detalhada.
 
+## Mapa expandido e crescimento por núcleos
+
+O mapa principal não depende mais de uma área visual fixa de 1000×720 para navegação.
+
+A estrutura canônica continua usando coordenadas do Grafo 2.0, mas o viewport agora é calculado dinamicamente a partir de:
+
+- quadrantes/núcleos existentes;
+- posições e tamanhos das entidades;
+- margem externa de navegação.
+
+Isso permite adicionar núcleos além da área original sem diminuir todas as bolinhas apenas para fazê-las caber na tela.
+
+### Navegação
+
+O mapa oferece:
+
+- zoom de 60% a 300%;
+- roda do mouse para zoom no desktop;
+- arraste do fundo para mover o viewport;
+- gesto de pinça no fundo em telas touch;
+- **⊙ Ajustar** para enquadrar toda a rede;
+- **⛶ Tela cheia** para usar o grafo como mapa principal;
+- **☰ Ocultar/Mostrar painel** para liberar mais área de visualização.
+
+No modo tela cheia, o inspector permanece ao lado no desktop e funciona como painel sobreposto/retrátil no mobile.
+
+### Foco narrativo
+
+Selecionar uma entidade ativa foco contextual:
+
+- a entidade escolhida e suas conexões diretas permanecem em destaque;
+- relações e entidades não conectadas ficam visualmente reduzidas;
+- **◎ Rede completa** restaura a leitura global sem perder a seleção.
+
+Isso evita que o crescimento do grafo transforme a rede inteira em uma teia visual difícil de interpretar.
+
+### Relações entre núcleos
+
+Vínculos cujas pontas pertencem a núcleos diferentes usam curvas externas ao invés da mesma curva curta das relações internas.
+
+O roteamento escolhe uma faixa periférica do canvas com menor custo visual e reduz rótulos externos quando a relação não está em foco. Ao selecionar uma das entidades envolvidas ou a própria relação, o rótulo volta a aparecer.
+
+Relações internas ao mesmo núcleo mantêm o desenho compacto anterior.
+
 ## Editor
 
 O editor autenticado possui três abas:
