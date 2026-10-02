@@ -12,6 +12,7 @@ var escapeAttr = core.escapeAttr;
 var currentName = '';
 var createMode = false;
 var privateLoaded = false;
+var createImportContext = null;
 var taxonomy = (window.TerraZData && window.TerraZData.characterTaxonomy) || {nuclei:[],types:[],statuses:[],tags:[],characters:{}};
 
 function el(id){ return document.getElementById(id); }
@@ -756,7 +757,7 @@ async function open(name){
   await loadExistingSecrets(name);
 }
 
-function openCreate(){
+function openCreate(prefill){
   var b = backend();
   if(!b || !b.isConfigured() || !b.isAuthenticated()){
     showToast('Entre como editor para criar personagens.','warning',5000);
@@ -764,18 +765,27 @@ function openCreate(){
     return;
   }
 
+  prefill=prefill && typeof prefill === 'object' ? prefill : {};
+  createImportContext=prefill.importSource === 'dc-fandom'
+    ? {
+        provider:'dc-fandom',
+        wikiTitle:String(prefill.wikiTitle || '').trim(),
+        addToGraph:prefill.addToGraph === true
+      }
+    : null;
+
   createMode = true;
   currentName = '';
   privateLoaded = true;
 
   var nameField = el('characterEditorName');
   nameField.readOnly = false;
-  nameField.value = '';
+  nameField.value = String(prefill.name || '').trim();
   nameField.placeholder = 'Nome completo ou codinome';
 
-  el('characterEditorEyebrow').value = '';
-  el('characterEditorIcon').value = '👤';
-  el('characterEditorCardCodename').value = '';
+  el('characterEditorEyebrow').value = String(prefill.eyebrow || '').trim();
+  el('characterEditorIcon').value = String(prefill.icon || '👤').trim() || '👤';
+  el('characterEditorCardCodename').value = String(prefill.codename || '').trim();
   el('characterEditorCardAge').value = '';
   el('characterEditorCardOrigin').value = '';
   el('characterEditorCardStatus').value = '';
@@ -783,7 +793,11 @@ function openCreate(){
   el('characterEditorSecrets').disabled = false;
   el('characterEditorSecrets').placeholder = 'Um segredo por linha';
 
-  renderSections(defaultSections());
+  var sections=defaultSections();
+  if(nameField.value){
+    sections[0].content='<p><strong>Nome:</strong> '+escapeAttr(nameField.value)+'<br><strong>Codinome:</strong> <br><strong>Idade:</strong> <br><strong>Origem:</strong> <br><strong>Status:</strong> <br><strong>Local:</strong> </p>';
+  }
+  renderSections(sections);
   setCreateFieldsVisible(true);
   setCreateDependentButtons(true);
   refreshPortraitRemoval('');
@@ -792,23 +806,31 @@ function openCreate(){
   fillOrganization({featured:false,nuclei:['other'],type:'npc',status:'active',visibility:'public'});
 
   var title = el('characterEditorTitle');
-  if(title) title.textContent = '＋ Novo personagem';
+  if(title) title.textContent = createImportContext ? '＋ Importar personagem da DC' : '＋ Novo personagem';
   var saveBtn = el('characterEditorSave');
-  if(saveBtn) saveBtn.textContent = '＋ Criar personagem';
+  if(saveBtn) saveBtn.textContent = createImportContext && createImportContext.addToGraph
+    ? '＋ Criar card e preparar grafo'
+    : '＋ Criar personagem';
 
   var deleteBtn = el('characterEditorDelete');
   if(deleteBtn) deleteBtn.hidden = true;
 
-  setStatus('Preencha a ficha. O retrato e o grafo poderão ser adicionados após o primeiro salvamento.','ready');
+  setStatus(
+    createImportContext
+      ? 'Importado da DC Database apenas como ponto de partida. Revise nome, card e ficha; o conteúdo da wiki não será copiado automaticamente.'
+      : 'Preencha a ficha. O retrato e o grafo poderão ser adicionados após o primeiro salvamento.',
+    'ready'
+  );
   preparePanel();
 
-  setTimeout(function(){ nameField.focus(); },50);
+  setTimeout(function(){ if(nameField.value) nameField.select(); else nameField.focus(); },50);
 }
 
 function close(){
   currentName = '';
   createMode = false;
   privateLoaded = false;
+  createImportContext = null;
 
   var nameField = el('characterEditorName');
   if(nameField){
@@ -860,6 +882,7 @@ async function save(){
 
   var button = el('characterEditorSave');
   var wasCreating = createMode;
+  var importContext = wasCreating && createImportContext ? {...createImportContext} : null;
   button.disabled = true;
   button.textContent = wasCreating ? 'Criando…' : 'Salvando…';
   setStatus(wasCreating ? 'Criando personagem no Terra Z…' : 'Salvando personagem…','working');
@@ -890,6 +913,28 @@ async function save(){
       body:{character:payload}
     });
 
+    var latestSha=result.sha;
+    var portraitConfigured=false;
+
+    if(wasCreating && importContext && importContext.wikiTitle){
+      try{
+        var mediaResult=await b.request('/api/media',{
+          method:'POST',
+          body:{
+            action:'configure-source',
+            character:name,
+            provider:'dc-fandom',
+            wikiTitle:importContext.wikiTitle
+          }
+        });
+        latestSha=mediaResult.sha || latestSha;
+        portraitConfigured=true;
+      }catch(mediaError){
+        console.warn('Terra Z DC import portrait:',mediaError);
+        showToast('O card foi criado, mas a fonte automática do retrato não pôde ser vinculada. Você pode escolhê-la depois no editor.','warning',6500);
+      }
+    }
+
     // A API separa dados públicos e Mestre no armazenamento. Para evitar que
     // uma resposta combinada seja aplicada sobre um overlay privado já ativo,
     // recarregamos primeiro a base pública canônica e depois o cofre.
@@ -899,7 +944,7 @@ async function save(){
     if(runtime && runtime.refresh){
       runtimeResult = await runtime.refresh({
         force:true,
-        bust:result.sha,
+        bust:latestSha,
         silent:true
       });
     }
@@ -930,14 +975,21 @@ async function save(){
 
     close();
 
-    if(characters && characters.open){
+    if(wasCreating && importContext && importContext.addToGraph && window.TerraZApp.graph && window.TerraZApp.graph.importCharacter){
+      await window.TerraZApp.graph.importCharacter(name,{
+        wikiTitle:importContext.wikiTitle,
+        portraitConfigured:portraitConfigured
+      });
+    }else if(characters && characters.open){
       characters.open(name);
     }
 
     showToast(
-      wasCreating ? (name + ' foi adicionado ao Terra Z.') : ('Ficha de ' + name + ' atualizada.'),
+      wasCreating
+        ? (name + (importContext && importContext.addToGraph ? ' foi criado; revise a nova bolinha e salve o grafo.' : ' foi adicionado ao Terra Z.'))
+        : ('Ficha de ' + name + ' atualizada.'),
       'success',
-      4500
+      5200
     );
 
     var publishing = window.TerraZApp && window.TerraZApp.publishing;
@@ -1154,7 +1206,19 @@ window.TerraZApp.characterEditor = {
   openCreate:openCreate,
   close:close,
   save:save,
-  deleteCharacter:requestDelete
+  deleteCharacter:requestDelete,
+  importFromDc:function(options){
+    options=options || {};
+    openCreate({
+      importSource:'dc-fandom',
+      wikiTitle:options.wikiTitle || '',
+      name:options.name || '',
+      codename:options.codename || '',
+      eyebrow:options.eyebrow || 'Referência · DC Database',
+      icon:'👤',
+      addToGraph:options.addToGraph === true
+    });
+  }
 };
 
 })();
