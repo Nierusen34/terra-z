@@ -242,7 +242,9 @@ async function supportsGraphV3(){
     graphV3Capability=!!(
       health &&
       health.relations_graph_v3===true &&
-      health.relations_entity_editor===true
+      health.relations_entity_editor===true &&
+      health.media_library_v1===true &&
+      health.graph_independent_media===true
     );
   }catch(error){ graphV3Capability=false; }
   return graphV3Capability;
@@ -886,7 +888,7 @@ async function refreshGraphAccess(){
   edit.disabled=!ready;
   edit.title=ready
     ? "Criar, editar ou excluir entidades e relações"
-    : "Publique o checkpoint desta etapa para ativar o backend de Relações 2.0";
+    : "Publique o checkpoint desta etapa para ativar Relações 2.0 + Biblioteca de Mídia no backend";
 }
 
 function editorGraph(){ return editorDraft || graphData; }
