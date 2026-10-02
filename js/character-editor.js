@@ -674,7 +674,17 @@ function setCreateDependentButtons(disabled){
 function preparePanel(){
   var panel = el('characterEditorPanel');
   if(panel) panel.classList.add('show');
+  var card=panel && panel.querySelector('.character-editor-card');
+  if(card) card.scrollTop=0;
   document.body.style.overflow = 'hidden';
+}
+
+function jumpEditor(sectionId){
+  var target=el(sectionId);
+  if(!target) return;
+  target.scrollIntoView({behavior:'smooth',block:'start'});
+  target.classList.add('character-editor-anchor-focus');
+  setTimeout(function(){target.classList.remove('character-editor-anchor-focus');},900);
 }
 
 async function loadExistingSecrets(name){
@@ -1116,15 +1126,29 @@ function removePortrait(){
   }
 }
 
-function openGraph(){
+async function openGraph(){
   if(createMode){
     showToast('Salve o personagem antes de adicioná-lo ao grafo.','info',4000);
     return;
   }
+
+  var name=currentName;
   close();
-  if(window.TerraZApp.graph && window.TerraZApp.graph.openEditor){
-    window.TerraZApp.graph.openEditor();
+  var graph=window.TerraZApp.graph;
+  if(!graph) return;
+
+  if(graph.focusCharacter && graph.focusCharacter(name)){
+    showToast('Personagem localizado no grafo. Use “Conectar” no painel lateral para criar um vínculo.','info',4800);
+    return;
   }
+
+  if(graph.importCharacter){
+    showToast(name+' ainda não estava no grafo. Preparei uma nova bolinha para você posicionar e salvar.','info',5200);
+    await graph.importCharacter(name,{});
+    return;
+  }
+
+  if(graph.openEditor) graph.openEditor('layout','');
 }
 
 function setup(){
@@ -1140,6 +1164,11 @@ function setup(){
   if(el('characterEditorPortraitBtn')) el('characterEditorPortraitBtn').addEventListener('click',openPortrait);
   if(el('characterEditorRemovePortraitBtn')) el('characterEditorRemovePortraitBtn').addEventListener('click',removePortrait);
   if(el('characterEditorGraphBtn')) el('characterEditorGraphBtn').addEventListener('click',openGraph);
+  document.querySelectorAll('[data-character-editor-jump]').forEach(function(button){
+    button.addEventListener('click',function(){
+      jumpEditor(button.getAttribute('data-character-editor-jump') || '');
+    });
+  });
   if(el('characterEditorMediaProvider')) el('characterEditorMediaProvider').addEventListener('change',syncMediaSourceFields);
   if(el('characterEditorMediaBrowseBtn')) el('characterEditorMediaBrowseBtn').addEventListener('click',function(){
     if(currentName && window.TerraZApp.portraitBrowser) window.TerraZApp.portraitBrowser.open(currentName);
