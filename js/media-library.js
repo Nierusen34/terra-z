@@ -93,7 +93,7 @@ function allItems(){
 function matches(item){
   if(filter==="characters" && item.kind!=="character") return false;
   if(filter==="library" && item.kind!=="asset") return false;
-  if(filter==="orphan" && !(item.kind==="asset" && (!item.usage || !item.usage.length))) return false;
+  if(filter==="orphan" && !(item.kind==="asset" && !item.readOnly && (!item.usage || !item.usage.length))) return false;
   if(CATEGORIES[filter] && item.category!==filter) return false;
 
   var needle=String(search || "").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
@@ -127,10 +127,10 @@ function renderStats(items){
   var orphan=el("mediaLibraryOrphan");
   if(total) total.textContent=String(items.length);
   if(reused) reused.textContent=String(items.filter(function(item){
-    return item.kind==="character" || (item.usage && item.usage.length);
+    return item.kind==="character" || item.readOnly || (item.usage && item.usage.length);
   }).length);
   if(orphan) orphan.textContent=String(items.filter(function(item){
-    return item.kind==="asset" && (!item.usage || !item.usage.length);
+    return item.kind==="asset" && !item.readOnly && (!item.usage || !item.usage.length);
   }).length);
 }
 
@@ -145,7 +145,9 @@ function render(){
   root.innerHTML=visible.length ? visible.map(function(item){
     var usage=item.kind==="character"
       ? "Cards · Ficha"+(graph() ? " · Grafo quando vinculado" : "")
-      : (item.usage && item.usage.length ? item.usage.join(" · ") : "Não utilizado");
+      : (item.usage && item.usage.length
+          ? item.usage.join(" · ")
+          : (item.readOnly ? "Acervo estrutural do projeto" : "Não utilizado"));
     var badge=item.kind==="character"
       ? "PERSONAGEM"
       : (CATEGORIES[item.category] || "ATIVO");
@@ -153,7 +155,7 @@ function render(){
       '<div class="media-library-thumb">'+imageHtml(item)+'</div>'+
       '<div class="media-library-card-body">'+
         '<div class="media-library-card-top"><span>'+escapeHtml(badge)+'</span>'+
-          (item.kind==="asset" && (!item.usage || !item.usage.length) ? '<em>ÓRFÃO</em>' : '')+
+          (item.kind==="asset" && !item.readOnly && (!item.usage || !item.usage.length) ? '<em>ÓRFÃO</em>' : '')+
         '</div>'+
         '<h4>'+escapeHtml(item.label || item.id)+'</h4>'+
         '<p>'+escapeHtml(usage)+'</p>'+
