@@ -1,4 +1,4 @@
-name: Vercel emergency deploy hook
+name: Vercel production checkpoint
 
 on:
   push:
@@ -25,6 +25,8 @@ jobs:
       - name: Pre-deploy quality gate
         run: npm run test:quality
 
+      # Official production path: GitHub Actions -> Vercel Deploy Hook.
+      # ChatGPT's Vercel connector is intentionally not required.
       - name: Trigger latest main deployment
         env:
           VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}

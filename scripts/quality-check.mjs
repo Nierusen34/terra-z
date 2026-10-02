@@ -279,6 +279,26 @@ function checkGraph(data){
     }
   }
   pass("Histórico/restauração e deploy inteligente usam APIs existentes sem restaurar código");
+
+  const healthApi=read("api/health.js");
+  const deployWorkflow=read(".github/workflows/vercel-deploy-hook.yml");
+  const statusApi=read("api/status.js");
+
+  if(!healthApi.includes('deployment_strategy:"github-actions-deploy-hook"') ||
+     !healthApi.includes('vercel_connector_required:false')){
+    fail("A política operacional deve declarar GitHub Actions/Deploy Hook como caminho oficial e Vercel Connector como opcional.");
+  }
+  if(!/name:\s*Vercel production checkpoint/.test(deployWorkflow) ||
+     !deployWorkflow.includes("VERCEL_DEPLOY_HOOK_URL")){
+    fail("Workflow oficial de produção via Deploy Hook não está configurado.");
+  }
+  if(!statusApi.includes('workflowRunStatus(sha,"Vercel production checkpoint")')){
+    fail("api/status.js não acompanha o workflow oficial de produção.");
+  }
+  if(!exists("OPERATIONS.md")){
+    fail("OPERATIONS.md ausente; novas conversas precisam de uma política operacional persistente.");
+  }
+  pass("Fluxo oficial GitHub → Actions → Deploy Hook → Vercel está documentado e testado");
 }
 
 function checkEncryptedFiles(){

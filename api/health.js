@@ -87,6 +87,10 @@ export default async function handler(req,res){
     history_restore:true,
     deployment_control:true,
     history_model:"git-content-checkpoints-v1",
+    deployment_strategy:"github-actions-deploy-hook",
+    production_update_from_site:true,
+    vercel_connector_required:false,
+    vercel_connector_role:"optional-diagnostics",
     deployment_commit:String(process.env.VERCEL_GIT_COMMIT_SHA || ""),
     deployment_env:String(process.env.VERCEL_ENV || ""),
     ...githubConfig()

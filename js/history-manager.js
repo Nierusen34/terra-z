@@ -112,7 +112,7 @@ function renderOverview(){
   if(policy){
     if(overview.auto_deploy_paused === true){
       policy.className='history-deploy-policy paused';
-      policy.textContent='🛡️ Deploy automático pausado · a Vercel só muda quando você publica um checkpoint.';
+      policy.textContent='🛡️ Deploy automático pausado · publique pelo Terra Z. O fluxo usa GitHub Actions + Deploy Hook e não depende da conexão Vercel do ChatGPT.';
     }else if(overview.auto_deploy_paused === false){
       policy.className='history-deploy-policy warning';
       policy.textContent='⚠️ Deploy automático está habilitado no repositório.';
@@ -358,7 +358,7 @@ async function performDeploy(){
       }
     });
 
-    setOperation('Checkpoint criado. Quality Gate e deploy da Vercel em andamento…','working');
+    setOperation('Checkpoint criado. GitHub Actions executa Quality Gate → Deploy Hook → validação da Vercel…','working');
     await waitForVercel(result.vercel_status_url,result.sha);
 
     setOperation('Produção validada no SHA '+shortSha(result.sha)+'.','success');

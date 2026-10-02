@@ -17,7 +17,7 @@ export default async function handler(req,res){
   try {
     const kind=String((req.query || {}).kind || "pages").toLowerCase();
     const result=kind === "vercel"
-      ? await workflowRunStatus(sha,"Vercel emergency deploy hook")
+      ? await workflowRunStatus(sha,"Vercel production checkpoint")
       : await pagesRunStatus(sha);
     res.setHeader("Cache-Control","no-store, max-age=0");
     return res.status(200).json({...result,kind});
