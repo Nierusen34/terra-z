@@ -26,7 +26,7 @@ window.TerraZData.defaultGraph = {
     {id:"mgann",label:"M'GANN",subtitle:"M'gann M'orzz",kind:"character",ref:"M'gann M'orzz",x:120,y:470,color:"#0a8a4a",r:38,visibility:"public"},
     {id:"conner2",label:"CONNER",subtitle:"Conner Kent",kind:"character",ref:"Conner Kent",x:400,y:470,color:"#0064a8",r:38,visibility:"public"},
     {id:"mark",label:"M'ARK",subtitle:"M'ark",kind:"character",ref:"M'ark",x:260,y:580,color:"#0a8a4a",r:38,visibility:"public"},
-    {id:"armek",label:"ARMEK",subtitle:"Armek",kind:"custom",ref:"",x:120,y:650,color:"#3a3028",r:38,visibility:"public"},
+    {id:"armek",label:"ARMEK",subtitle:"Armek",kind:"custom",ref:"",mediaMode:"library",mediaId:"armek",mediaFraming:{fit:"cover",x:54,y:0,zoom:2},x:120,y:650,color:"#3a3028",r:38,visibility:"public"},
     {id:"jonn",label:"J'ONN",subtitle:"J'onn J'onzz",kind:"character",ref:"J'onn J'onzz",x:400,y:650,color:"#0a8a4a",r:38,visibility:"public"},
     {id:"lobo",label:"LOBO",subtitle:"Lobo",kind:"character",ref:"Lobo",x:660,y:490,color:"#3a3028",r:44,visibility:"public"},
     {id:"riot",label:"RIOT",subtitle:"Riot",kind:"character",ref:"Riot",x:660,y:620,color:"#3a3028",r:44,visibility:"public"},
