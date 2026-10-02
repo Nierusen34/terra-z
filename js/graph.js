@@ -73,6 +73,13 @@ var graphViewPositions=Object.create(null);
 var graphViewDrag=null;
 var graphSuppressClickUntil=0;
 
+var quickRelationState={
+  sourceId:"",
+  targetId:"",
+  draft:false,
+  picking:false
+};
+
 function clone(value){ return JSON.parse(JSON.stringify(value)); }
 function backend(){ return window.TerraZApp && window.TerraZApp.backend; }
 function router(){ return window.TerraZApp && window.TerraZApp.router; }
@@ -292,6 +299,292 @@ function nodeById(id,source){
 function edgeById(id,source){
   var graph=source || graphData;
   return graph && graph.edges ? graph.edges.find(function(edge){ return edge.id===id; }) : null;
+}
+
+function quickRelationGraph(){
+  return quickRelationState.draft && editorDraft ? editorDraft : graphData;
+}
+
+function quickRelationNode(id){
+  return nodeById(id,quickRelationGraph());
+}
+
+function quickRelationOptions(selectedId){
+  var graph=quickRelationGraph() || {nodes:[]};
+  return (graph.nodes || []).filter(function(node){
+    return node.id!==quickRelationState.sourceId && (quickRelationState.draft || allowed(node.visibility));
+  }).sort(function(a,b){
+    return String(a.label).localeCompare(String(b.label),"pt-BR");
+  }).map(function(node){
+    return '<option value="'+escapeAttr(node.id)+'"'+(node.id===selectedId?' selected':'')+'>'+escapeHtml(node.label)+'</option>';
+  }).join("");
+}
+
+function quickRelationTypeOptions(selected){
+  return Object.keys(RELATION).map(function(type){
+    return '<option value="'+type+'"'+(type===selected?' selected':'')+'>'+escapeHtml(RELATION[type].label)+'</option>';
+  }).join("");
+}
+
+function setQuickRelationStatus(message,state){
+  var node=document.getElementById("graphQuickStatus");
+  if(!node) return;
+  node.textContent=message || "";
+  node.dataset.state=state || "idle";
+}
+
+function updateQuickPair(){
+  var from=quickRelationNode(quickRelationState.sourceId);
+  var target=document.getElementById("graphQuickTarget");
+  var targetId=target ? target.value : quickRelationState.targetId;
+  var to=quickRelationNode(targetId);
+  var fromLabel=document.getElementById("graphQuickFromLabel");
+  var toLabel=document.getElementById("graphQuickToLabel");
+  if(fromLabel) fromLabel.textContent=from ? from.label : "—";
+  if(toLabel) toLabel.textContent=to ? to.label : "Escolha o destino";
+}
+
+function updateConnectBar(){
+  var bar=document.getElementById("graphConnectBar");
+  if(!bar) return;
+  var active=!!(!quickRelationState.draft && quickRelationState.picking && quickRelationState.sourceId);
+  bar.hidden=!active;
+  if(!active) return;
+  var source=quickRelationNode(quickRelationState.sourceId);
+  var title=document.getElementById("graphConnectBarTitle");
+  var text=document.getElementById("graphConnectBarText");
+  if(title) title.textContent="🔗 Conectando "+(source ? source.label : "entidade");
+  if(text) text.textContent="Clique ou toque na segunda bolinha. Você também pode escolher o destino pela lista.";
+}
+
+function closeQuickRelationModal(){
+  var modal=document.getElementById("graphQuickRelationModal");
+  if(modal){
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden","true");
+  }
+}
+
+function resetQuickRelationState(){
+  quickRelationState={sourceId:"",targetId:"",draft:false,picking:false};
+  updateConnectBar();
+}
+
+function cancelQuickRelation(){
+  closeQuickRelationModal();
+  resetQuickRelationState();
+  renderGraph();
+  if(editorMode==="layout" && editorDraft) renderEditorDetail();
+}
+
+function openQuickRelation(sourceId,targetId,options){
+  options=options || {};
+  if(!canEdit()){
+    showToast("Entre como editor para criar relações.","warning",4200);
+    return;
+  }
+
+  quickRelationState={
+    sourceId:String(sourceId || ""),
+    targetId:String(targetId || ""),
+    draft:options.draft===true,
+    picking:false
+  };
+  var source=quickRelationNode(quickRelationState.sourceId);
+  if(!source){
+    showToast("Entidade de origem não encontrada.","warning");
+    resetQuickRelationState();
+    return;
+  }
+
+  var modal=document.getElementById("graphQuickRelationModal");
+  var target=document.getElementById("graphQuickTarget");
+  var type=document.getElementById("graphQuickType");
+  var label=document.getElementById("graphQuickLabel");
+  var strength=document.getElementById("graphQuickStrength");
+  var directed=document.getElementById("graphQuickDirected");
+  var visibility=document.getElementById("graphQuickVisibility");
+  var note=document.getElementById("graphQuickNote");
+
+  if(target){
+    target.innerHTML='<option value="">Escolha uma entidade…</option>'+quickRelationOptions(quickRelationState.targetId);
+    target.value=quickRelationState.targetId || "";
+  }
+  if(type){type.innerHTML=quickRelationTypeOptions("ally");type.value="ally";}
+  if(label) label.value="";
+  if(strength) strength.value="3";
+  if(directed) directed.checked=false;
+  if(visibility) visibility.value="public";
+  if(note) note.value="";
+  setQuickRelationStatus(
+    quickRelationState.draft
+      ? "A conexão entrará no rascunho atual e será publicada quando você salvar o grafo."
+      : "A nova conexão será salva diretamente no Grafo 2.0.",
+    "idle"
+  );
+  updateQuickPair();
+  updateConnectBar();
+
+  if(modal){
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden","false");
+  }
+}
+
+function beginQuickPick(sourceId,options){
+  options=options || {};
+  if(!canEdit()){
+    showToast("Entre como editor para criar relações.","warning",4200);
+    return;
+  }
+
+  quickRelationState={
+    sourceId:String(sourceId || quickRelationState.sourceId || ""),
+    targetId:"",
+    draft:options.draft===true || quickRelationState.draft===true,
+    picking:true
+  };
+  if(!quickRelationNode(quickRelationState.sourceId)){
+    resetQuickRelationState();
+    return;
+  }
+
+  closeQuickRelationModal();
+  updateConnectBar();
+
+  if(quickRelationState.draft && editorMode==="layout" && editorDraft){
+    renderEditorDetail();
+    showToast("Toque ou clique na segunda bolinha para criar a conexão.","info",4200);
+  }else{
+    renderGraph();
+    var wrap=document.querySelector(".graph-canvas-card");
+    if(wrap) wrap.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+}
+
+function existingQuickRelation(graph,edge){
+  return (graph.edges || []).find(function(row){
+    if(row.type!==edge.type) return false;
+    if(row.directed || edge.directed){
+      return row.from===edge.from && row.to===edge.to && row.directed===edge.directed;
+    }
+    return (row.from===edge.from && row.to===edge.to) || (row.from===edge.to && row.to===edge.from);
+  }) || null;
+}
+
+function quickRelationEdge(graph){
+  var target=document.getElementById("graphQuickTarget");
+  var type=document.getElementById("graphQuickType");
+  var label=document.getElementById("graphQuickLabel");
+  var strength=document.getElementById("graphQuickStrength");
+  var directed=document.getElementById("graphQuickDirected");
+  var visibility=document.getElementById("graphQuickVisibility");
+  var note=document.getElementById("graphQuickNote");
+  var targetId=String(target && target.value || quickRelationState.targetId || "");
+  if(!targetId || targetId===quickRelationState.sourceId) return null;
+
+  var base="relacao-"+quickRelationState.sourceId+"-"+targetId+"-"+String(type && type.value || "ally");
+  var used=new Set((graph.edges || []).map(function(row){return row.id;}));
+  var id=slugify(base) || "relacao";
+  var candidate=id,i=2;
+  while(used.has(candidate)){candidate=id+"-"+i;i++;}
+
+  return {
+    id:candidate,
+    from:quickRelationState.sourceId,
+    to:targetId,
+    type:normalizeRelation(type && type.value || "ally"),
+    label:String(label && label.value || "").trim(),
+    note:String(note && note.value || "").trim(),
+    strength:Math.max(1,Math.min(5,Number(strength && strength.value)||3)),
+    directed:!!(directed && directed.checked),
+    visibility:normalizeVisibility(visibility && visibility.value || "public")
+  };
+}
+
+async function saveQuickRelation(){
+  var graph=quickRelationGraph();
+  if(!graph) return;
+  var edge=quickRelationEdge(graph);
+  if(!edge){
+    setQuickRelationStatus("Escolha uma entidade de destino diferente da origem.","warning");
+    return;
+  }
+  if(existingQuickRelation(graph,edge)){
+    setQuickRelationStatus("Essa conexão já existe. Abra a relação existente para editá-la.","warning");
+    return;
+  }
+
+  if(edge.visibility!=="public" && !(await supportsVisibilitySystem())){
+    setQuickRelationStatus("O backend atual ainda não permite salvar relações Spoiler/Mestre.","warning");
+    return;
+  }
+
+  if(quickRelationState.draft){
+    pushEditorUndo();
+    editorDraft.edges.push(edge);
+    editorSelectedId=edge.id;
+    closeQuickRelationModal();
+    resetQuickRelationState();
+    if(editorMode==="layout") renderEditorDetail();
+    else {
+      editorMode="edges";
+      renderEditorTabs();renderEditorList();renderEditorDetail();
+    }
+    showToast("Conexão adicionada ao rascunho. Salve o grafo quando terminar.","success",4800);
+    return;
+  }
+
+  if(!(await supportsGraphV3())){
+    setQuickRelationStatus("O backend de Relações 2.0 ainda não está disponível.","warning");
+    return;
+  }
+
+  var save=document.getElementById("graphQuickSave");
+  if(save){save.disabled=true;save.textContent="Salvando…";}
+  try{
+    var next=normalizeGraph(graphData);
+    next.edges.push(edge);
+    var before=clone(graphData);
+    var b=backend();
+    var result=await b.request("/api/graph",{method:"POST",body:{graph:next}});
+    storeLayoutBackup(before);
+    publishedGraph=result.publicGraph ? clone(result.publicGraph) : publishedGraph;
+    graphData=result.graph ? normalizeGraph(result.graph) : normalizeGraph(next);
+
+    var pc=privateContent();
+    if(pc && pc.reload){
+      await pc.reload();
+      graphData=loadGraph();
+    }
+    saveLocalGraph();
+    closeQuickRelationModal();
+    resetQuickRelationState();
+    selectedEdgeId=edge.id;selectedNodeId="";
+    renderGraph();renderInspector();
+    showToast("Conexão criada com sucesso.","success",4200);
+
+    var runtime=window.TerraZApp && window.TerraZApp.runtimeData;
+    if(runtime && runtime.refresh) runtime.refresh({force:true,bust:result.sha,silent:true});
+    var publishing=window.TerraZApp && window.TerraZApp.publishing;
+    if(publishing && publishing.trackDeployment && result.status_url) publishing.trackDeployment(result.status_url);
+  }catch(error){
+    console.error("Terra Z quick relation:",error);
+    setQuickRelationStatus(error.message || "Não foi possível criar a conexão.","error");
+  }finally{
+    if(save){save.disabled=false;save.textContent="＋ Criar conexão";}
+  }
+}
+
+function selectQuickTarget(id){
+  if(!quickRelationState.picking || !quickRelationState.sourceId) return false;
+  if(id===quickRelationState.sourceId){
+    showToast("Escolha outra entidade para formar a conexão.","info",3000);
+    return true;
+  }
+  quickRelationState.targetId=id;
+  openQuickRelation(quickRelationState.sourceId,id,{draft:quickRelationState.draft});
+  return true;
 }
 
 function graphDisplayNode(node){
