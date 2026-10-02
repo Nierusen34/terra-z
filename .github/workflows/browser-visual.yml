@@ -1,0 +1,56 @@
+name: Terra Z browser visual check
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: terra-z-browser-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.0-noble
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Playwright test runner
+        run: npm install --no-save --ignore-scripts @playwright/test@1.55.0
+
+      - name: Start local Terra Z
+        run: |
+          python3 -m http.server 4173 --bind 0.0.0.0 > /tmp/terra-z-browser-http.log 2>&1 &
+          echo $! > /tmp/terra-z-browser-http.pid
+          sleep 1
+
+      - name: Browser checks
+        env:
+          TERRA_Z_E2E_URL: http://127.0.0.1:4173/
+        run: npx playwright test --config=playwright.config.mjs
+
+      - name: Stop local Terra Z
+        if: always()
+        run: |
+          if [ -f /tmp/terra-z-browser-http.pid ]; then
+            kill "$(cat /tmp/terra-z-browser-http.pid)" || true
+          fi
+
+      - name: Upload failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terra-z-browser-failure-${{ github.run_id }}
+          path: test-results/browser/
+          if-no-files-found: ignore
+          retention-days: 1
+          compression-level: 9
