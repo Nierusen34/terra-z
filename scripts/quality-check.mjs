@@ -949,6 +949,45 @@ function checkPwa(){
   pass("Etapa PWA · instalação, offline público, atualização e privacidade validados");
 }
 
+function checkPhase15(){
+  const html=read("index.html");
+  const table=read("js/table-mode.js");
+  const loader=read("js/admin-loader.js");
+  const panel=read("js/admin-panel.js");
+  const session=read("js/session-mode.js");
+  const health=read("api/health.js");
+  const nav=read("js/navigation.js");
+  const pkg=JSON.parse(read("package.json"));
+
+  for(const id of [
+    "tableModePanel","tableModeSessionView","tableModeNpcsView","tableModeCluesView",
+    "tableModeGoalsView","tableModeCharactersView","tableModeMapsView","tableModeFinish"
+  ]){
+    if(!html.includes('id="'+id+'"')) fail("Etapa 15 · interface ausente: "+id);
+  }
+  if(!loader.includes('"js/table-mode.js"')) fail("Etapa 15 · Modo Mesa ausente do lazy loader.");
+  if(!panel.includes("action === 'table-mode'")) fail("Etapa 15 · Administração não abre Modo Mesa.");
+  if(!session.includes("finish:finish")) fail("Etapa 15 · Modo Sessão não expõe encerramento integrado.");
+
+  for(const token of [
+    'KEY="terraZ_session_mode_v1"',
+    'data-table-tab',
+    'sessionStorage.setItem(KEY',
+    'getPrivateGraph',
+    'tableModeMapViewer',
+    'navigator.onLine'
+  ]){
+    if(!table.includes(token)) fail("Etapa 15 · runtime incompleto: "+token);
+  }
+
+  if(!health.includes("table_mode_v1:true")) fail("Etapa 15 · backend não anuncia table_mode_v1.");
+  if(pkg.version!=="1.4.0") fail("Terra Z não foi promovido para package version 1.4.0.");
+  if(!html.includes("v1.4.0") || !nav.includes("v1.4.0")) fail("Identidade visual ainda não anuncia v1.4.0.");
+  if(!exists("docs/PHASE_15.md")) fail("docs/PHASE_15.md ausente.");
+
+  pass("Etapa 15 · Modo Mesa e Terra Z v1.4.0 validados");
+}
+
 function checkEncryptedFiles(){
   for(const file of ["data/private-character-data.enc.json","data/private-sessions.enc.json"]){
     if(!exists(file)){ fail("Arquivo criptografado ausente: "+file); continue; }
@@ -1031,6 +1070,7 @@ checkModuleRegistry();
 checkAdvancedAdmin(data);
 checkPhase14();
 checkPwa();
+checkPhase15();
 checkEncryptedFiles();
 checkVercel();
 checkSensitivePublicPatterns();
