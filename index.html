@@ -1004,6 +1004,13 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2
 </div>
 
 <div class="timeline-toolbar">
+  <div class="timeline-editor-toolbar">
+    <div>
+      <strong>Eventos de lore</strong>
+      <span>Sessões continuam sendo administradas pelo Diário da Campanha.</span>
+    </div>
+    <button id="timelineAddEventBtn" class="campaign-add-btn" type="button" disabled>＋ Novo evento</button>
+  </div>
   <div class="timeline-search-wrap">
     <input id="timelineSearch" type="search" placeholder="🔎 Buscar evento, personagem, local ou equipe..." autocomplete="off">
     <button id="timelineClear" type="button">Limpar</button>
@@ -1143,6 +1150,46 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <button id="sessionDeleteBtn" class="danger" type="button" hidden>🗑️ Apagar sessão</button>
 <button id="sessionCancelBtn">Cancelar</button>
 <button id="sessionSaveBtn" class="primary">💾 Registrar sessão</button>
+</div>
+</div>
+</div>
+
+<div class="session-editor-panel timeline-editor-panel" id="timelineEditorPanel" role="dialog" aria-modal="true" aria-labelledby="timelineEditorHeading">
+<div class="session-editor-card timeline-editor-card">
+<div class="session-editor-head">
+<div>
+<div class="timeline-editor-eyebrow">EDITOR DE EVENTOS · LINHA DO TEMPO</div>
+<h3 id="timelineEditorHeading">＋ Novo evento</h3>
+</div>
+<button id="timelineEditorClose" type="button">✕</button>
+</div>
+<div class="session-form-grid">
+<label>Título opcional<input id="timelineEditorTitleText" type="text" maxlength="180" placeholder="Ex.: Crise do Leviatã"></label>
+<label>Data exibida / período<input id="timelineEditorYear" type="text" maxlength="120" placeholder="Ex.: 4 Jan 2027, 2028 ou Era Antiga"></label>
+<label>Ordem cronológica<input id="timelineEditorSortKey" type="text" maxlength="16" placeholder="Ex.: 2027-01-04 ou 20270104"><span class="field-note">Define onde o evento entra na cronologia. Para períodos antigos, números menores podem ser usados.</span></label>
+<label>Camada<select id="timelineEditorCategory">
+<option value="history">📜 História</option>
+<option value="pre-campaign">⏳ Pré-Campanha</option>
+<option value="campaign">🎲 Campanha</option>
+<option value="current" selected>📡 Atualidade</option>
+<option value="future">⌛ Futuro</option>
+</select></label>
+<label>Visibilidade<select id="timelineEditorVisibility">
+<option value="public">🌐 Público</option>
+<option value="spoiler">⚠️ Spoiler</option>
+<option value="master">🔒 Mestre</option>
+</select><span class="field-note">Mestre é removido do arquivo público e salvo criptografado no cofre privado.</span></label>
+<label class="session-wide">Descrição<textarea id="timelineEditorText" rows="6" maxlength="12000" placeholder="O que aconteceu neste evento?"></textarea></label>
+<label class="session-wide">Personagens relacionados<input id="timelineEditorCharacters" type="text" placeholder="Tristan Queen, Riot, M'ark"></label>
+<label class="session-wide">Locais relacionados<input id="timelineEditorLocations" type="text" placeholder="Vanguard Bay, O Dique, Gotham City"></label>
+<label class="session-wide">Equipes relacionadas<input id="timelineEditorTeams" type="text" placeholder="Liga da Justiça, Titãs"></label>
+</div>
+<div id="timelineEditorPermalink" class="timeline-editor-permalink">O ID permanente e o link serão criados automaticamente.</div>
+<div id="timelineEditorStatus" class="timeline-editor-status" data-state="idle"></div>
+<div class="session-editor-actions">
+<button id="timelineEditorDelete" class="danger" type="button" hidden>🗑️ Excluir evento</button>
+<button id="timelineEditorCancel" type="button">Cancelar</button>
+<button id="timelineEditorSave" class="primary" type="button">💾 Criar evento</button>
 </div>
 </div>
 </div>
@@ -1427,6 +1474,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="js/sessions.js" defer></script>
 <script src="js/timeline-manager.js" defer></script>
 <script src="js/session-editor.js" defer></script>
+<script src="js/timeline-editor.js" defer></script>
 <script src="js/integrity-checker.js" defer></script>
 <script src="js/history-manager.js" defer></script>
 <script src="js/visibility-manager.js" defer></script>
