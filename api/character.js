@@ -487,6 +487,7 @@ function applyMetaPatch(meta,patch,taxonomy,isPrivate){
 
 export default async function handler(req,res){
   if(applyCors(req,res)) return;
+  res.setHeader("Cache-Control","no-store, max-age=0");
   if(req.method !== "POST" && req.method !== "DELETE"){
     res.setHeader("Allow","POST, DELETE, OPTIONS");
     return res.status(405).json({error:"method_not_allowed"});
