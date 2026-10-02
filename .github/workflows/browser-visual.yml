@@ -1,6 +1,9 @@
 name: Terra Z browser visual check
 
 on:
+  push:
+    branches:
+      - dev
   pull_request:
     branches:
       - main
