@@ -95,6 +95,26 @@ O mapa publicado também é interativo para visitantes que não estão autentica
 
 Em telas touch, os nós possuem uma área de captura maior do que o círculo visível. Enquanto um nó está sendo arrastado, o canvas bloqueia rolagem concorrente para evitar que a página se mova junto com a entidade.
 
+## Conexão rápida
+
+Para o uso comum, não é mais necessário abrir o editor avançado de Relações.
+
+Fluxo recomendado para editores:
+
+1. selecione uma bolinha no mapa;
+2. clique em **🔗 Conectar** no painel lateral;
+3. clique/toque na entidade de destino;
+4. escolha tipo, intensidade, direção e visibilidade;
+5. clique em **Criar conexão**.
+
+Enquanto o destino está sendo escolhido, uma linha temporária parte da entidade de origem. O botão **Escolher da lista** serve como alternativa quando o mapa está muito cheio.
+
+O sistema bloqueia conexão da entidade com ela mesma e impede duplicação exata do mesmo vínculo.
+
+No **Layout visual**, a entidade selecionada também possui **🔗 Conectar**. Nesse caso a conexão entra no rascunho e só é publicada junto com **Salvar alterações**.
+
+O editor avançado de Entidades e Relações continua disponível para manutenção detalhada.
+
 ## Editor
 
 O editor autenticado possui três abas:
