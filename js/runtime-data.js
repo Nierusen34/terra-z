@@ -67,7 +67,7 @@ function mediaUrl(path,sha){
   var b = backend();
   var raw = String(path || '');
   if(!raw || !b || !b.isConfigured()) return raw;
-  if(!/^images\/characters\/[a-z0-9._-]+\.(png|jpe?g|webp)$/i.test(raw)) return raw;
+  if(!/^images\/(?:characters|library)\/[a-z0-9._-]+\.(png|jpe?g|webp)$/i.test(raw)) return raw;
 
   var url = b.endpoint('/api/media?path=' + encodeURIComponent(raw));
   var version = sha || currentSha;
