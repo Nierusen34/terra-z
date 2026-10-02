@@ -1299,8 +1299,10 @@ function renderGraph(){
   var nodeIds=new Set(nodes.map(function(n){ return n.id; }));
   var edges=visibleEdges(nodeIds);
   var html=renderDefs(nodes);
+  var bounds=graphCanvasBounds();
+  var focusSet=graphFocusActive() ? graphConnectedIds(graphFocusNodeId) : null;
 
-  html+='<rect x="0" y="0" width="1000" height="720" class="graph-grid-bg" fill="url(#graph-grid)"/>';
+  html+='<rect x="'+bounds.x+'" y="'+bounds.y+'" width="'+bounds.w+'" height="'+bounds.h+'" class="graph-grid-bg" fill="url(#graph-grid)"/>';
 
   (graphData.quadrants || []).forEach(function(q){
     html+='<g class="graph-zone">'+
@@ -1315,14 +1317,17 @@ function renderGraph(){
     var geometry=curveForEdge(a,b,index);
     var color=relationColor(edge.type);
     var selected=edge.id===selectedEdgeId;
+    var focusRelevant=!focusSet || edge.from===graphFocusNodeId || edge.to===graphFocusNodeId;
     var width=1.2+Number(edge.strength || 3)*.45;
     var dash=(edge.type==="tension" || edge.type==="enemy" || edge.type==="rivalry" || edge.type==="clone") ? ' stroke-dasharray="7 5"' : "";
     var marker=edge.directed ? ' marker-end="url(#graph-arrow-'+escapeAttr(edge.type)+')"' : "";
+    var edgeClass=(selected?' selected':'')+(geometry.cross?' cross-nucleus':'')+(focusSet?(focusRelevant?' focus-relevant':' focus-muted'):'');
+    var showLabel=!!(edge.label && (!geometry.cross || selected || focusRelevant));
 
-    html+='<g class="graph-edge-group'+(selected?' selected':'')+'" data-edge-id="'+escapeAttr(edge.id)+'" data-edge-index="'+index+'">'+
+    html+='<g class="graph-edge-group'+edgeClass+'" data-edge-id="'+escapeAttr(edge.id)+'" data-edge-index="'+index+'">'+
       '<path class="graph-edge-hit" d="'+geometry.d+'" stroke="transparent" stroke-width="16" fill="none"/>'+
       '<path class="graph-edge-line" d="'+geometry.d+'" stroke="'+color+'" stroke-width="'+width+'" fill="none"'+dash+marker+' opacity="'+(selected?'1':'.75')+'"/>'+
-      (edge.label
+      (showLabel
         ? '<g class="graph-edge-label" transform="translate('+geometry.mx+' '+geometry.my+')">'+
             '<rect x="'+(-Math.max(28,edge.label.length*4.4))+'" y="-11" width="'+(Math.max(56,edge.label.length*8.8))+'" height="22" rx="11"/>'+
             '<text x="0" y="3" text-anchor="middle" fill="'+color+'">'+escapeHtml(edge.label)+'</text>'+
@@ -1370,7 +1375,14 @@ function renderGraph(){
         '<text x="'+node.x+'" y="'+(node.y+3)+'" text-anchor="middle" class="graph-node-icon">'+escapeHtml(node.icon || kind.icon)+'</text>';
     }
 
-    html+='<g class="graph-node-v2'+(route?' routable':'')+(selected?' selected':'')+(matched?' search-match':' search-context')+'" data-node-id="'+escapeAttr(node.id)+'" tabindex="0" role="button" aria-label="'+escapeAttr(node.label)+'">'+
+    var focusClass="";
+    if(focusSet){
+      if(node.id===graphFocusNodeId) focusClass=" focus-primary";
+      else if(focusSet.has(node.id)) focusClass=" focus-related";
+      else focusClass=" focus-muted";
+    }
+
+    html+='<g class="graph-node-v2'+(route?' routable':'')+(selected?' selected':'')+(matched?' search-match':' search-context')+focusClass+'" data-node-id="'+escapeAttr(node.id)+'" tabindex="0" role="button" aria-label="'+escapeAttr(node.label)+'">'+
       '<circle class="graph-node-drag-hit" cx="'+node.x+'" cy="'+node.y+'" r="'+Math.max(46,node.r+14)+'" fill="transparent" style="touch-action:none"/>'+
       nodeVisual+
       '<text x="'+node.x+'" y="'+(node.y+node.r+17)+'" text-anchor="middle" class="graph-node-label">'+escapeHtml(node.label)+'</text>'+
@@ -1390,6 +1402,7 @@ function renderGraph(){
       if(selectQuickTarget(id)) return;
       selectedNodeId=id;
       selectedEdgeId="";
+      graphFocusNodeId=id;
       renderGraph();
       renderInspector();
     };
@@ -1414,8 +1427,9 @@ function renderGraph(){
       var line=svg.querySelector("#graphConnectPreview");
       if(!line) return;
       var point=svgPointFromEvent(svg,event);
-      line.setAttribute("x2",Math.max(0,Math.min(1000,point.x)));
-      line.setAttribute("y2",Math.max(0,Math.min(720,point.y)));
+      var previewBounds=graphCanvasBounds();
+      line.setAttribute("x2",Math.max(previewBounds.x,Math.min(previewBounds.x+previewBounds.w,point.x)));
+      line.setAttribute("y2",Math.max(previewBounds.y,Math.min(previewBounds.y+previewBounds.h,point.y)));
     },{passive:true});
   }
 
@@ -1424,12 +1438,16 @@ function renderGraph(){
       event.stopPropagation();
       selectedEdgeId=group.getAttribute("data-edge-id") || "";
       selectedNodeId="";
+      graphFocusNodeId="";
       renderGraph();
       renderInspector();
     });
   });
 
+  setupGraphPanZoom(svg);
   applyGraphScale();
+  updateGraphFocusButton();
+  updateFullscreenUi();
   updateGraphViewResetButton();
   updateGraphStats(nodes,edges);
   renderLegend();
