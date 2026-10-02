@@ -1632,8 +1632,10 @@ function renderInspector(){
 function openNodeRoute(node){
   var route=routeForNode(node);
   var r=router();
-  if(route && r && r.go) r.go(route);
-  else showToast("Esta entidade ainda não possui um destino navegável.","info",3500);
+  if(route && r && r.go){
+    if(graphFullscreen) toggleGraphFullscreen(false);
+    r.go(route);
+  }else showToast("Esta entidade ainda não possui um destino navegável.","info",3500);
 }
 
 function updateFilterOptions(){
