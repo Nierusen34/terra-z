@@ -874,6 +874,10 @@ if(dcImportBothBtn) dcImportBothBtn.addEventListener('click',function(){runDcImp
 document.addEventListener('terra-z:auth-changed',function(){
   var btn=document.getElementById('modalImportBtn');
   if(btn) btn.hidden=!canDcImport();
+  var query=searchInput ? searchInput.value.trim() : '';
+  if(searchMode==='fandom' && query.length>=2 && fandomCache[query]){
+    renderFandomResults(fandomCache[query],query);
+  }
 });
 
 window.executeSearch = executeSearch;
