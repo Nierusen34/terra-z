@@ -506,6 +506,15 @@ function handleAction(action){
     return;
   }
 
+  if(action === 'table-mode'){
+    requireEditorAction(async function(){
+      close();
+      if(app.privateContent && app.privateContent.load && navigator.onLine) await app.privateContent.load();
+      if(app.tableMode && app.tableMode.open) app.tableMode.open();
+    });
+    return;
+  }
+
   if(action === 'backup-export'){
     requireEditorAction(function(){
       close();
