@@ -9,10 +9,10 @@ var showToast = core.showToast;
 
 /* ===== CONFIGURAÇÃO DOS JORNAIS ===== */
 var paperConfig = {
-  "farol":{title:'O Farol de <span class="city">Vanguard</span>',subtitle:'"A verdade ilumina a Cidade Dourada"',section:'Dossiê Completo Universo',footer:'O FAROL DE VANGUARD · Dossiê Especial · v1.3.2 · Jan 2027'},
+  "farol":{title:'O Farol de <span class="city">Vanguard</span>',subtitle:'"A verdade ilumina a Cidade Dourada"',section:'Dossiê Completo Universo',footer:'O FAROL DE VANGUARD · Dossiê Especial · v1.4.0 · Jan 2027'},
   "vbn":{title:'VBN · Vanguard <span class="city">Broadcasting</span>',subtitle:'🔴 AO VIVO · Informação em Tempo Real',section:'VBN Mapas · Transmissão Contínua',footer:'VBN – VANGUARD BROADCASTING NETWORK · Dossiê Especial · Jan 2027'},
-  "cais":{title:'O Diário do <span class="city">Cais</span>',subtitle:'"O jornal do povo trabalhador"',section:'Caderno Cotidiano · Transporte & Serviço',footer:'O DIÁRIO DO CAIS · Caderno de Serviço · v1.3.2 · Jan 2027'},
-  "sentinela":{title:'A Sentinela <span class="city">Dourada</span>',subtitle:'🔥 Nada escapa do nosso radar',section:'🔥 EXCLUSIVO · O que ninguém quer que você saiba',footer:'A SENTINELA DOURADA · Edição Especial · v1.3.2 · Jan 2027'}
+  "cais":{title:'O Diário do <span class="city">Cais</span>',subtitle:'"O jornal do povo trabalhador"',section:'Caderno Cotidiano · Transporte & Serviço',footer:'O DIÁRIO DO CAIS · Caderno de Serviço · v1.4.0 · Jan 2027'},
+  "sentinela":{title:'A Sentinela <span class="city">Dourada</span>',subtitle:'🔥 Nada escapa do nosso radar',section:'🔥 EXCLUSIVO · O que ninguém quer que você saiba',footer:'A SENTINELA DOURADA · Edição Especial · v1.4.0 · Jan 2027'}
 };
 
 function applyPaper(k){
@@ -118,7 +118,7 @@ function buildGlobalSidebar(){
     }
     html += '</div>';
   });
-  html += '<div class="gs-footer">Universo Terra Z · v1.3.2<br>Jan 2027</div>';
+  html += '<div class="gs-footer">Universo Terra Z · v1.4.0<br>Jan 2027</div>';
   sidebar.innerHTML = html;
   sidebar.querySelectorAll('.gs-group-btn').forEach(function(btn){
     btn.addEventListener('click', function(){
@@ -217,7 +217,7 @@ if(overlay) overlay.addEventListener('click', closeDrawer);
     return !!document.querySelector(
       '#fandomModal.show,#fichaModal.show,#presentationModal.show,#graphEditorModal.show,' +
       '#confirmModal.show,#lightbox.show,.character-editor-panel.show,.admin-panel.show,' +
-      '.taxonomy-manager-panel.show,.portrait-browser-modal.show'
+      '.taxonomy-manager-panel.show,.portrait-browser-modal.show,.table-mode-panel.show'
     );
   }
 
