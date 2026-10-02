@@ -65,46 +65,56 @@ function renderList(id,countId,items,mapper,empty){
   root.innerHTML=list.length?list.map(mapper).join(""):'<div class="master-quick-empty">'+escapeHtml(empty)+'</div>';
 }
 function recentEvents(state){
+  var app=window.TerraZApp||{};
   var rows=[];
-  var sessions=(window.TerraZData&&window.TerraZData.sessions)||[];
+
+  var sessions=app.sessions&&app.sessions.getAll
+    ? app.sessions.getAll()
+    : ((window.TerraZData&&window.TerraZData.sessions)||[]);
   sessions.forEach(function(session){
     rows.push({
       kind:"session",
       title:session.title||"Sessão",
       summary:session.summary||"",
-      date:session.realDate||"",
-      sort:String(session.realDate||""),
+      date:session.realDate||session.inWorldDate||"",
+      sort:String(session.realDate||session.inWorldDate||""),
       visibility:session.visibility||"public"
     });
   });
 
-  var timeline=(window.TerraZData&&window.TerraZData.timeline)||[];
-  timeline.forEach(function(group){
-    (group.events||[]).forEach(function(event){
+  var timelineEvents=app.timeline&&app.timeline.events
+    ? app.timeline.events()
+    : [];
+  if(timelineEvents.length){
+    timelineEvents.forEach(function(event){
       rows.push({
         kind:"event",
         title:event.title||event.year||"Evento",
-        summary:event.text||"",
+        summary:event.text||event.summary||"",
         date:event.year||"",
         sort:String(event.sortKey||0).padStart(12,"0"),
         visibility:event.visibility||"public"
       });
     });
-  });
-
-  (state.timelineEvents||[]).forEach(function(event){
-    rows.push({
-      kind:"event",
-      title:event.title||event.year||"Evento Mestre",
-      summary:event.text||"",
-      date:event.year||"",
-      sort:String(event.sortKey||0).padStart(12,"0"),
-      visibility:"master"
+  }else{
+    var timeline=(window.TerraZData&&window.TerraZData.timeline)||[];
+    timeline.forEach(function(group){
+      (group.events||[]).forEach(function(event){
+        rows.push({
+          kind:"event",
+          title:event.title||event.year||"Evento",
+          summary:event.text||"",
+          date:event.year||"",
+          sort:String(event.sortKey||0).padStart(12,"0"),
+          visibility:event.visibility||"public"
+        });
+      });
     });
-  });
+  }
 
-  return rows.sort(function(a,b){return String(b.sort).localeCompare(String(a.sort));}).slice(0,8);
+  return rows.sort(function(a,b){return String(b.sort).localeCompare(String(a.sort));}).slice(0,10);
 }
+
 function renderAlerts(state){
   var root=el("masterQuickAlerts");if(!root)return;
   var alerts=[];
