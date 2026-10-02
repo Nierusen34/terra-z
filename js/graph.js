@@ -177,6 +177,7 @@ function loadGraph(){
   if(!publishedGraph){
     try{
       var saved=localStorage.getItem(GRAPH_KEY);
+      if(!saved) saved=localStorage.getItem("terraZ_graph_v2");
       if(saved) base=JSON.parse(saved);
     }catch(error){ console.error(error); }
   }
@@ -432,15 +433,6 @@ function renderGraph(){
     });
   });
 
-  svg.addEventListener("click",function(event){
-    if(event.target===svg || event.target.classList.contains("graph-grid-bg")){
-      selectedNodeId="";
-      selectedEdgeId="";
-      renderGraph();
-      renderInspector();
-    }
-  },{once:true});
-
   updateGraphStats(nodes,edges);
   renderLegend();
   document.dispatchEvent(new CustomEvent("terra-z:graph-rendered",{detail:{nodes:nodes.length,edges:edges.length}}));
@@ -633,6 +625,16 @@ function setupGraphView(){
 
   var edit=document.getElementById("graphOpenBtn");
   if(edit) edit.addEventListener("click",function(){ openGraphEditor("nodes",""); });
+
+  var svg=document.getElementById("graphSvg");
+  if(svg) svg.addEventListener("click",function(event){
+    if(event.target===svg || event.target.classList.contains("graph-grid-bg")){
+      selectedNodeId="";
+      selectedEdgeId="";
+      renderGraph();
+      renderInspector();
+    }
+  });
 
   refreshGraphAccess();
 }
