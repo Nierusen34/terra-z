@@ -92,6 +92,10 @@ function setupLightbox(){
 function markGraphScroll(){
   if(!isMobile()) return;
   document.querySelectorAll('.graph-wrap').forEach(function(node){
+    if(node.classList.contains('graph-wrap-v2')){
+      node.classList.remove('mobile-scroll-region');
+      return;
+    }
     node.classList.add('mobile-scroll-region');
   });
 }
