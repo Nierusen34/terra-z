@@ -85,6 +85,8 @@ export default async function handler(req,res){
     visibility_system:"public-spoiler-master",
     secure_master_sections:true,
     secure_master_relations:true,
+    relations_graph_v3:true,
+    relations_entity_editor:true,
     secure_master_timeline:true,
     timeline_event_editor:true,
     history_restore:true,
