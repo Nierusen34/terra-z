@@ -865,7 +865,7 @@ function setupGraphView(){
   });
 
   var edit=document.getElementById("graphOpenBtn");
-  if(edit) edit.addEventListener("click",function(){ openGraphEditor("nodes",""); });
+  if(edit) edit.addEventListener("click",function(){ openGraphEditor("layout",""); });
 
   var zoomOut=document.getElementById("graphZoomOut");
   var zoomIn=document.getElementById("graphZoomIn");
