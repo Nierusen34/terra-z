@@ -570,7 +570,7 @@ function checkGraph(data){
 
   const healthApi=read("api/health.js");
   const deployWorkflow=read(".github/workflows/vercel-deploy-hook.yml");
-  const statusApi=read("api/status.js");
+  const vercelConfig=JSON.parse(read("vercel.json"));
 
   if(!healthApi.includes('deployment_strategy:"github-actions-deploy-hook"') ||
      !healthApi.includes('vercel_connector_required:false')){
@@ -580,8 +580,14 @@ function checkGraph(data){
      !deployWorkflow.includes("VERCEL_DEPLOY_HOOK_URL")){
     fail("Workflow oficial de produção via Deploy Hook não está configurado.");
   }
-  if(!statusApi.includes('workflowRunStatus(sha,"Vercel production checkpoint")')){
-    fail("api/status.js não acompanha o workflow oficial de produção.");
+  if(!healthApi.includes('workflowRunStatus(sha,"Vercel production checkpoint")')){
+    fail("api/health.js não acompanha o workflow oficial de produção.");
+  }
+  const rewrites=Array.isArray(vercelConfig.rewrites) ? vercelConfig.rewrites : [];
+  for(const source of ["/api/status","/api/master-template","/api/master-finalize","/api/private-sessions"]){
+    if(!rewrites.some(row=>row&&row.source===source)){
+      fail("Rewrite de compatibilidade ausente: "+source);
+    }
   }
   if(!exists("OPERATIONS.md")){
     fail("OPERATIONS.md ausente; novas conversas precisam de uma política operacional persistente.");
@@ -613,10 +619,27 @@ function checkVercel(){
     const topLevel=fs.readdirSync(path.join(root,"api"),{withFileTypes:true})
       .filter(entry=>entry.isFile()&&entry.name.endsWith(".js")).length;
     if(topLevel>12) fail("Vercel Hobby: "+topLevel+" funções serverless de nível superior; máximo conhecido do projeto é 12");
-    else pass("Quantidade de funções serverless dentro do limite: "+topLevel+"/12");
+    else if(topLevel>9) warn("Funções serverless dentro do limite, mas acima da meta otimizada: "+topLevel+"/12");
+    else pass("Arquitetura serverless otimizada: "+topLevel+"/12 (meta <= 9)");
 
     if(config.git&&config.git.deploymentEnabled===false){
       warn("Deploy automático da Vercel está pausado (staging intencional)");
+    }
+
+    for(const legacy of ["master-template.js","master-finalize.js","private-sessions.js","status.js"]){
+      if(exists("api/"+legacy)) fail("Endpoint legado ainda ocupa função serverless: api/"+legacy);
+    }
+    const masterApi=read("api/master.js");
+    const sessionApi=read("api/session.js");
+    const healthApi=read("api/health.js");
+    if(!masterApi.includes('action === "template"') || !masterApi.includes('action === "finalize"')){
+      fail("api/master.js não consolidou template/finalização.");
+    }
+    if(!sessionApi.includes('action !== "private"')){
+      fail("api/session.js não consolidou leitura de sessões privadas.");
+    }
+    if(!healthApi.includes('mode || "") === "status"')){
+      fail("api/health.js não consolidou acompanhamento de status.");
     }
   }catch(error){
     fail("vercel.json inválido: "+error.message);
