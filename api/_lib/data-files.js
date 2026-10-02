@@ -183,3 +183,20 @@ window.TerraZData.timelineSchema = {
 })();
 `;
 }
+
+
+export function renderMediaLibrary(data){
+  const library=data && typeof data === "object" && !Array.isArray(data)
+    ? data
+    : {version:1,assets:[]};
+  return `(function(){
+"use strict";
+
+window.TerraZData = window.TerraZData || {};
+
+// Biblioteca de mídia reutilizável do Terra Z.
+window.TerraZData.mediaLibrary = ${JSON.stringify(library,null,2)};
+
+})();
+`;
+}
