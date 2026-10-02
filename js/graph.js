@@ -718,6 +718,10 @@ function fitGraphView(persist){
   applyGraphScale();
 }
 
+function graphCompactViewport(){
+  return !!(window.matchMedia && window.matchMedia("(max-width: 760px)").matches);
+}
+
 function updateFullscreenUi(){
   var layout=document.querySelector(".relations-layout");
   if(layout){
@@ -748,14 +752,14 @@ function toggleGraphFullscreen(force){
       inspectorCollapsed:graphInspectorCollapsed
     };
     graphFullscreen=true;
-    graphInspectorCollapsed=false;
+    graphInspectorCollapsed=graphCompactViewport();
     updateFullscreenUi();
     requestAnimationFrame(function(){ fitGraphView(false); });
     return;
   }
 
   graphFullscreen=false;
-  graphInspectorCollapsed=false;
+  graphInspectorCollapsed=graphFullscreenSnapshot ? !!graphFullscreenSnapshot.inspectorCollapsed : false;
   if(graphFullscreenSnapshot){
     graphScale=graphFullscreenSnapshot.scale;
     graphViewCenter={
