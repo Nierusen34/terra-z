@@ -60,16 +60,29 @@ function resetDraft(){
 }
 function current(){return draft[activeKind]||[];}
 function definition(){return DEFINITIONS[activeKind]||DEFINITIONS.nuclei;}
+function metaUses(meta,kind,id){
+  meta=meta||{};
+  if(kind==="nuclei") return Array.isArray(meta.nuclei)&&meta.nuclei.indexOf(id)!==-1;
+  if(kind==="tags") return Array.isArray(meta.tags)&&meta.tags.indexOf(id)!==-1;
+  if(kind==="types") return meta.type===id;
+  if(kind==="statuses") return meta.status===id;
+  return false;
+}
 function countUse(kind,id){
   var all=taxonomy().characters||{};
-  return Object.keys(all).filter(function(name){
-    var meta=all[name]||{};
-    if(kind==="nuclei") return Array.isArray(meta.nuclei)&&meta.nuclei.indexOf(id)!==-1;
-    if(kind==="tags") return Array.isArray(meta.tags)&&meta.tags.indexOf(id)!==-1;
-    if(kind==="types") return meta.type===id;
-    if(kind==="statuses") return meta.status===id;
-    return false;
-  }).length;
+  var names=new Set();
+  Object.keys(all).forEach(function(name){
+    if(metaUses(all[name],kind,id)) names.add(name);
+  });
+
+  var p=window.TerraZApp&&window.TerraZApp.privateContent;
+  if(p&&p.getPrivateCharacterNames&&p.getCharacterProfile){
+    p.getPrivateCharacterNames().forEach(function(name){
+      var profile=p.getCharacterProfile(name);
+      if(profile&&metaUses(profile.meta,kind,id)) names.add(name);
+    });
+  }
+  return names.size;
 }
 function uniqueId(label){
   var base=slugify(label)||activeKind.slice(0,-1)||"categoria";
@@ -222,6 +235,8 @@ async function open(){
     showToast("Taxonomias v2 aguardam o novo checkpoint da Vercel.","warning",6500);
     return;
   }
+  var p=window.TerraZApp&&window.TerraZApp.privateContent;
+  if(p&&p.load) await p.load();
   resetDraft();render();setStatus("","idle");
   var panel=el("taxonomyManagerPanel");if(panel)panel.classList.add("show");
   document.body.style.overflow="hidden";
