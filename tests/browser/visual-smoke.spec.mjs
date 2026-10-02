@@ -105,3 +105,64 @@ test("Administração é carregada somente quando solicitada",async({page})=>{
 
   await expectNoPageErrors(errors);
 });
+
+
+test("Administração avançada renderiza Taxonomias, Lote e Sala do Mestre",async({page})=>{
+  const errors=watchRuntimeErrors(page);
+
+  await page.goto("/#/capa",{waitUntil:"domcontentloaded"});
+
+  await page.evaluate(async()=>{
+    await window.TerraZApp.adminLoader.load();
+
+    const emptyMaster={
+      version:1,
+      notes:[],
+      revelations:[],
+      goals:[],
+      clues:[],
+      npcStates:[],
+      timelineEvents:[]
+    };
+
+    window.TerraZApp.backend.isConfigured=()=>true;
+    window.TerraZApp.backend.isAuthenticated=()=>true;
+    window.TerraZApp.backend.health=async()=>({
+      ok:true,
+      taxonomy_manager_v2:true,
+      bulk_editor_v1:true,
+      master_quick_panel_v1:true
+    });
+    window.TerraZApp.backend.request=async(path)=>{
+      if(String(path).startsWith("/api/master")){
+        return {content:{characters:{},master:emptyMaster,graph:{nodes:[],edges:[]}}};
+      }
+      if(String(path).startsWith("/api/publish")){
+        return {ok:true,history:[],head:"",production_sha:""};
+      }
+      return {ok:true};
+    };
+
+    document.dispatchEvent(new CustomEvent("terra-z:auth-changed",{detail:{authenticated:true}}));
+  });
+
+  await page.evaluate(()=>window.TerraZApp.taxonomyManager.open());
+  await expect(page.locator("#taxonomyManagerPanel")).toHaveClass(/show/);
+  await expect(page.locator("#taxonomyManagerTabs .taxonomy-kind-tab")).toHaveCount(4);
+  await expect(page.locator("#taxonomyManagerList .taxonomy-manager-row").first()).toBeVisible();
+  await page.evaluate(()=>window.TerraZApp.taxonomyManager.close());
+
+  await page.evaluate(async()=>window.TerraZApp.bulkEditor.open());
+  await expect(page.locator("#bulkEditorPanel")).toHaveClass(/show/);
+  await expect.poll(()=>page.locator("#bulkEditorCharacters .bulk-character-row").count()).toBeGreaterThan(0);
+  await expect(page.locator("#bulkEditorApply")).toBeVisible();
+  await page.evaluate(()=>window.TerraZApp.bulkEditor.close());
+
+  await page.evaluate(async()=>window.TerraZApp.masterQuick.open());
+  await expect(page.locator("#masterQuickPanel")).toHaveClass(/show/);
+  await expect(page.locator("#masterQuickStats > div")).toHaveCount(4);
+  await expect(page.locator("#masterQuickGoals")).toBeVisible();
+  await page.evaluate(()=>window.TerraZApp.masterQuick.close());
+
+  await expectNoPageErrors(errors);
+});
