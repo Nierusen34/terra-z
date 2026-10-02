@@ -1,25 +1,55 @@
 # Módulos JavaScript — Terra Z
 
-A Fase 3 separa o comportamento do site por responsabilidade, mantendo HTML/CSS/JavaScript puro e GitHub Pages.
+O Terra Z usa JavaScript puro dividido em dois níveis de carregamento: **runtime público** e **ferramentas administrativas sob demanda**.
 
-## Ordem de carregamento
+## Runtime público
 
-Depois dos arquivos em `data/`, o site carrega:
+Carregado diretamente por `index.html`:
 
-1. `terra-z.js` — núcleo compartilhado e bootstrap
-2. `js/data-renderer.js` — transforma dados canônicos em DOM
-3. `js/editor.js` — hidrata edições salvas, edição, exportação e backups
-4. `js/media.js` — carrega imagens pesadas apenas quando a seção fica ativa
-5. `js/navigation.js` — navegação, temas, jornais, drawers, lightbox e timeline interativa
-6. `js/search.js` — busca local e integração com DC Wiki
-7. `js/characters.js` — fichas e modal de personagens
-8. `js/favorites.js` — favoritos
-9. `js/presentation.js` — modo apresentação
-10. `js/graph.js` — grafo de relações e editor
+1. `terra-z.js` — núcleo compartilhado (`TerraZCore` / `TerraZApp`);
+2. `js/backend-client.js` — cliente do backend;
+3. `js/admin-loader.js` — lazy loader administrativo;
+4. `js/runtime-data.js` — atualização dos dados públicos em runtime;
+5. `js/data-renderer.js` — renderização de dados canônicos;
+6. `js/visibility.js` — Público / Spoiler / Mestre;
+7. `js/media.js` e `js/character-media.js` — imagens e enquadramento;
+8. `js/navigation.js` e `js/mobile-polish.js` — navegação e mobile;
+9. `js/search.js` — busca;
+10. `js/characters.js`, `js/home-protagonists.js`, `js/favorites.js` — personagens;
+11. `js/presentation.js` — apresentação;
+12. `js/graph.js` — Relações 2.0;
+13. `js/character-filters.js` — filtros/taxonomias na página;
+14. `js/router.js` e `js/world-links.js` — deep links e links entre entidades;
+15. `js/sessions.js` — Diário;
+16. `js/timeline-manager.js` — Timeline 2.0.
 
-A ordem importa. A camada de dados é renderizada primeiro e o editor hidrata as edições salvas antes de módulos como personagens e favoritos lerem o texto do DOM. Os módulos de interface dependem de `TerraZCore`.
+O objetivo é manter o boot público leve. Ferramentas de escrita não devem ser carregadas antes de o usuário abrir Administração.
 
-## Núcleo
+## Administração sob demanda
+
+`js/admin-loader.js` registra e carrega:
+
+- `js/admin-foundation.js`;
+- `js/editor.js`;
+- `js/private-content.js`;
+- `js/publishing.js`;
+- `js/master-migration.js`;
+- `js/media-manager.js`;
+- `js/media-library.js`;
+- `js/portrait-browser.js`;
+- `js/master-workspace.js`;
+- `js/character-editor.js`;
+- `js/taxonomy-manager.js`;
+- `js/bulk-editor.js`;
+- `js/master-quick.js`;
+- `js/session-editor.js`;
+- `js/timeline-editor.js`;
+- `js/integrity-checker.js`;
+- `js/history-manager.js`;
+- `js/visibility-manager.js`;
+- `js/admin-panel.js`.
+
+## Namespace
 
 `terra-z.js` expõe:
 
@@ -28,35 +58,19 @@ window.TerraZCore
 window.TerraZApp
 ```
 
-### `TerraZCore`
+### TerraZCore
 
-Helpers compartilhados:
+Helpers compartilhados de UI e segurança, como:
 
-- `showToast`
-- `showConfirm`
-- `escapeHtml`
-- `escapeAttr`
-- `escapeRegex`
+- `showToast`;
+- `showConfirm`;
+- `escapeHtml`;
+- `escapeAttr`;
+- `escapeRegex`.
 
-### `TerraZApp`
+### TerraZApp
 
-Namespace para APIs funcionais dos módulos:
-
-- `TerraZApp.dataRenderer`
-- `TerraZApp.navigation`
-- `TerraZApp.media`
-- `TerraZApp.search`
-- `TerraZApp.characters`
-- `TerraZApp.favorites`
-- `TerraZApp.presentation`
-- `TerraZApp.editor`
-- `TerraZApp.graph`
-
-## Compatibilidade
-
-Algumas funções continuam expostas diretamente em `window` porque o HTML existente já as utiliza em listeners registrados no script da página.
-
-Isso é uma camada de compatibilidade, não o padrão preferido para código novo.
+Cada módulo publica somente a pequena API necessária para comunicação entre sistemas.
 
 Novos módulos devem preferir:
 
@@ -64,18 +78,15 @@ Novos módulos devem preferir:
 window.TerraZApp.nomeDoModulo
 ```
 
-## Regras para novos módulos
+Algumas funções continuam em `window` exclusivamente por compatibilidade com listeners/HTML antigos que ainda as chamam.
 
-1. Um módulo deve ter uma responsabilidade principal.
-2. Estado interno deve permanecer dentro do IIFE sempre que possível.
-3. Comunicação entre módulos deve ocorrer por `TerraZApp` ou `TerraZCore`.
+## Regras
+
+1. Um módulo deve ter responsabilidade principal clara.
+2. Estado interno permanece dentro do IIFE quando possível.
+3. Comunicação entre módulos ocorre por `TerraZApp`, `TerraZCore` ou eventos `terra-z:*`.
 4. Evitar novas variáveis globais.
-5. Não duplicar dados canônicos que pertencem a `data/`.
-6. Não adicionar framework apenas para organizar arquivos.
-7. APIs públicas devem ser pequenas e explícitas.
-
-## Resultado da Fase 3
-
-O antigo `terra-z.js` concentrava navegação, busca, favoritos, apresentação, fichas, edição, backup, grafo e inicialização.
-
-Após a modularização, ele funciona apenas como núcleo/bootstrap, enquanto cada sistema vive em arquivo próprio.
+5. Dados canônicos pertencem a `data/`, não aos módulos de UI.
+6. Ferramentas administrativas novas entram no lazy loader, não no boot público.
+7. Todo arquivo `js/*.js` deve ter um caminho explícito de carregamento. O Quality Gate reprova módulos órfãos ou registrados duas vezes.
+8. Código temporário ou helper sem consumidor deve ser removido antes de integrar ao `main`.
