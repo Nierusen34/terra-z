@@ -610,6 +610,26 @@ function checkGraph(data){
     fail("Editor de personagem não oferece prévia/salvamento do enquadramento.");
   }
 
+  const searchRuntime=read("js/search.js");
+  if(!html.includes('id="dcImportPanel"') ||
+     !html.includes('id="modalImportBtn"') ||
+     !searchRuntime.includes("openDcImport") ||
+     !searchRuntime.includes("runDcImport") ||
+     !searchRuntime.includes("fetchDcImportImage")){
+    fail("Integração DC Database → Terra Z não está conectada à busca.");
+  }
+  if(!characterEditor.includes("importFromDc") ||
+     !characterEditor.includes("action:'configure-source'") ||
+     !characterEditor.includes("addToGraph")){
+    fail("Criação de card a partir da DC Database não preserva retrato/handoff para o grafo.");
+  }
+  if(!graphRuntime.includes("importDcNode") ||
+     !graphRuntime.includes("importCharacter:function") ||
+     !graphRuntime.includes("mediaMode:characterName ? \"character\"")){
+    fail("Importação da DC Database para o grafo está incompleta.");
+  }
+  if(!exists("docs/DC_IMPORT.md")) fail("docs/DC_IMPORT.md ausente");
+
   const mediaLibraryRuntime=read("js/media-library.js");
   if(!mediaApi.includes('requestBody.action === "library-upsert"') ||
      !mediaApi.includes('requestBody.action === "library-upload"') ||
