@@ -68,6 +68,12 @@ function recentEvents(state){
   var app=window.TerraZApp||{};
   var rows=[];
 
+  var parseDate=app.timeline&&app.timeline.parseWorldDate
+    ? app.timeline.parseWorldDate
+    : function(value){
+        var match=String(value||"").match(/\b(\d{4})[-/]?(\d{2})?[-/]?(\d{2})?\b/);
+        return match ? Number(match[1]+(match[2]||"01")+(match[3]||"01")) : 0;
+      };
   var sessions=app.sessions&&app.sessions.getAll
     ? app.sessions.getAll()
     : ((window.TerraZData&&window.TerraZData.sessions)||[]);
@@ -76,8 +82,8 @@ function recentEvents(state){
       kind:"session",
       title:session.title||"Sessão",
       summary:session.summary||"",
-      date:session.realDate||session.inWorldDate||"",
-      sort:String(session.realDate||session.inWorldDate||""),
+      date:session.inWorldDate||session.realDate||"",
+      sort:parseDate(session.inWorldDate)||parseDate(session.realDate)||0,
       visibility:session.visibility||"public"
     });
   });
@@ -92,7 +98,7 @@ function recentEvents(state){
         title:event.title||event.year||"Evento",
         summary:event.text||event.summary||"",
         date:event.year||"",
-        sort:String(event.sortKey||0).padStart(12,"0"),
+        sort:Number(event.sortKey||0),
         visibility:event.visibility||"public"
       });
     });
@@ -105,14 +111,14 @@ function recentEvents(state){
           title:event.title||event.year||"Evento",
           summary:event.text||"",
           date:event.year||"",
-          sort:String(event.sortKey||0).padStart(12,"0"),
+          sort:Number(event.sortKey||0),
           visibility:event.visibility||"public"
         });
       });
     });
   }
 
-  return rows.sort(function(a,b){return String(b.sort).localeCompare(String(a.sort));}).slice(0,10);
+  return rows.sort(function(a,b){return Number(b.sort||0)-Number(a.sort||0);}).slice(0,10);
 }
 
 function renderAlerts(state){
