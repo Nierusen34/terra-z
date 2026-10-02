@@ -479,6 +479,24 @@ function handleAction(action){
     return;
   }
 
+  if(action === 'bulk-edit'){
+    requireEditorAction(async function(){
+      close();
+      if(app.privateContent && app.privateContent.load) await app.privateContent.load();
+      if(app.bulkEditor && app.bulkEditor.open) app.bulkEditor.open();
+    });
+    return;
+  }
+
+  if(action === 'master-quick'){
+    requireEditorAction(async function(){
+      close();
+      if(app.privateContent && app.privateContent.load) await app.privateContent.load();
+      if(app.masterQuick && app.masterQuick.open) app.masterQuick.open();
+    });
+    return;
+  }
+
   if(action === 'integrity'){
     requireEditorAction(function(){
       close();
