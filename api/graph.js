@@ -179,6 +179,7 @@ function statusUrl(req,sha){
 
 export default async function handler(req,res){
   if(applyCors(req,res)) return;
+  res.setHeader("Cache-Control","no-store, max-age=0");
   if(req.method!=="POST"){
     res.setHeader("Allow","POST, OPTIONS");
     return res.status(405).json({error:"method_not_allowed"});
