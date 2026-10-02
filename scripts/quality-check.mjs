@@ -873,6 +873,82 @@ function checkPhase14(){
   pass("Etapa 14C · Backup e Exportação validada");
 }
 
+function checkPwa(){
+  const html=read("index.html");
+  const manifestPath="manifest.webmanifest";
+  const swPath="sw.js";
+  const pwaPath="js/pwa.js";
+
+  for(const file of [manifestPath,swPath,pwaPath,"images/pwa/icon-192.webp","images/pwa/icon-512.svg","images/pwa/icon-maskable.svg","docs/PWA.md"]){
+    if(!exists(file)) fail("PWA · arquivo ausente: "+file);
+  }
+
+  try{
+    const manifest=JSON.parse(read(manifestPath));
+    if(manifest.display!=="standalone") fail("PWA · manifest deve usar display standalone.");
+    if(manifest.start_url!=="./#/capa" || manifest.scope!=="./"){
+      fail("PWA · start_url/scope devem permanecer relativos para Vercel + GitHub Pages.");
+    }
+    const icons=Array.isArray(manifest.icons)?manifest.icons:[];
+    if(!icons.some(icon=>String(icon.sizes||"").includes("192x192"))){
+      fail("PWA · ícone 192x192 ausente.");
+    }
+    if(!icons.some(icon=>String(icon.purpose||"").includes("maskable"))){
+      fail("PWA · ícone maskable ausente.");
+    }
+  }catch(error){
+    fail("PWA · manifest inválido: "+error.message);
+  }
+
+  if(exists("images/pwa/icon-192.webp")){
+    const bytes=fs.statSync(path.join(root,"images/pwa/icon-192.webp")).size;
+    if(bytes<4000) fail("PWA · ícone aprovado parece inválido ou pequeno demais.");
+  }
+
+  const sw=exists(swPath)?read(swPath):"";
+  for(const token of [
+    'path.includes("/api/")',
+    'request.headers.has("authorization")',
+    'path.includes("/data/private-")',
+    'path.endsWith(".enc.json")',
+    'type==="SKIP_WAITING"',
+    'CACHE_PREFIX="terra-z-pwa-"'
+  ]){
+    if(!sw.includes(token)) fail("PWA · proteção/atualização ausente no Service Worker: "+token);
+  }
+
+  const pwa=exists(pwaPath)?read(pwaPath):"";
+  for(const token of [
+    'serviceWorker.register("./sw.js"',
+    '"beforeinstallprompt"',
+    '"controllerchange"',
+    'navigator.onLine',
+    '"terra-z:network-changed"'
+  ]){
+    if(!pwa.includes(token)) fail("PWA · runtime incompleto: "+token);
+  }
+
+  if(!html.includes('rel="manifest" href="./manifest.webmanifest"') ||
+     !html.includes('src="js/pwa.js"') ||
+     !html.includes('id="commandPaletteBtn" title="Central de Comandos')){
+    fail("PWA/Central não estão conectados ao index.html.");
+  }
+
+  for(const file of ["api/character.js","api/graph.js","api/session.js"]){
+    if(!read(file).includes('Cache-Control","no-store, max-age=0')){
+      fail("PWA · API autenticada sem no-store: "+file);
+    }
+  }
+
+  if(!read("api/health.js").includes("pwa_v1:true")) fail("PWA · backend não anuncia pwa_v1.");
+  const vercel=read("vercel.json");
+  if(!vercel.includes('"/sw.js"') || !vercel.includes('"no-cache, no-store, must-revalidate"')){
+    fail("PWA · Vercel não protege atualização do Service Worker.");
+  }
+
+  pass("Etapa PWA · instalação, offline público, atualização e privacidade validados");
+}
+
 function checkEncryptedFiles(){
   for(const file of ["data/private-character-data.enc.json","data/private-sessions.enc.json"]){
     if(!exists(file)){ fail("Arquivo criptografado ausente: "+file); continue; }
@@ -954,6 +1030,7 @@ checkGraph(data);
 checkModuleRegistry();
 checkAdvancedAdmin(data);
 checkPhase14();
+checkPwa();
 checkEncryptedFiles();
 checkVercel();
 checkSensitivePublicPatterns();
