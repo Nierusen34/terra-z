@@ -24,6 +24,12 @@ var liveDrafts={};
 function router(){ return window.TerraZApp && window.TerraZApp.router; }
 function visibility(){ return window.TerraZApp && window.TerraZApp.visibility; }
 function editor(){ return window.TerraZApp && window.TerraZApp.editor; }
+function backend(){ return window.TerraZApp && window.TerraZApp.backend; }
+function privateContent(){ return window.TerraZApp && window.TerraZApp.privateContent; }
+function authenticated(){
+  var b=backend();
+  return !!(b && b.isAuthenticated && b.isAuthenticated());
+}
 
 function slugify(value){
   var r=router();
@@ -99,6 +105,31 @@ function staticEvents(){
   return rows;
 }
 
+function privateTimelineEvents(){
+  var pc=privateContent();
+  if(!pc || !pc.isLoaded || !pc.isLoaded() || !pc.getMasterState) return [];
+  var master=pc.getMasterState() || {};
+  var items=Array.isArray(master.timelineEvents) ? master.timelineEvents : [];
+
+  return items.filter(function(item){ return item && item.id; }).map(function(item){
+    return {
+      id:String(item.id),
+      category:String(item.category || "current"),
+      sortKey:Number(item.sortKey || 0),
+      period:periodForSort(Number(item.sortKey || 0)),
+      year:String(item.year || ""),
+      title:String(item.title || ""),
+      text:String(item.text || ""),
+      characters:Array.isArray(item.characters) ? item.characters.slice() : [],
+      locations:Array.isArray(item.locations) ? item.locations.slice() : [],
+      teams:Array.isArray(item.teams) ? item.teams.slice() : [],
+      visibility:"master",
+      source:"lore",
+      privateRuntime:true
+    };
+  });
+}
+
 var months={
   janeiro:1,fevereiro:2,marco:3,"março":3,abril:4,maio:5,junho:6,
   julho:7,agosto:8,setembro:9,outubro:10,novembro:11,dezembro:12
@@ -166,7 +197,7 @@ function sessionEvents(){
 }
 
 function allEvents(){
-  return staticEvents().concat(sessionEvents()).sort(function(a,b){
+  return staticEvents().concat(privateTimelineEvents()).concat(sessionEvents()).sort(function(a,b){
     if(a.sortKey!==b.sortKey) return a.sortKey-b.sortKey;
     return String(a.id).localeCompare(String(b.id),"pt-BR");
   });
@@ -273,6 +304,12 @@ function renderEvent(event,drafts){
           (event.source==="session" ? '<span class="timeline-source-badge">DIÁRIO</span>' : '<span class="timeline-source-badge">LORE</span>')+
         '</div>'+
         '<div class="timeline-event-actions">'+
+          (authenticated()
+            ? (event.source==="session"
+                ? '<button type="button" class="timeline-event-edit" data-timeline-edit-session="'+escapeAttr(event.sessionId || "")+'" title="Editar esta sessão no Diário">✏️</button>'
+                : '<button type="button" class="timeline-event-edit" data-timeline-edit="'+escapeAttr(event.id)+'" title="Editar evento">✏️</button>'+
+                  '<button type="button" class="timeline-event-delete danger" data-timeline-delete="'+escapeAttr(event.id)+'" title="Excluir evento">🗑️</button>')
+            : '')+
           '<button type="button" class="timeline-event-link" data-timeline-copy="'+escapeAttr(route)+'" title="Copiar link deste evento">🔗</button>'+
           '<button type="button" class="timeline-event-toggle" title="Recolher ou expandir evento" aria-expanded="true">▾</button>'+
         '</div>'+
@@ -424,6 +461,30 @@ function bindEventControls(){
     });
   });
 
+  root.querySelectorAll("[data-timeline-edit]").forEach(function(button){
+    button.addEventListener("click",function(event){
+      event.stopPropagation();
+      var timelineEditor=window.TerraZApp && window.TerraZApp.timelineEditor;
+      if(timelineEditor && timelineEditor.open) timelineEditor.open(button.getAttribute("data-timeline-edit"));
+    });
+  });
+
+  root.querySelectorAll("[data-timeline-delete]").forEach(function(button){
+    button.addEventListener("click",function(event){
+      event.stopPropagation();
+      var timelineEditor=window.TerraZApp && window.TerraZApp.timelineEditor;
+      if(timelineEditor && timelineEditor.deleteEvent) timelineEditor.deleteEvent(button.getAttribute("data-timeline-delete"));
+    });
+  });
+
+  root.querySelectorAll("[data-timeline-edit-session]").forEach(function(button){
+    button.addEventListener("click",function(event){
+      event.stopPropagation();
+      var sessionEditor=window.TerraZApp && window.TerraZApp.sessionEditor;
+      if(sessionEditor && sessionEditor.open) sessionEditor.open(button.getAttribute("data-timeline-edit-session"));
+    });
+  });
+
   root.querySelectorAll(".timeline-event-toggle").forEach(function(button){
     button.addEventListener("click",function(event){
       event.stopPropagation();
@@ -512,6 +573,92 @@ function labelFor(id){
   return event.title || event.year || "Evento";
 }
 
+function getEvent(id){
+  var event=eventsCache.find(function(row){ return row.id===String(id || ""); });
+  return event ? JSON.parse(JSON.stringify(event)) : null;
+}
+
+function rebuildPublicTimeline(items){
+  var order=[
+    "Séculos Atrás – Marte",
+    "1950–2008 – Chegada e Tragédia",
+    "2010–2025 – Heróis e Tragédias",
+    "2026–2027 – Pré-Campanha e Campanha",
+    "Futuro"
+  ];
+  var groups={};
+  order.forEach(function(title,index){ groups[title]={title:title,order:(index+1)*10,items:[]}; });
+
+  (items || []).forEach(function(item){
+    var title=periodForSort(item.sortKey);
+    if(!groups[title]) groups[title]={title:title,order:999,items:[]};
+    groups[title].items.push(item);
+  });
+
+  window.TerraZData.timeline=Object.keys(groups).map(function(title){
+    var group=groups[title];
+    group.items.sort(function(a,b){
+      return Number(a.sortKey||0)-Number(b.sortKey||0) || String(a.id||"").localeCompare(String(b.id||""),"pt-BR");
+    });
+    return group;
+  }).filter(function(group){ return group.items.length; }).sort(function(a,b){ return a.order-b.order; });
+}
+
+function removeLore(id){
+  id=String(id || "");
+  var publicItems=[];
+  ((window.TerraZData && window.TerraZData.timeline) || []).forEach(function(group){
+    (group.items || []).forEach(function(item){
+      if(item && item.id!==id) publicItems.push(item);
+    });
+  });
+  rebuildPublicTimeline(publicItems);
+
+  var pc=privateContent();
+  if(pc && pc.getMasterState && pc.setMasterState){
+    var master=JSON.parse(JSON.stringify(pc.getMasterState() || {}));
+    master.timelineEvents=(Array.isArray(master.timelineEvents) ? master.timelineEvents : [])
+      .filter(function(item){ return item && item.id!==id; });
+    pc.setMasterState(master);
+  }
+
+  render();
+}
+
+function upsertLore(event){
+  if(!event || !event.id) return;
+  var id=String(event.id);
+  var publicItems=[];
+
+  ((window.TerraZData && window.TerraZData.timeline) || []).forEach(function(group){
+    (group.items || []).forEach(function(item){
+      if(item && item.id!==id) publicItems.push(item);
+    });
+  });
+
+  var pc=privateContent();
+  if(pc && pc.getMasterState && pc.setMasterState){
+    var master=JSON.parse(JSON.stringify(pc.getMasterState() || {}));
+    master.timelineEvents=(Array.isArray(master.timelineEvents) ? master.timelineEvents : [])
+      .filter(function(item){ return item && item.id!==id; });
+    if(event.visibility==="master"){
+      master.timelineEvents.push(JSON.parse(JSON.stringify(event)));
+    }
+    pc.setMasterState(master);
+  }
+
+  if(event.visibility!=="master"){
+    var publicCopy=JSON.parse(JSON.stringify(event));
+    delete publicCopy.privateRuntime;
+    delete publicCopy.period;
+    delete publicCopy.source;
+    publicItems.push(publicCopy);
+  }
+
+  rebuildPublicTimeline(publicItems);
+  render();
+}
+
 function setupControls(){
   var search=document.getElementById("timelineSearch");
   if(search){
@@ -558,7 +705,9 @@ function setupControls(){
 [
   "terra-z:sessions-rendered",
   "terra-z:runtime-data-loaded",
-  "terra-z:auth-changed"
+  "terra-z:auth-changed",
+  "terra-z:private-content-loaded",
+  "terra-z:private-content-cleared"
 ].forEach(function(name){
   document.addEventListener(name,function(){ setTimeout(render,0); });
 });
@@ -572,6 +721,11 @@ window.TerraZApp.timeline={
   render:render,
   focus:focus,
   labelFor:labelFor,
+  getEvent:getEvent,
+  upsertLore:upsertLore,
+  removeLore:removeLore,
+  parseWorldDate:parseWorldDate,
+  periodForSort:periodForSort,
   events:function(){ return eventsCache.slice(); },
   category:function(){ return activeCategory; }
 };
