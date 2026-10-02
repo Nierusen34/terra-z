@@ -247,8 +247,18 @@ function checkTimeline(data,characters){
       if(!String(item&&item.year||"").trim()) fail("Evento sem rótulo temporal: "+id);
       if(!String(item&&item.text||"").trim()) fail("Evento sem descrição: "+id);
 
-      if(!item.edit||!item.edit.year||!item.edit.year.id||!item.edit.text||!item.edit.text.id){
-        fail("Evento sem IDs editáveis estáveis: "+id);
+      if(item.edit){
+        if(!item.edit.year||!item.edit.year.id||!item.edit.text||!item.edit.text.id){
+          fail("Metadados de edição incompletos no evento: "+id);
+        }
+      }
+
+      const timelineVisibility=String(item&&item.visibility||"public");
+      if(timelineVisibility==="master"||timelineVisibility==="private"){
+        fail("Evento Mestre vazou para data/timeline.js: "+id);
+      }
+      if(!["public","spoiler","rumor"].includes(timelineVisibility)){
+        fail("Visibilidade pública inválida na linha do tempo: "+id+" / "+timelineVisibility);
       }
 
       for(const name of Array.isArray(item&&item.characters)?item.characters:[]){
@@ -260,8 +270,24 @@ function checkTimeline(data,characters){
   const html=read("index.html");
   const router=read("js/router.js");
   if(!html.includes('src="js/timeline-manager.js"')) fail("Gerenciador da linha do tempo não está carregado no index.html");
+  if(!html.includes('src="js/timeline-editor.js"')) fail("Editor estruturado da linha do tempo não está carregado no index.html");
   if(!router.includes("timeline-event")||!router.includes("timelineEventRoute")) fail("Roteador não oferece deep links para eventos da linha do tempo");
   if(!exists("docs/TIMELINE.md")) fail("docs/TIMELINE.md ausente");
+
+  const publishApi=read("api/publish.js");
+  const masterApi=read("api/master.js");
+  const privateRuntime=read("js/private-content.js");
+  if(!publishApi.includes('body.action === "timeline-event-upsert"') ||
+     !publishApi.includes('body.action === "timeline-event-delete"')){
+    fail("API de publicação não oferece CRUD estruturado de eventos da linha do tempo");
+  }
+  if(!publishApi.includes('"data/timeline.js"')){
+    fail("data/timeline.js precisa fazer parte do conteúdo restaurável");
+  }
+  if(!masterApi.includes("timelineEvents:normalizeTimelineEvents") ||
+     !privateRuntime.includes("timelineEvents:[]")){
+    fail("Eventos Mestre da linha do tempo não estão integrados ao cofre privado");
+  }
 
   pass(eventCount+" eventos canônicos da linha do tempo validados");
 }
