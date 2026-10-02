@@ -114,6 +114,17 @@ function normalizeGraph(graph){
       ref:ref,
       route:String(node.route || ""),
       icon:String(node.icon || ""),
+      mediaMode:["none","character","library","url"].includes(node.mediaMode)
+        ? node.mediaMode
+        : (kind==="character" && ref ? "character" : "none"),
+      mediaId:String(node.mediaId || ""),
+      mediaUrl:/^https:\/\//i.test(String(node.mediaUrl || "")) ? String(node.mediaUrl) : "",
+      mediaFraming:{
+        fit:node.mediaFraming && node.mediaFraming.fit==="contain" ? "contain" : "cover",
+        x:Number.isFinite(Number(node.mediaFraming && node.mediaFraming.x)) ? Math.max(0,Math.min(100,Number(node.mediaFraming.x))) : 50,
+        y:Number.isFinite(Number(node.mediaFraming && node.mediaFraming.y)) ? Math.max(0,Math.min(100,Number(node.mediaFraming.y))) : 24,
+        zoom:Number.isFinite(Number(node.mediaFraming && node.mediaFraming.zoom)) ? Math.max(.5,Math.min(2.5,Number(node.mediaFraming.zoom))) : 1
+      },
       x:Number.isFinite(Number(node.x)) ? Number(node.x) : 500,
       y:Number.isFinite(Number(node.y)) ? Number(node.y) : 360,
       color:/^#[0-9a-f]{6}$/i.test(String(node.color || "")) ? String(node.color) : KIND[kind].color,
@@ -272,23 +283,76 @@ function characterMediaApi(){
   return window.TerraZApp && window.TerraZApp.characterMedia;
 }
 
-function characterPortraitUrl(node){
-  if(!node || node.kind!=="character" || !node.ref) return "";
-  var api=characterMediaApi();
-  if(!api || !api.get) return "";
-  var meta=api.get(node.ref) || {};
-  return String(meta.src || "");
+function mediaLibraryApi(){
+  return window.TerraZApp && window.TerraZApp.mediaLibrary;
 }
 
-function characterFramingStyle(node){
-  if(!node || node.kind!=="character" || !node.ref) return "";
-  var api=characterMediaApi();
-  return api && api.framingStyle ? api.framingStyle(node.ref,"graph") : "--portrait-fit:cover;--portrait-x:50%;--portrait-y:24%;--portrait-zoom:1";
+function libraryAsset(id){
+  var api=mediaLibraryApi();
+  if(api && api.getAsset) return api.getAsset(id);
+  var library=(window.TerraZData && window.TerraZData.mediaLibrary) || {};
+  return (library.assets || []).find(function(asset){ return asset && asset.id===id; }) || null;
+}
+
+function libraryAssetUrl(asset){
+  var api=mediaLibraryApi();
+  if(api && api.assetUrl) return api.assetUrl(asset);
+  if(!asset) return "";
+  var src=String(asset.src || "");
+  var runtime=window.TerraZApp && window.TerraZApp.runtimeData;
+  return runtime && runtime.mediaUrl ? runtime.mediaUrl(src) : src;
+}
+
+function frameStyle(frame){
+  frame=frame || {};
+  var fit=frame.fit==="contain" ? "contain" : "cover";
+  var x=Number.isFinite(Number(frame.x)) ? Number(frame.x) : 50;
+  var y=Number.isFinite(Number(frame.y)) ? Number(frame.y) : 24;
+  var zoom=Number.isFinite(Number(frame.zoom)) ? Number(frame.zoom) : 1;
+  return "--portrait-fit:"+fit+";--portrait-x:"+x+"%;--portrait-y:"+y+"%;--portrait-zoom:"+zoom;
+}
+
+function nodeMedia(node){
+  if(!node || node.mediaMode==="none") return {src:"",style:"",mode:"none"};
+
+  if(node.mediaMode==="library"){
+    var asset=libraryAsset(node.mediaId);
+    return {
+      src:libraryAssetUrl(asset),
+      style:frameStyle(node.mediaFraming || (asset && asset.framing)),
+      mode:"library",
+      asset:asset
+    };
+  }
+
+  if(node.mediaMode==="url"){
+    return {
+      src:/^https:\/\//i.test(String(node.mediaUrl || "")) ? String(node.mediaUrl) : "",
+      style:frameStyle(node.mediaFraming),
+      mode:"url"
+    };
+  }
+
+  if(node.mediaMode==="character" && node.ref){
+    var api=characterMediaApi();
+    var meta=api && api.get ? api.get(node.ref) : {};
+    return {
+      src:String(meta && meta.src || ""),
+      style:api && api.framingStyle
+        ? api.framingStyle(node.ref,"graph")
+        : frameStyle(node.mediaFraming),
+      mode:"character",
+      meta:meta || {}
+    };
+  }
+
+  return {src:"",style:"",mode:"none"};
 }
 
 function queueGraphPortrait(node){
-  if(!node || node.kind!=="character" || !node.ref) return;
-  if(characterPortraitUrl(node) || graphPortraitPending[node.ref]) return;
+  if(!node || node.mediaMode!=="character" || !node.ref) return;
+  var media=nodeMedia(node);
+  if(media.src || graphPortraitPending[node.ref]) return;
 
   var api=characterMediaApi();
   if(!api || !api.resolveAutomatic) return;
@@ -308,12 +372,23 @@ function queueGraphPortrait(node){
 function inspectorPortrait(node,size){
   if(!node) return "";
   var kind=KIND[node.kind] || KIND.custom;
-  if(node.kind==="character" && node.ref){
+  var media=nodeMedia(node);
+
+  if(media.mode==="character" && node.ref){
     var api=characterMediaApi();
     if(api && api.renderPortraitHtml){
       return '<div class="graph-inspector-portrait">'+api.renderPortraitHtml(node.ref,size || "large","graph")+'</div>';
     }
   }
+
+  if(media.src){
+    return '<div class="graph-inspector-portrait graph-inspector-independent">'+
+      '<div class="graph-node-portrait-frame" style="'+escapeAttr(media.style)+'">'+
+        '<img src="'+escapeAttr(media.src)+'" alt="'+escapeAttr(node.label || "")+'" loading="lazy" decoding="async" referrerpolicy="no-referrer">'+
+      '</div>'+
+    '</div>';
+  }
+
   return '<div class="graph-inspector-portrait graph-inspector-portrait-fallback"><span>'+escapeHtml(node.icon || kind.icon)+'</span></div>';
 }
 
@@ -436,7 +511,7 @@ function renderDefs(nodes){
   }).join("");
 
   var clips=(nodes || []).filter(function(node){
-    return node.kind==="character" && !!characterPortraitUrl(node);
+    return !!nodeMedia(node).src;
   }).map(function(node){
     return '<clipPath id="graph-portrait-clip-'+svgId(node.id)+'">'+
       '<circle cx="'+node.x+'" cy="'+node.y+'" r="'+Math.max(10,node.r-3)+'"/>'+
@@ -509,23 +584,21 @@ function renderGraph(){
       matched=hay.indexOf(needle)!==-1;
     }
 
-    var portrait=characterPortraitUrl(node);
-    if(node.kind==="character" && !portrait) queueGraphPortrait(node);
+    var media=nodeMedia(node);
+    if(node.mediaMode==="character" && !media.src) queueGraphPortrait(node);
 
     var nodeVisual='';
-    if(node.kind==="character"){
+    if(media.src){
       nodeVisual=
         '<g filter="'+(selected?'url(#graph-selected)':'url(#graph-shadow)')+'">'+
           '<circle cx="'+node.x+'" cy="'+node.y+'" r="'+node.r+'" fill="'+escapeAttr(node.color)+'" stroke="var(--graph-node-stroke,#fff)" stroke-width="2.5"/>'+
         '</g>'+
-        (!portrait
-          ? '<text x="'+node.x+'" y="'+(node.y+3)+'" text-anchor="middle" class="graph-node-icon">'+escapeHtml(node.icon || kind.icon)+'</text>'
-          : '<foreignObject class="graph-node-portrait-fo" x="'+(node.x-node.r+3)+'" y="'+(node.y-node.r+3)+'" width="'+((node.r-3)*2)+'" height="'+((node.r-3)*2)+'" clip-path="url(#graph-portrait-clip-'+svgId(node.id)+')">'+
-              '<div xmlns="http://www.w3.org/1999/xhtml" class="graph-node-portrait-frame" style="'+escapeAttr(characterFramingStyle(node))+'">'+
-                '<img src="'+escapeAttr(portrait)+'" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">'+
-              '</div>'+
-            '</foreignObject>'+
-            '<circle cx="'+node.x+'" cy="'+node.y+'" r="'+(node.r-1.5)+'" fill="none" stroke="var(--graph-node-stroke,#fff)" stroke-width="2.5"/>');
+        '<foreignObject class="graph-node-portrait-fo" x="'+(node.x-node.r+3)+'" y="'+(node.y-node.r+3)+'" width="'+((node.r-3)*2)+'" height="'+((node.r-3)*2)+'" clip-path="url(#graph-portrait-clip-'+svgId(node.id)+')">'+
+          '<div xmlns="http://www.w3.org/1999/xhtml" class="graph-node-portrait-frame" style="'+escapeAttr(media.style)+'">'+
+            '<img src="'+escapeAttr(media.src)+'" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">'+
+          '</div>'+
+        '</foreignObject>'+
+        '<circle cx="'+node.x+'" cy="'+node.y+'" r="'+(node.r-1.5)+'" fill="none" stroke="var(--graph-node-stroke,#fff)" stroke-width="2.5"/>';
     }else{
       nodeVisual=
         '<g filter="'+(selected?'url(#graph-selected)':'url(#graph-shadow)')+'">'+nodeShape(node)+'</g>'+
@@ -913,6 +986,25 @@ function nodeOptions(value){
   }).join("");
 }
 
+function mediaAssetOptions(value){
+  var library=(window.TerraZData && window.TerraZData.mediaLibrary) || {};
+  var list=Array.isArray(library.assets) ? library.assets : [];
+  return '<option value="">Selecione um ativo…</option>'+list.map(function(asset){
+    return '<option value="'+escapeAttr(asset.id)+'"'+(value===asset.id?' selected':'')+'>'+escapeHtml(asset.label || asset.id)+'</option>';
+  }).join("");
+}
+
+function mediaModeOptions(value){
+  return [
+    ["none","Sem imagem"],
+    ["character","Retrato da referência/personagem"],
+    ["library","Biblioteca de Mídia"],
+    ["url","URL direta"]
+  ].map(function(row){
+    return '<option value="'+row[0]+'"'+(value===row[0]?' selected':'')+'>'+row[1]+'</option>';
+  }).join("");
+}
+
 function renderEditorDetail(){
   var root=document.getElementById("graphEditorDetail");
   if(!root) return;
@@ -934,6 +1026,33 @@ function renderEditorDetail(){
         '<label>Referência interna<input data-ge-field="ref" type="text" maxlength="180" value="'+escapeAttr(item.ref)+'" placeholder="Nome canônico ou ID"></label>'+
         '<label>Rota manual<input data-ge-field="route" type="text" maxlength="260" value="'+escapeAttr(item.route)+'" placeholder="/cidade/visao-geral"></label>'+
         '<label>Ícone<input data-ge-field="icon" type="text" maxlength="12" value="'+escapeAttr(item.icon)+'" placeholder="'+escapeAttr((KIND[item.kind]||KIND.custom).icon)+'"></label>'+
+        '<div class="ge-wide ge-media-box">'+
+          '<div class="ge-media-box-head"><strong>Imagem da entidade</strong><button type="button" id="geOpenMediaLibrary">🖼️ Biblioteca</button></div>'+
+          '<div class="ge-media-grid">'+
+            '<label>Fonte visual<select data-ge-field="mediaMode">'+mediaModeOptions(item.mediaMode)+'</select></label>'+
+            (item.mediaMode==="library"
+              ? '<label>Ativo da biblioteca<select data-ge-field="mediaId">'+mediaAssetOptions(item.mediaId)+'</select></label>'
+              : '')+
+            (item.mediaMode==="url"
+              ? '<label class="ge-wide">URL HTTPS<input data-ge-field="mediaUrl" type="url" maxlength="1600" value="'+escapeAttr(item.mediaUrl)+'" placeholder="https://..."></label>'
+              : '')+
+            (item.mediaMode==="library" || item.mediaMode==="url"
+              ? '<label>Modo<select data-ge-frame="fit"><option value="cover"'+(item.mediaFraming.fit==="cover"?' selected':'')+'>Preencher / recortar</option><option value="contain"'+(item.mediaFraming.fit==="contain"?' selected':'')+'>Imagem inteira</option></select></label>'+
+                '<label>Ampliação<input data-ge-frame="zoom" data-ge-frame-scale type="range" min="50" max="250" step="5" value="'+Math.round(item.mediaFraming.zoom*100)+'"></label>'+
+                '<label>Horizontal<input data-ge-frame="x" type="range" min="0" max="100" step="1" value="'+item.mediaFraming.x+'"></label>'+
+                '<label>Vertical<input data-ge-frame="y" type="range" min="0" max="100" step="1" value="'+item.mediaFraming.y+'"></label>'
+              : '')+
+          '</div>'+
+          '<div class="ge-media-help">'+
+            (item.mediaMode==="character"
+              ? 'Usa a imagem da ficha quando houver. A entidade pode existir no grafo mesmo sem card.'
+              : (item.mediaMode==="library"
+                ? 'A imagem vem da Biblioteca de Mídia e não exige ficha de personagem.'
+                : (item.mediaMode==="url"
+                  ? 'Imagem exclusiva desta entidade. Para reutilizar em vários lugares, prefira a Biblioteca.'
+                  : 'A entidade será exibida apenas com cor/ícone.')))+
+          '</div>'+
+        '</div>'+
         '<label>Visibilidade<select data-ge-field="visibility">'+visibilityOptions(item.visibility)+'</select></label>'+
         '<label>Cor<input data-ge-field="color" type="color" value="'+escapeAttr(item.color)+'"></label>'+
         '<label>Tamanho<input data-ge-field="r" data-ge-number type="number" min="18" max="120" value="'+item.r+'"></label>'+
@@ -964,9 +1083,29 @@ function renderEditorDetail(){
       item[field]=value;
       if(editorMode==="nodes" && field==="kind" && !item.color) item.color=KIND[value].color;
       renderEditorList();
+      if(field==="mediaMode") renderEditorDetail();
     };
     input.addEventListener("input",handler);
     input.addEventListener("change",handler);
+  });
+
+  root.querySelectorAll("[data-ge-frame]").forEach(function(input){
+    var update=function(){
+      var field=input.getAttribute("data-ge-frame");
+      var value=input.value;
+      if(input.hasAttribute("data-ge-frame-scale")) value=Number(value)/100;
+      else if(field!=="fit") value=Number(value);
+      item.mediaFraming=item.mediaFraming || {fit:"cover",x:50,y:24,zoom:1};
+      item.mediaFraming[field]=value;
+    };
+    input.addEventListener("input",update);
+    input.addEventListener("change",update);
+  });
+
+  var libraryButton=document.getElementById("geOpenMediaLibrary");
+  if(libraryButton) libraryButton.addEventListener("click",function(){
+    var library=window.TerraZApp && window.TerraZApp.mediaLibrary;
+    if(library && library.open) library.open();
   });
 
   var del=document.getElementById("geDeleteCurrent");
@@ -980,6 +1119,8 @@ function addEditorItem(){
     var angle=(count%12)/12*Math.PI*2;
     var node={
       id:id,label:"NOVA ENTIDADE",subtitle:"",kind:"custom",ref:"",route:"",icon:"",
+      mediaMode:"none",mediaId:"",mediaUrl:"",
+      mediaFraming:{fit:"cover",x:50,y:24,zoom:1},
       x:Math.round(500+Math.cos(angle)*230),y:Math.round(360+Math.sin(angle)*220),
       color:KIND.custom.color,r:38,visibility:"public"
     };
@@ -1226,6 +1367,12 @@ document.addEventListener("terra-z:visibility-changed",function(){ renderGraph()
 document.addEventListener("terra-z:auto-portrait-resolved",function(){
   renderGraph();
   if(selectedNodeId || selectedEdgeId) renderInspector();
+});
+document.addEventListener("terra-z:media-library-changed",function(){
+  renderGraph();
+  renderInspector();
+  var modal=document.getElementById("graphEditorModal");
+  if(modal && modal.classList.contains("show") && editorMode==="nodes") renderEditorDetail();
 });
 document.addEventListener("terra-z:auth-changed",function(){
   visibilityCapability=null;
