@@ -1479,11 +1479,14 @@ function renderLayoutEditor(root){
       if(event.button!==undefined && event.button!==0) return;
       event.preventDefault();
       event.stopPropagation();
+
       var node=nodeById(id,editorDraft);if(!node)return;
       editorSelectedId=id;
       refreshLayoutSelection(root);
+
       var canvas=svg.closest(".ge-layout-canvas");
       if(canvas) canvas.classList.add("is-node-dragging");
+
       editorLayoutDrag={
         id:id,
         pointerId:event.pointerId,
@@ -1494,36 +1497,51 @@ function renderLayoutEditor(root){
         moved:false
       };
       try{group.setPointerCapture(event.pointerId);}catch(error){}
+
+      var move=function(moveEvent){
+        if(!editorLayoutDrag||editorLayoutDrag.id!==id||editorLayoutDrag.pointerId!==moveEvent.pointerId)return;
+        moveEvent.preventDefault();
+        moveEvent.stopPropagation();
+
+        var distance=Math.hypot(
+          moveEvent.clientX-editorLayoutDrag.startClientX,
+          moveEvent.clientY-editorLayoutDrag.startClientY
+        );
+        if(distance<2&&!editorLayoutDrag.moved)return;
+
+        if(!editorLayoutDrag.undoPushed){
+          pushEditorUndoSnapshot(editorLayoutDrag.snapshot);
+          editorLayoutDrag.undoPushed=true;
+        }
+
+        editorLayoutDrag.moved=true;
+        var current=nodeById(id,editorDraft);if(!current)return;
+        var point=layoutPoint(svg,moveEvent);
+        current.x=Math.round(Math.max(current.r+8,Math.min(1000-current.r-8,point.x)));
+        current.y=Math.round(Math.max(current.r+8,Math.min(720-current.r-34,point.y)));
+        updateLayoutNodeDom(svg,current);
+        updateLayoutPositionStatus(root,current);
+      };
+
+      var end=function(endEvent){
+        if(!editorLayoutDrag||editorLayoutDrag.id!==id||editorLayoutDrag.pointerId!==endEvent.pointerId)return;
+        endEvent.preventDefault();
+        endEvent.stopPropagation();
+
+        try{group.releasePointerCapture(endEvent.pointerId);}catch(error){}
+        if(canvas) canvas.classList.remove("is-node-dragging");
+
+        window.removeEventListener("pointermove",move,true);
+        window.removeEventListener("pointerup",end,true);
+        window.removeEventListener("pointercancel",end,true);
+
+        editorLayoutDrag=null;
+      };
+
+      window.addEventListener("pointermove",move,{capture:true,passive:false});
+      window.addEventListener("pointerup",end,{capture:true,passive:false});
+      window.addEventListener("pointercancel",end,{capture:true,passive:false});
     });
-    group.addEventListener("pointermove",function(event){
-      if(!editorLayoutDrag||editorLayoutDrag.id!==id||editorLayoutDrag.pointerId!==event.pointerId)return;
-      event.preventDefault();
-      event.stopPropagation();
-      var distance=Math.hypot(event.clientX-editorLayoutDrag.startClientX,event.clientY-editorLayoutDrag.startClientY);
-      if(distance<3&&!editorLayoutDrag.moved)return;
-      if(!editorLayoutDrag.undoPushed){
-        pushEditorUndoSnapshot(editorLayoutDrag.snapshot);
-        editorLayoutDrag.undoPushed=true;
-      }
-      editorLayoutDrag.moved=true;
-      var node=nodeById(id,editorDraft);if(!node)return;
-      var point=layoutPoint(svg,event);
-      node.x=Math.round(Math.max(node.r+8,Math.min(1000-node.r-8,point.x)));
-      node.y=Math.round(Math.max(node.r+8,Math.min(720-node.r-34,point.y)));
-      updateLayoutNodeDom(svg,node);
-      updateLayoutPositionStatus(root,node);
-    });
-    var end=function(event){
-      if(!editorLayoutDrag||editorLayoutDrag.id!==id||editorLayoutDrag.pointerId!==event.pointerId)return;
-      event.preventDefault();
-      event.stopPropagation();
-      try{group.releasePointerCapture(event.pointerId);}catch(error){}
-      var canvas=svg.closest(".ge-layout-canvas");
-      if(canvas) canvas.classList.remove("is-node-dragging");
-      editorLayoutDrag=null;
-    };
-    group.addEventListener("pointerup",end);
-    group.addEventListener("pointercancel",end);
     group.addEventListener("dblclick",function(event){
       event.preventDefault();event.stopPropagation();
       editorSelectedId=id;editorMode="nodes";
