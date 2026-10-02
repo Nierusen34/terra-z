@@ -2614,3 +2614,49 @@ html[data-spoiler-mode="safe"] [data-visibility="master"]{display:none!important
   .admin-continuity-card{padding:10px}
   .admin-dashboard-block-head{align-items:flex-start}
 }
+
+
+/* ===== ETAPA 7 · LINKS PROFUNDOS E NAVEGAÇÃO PERSISTENTE ===== */
+#copyRouteBtn{border-color:color-mix(in srgb,var(--accent2) 55%,var(--line));color:var(--ink2)}
+#copyRouteBtn:hover{border-color:var(--accent2);color:var(--accent2)}
+.deep-link-openable{cursor:pointer}
+.deep-link-copy{
+  flex:0 0 auto;
+  min-width:27px;
+  height:27px;
+  border:1px solid var(--line);
+  background:var(--paper2);
+  color:var(--ink3);
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  line-height:1;
+  cursor:pointer;
+}
+.deep-link-copy:hover{border-color:var(--accent);color:var(--accent)}
+.deep-link-card{position:relative;padding-right:48px}
+.deep-link-card>.deep-link-copy{position:absolute;right:10px;top:10px}
+.deep-link-name{position:relative}
+.deep-link-name>.deep-link-copy{float:right;margin:-4px 0 -4px 8px}
+.deep-link-row .deep-link-name:hover,
+.deep-link-title:hover{color:var(--accent)}
+.deep-link-title{cursor:pointer}
+.session-title-row>.deep-link-copy{margin-left:auto}
+.session-title-row>.session-edit-btn + .deep-link-copy{margin-left:0}
+.session-location{cursor:pointer}
+.deep-link-focus{
+  position:relative;
+  z-index:1;
+  outline:2px solid color-mix(in srgb,var(--accent) 72%,transparent);
+  outline-offset:3px;
+  box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 10%,transparent);
+  animation:deepLinkPulse 1.15s ease-out 1;
+}
+tr.deep-link-focus{outline-offset:-2px}
+@keyframes deepLinkPulse{
+  0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 34%,transparent)}
+  100%{box-shadow:0 0 0 9px color-mix(in srgb,var(--accent) 0%,transparent)}
+}
+@media(max-width:900px){
+  #copyRouteBtn{min-height:44px}
+  .deep-link-copy{min-width:36px;height:36px}
+}

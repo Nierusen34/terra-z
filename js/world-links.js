@@ -30,7 +30,10 @@ document.querySelectorAll('[data-map-district]').forEach(function(el){
   el.setAttribute('role','button');
 
   function activate(){
-    openDistrict(el.getAttribute('data-map-district'));
+    var slug = el.getAttribute('data-map-district');
+    var router = window.TerraZApp && window.TerraZApp.router;
+    if(router && router.openDistrict) router.openDistrict(slug);
+    else openDistrict(slug);
   }
 
   el.addEventListener('click', activate);

@@ -76,7 +76,7 @@ function canViewCharacter(name){
   return level !== 'spoiler';
 }
 
-function openFichaModal(characterName){
+function openFichaModal(characterName, options){\n  options = options || {};
   if(!canViewCharacter(characterName)){
     showToast('Esta ficha é visível apenas para editores autorizados.','warning',4500);
     return;
@@ -166,7 +166,7 @@ function openFichaModal(characterName){
   if(copyBtn) copyBtn.addEventListener('click', function(){
     if(window.TerraZApp.router) window.TerraZApp.router.copyCurrentLink();
   });
-  if(window.TerraZApp.router) window.TerraZApp.router.setCharacter(characterName);
+  if(window.TerraZApp.router && !options.fromRouter) window.TerraZApp.router.setCharacter(characterName);
   document.getElementById('fichaSearchBtn').addEventListener('click', function(){ window.searchOnFandom(characterName); });
   var secretsToggle = document.getElementById('fichaSecretsToggle');
   if(secretsToggle){

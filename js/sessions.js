@@ -36,6 +36,17 @@ function characterLink(name){
   return '<button class="session-chip session-character" data-character="' + escapeAttr(name) + '" data-character-slug="' + escapeAttr(slug) + '">' + escapeHtml(name) + '</button>';
 }
 
+function locationLink(name){
+  var router = window.TerraZApp && window.TerraZApp.router;
+  var route = router && router.routeForLocation ? router.routeForLocation(name) : '';
+
+  if(!route){
+    return '<span class="session-chip">' + escapeHtml(name) + '</span>';
+  }
+
+  return '<button class="session-chip session-location" data-location-route="' + escapeAttr(route) + '">' + escapeHtml(name) + '</button>';
+}
+
 function normalizeVisibility(level){
   if(level === 'rumor') return 'spoiler';
   return level === 'master' || level === 'spoiler' ? level : 'public';
@@ -89,7 +100,7 @@ function render(){
 
     if(Array.isArray(session.locations) && session.locations.length){
       html += '<div class="session-block"><strong>Locais</strong><div class="session-chips">';
-      session.locations.forEach(function(name){ html += '<span class="session-chip">' + escapeHtml(name) + '</span>'; });
+      session.locations.forEach(function(name){ html += locationLink(name); });
       html += '</div></div>';
     }
 
@@ -118,7 +129,16 @@ function render(){
     });
   });
 
+  root.querySelectorAll('[data-location-route]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var route = btn.getAttribute('data-location-route');
+      var router = window.TerraZApp && window.TerraZApp.router;
+      if(router && router.go) router.go(route);
+    });
+  });
+
   if(window.TerraZApp.visibility) window.TerraZApp.visibility.apply();
+  document.dispatchEvent(new CustomEvent('terra-z:sessions-rendered'));
 }
 
 async function loadPrivateSessions(){
