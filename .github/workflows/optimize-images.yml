@@ -1,0 +1,49 @@
+name: Optimize heavy images
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - ".github/workflows/optimize-images.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: terra-z-image-optimization
+  cancel-in-progress: false
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout dev
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Pillow
+        run: python -m pip install --disable-pip-version-check pillow==11.3.0
+
+      - name: Convert large PNGs
+        run: python scripts/optimize-images.py
+
+      - name: Commit optimized assets
+        run: |
+          if git diff --quiet; then
+            echo "No image optimization changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "perf: otimizar imagens pesadas para WebP"
+          git push origin HEAD:dev
