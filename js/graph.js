@@ -371,8 +371,10 @@ function bindGraphViewDrag(svg,group){
     if(event.button!==undefined && event.button!==0) return;
     var start=graphDisplayNodeById(id);
     if(!start) return;
+
     event.preventDefault();
     event.stopPropagation();
+
     graphViewDrag={
       id:id,
       pointerId:event.pointerId,
@@ -382,52 +384,59 @@ function bindGraphViewDrag(svg,group){
       startY:start.y,
       moved:false
     };
+
     var wrap=svg.closest(".graph-wrap-v2");
     if(wrap) wrap.classList.add("is-node-dragging");
     try{ group.setPointerCapture(event.pointerId); }catch(error){}
+
+    var move=function(moveEvent){
+      if(!graphViewDrag || graphViewDrag.id!==id || graphViewDrag.pointerId!==moveEvent.pointerId) return;
+      moveEvent.preventDefault();
+      moveEvent.stopPropagation();
+
+      var distance=Math.hypot(
+        moveEvent.clientX-graphViewDrag.startClientX,
+        moveEvent.clientY-graphViewDrag.startClientY
+      );
+      if(distance<2 && !graphViewDrag.moved) return;
+
+      var base=nodeById(id);
+      if(!base) return;
+      var point=svgPointFromEvent(svg,moveEvent);
+      var pad=Math.max(8,Number(base.r)||38);
+      var x=Math.round(Math.max(pad,Math.min(1000-pad,point.x)));
+      var y=Math.round(Math.max(pad,Math.min(720-pad-30,point.y)));
+
+      graphViewDrag.moved=true;
+      graphViewPositions[id]={x:x,y:y};
+      updateGraphViewNodeDom(svg,graphDisplayNodeById(id),graphViewDrag);
+      updateGraphViewResetButton();
+    };
+
+    var finish=function(endEvent){
+      if(!graphViewDrag || graphViewDrag.id!==id || graphViewDrag.pointerId!==endEvent.pointerId) return;
+      endEvent.preventDefault();
+      endEvent.stopPropagation();
+
+      var moved=graphViewDrag.moved;
+      try{ group.releasePointerCapture(endEvent.pointerId); }catch(error){}
+      if(wrap) wrap.classList.remove("is-node-dragging");
+
+      window.removeEventListener("pointermove",move,true);
+      window.removeEventListener("pointerup",finish,true);
+      window.removeEventListener("pointercancel",finish,true);
+
+      graphViewDrag=null;
+      if(moved){
+        graphSuppressClickUntil=Date.now()+360;
+        requestAnimationFrame(function(){ renderGraph(); });
+      }
+    };
+
+    window.addEventListener("pointermove",move,{capture:true,passive:false});
+    window.addEventListener("pointerup",finish,{capture:true,passive:false});
+    window.addEventListener("pointercancel",finish,{capture:true,passive:false});
   });
-
-  group.addEventListener("pointermove",function(event){
-    if(!graphViewDrag || graphViewDrag.id!==id || graphViewDrag.pointerId!==event.pointerId) return;
-    event.preventDefault();
-    event.stopPropagation();
-
-    var distance=Math.hypot(
-      event.clientX-graphViewDrag.startClientX,
-      event.clientY-graphViewDrag.startClientY
-    );
-    if(distance<3 && !graphViewDrag.moved) return;
-
-    var base=nodeById(id);
-    if(!base) return;
-    var point=svgPointFromEvent(svg,event);
-    var pad=Math.max(8,Number(base.r)||38);
-    var x=Math.round(Math.max(pad,Math.min(1000-pad,point.x)));
-    var y=Math.round(Math.max(pad,Math.min(720-pad-30,point.y)));
-
-    graphViewDrag.moved=true;
-    graphViewPositions[id]={x:x,y:y};
-    updateGraphViewNodeDom(svg,graphDisplayNodeById(id),graphViewDrag);
-    updateGraphViewResetButton();
-  });
-
-  var finish=function(event){
-    if(!graphViewDrag || graphViewDrag.id!==id || graphViewDrag.pointerId!==event.pointerId) return;
-    event.preventDefault();
-    event.stopPropagation();
-    var moved=graphViewDrag.moved;
-    try{ group.releasePointerCapture(event.pointerId); }catch(error){}
-    var wrap=svg.closest(".graph-wrap-v2");
-    if(wrap) wrap.classList.remove("is-node-dragging");
-    graphViewDrag=null;
-    if(moved){
-      graphSuppressClickUntil=Date.now()+360;
-      requestAnimationFrame(function(){ renderGraph(); });
-    }
-  };
-
-  group.addEventListener("pointerup",finish);
-  group.addEventListener("pointercancel",finish);
 }
 
 function relationColor(type){
