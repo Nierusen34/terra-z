@@ -9,7 +9,8 @@ const RUNTIME_FILES = {
   characterTaxonomy:["data/character-meta.js","characterTaxonomy"],
   characterMedia:["data/character-media.js","characterMedia"],
   graphOverride:["data/graph-overrides.js","graphOverride"],
-  sessions:["data/sessions.js","sessions"]
+  sessions:["data/sessions.js","sessions"],
+  timeline:["data/timeline.js","timeline"]
 };
 
 async function runtimePayload(){
@@ -84,6 +85,8 @@ export default async function handler(req,res){
     visibility_system:"public-spoiler-master",
     secure_master_sections:true,
     secure_master_relations:true,
+    secure_master_timeline:true,
+    timeline_event_editor:true,
     history_restore:true,
     deployment_control:true,
     history_model:"git-content-checkpoints-v1",
