@@ -6644,3 +6644,8 @@ body.graph-fullscreen-open{
     max-height:620px;
   }
 }
+
+/* Controles do mapa devem permanecer acessíveis sobre o inspector flutuante mobile */
+.relations-layout.graph-fullscreen .graph-canvas-head{
+  z-index:12;
+}
