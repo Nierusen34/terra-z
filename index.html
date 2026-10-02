@@ -1085,6 +1085,13 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2
         <strong>Mapa de relações</strong>
         <span>Clique para inspecionar · duplo clique abre a entidade quando houver destino.</span>
       </div>
+      <div class="graph-zoom-controls" aria-label="Tamanho do grafo">
+        <button id="graphZoomOut" type="button" title="Diminuir grafo">−</button>
+        <input id="graphZoomRange" type="range" min="75" max="200" step="5" value="130" aria-label="Escala do grafo">
+        <span id="graphZoomLabel">130%</span>
+        <button id="graphZoomIn" type="button" title="Ampliar grafo">＋</button>
+        <button id="graphZoomReset" type="button" title="Voltar para 100%">100%</button>
+      </div>
     </div>
     <div class="graph-wrap graph-wrap-v2">
       <svg id="graphSvg" viewBox="0 0 1000 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Rede narrativa de relações do Terra Z"></svg>
