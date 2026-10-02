@@ -57,6 +57,7 @@ var graphRelationFilter="all";
 var graphEntityFilter="all";
 var graphSearch="";
 var visibilityCapability=null;
+var graphV3Capability=null;
 
 var editorDraft=null;
 var editorMode="nodes";
@@ -216,6 +217,21 @@ async function supportsVisibilitySystem(){
     );
   }catch(error){ visibilityCapability=false; }
   return visibilityCapability;
+}
+
+async function supportsGraphV3(){
+  if(graphV3Capability!==null) return graphV3Capability;
+  var b=backend();
+  if(!b || !b.health) return false;
+  try{
+    var health=await b.health();
+    graphV3Capability=!!(
+      health &&
+      health.relations_graph_v3===true &&
+      health.relations_entity_editor===true
+    );
+  }catch(error){ graphV3Capability=false; }
+  return graphV3Capability;
 }
 
 function routeForNode(node){
@@ -639,11 +655,21 @@ function setupGraphView(){
   refreshGraphAccess();
 }
 
-function refreshGraphAccess(){
+async function refreshGraphAccess(){
   var edit=document.getElementById("graphOpenBtn");
   if(!edit) return;
-  edit.disabled=!canEdit();
-  edit.title=canEdit() ? "Criar, editar ou excluir entidades e relações" : "Entre como editor para administrar o grafo";
+
+  if(!canEdit()){
+    edit.disabled=true;
+    edit.title="Entre como editor para administrar o grafo";
+    return;
+  }
+
+  var ready=await supportsGraphV3();
+  edit.disabled=!ready;
+  edit.title=ready
+    ? "Criar, editar ou excluir entidades e relações"
+    : "Publique o checkpoint desta etapa para ativar o backend de Relações 2.0";
 }
 
 function editorGraph(){ return editorDraft || graphData; }
@@ -882,10 +908,15 @@ function autoArrangeDraft(){
   renderEditorDetail();
 }
 
-function openGraphEditor(mode,id){
+async function openGraphEditor(mode,id){
   if(!canEdit()){
     showToast("Entre como editor para administrar Relações 2.0.","warning",5000);
     if(window.TerraZApp.publishing) window.TerraZApp.publishing.open();
+    return;
+  }
+
+  if(!(await supportsGraphV3())){
+    showToast("Publique primeiro o checkpoint desta etapa para ativar o backend de Relações 2.0.","warning",6500);
     return;
   }
 
@@ -931,6 +962,11 @@ function graphUsesAdvancedVisibility(graph){
 async function saveGraphEditor(){
   if(!editorDraft) return;
   var b=backend();
+
+  if(!(await supportsGraphV3())){
+    showToast("O backend de Relações 2.0 ainda não está ativo em produção.","warning",6500);
+    return;
+  }
 
   if(graphUsesAdvancedVisibility(editorDraft) && !(await supportsVisibilitySystem())){
     showToast("Publique primeiro o backend consolidado para salvar conteúdo Spoiler/Mestre no grafo.","warning",6500);
@@ -1045,6 +1081,7 @@ document.addEventListener("terra-z:private-content-cleared",refreshGraphFromSour
 document.addEventListener("terra-z:visibility-changed",function(){ renderGraph();renderInspector(); });
 document.addEventListener("terra-z:auth-changed",function(){
   visibilityCapability=null;
+  graphV3Capability=null;
   refreshGraphAccess();
   renderGraph();renderInspector();
 });
