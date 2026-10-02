@@ -62,6 +62,8 @@ async function loadAll(){
       for(const src of scripts) await loadScript(src);
       loaded=true;
       document.documentElement.classList.add("admin-loaded");
+      var button=document.getElementById("adminPanelBtn");
+      if(button) button.removeEventListener("click",openAdmin);
       document.dispatchEvent(new CustomEvent("terra-z:admin-modules-loaded"));
       return window.TerraZApp;
     }finally{
