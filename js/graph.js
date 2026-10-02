@@ -696,7 +696,7 @@ function renderGraph(){
   var svg=document.getElementById("graphSvg");
   if(!svg || !graphData) return;
 
-  var nodes=visibleNodes();
+  var nodes=visibleNodes().map(graphDisplayNode);
   var nodeIds=new Set(nodes.map(function(n){ return n.id; }));
   var edges=visibleEdges(nodeIds);
   var html=renderDefs(nodes);
@@ -711,7 +711,7 @@ function renderGraph(){
   });
 
   edges.forEach(function(edge,index){
-    var a=nodeById(edge.from),b=nodeById(edge.to);
+    var a=graphDisplayNodeById(edge.from),b=graphDisplayNodeById(edge.to);
     if(!a || !b) return;
     var geometry=curveForEdge(a,b,index);
     var color=relationColor(edge.type);
@@ -720,7 +720,7 @@ function renderGraph(){
     var dash=(edge.type==="tension" || edge.type==="enemy" || edge.type==="rivalry" || edge.type==="clone") ? ' stroke-dasharray="7 5"' : "";
     var marker=edge.directed ? ' marker-end="url(#graph-arrow-'+escapeAttr(edge.type)+')"' : "";
 
-    html+='<g class="graph-edge-group'+(selected?' selected':'')+'" data-edge-id="'+escapeAttr(edge.id)+'">'+
+    html+='<g class="graph-edge-group'+(selected?' selected':'')+'" data-edge-id="'+escapeAttr(edge.id)+'" data-edge-index="'+index+'">'+
       '<path class="graph-edge-hit" d="'+geometry.d+'" stroke="transparent" stroke-width="16" fill="none"/>'+
       '<path class="graph-edge-line" d="'+geometry.d+'" stroke="'+color+'" stroke-width="'+width+'" fill="none"'+dash+marker+' opacity="'+(selected?'1':'.75')+'"/>'+
       (edge.label
@@ -765,6 +765,7 @@ function renderGraph(){
     }
 
     html+='<g class="graph-node-v2'+(route?' routable':'')+(selected?' selected':'')+(matched?' search-match':' search-context')+'" data-node-id="'+escapeAttr(node.id)+'" tabindex="0" role="button" aria-label="'+escapeAttr(node.label)+'">'+
+      '<circle class="graph-node-drag-hit" cx="'+node.x+'" cy="'+node.y+'" r="'+Math.max(46,node.r+14)+'" fill="transparent" style="touch-action:none"/>'+
       nodeVisual+
       '<text x="'+node.x+'" y="'+(node.y+node.r+17)+'" text-anchor="middle" class="graph-node-label">'+escapeHtml(node.label)+'</text>'+
       '<text x="'+node.x+'" y="'+(node.y+node.r+30)+'" text-anchor="middle" class="graph-node-kind">'+escapeHtml(kind.label)+'</text>'+
@@ -777,18 +778,24 @@ function renderGraph(){
   svg.innerHTML=html;
 
   svg.querySelectorAll("[data-node-id]").forEach(function(group){
+    bindGraphViewDrag(svg,group);
     var choose=function(){
       selectedNodeId=group.getAttribute("data-node-id") || "";
       selectedEdgeId="";
       renderGraph();
       renderInspector();
     };
-    group.addEventListener("click",function(event){ event.stopPropagation(); choose(); });
+    group.addEventListener("click",function(event){
+      event.stopPropagation();
+      if(Date.now()<graphSuppressClickUntil) return;
+      choose();
+    });
     group.addEventListener("keydown",function(event){
       if(event.key==="Enter" || event.key===" "){ event.preventDefault(); choose(); }
     });
     group.addEventListener("dblclick",function(event){
       event.stopPropagation();
+      if(Date.now()<graphSuppressClickUntil) return;
       var node=nodeById(group.getAttribute("data-node-id"));
       openNodeRoute(node);
     });
@@ -805,6 +812,7 @@ function renderGraph(){
   });
 
   applyGraphScale();
+  updateGraphViewResetButton();
   updateGraphStats(nodes,edges);
   renderLegend();
   document.dispatchEvent(new CustomEvent("terra-z:graph-rendered",{detail:{nodes:nodes.length,edges:edges.length}}));
@@ -1006,6 +1014,9 @@ function setupGraphView(){
 
   var edit=document.getElementById("graphOpenBtn");
   if(edit) edit.addEventListener("click",function(){ openGraphEditor("layout",""); });
+
+  var resetView=document.getElementById("graphViewResetBtn");
+  if(resetView) resetView.addEventListener("click",function(){ resetGraphViewPositions(true); });
 
   var zoomOut=document.getElementById("graphZoomOut");
   var zoomIn=document.getElementById("graphZoomIn");
@@ -1884,6 +1895,8 @@ function refreshGraphFromSources(){
   var modal=document.getElementById("graphEditorModal");
   if(modal && modal.classList.contains("show")) return;
   graphData=loadGraph();
+  graphViewPositions=Object.create(null);
+  graphViewDrag=null;
   saveLocalGraph();
   renderGraph();renderInspector();
 }
@@ -1928,6 +1941,8 @@ window.TerraZApp.graph={
   closeEditor:closeGraphEditor,
   autoArrange:function(){ if(editorDraft){ autoArrangeDraft(); return clone(editorDraft); } return null; },
   openLayout:function(){ return openGraphEditor("layout",""); },
+  resetView:function(){ resetGraphViewPositions(true); },
+  getViewPositions:function(){ return clone(graphViewPositions); },
   reset:function(){ openGraphEditor("nodes",""); resetDraft(); },
   getData:function(){ return graphData ? clone(graphData) : {version:3,quadrants:[],nodes:[],edges:[]}; },
   getCharacterMap:function(){
