@@ -365,7 +365,7 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 254,
+      "x": 333,
       "y": 641,
       "color": "#0a8a4a",
       "r": 38,
