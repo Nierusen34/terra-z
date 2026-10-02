@@ -249,7 +249,8 @@ test("Administração avançada renderiza Taxonomias, Lote e Sala do Mestre",asy
       master_quick_panel_v1:true,
       command_palette_v2:true,
       session_mode_v1:true,
-      backup_export_v2:true
+      backup_export_v2:true,
+      table_mode_v1:true
     });
     window.TerraZApp.backend.request=async(path)=>{
       if(String(path).startsWith("/api/master")){
@@ -369,6 +370,27 @@ test("Fase 14 renderiza Modo Sessão e Backup com rascunho temporário",async({p
   expect(stored.title).toBe("Sessão de teste");
   expect(stored.log).toHaveLength(1);
   await page.evaluate(()=>window.TerraZApp.sessionMode.close());
+
+  await page.evaluate(()=>window.TerraZApp.tableMode.open());
+  await expect(page.locator("#tableModePanel")).toHaveClass(/show/);
+  await expect(page.locator("#tableModeSessionView")).toHaveClass(/active/);
+  await page.locator('[data-table-tab="clues"]').click();
+  await expect(page.locator("#tableModeCluesView")).toHaveClass(/active/);
+  await expect(page.locator("#tableModeCluesView")).toContainText("Pista do Dique");
+  await page.locator('[data-clue-status="revealed"]').first().click();
+
+  await page.locator('[data-table-tab="npcs"]').click();
+  await expect(page.locator("#tableModeNpcsView")).toContainText("Senhorita C");
+  await page.locator('[data-table-npc="npc1"]').click();
+
+  await page.locator('[data-table-tab="maps"]').click();
+  await expect(page.locator(".table-mode-map-stage img")).toBeVisible();
+
+  const tableStored=await page.evaluate(()=>JSON.parse(sessionStorage.getItem("terraZ_session_mode_v1")||"null"));
+  expect(tableStored.clues).toContain("c1");
+  expect(tableStored.npcs).toContain("npc1");
+  expect(tableStored.table.tab).toBe("maps");
+  await page.evaluate(()=>window.TerraZApp.tableMode.close());
 
   await page.evaluate(()=>window.TerraZApp.backupExport.open());
   await expect(page.locator("#backupExportPanel")).toHaveClass(/show/);
