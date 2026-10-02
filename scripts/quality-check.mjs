@@ -585,6 +585,14 @@ function checkGraph(data){
      !graphRuntime.includes("graph-node-drag-hit")){
     fail("Reorganização local do grafo para visitantes não está completa.");
   }
+  if(!html.includes('id="graphConnectBar"') ||
+     !html.includes('id="graphQuickRelationModal"') ||
+     !graphRuntime.includes("beginQuickPick") ||
+     !graphRuntime.includes("saveQuickRelation") ||
+     !graphRuntime.includes("existingQuickRelation") ||
+     !graphRuntime.includes("graphConnectPreview")){
+    fail("Fluxo rápido selecionar → conectar → destino do grafo está incompleto.");
+  }
   if(!graphRuntime.includes("updateLayoutPositionStatus") ||
      !graphRuntime.includes("ge-layout-hit")){
     fail("Otimização touch do editor visual do grafo não foi identificada.");
@@ -595,6 +603,7 @@ function checkGraph(data){
     fail("Backup de layout seguro do grafo não foi identificado.");
   }
   if(!exists("docs/RELATIONS.md")) fail("docs/RELATIONS.md ausente");
+  if(!exists("docs/UX_POLISH.md")) fail("docs/UX_POLISH.md ausente");
   if(!exists("docs/PORTRAIT_FRAMING.md")) fail("docs/PORTRAIT_FRAMING.md ausente");
 
   const mediaApi=read("api/media.js");
@@ -608,6 +617,14 @@ function checkGraph(data){
   }
   if(!characterEditor.includes("saveMediaFraming") || !characterEditor.includes("renderFramingPreview")){
     fail("Editor de personagem não oferece prévia/salvamento do enquadramento.");
+  }
+  if(!html.includes('class="character-editor-jumpnav"') ||
+     !characterEditor.includes("jumpEditor") ||
+     !characterEditor.includes("graph.focusCharacter")){
+    fail("Atalhos contextuais do editor de personagem não estão completos.");
+  }
+  if(!html.includes('class="admin-quick-actions"')){
+    fail("Ações frequentes da Administração não foram encontradas.");
   }
 
   const searchRuntime=read("js/search.js");
