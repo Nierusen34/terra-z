@@ -22,7 +22,27 @@ window.TerraZData.characterMedia = {
     "src": "images/characters/mark.jpg",
     "alt": "M'ark",
     "source": "local",
-    "credit": ""
+    "credit": "",
+    "framing": {
+      "card": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "sheet": {
+        "fit": "cover",
+        "x": 50,
+        "y": 50,
+        "zoom": 1
+      },
+      "graph": {
+        "fit": "cover",
+        "x": 70,
+        "y": 6,
+        "zoom": 2.5
+      }
+    }
   },
   "Kendra Saunders": {
     "src": "",
