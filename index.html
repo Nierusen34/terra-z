@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lora:ital,wght@0,400;0,700;1,400&family=Share+Tech+Mono&family=Cormorant+Garamond:wght@600;700&family=Anton&family=Oswald:wght@500;700&family=Bebas+Neue&family=Inter:wght@400;600&display=swap">
 <link rel="stylesheet" href="terra-z.css">
-<title>Universo Terra Z – Dossiê de Jornais v1.3.2</title>
+<title>Universo Terra Z – Dossiê de Jornais v1.4.0</title>
 </head>
 <body>
 
@@ -277,7 +277,12 @@
           <button class="admin-action private" data-admin-action="session-mode">
             <span class="admin-action-icon">🎬</span>
             <strong>Modo Sessão</strong>
-            <small>Conduzir a mesa, marcar presença, pistas e registrar acontecimentos rápidos.</small>
+            <small>Preparar e finalizar o rascunho estruturado da sessão.</small>
+          </button>
+          <button class="admin-action private" data-admin-action="table-mode">
+            <span class="admin-action-icon">🎲</span>
+            <strong>Modo Mesa</strong>
+            <small>Painel ao vivo otimizado para celular, tablet e PWA durante a partida.</small>
           </button>
           <button class="admin-action private" data-admin-action="privacy-migrate">
             <span class="admin-action-icon">🔐</span>
@@ -627,6 +632,7 @@
     <div class="master-quick-toolbar">
       <input id="masterQuickSearch" type="search" placeholder="Buscar pista, objetivo, NPC, revelação ou nota..." autocomplete="off">
       <button id="masterQuickWorkspace" type="button">🗝️ Abrir conteúdo Mestre</button>
+      <button id="masterQuickTableMode" type="button">🎲 Modo Mesa</button>
       <button id="masterQuickSessionMode" type="button">🎬 Modo Sessão</button>
       <button id="masterQuickNewSession" type="button">📓 Registrar sessão</button>
     </div>
@@ -717,6 +723,51 @@
         <button id="sessionModeFinish" type="button" class="primary">📓 Concluir e preparar registro</button>
       </div>
     </div>
+  </div>
+</div>
+
+
+<div id="tableModePanel" class="table-mode-panel" role="dialog" aria-modal="true" aria-labelledby="tableModeTitle">
+  <div class="table-mode-shell">
+    <header class="table-mode-head">
+      <div class="table-mode-brand">
+        <div class="table-mode-eyebrow">TERRA Z v1.4.0 · ETAPA 15</div>
+        <h3 id="tableModeTitle">🎲 Modo Mesa</h3>
+        <div>
+          <strong id="tableModeSessionTitle">Sessão em andamento</strong>
+          <span id="tableModeSessionMeta">Rascunho temporário</span>
+        </div>
+      </div>
+      <div class="table-mode-head-actions">
+        <span id="tableModeNetwork" class="table-mode-network" data-state="online">● Online</span>
+        <button id="tableModeOpenSession" type="button">🎬 Modo Sessão</button>
+        <button id="tableModeFinish" type="button" class="primary">📓 Encerrar Mesa</button>
+        <button id="tableModeClose" type="button" aria-label="Fechar">✕</button>
+      </div>
+    </header>
+
+    <nav class="table-mode-tabs" aria-label="Áreas do Modo Mesa">
+      <button type="button" data-table-tab="session">⚡ Sessão</button>
+      <button type="button" data-table-tab="npcs">👤 NPCs</button>
+      <button type="button" data-table-tab="clues">🧩 Pistas</button>
+      <button type="button" data-table-tab="goals">🎯 Objetivos</button>
+      <button type="button" data-table-tab="characters">🦸 Personagens</button>
+      <button type="button" data-table-tab="maps">🗺️ Mapas</button>
+    </nav>
+
+    <main class="table-mode-body">
+      <section id="tableModeSessionView" class="table-mode-view" data-table-view="session"></section>
+      <section id="tableModeNpcsView" class="table-mode-view" data-table-view="npcs"></section>
+      <section id="tableModeCluesView" class="table-mode-view" data-table-view="clues"></section>
+      <section id="tableModeGoalsView" class="table-mode-view" data-table-view="goals"></section>
+      <section id="tableModeCharactersView" class="table-mode-view" data-table-view="characters"></section>
+      <section id="tableModeMapsView" class="table-mode-view" data-table-view="maps"></section>
+    </main>
+  </div>
+
+  <div id="tableModeMapViewer" class="table-mode-map-viewer">
+    <button type="button" data-table-map-close aria-label="Fechar mapa">✕</button>
+    <img id="tableModeMapFull" alt="">
   </div>
 </div>
 
@@ -918,7 +969,7 @@
 </div>
 </div>
 <div class="page-footer">
-O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2
+O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0
 <div class="seal">Confidencial</div>
 </div>
 </div>
@@ -1405,10 +1456,11 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2
 </div>
 
 <div class="page-footer" id="footerText">
-O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
+O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0 · Jan 2027
 <div class="changelog">
 <button class="changelog-toggle" onclick="toggleChangelog()">📜 Histórico de Versões</button>
 <div class="changelog-content" id="changelogContent">
+<div class="changelog-item"><span class="version">v1.4.0</span><span class="date">Janeiro de 2027</span><p><strong>Novidades:</strong> PWA instalável com consulta pública offline, Central de Comandos, Modo Sessão, Backup e Exportação, Sala do Mestre avançada e novo Modo Mesa otimizado para celular e tablet durante partidas.</p></div>
 <div class="changelog-item"><span class="version">v1.3.2</span><span class="date">Janeiro de 2027</span><p data-edit-id="tz-0597" data-legacy-edit-id="e_596"><strong>Correções:</strong> Botão de busca reposicionado no celular (não conflita mais com o menu); botões flutuantes reorganizados; toques em mobile agora funcionam em todos os elementos; grafo do localStorage renovado (v2) para carregar o defaultGraph atualizado com Damian e as conexões corrigidas.</p></div>
 <div class="changelog-item"><span class="version">v1.3.1</span><span class="date">Janeiro de 2027</span><p data-edit-id="tz-0598" data-legacy-edit-id="e_597"><strong>Correções:</strong> Grafo de relações refeito com ligações corretas (Damian adicionado, Riot↔Kendra↔Lobo ajustado); novo Editor de Grafo interativo.</p></div>
 <div class="changelog-item"><span class="version">v1.3</span><span class="date">Janeiro de 2027</span><p data-edit-id="tz-0599" data-legacy-edit-id="e_598"><strong>Novidades:</strong> Modo Apresentação (tela cheia); Grafo de Relacionamentos; Linha do Tempo interativa.</p></div>
