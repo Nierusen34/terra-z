@@ -170,10 +170,10 @@ test("DC Wiki oferece Card, Grafo e Card + Grafo ao editor",async({page})=>{
         status:200,
         contentType:"application/json",
         body:JSON.stringify([
-          "Connor",
-          ["Connor Hawke (Prime Earth)"],
-          ["Connor Hawke, arqueiro do universo DC."],
-          ["https://dc.fandom.com/wiki/Connor_Hawke_(Prime_Earth)"]
+          "Zatanna",
+          ["Zatanna Zatara (Prime Earth)"],
+          ["Zatanna Zatara, arqueiro do universo DC."],
+          ["https://dc.fandom.com/wiki/Zatanna_Zatara_(Prime_Earth)"]
         ])
       });
     }
@@ -186,9 +186,9 @@ test("DC Wiki oferece Card, Grafo e Card + Grafo ao editor",async({page})=>{
           query:{
             pages:[{
               pageid:101,
-              title:"Connor Hawke (Prime Earth)",
-              thumbnail:{source:"https://static.wikia.nocookie.net/test/connor-thumb.jpg"},
-              original:{source:"https://static.wikia.nocookie.net/test/connor-full.jpg"}
+              title:"Zatanna Zatara (Prime Earth)",
+              thumbnail:{source:"https://static.wikia.nocookie.net/test/zatanna-thumb.jpg"},
+              original:{source:"https://static.wikia.nocookie.net/test/zatanna-full.jpg"}
             }]
           }
         })
@@ -199,7 +199,7 @@ test("DC Wiki oferece Card, Grafo e Card + Grafo ao editor",async({page})=>{
       return route.fulfill({
         status:200,
         contentType:"application/json",
-        body:JSON.stringify({parse:{title:"Connor Hawke (Prime Earth)",text:{"*":"<p>Connor Hawke</p>"}}})
+        body:JSON.stringify({parse:{title:"Zatanna Zatara (Prime Earth)",text:{"*":"<p>Zatanna Zatara</p>"}}})
       });
     }
 
@@ -225,34 +225,34 @@ test("DC Wiki oferece Card, Grafo e Card + Grafo ao editor",async({page})=>{
     });
     await app.adminLoader.load();
     document.dispatchEvent(new CustomEvent("terra-z:auth-changed",{detail:{authenticated:true}}));
-    document.getElementById("searchInput").value="Connor";
+    document.getElementById("searchInput").value="Zatanna";
     window.switchSearchMode("fandom");
   });
 
   const result=page.locator("#searchResults .search-result-item").first();
-  await expect(result).toContainText("Connor Hawke");
+  await expect(result).toContainText("Zatanna Zatara");
   await expect(result.locator("[data-dc-import-title]")).toBeVisible();
 
   await result.locator("[data-dc-import-title]").click();
   await expect(page.locator("#dcImportPanel")).toHaveClass(/show/);
-  await expect(page.locator("#dcImportName")).toHaveText("Connor Hawke");
+  await expect(page.locator("#dcImportName")).toHaveText("Zatanna Zatara");
   await expect(page.locator("#dcImportCardBtn")).toBeVisible();
   await expect(page.locator("#dcImportGraphBtn")).toBeVisible();
   await expect(page.locator("#dcImportBothBtn")).toBeVisible();
 
   await page.locator("#dcImportCardBtn").click();
   await expect(page.locator("#characterEditorPanel")).toHaveClass(/show/);
-  await expect(page.locator("#characterEditorName")).toHaveValue("Connor Hawke");
+  await expect(page.locator("#characterEditorName")).toHaveValue("Zatanna Zatara");
   await expect(page.locator("#characterEditorTitle")).toContainText("Importar personagem da DC");
   await page.evaluate(()=>window.TerraZApp.characterEditor.close());
 
-  await page.evaluate(()=>window.TerraZApp.search.openImport("Connor Hawke (Prime Earth)"));
+  await page.evaluate(()=>window.TerraZApp.search.openImport("Zatanna Zatara (Prime Earth)"));
   await expect(page.locator("#dcImportPanel")).toHaveClass(/show/);
   await page.locator("#dcImportGraphBtn").click();
 
   await expect(page.locator("#graphEditorModal")).toHaveClass(/show/);
   await expect(page.locator("#graphEditorModal")).toHaveClass(/graph-editor-layout-mode/);
-  await expect(page.locator("#graphLayoutSvg .ge-layout-node-label").filter({hasText:"Connor Hawke"})).toHaveCount(1);
+  await expect(page.locator("#graphLayoutSvg .ge-layout-node-label").filter({hasText:"Zatanna Zatara"})).toHaveCount(1);
 
   await page.evaluate(()=>window.TerraZApp.graph.closeEditor());
 
@@ -271,7 +271,7 @@ test("DC Wiki oferece Card, Grafo e Card + Grafo ao editor",async({page})=>{
       app.characters.refresh=()=>{};
       app.characters.open=()=>{};
     }
-    await app.search.openImport("Connor Hawke (Prime Earth)");
+    await app.search.openImport("Zatanna Zatara (Prime Earth)");
   });
   await expect(page.locator("#dcImportPanel")).toHaveClass(/show/);
   await page.locator("#dcImportBothBtn").click();
@@ -279,7 +279,7 @@ test("DC Wiki oferece Card, Grafo e Card + Grafo ao editor",async({page})=>{
   await page.locator("#characterEditorSave").click();
 
   await expect(page.locator("#graphEditorModal")).toHaveClass(/show/);
-  await expect(page.locator("#graphLayoutSvg .ge-layout-node-label").filter({hasText:"Connor Hawke"})).toHaveCount(1);
+  await expect(page.locator("#graphLayoutSvg .ge-layout-node-label").filter({hasText:"Zatanna Zatara"})).toHaveCount(1);
 
   const importRequests=await page.evaluate(()=>window.__dcImportRequests);
   expect(importRequests.some(row=>row.path==="/api/character")).toBe(true);
@@ -287,7 +287,7 @@ test("DC Wiki oferece Card, Grafo e Card + Grafo ao editor",async({page})=>{
   expect(mediaRequest).toBeTruthy();
   expect(mediaRequest.body.action).toBe("configure-source");
   expect(mediaRequest.body.provider).toBe("dc-fandom");
-  expect(mediaRequest.body.wikiTitle).toBe("Connor Hawke (Prime Earth)");
+  expect(mediaRequest.body.wikiTitle).toBe("Zatanna Zatara (Prime Earth)");
 
   await page.evaluate(()=>window.TerraZApp.graph.closeEditor());
   await expectNoPageErrors(errors);
