@@ -144,6 +144,7 @@ function buildSessionDraft(){
   };
 }
 function finish(){
+  state=loadDraft();
   if(!state.log.length&&!state.characters.length&&!state.title){
     showToast("O Modo Sessão ainda está vazio.","warning",4000);return;
   }
@@ -165,7 +166,7 @@ async function open(){
 }
 function close(){
   var panel=el("sessionModePanel");if(panel)panel.classList.remove("show");
-  var keep=!!document.querySelector("#adminPanel.show,#masterQuickPanel.show,#masterWorkspacePanel.show,#sessionEditorPanel.show");
+  var keep=!!document.querySelector("#adminPanel.show,#masterQuickPanel.show,#masterWorkspacePanel.show,#sessionEditorPanel.show,#tableModePanel.show");
   document.body.style.overflow=keep?"hidden":"";
 }
 function requestClear(){
@@ -181,5 +182,5 @@ function setup(){
   var panel=el("sessionModePanel");if(panel)panel.addEventListener("click",function(e){if(e.target===panel)close();});
 }
 setup();
-window.TerraZApp.sessionMode={open:open,close:close,render:render,clear:clearDraft,draft:function(){return state?JSON.parse(JSON.stringify(state)):loadDraft();}};
+window.TerraZApp.sessionMode={open:open,close:close,render:render,clear:clearDraft,finish:finish,draft:function(){return state?JSON.parse(JSON.stringify(state)):loadDraft();}};
 })();
