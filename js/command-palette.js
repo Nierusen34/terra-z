@@ -67,7 +67,7 @@ function publicIndex(){
       push(rows,{
         id:"location:"+item.id+":"+name,type:"Local",icon:"📌",label:name,
         subtitle:item.name,keywords:[item.type,item.note],
-        route:r&&r.routeForLocation?r.routeForLocation(name):"/distritos/"+slug(item.id||item.name)
+        route:(r&&r.routeForLocation&&r.routeForLocation(name))||"/distritos/"+slug(item.id||item.name)
       });
     });
   });
