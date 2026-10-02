@@ -143,6 +143,26 @@ window.TerraZData.characterMedia = {
     "auto": {
       "provider": "dc-fandom",
       "wikiTitle": "Bruce Wayne (Prime Earth)"
+    },
+    "framing": {
+      "card": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "sheet": {
+        "fit": "cover",
+        "x": 50,
+        "y": 8,
+        "zoom": 1
+      },
+      "graph": {
+        "fit": "cover",
+        "x": 50,
+        "y": 0,
+        "zoom": 1
+      }
     }
   },
   "Dick Grayson": {
