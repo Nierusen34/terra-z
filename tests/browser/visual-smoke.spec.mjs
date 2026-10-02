@@ -401,6 +401,82 @@ test("editor conecta duas entidades diretamente pelo mapa",async({page})=>{
   await expectNoPageErrors(errors);
 });
 
+test("grafo oferece foco, tela cheia, ajuste e pan zoom expansível",async({page})=>{
+  const errors=watchRuntimeErrors(page);
+  await page.goto("/#/universo/relacoes",{waitUntil:"domcontentloaded"});
+
+  const graph=page.locator("#graphSvg");
+  await expect(graph).toBeVisible();
+
+  const focusId=await page.evaluate(()=>{
+    const data=window.TerraZApp.graph.getData();
+    const visible=data.nodes.filter(n=>n.visibility==="public");
+    return visible.find(node=>{
+      const connected=new Set([node.id]);
+      data.edges.forEach(edge=>{
+        if(edge.from===node.id) connected.add(edge.to);
+        if(edge.to===node.id) connected.add(edge.from);
+      });
+      return visible.some(other=>!connected.has(other.id));
+    })?.id || visible[0]?.id;
+  });
+  expect(focusId).toBeTruthy();
+
+  await graph.locator('[data-node-id="'+focusId+'"]').click();
+  await expect(graph.locator(".graph-node-v2.focus-primary")).toHaveCount(1);
+  await expect.poll(()=>graph.locator(".graph-node-v2.focus-muted").count()).toBeGreaterThan(0);
+  await expect(page.locator("#graphFocusBtn")).toContainText("Rede completa");
+
+  await page.locator("#graphFocusBtn").click();
+  await expect(graph.locator(".graph-node-v2.focus-muted")).toHaveCount(0);
+  await expect(page.locator("#graphFocusBtn")).toContainText("Foco");
+
+  await page.locator("#graphZoomRange").evaluate(el=>{
+    el.value="180";
+    el.dispatchEvent(new Event("input",{bubbles:true}));
+  });
+  await expect.poll(()=>page.evaluate(()=>window.TerraZApp.graph.getViewport().scale)).toBe(1.8);
+
+  await page.locator("#graphFitBtn").click();
+  await expect.poll(()=>page.evaluate(()=>window.TerraZApp.graph.getViewport().scale)).toBe(1);
+
+  await page.locator("#graphFullscreenBtn").click();
+  await expect(page.locator("#graphRelationsLayout")).toHaveClass(/graph-fullscreen/);
+  await expect(page.locator("#graphFullscreenBtn")).toHaveAttribute("aria-pressed","true");
+
+  await page.locator("#graphInspectorToggleBtn").click();
+  await expect(page.locator("#graphRelationsLayout")).toHaveClass(/graph-inspector-collapsed/);
+
+  await page.locator("#graphZoomRange").evaluate(el=>{
+    el.value="150";
+    el.dispatchEvent(new Event("input",{bubbles:true}));
+  });
+  const centerBefore=await page.evaluate(()=>window.TerraZApp.graph.getViewport().center);
+
+  await page.evaluate(()=>{
+    const svg=document.getElementById("graphSvg");
+    const target=svg.querySelector(".graph-grid-bg");
+    const rect=svg.getBoundingClientRect();
+    const sx=rect.left+rect.width*.5;
+    const sy=rect.top+rect.height*.5;
+    const fire=(type,x,y,buttons)=>target.dispatchEvent(new PointerEvent(type,{
+      bubbles:true,cancelable:true,pointerId:88,pointerType:"touch",isPrimary:true,
+      clientX:x,clientY:y,buttons
+    }));
+    fire("pointerdown",sx,sy,1);
+    fire("pointermove",sx+90,sy+55,1);
+    fire("pointerup",sx+90,sy+55,0);
+  });
+
+  const centerAfter=await page.evaluate(()=>window.TerraZApp.graph.getViewport().center);
+  expect(Math.abs(centerAfter.x-centerBefore.x)+Math.abs(centerAfter.y-centerBefore.y)).toBeGreaterThan(5);
+
+  await page.locator("#graphFullscreenBtn").click();
+  await expect(page.locator("#graphRelationsLayout")).not.toHaveClass(/graph-fullscreen/);
+
+  await expectNoPageErrors(errors);
+});
+
 test("visitante pode mover nós localmente e restaurar o layout publicado",async({page},testInfo)=>{
   const errors=watchRuntimeErrors(page);
   await page.goto("/#/universo/relacoes",{waitUntil:"domcontentloaded"});
