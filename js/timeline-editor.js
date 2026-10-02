@@ -191,7 +191,7 @@ async function save(){
     el("timelineEditorTitleText").focus();
     return;
   }
-  if(!Number.isFinite(sortKey)){
+  if(!Number.isFinite(sortKey) || sortKey<=0){
     showToast("Informe uma ordem cronológica válida.","warning");
     el("timelineEditorSortKey").focus();
     return;
