@@ -259,7 +259,17 @@ function findExistingDcCharacter(title){
   var characters=app.characters;
   var names=characters && characters.names ? characters.names() : [];
   var keys=[title,dcImportDisplayName(title)].map(dcImportKey).filter(Boolean);
-  return names.find(function(name){ return keys.includes(dcImportKey(name)); }) || '';
+
+  var byName=names.find(function(name){ return keys.includes(dcImportKey(name)); });
+  if(byName) return byName;
+
+  var media=(window.TerraZData && window.TerraZData.characterMedia) || {};
+  var titleKey=dcImportKey(title);
+  return names.find(function(name){
+    var item=media[name] || {};
+    var auto=item.auto && typeof item.auto==='object' ? item.auto : {};
+    return auto.provider==='dc-fandom' && dcImportKey(auto.wikiTitle)===titleKey;
+  }) || '';
 }
 
 function findExistingDcGraphNode(title,characterName){
