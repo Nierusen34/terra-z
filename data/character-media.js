@@ -52,6 +52,26 @@ window.TerraZData.characterMedia = {
     "auto": {
       "provider": "dc-fandom",
       "wikiTitle": "M'gann M'orzz (Prime Earth)"
+    },
+    "framing": {
+      "card": {
+        "fit": "cover",
+        "x": 50,
+        "y": 7,
+        "zoom": 1
+      },
+      "sheet": {
+        "fit": "cover",
+        "x": 50,
+        "y": 8,
+        "zoom": 1
+      },
+      "graph": {
+        "fit": "cover",
+        "x": 50,
+        "y": 0,
+        "zoom": 1
+      }
     }
   },
   "J'onn J'onzz": {
