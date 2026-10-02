@@ -28,6 +28,27 @@ function rgba(value,fallback="rgba(0,0,0,.04)"){
   return /^rgba?\([0-9.,\s%]+\)$/i.test(v) ? v.slice(0,80) : fallback;
 }
 
+function httpsUrl(value){
+  const raw=String(value || "").trim().slice(0,1600);
+  if(!raw) return "";
+  try{
+    const url=new URL(raw);
+    return url.protocol==="https:" ? url.toString() : "";
+  }catch(error){
+    return "";
+  }
+}
+
+function framing(value){
+  const source=value && typeof value==="object" && !Array.isArray(value) ? value : {};
+  return {
+    fit:source.fit==="contain" ? "contain" : "cover",
+    x:number(source.x,0,100,50),
+    y:number(source.y,0,100,24),
+    zoom:number(source.zoom,.5,2.5,1)
+  };
+}
+
 function visibility(value){
   const raw=String(value || "public");
   if(raw==="master" || raw==="private") return "master";
@@ -40,6 +61,8 @@ function bool(value){ return value===true || value==="true" || value===1 || valu
 const NODE_KINDS=new Set([
   "character","team","faction","organization","location","event","custom"
 ]);
+
+const MEDIA_MODES=new Set(["none","character","library","url"]);
 
 const EDGE_TYPES=new Set([
   "family","ally","tension","clone","member","enemy","mentor","romance",
@@ -73,6 +96,12 @@ function normalizeGraph(input){
     ref:text(n && n.ref,180),
     route:text(n && n.route,260),
     icon:text(n && n.icon,12),
+    mediaMode:MEDIA_MODES.has(n && n.mediaMode)
+      ? n.mediaMode
+      : ((n && n.kind)==="character" && text(n && n.ref,180) ? "character" : "none"),
+    mediaId:text(n && n.mediaId,100),
+    mediaUrl:httpsUrl(n && n.mediaUrl),
+    mediaFraming:framing(n && n.mediaFraming),
     x:number(n && n.x,-5000,5000,500),
     y:number(n && n.y,-5000,5000,400),
     color:color(n && n.color),
