@@ -4,43 +4,9 @@
 window.TerraZData = window.TerraZData || {};
 
 // Biblioteca de mídia reutilizável do Terra Z.
-// Retratos de personagens continuam em characterMedia; esta coleção guarda
-// ativos independentes e o catálogo de artes já existentes no projeto.
 window.TerraZData.mediaLibrary = {
   "version": 1,
   "assets": [
-    {
-      "id": "cidade-vista-aerea-dia",
-      "label": "Vanguard Bay · Vista Aérea Dia",
-      "category": "editorial",
-      "src": "images/city/vista-aerea-dia.webp",
-      "source": "project",
-      "alt": "Vanguard Bay · Vista Aérea Dia",
-      "credit": "",
-      "framing": {
-        "fit": "cover",
-        "x": 50,
-        "y": 50,
-        "zoom": 1
-      },
-      "readOnly": true
-    },
-    {
-      "id": "cidade-vista-aerea-noite",
-      "label": "Vanguard Bay · Vista Aérea Noite",
-      "category": "editorial",
-      "src": "images/city/vista-aerea-noite.webp",
-      "source": "project",
-      "alt": "Vanguard Bay · Vista Aérea Noite",
-      "credit": "",
-      "framing": {
-        "fit": "cover",
-        "x": 50,
-        "y": 50,
-        "zoom": 1
-      },
-      "readOnly": true
-    },
     {
       "id": "distrito-a-fenda",
       "label": "A Fenda",
@@ -74,6 +40,23 @@ window.TerraZData.mediaLibrary = {
       "readOnly": true
     },
     {
+      "id": "armek",
+      "label": "Armek",
+      "category": "graph",
+      "src": "images/library/armek.jpg",
+      "source": "local",
+      "alt": "Armek",
+      "credit": "",
+      "framing": {
+        "fit": "cover",
+        "x": 54,
+        "y": 0,
+        "zoom": 1
+      },
+      "createdAt": "2026-10-02T03:38:31.294Z",
+      "updatedAt": "2026-10-02T03:39:02.021Z"
+    },
+    {
       "id": "distrito-bar-urso-polar",
       "label": "Bar Urso Polar",
       "category": "editorial",
@@ -96,6 +79,22 @@ window.TerraZData.mediaLibrary = {
       "src": "images/districts/distrito-solar.webp",
       "source": "project",
       "alt": "Distrito Solar",
+      "credit": "",
+      "framing": {
+        "fit": "cover",
+        "x": 50,
+        "y": 50,
+        "zoom": 1
+      },
+      "readOnly": true
+    },
+    {
+      "id": "editorial-dossie-terra-z",
+      "label": "Dossiê Terra Z",
+      "category": "editorial",
+      "src": "images/editorial/dossie-terra-z.webp",
+      "source": "project",
+      "alt": "Dossiê Terra Z",
       "credit": "",
       "framing": {
         "fit": "cover",
@@ -138,28 +137,12 @@ window.TerraZData.mediaLibrary = {
       "readOnly": true
     },
     {
-      "id": "distrito-la-ventanita",
-      "label": "La Ventanita",
-      "category": "editorial",
-      "src": "images/districts/la-ventanita.webp",
+      "id": "mapa-estados-unidos-cidades-externas",
+      "label": "Estados Unidos · Cidades Externas",
+      "category": "map",
+      "src": "images/maps/estados-unidos-cidades-externas.webp",
       "source": "project",
-      "alt": "La Ventanita",
-      "credit": "",
-      "framing": {
-        "fit": "cover",
-        "x": 50,
-        "y": 50,
-        "zoom": 1
-      },
-      "readOnly": true
-    },
-    {
-      "id": "editorial-dossie-terra-z",
-      "label": "Dossiê Terra Z",
-      "category": "editorial",
-      "src": "images/editorial/dossie-terra-z.webp",
-      "source": "project",
-      "alt": "Dossiê Terra Z",
+      "alt": "Estados Unidos · Cidades Externas",
       "credit": "",
       "framing": {
         "fit": "cover",
@@ -176,6 +159,22 @@ window.TerraZData.mediaLibrary = {
       "src": "images/editorial/jovens-titas-jason-todd.webp",
       "source": "project",
       "alt": "Jovens Titãs · Jason Todd",
+      "credit": "",
+      "framing": {
+        "fit": "cover",
+        "x": 50,
+        "y": 50,
+        "zoom": 1
+      },
+      "readOnly": true
+    },
+    {
+      "id": "distrito-la-ventanita",
+      "label": "La Ventanita",
+      "category": "editorial",
+      "src": "images/districts/la-ventanita.webp",
+      "source": "project",
+      "alt": "La Ventanita",
       "credit": "",
       "framing": {
         "fit": "cover",
@@ -298,22 +297,6 @@ window.TerraZData.mediaLibrary = {
       "readOnly": true
     },
     {
-      "id": "mapa-estados-unidos-cidades-externas",
-      "label": "Estados Unidos · Cidades Externas",
-      "category": "map",
-      "src": "images/maps/estados-unidos-cidades-externas.webp",
-      "source": "project",
-      "alt": "Estados Unidos · Cidades Externas",
-      "credit": "",
-      "framing": {
-        "fit": "cover",
-        "x": 50,
-        "y": 50,
-        "zoom": 1
-      },
-      "readOnly": true
-    },
-    {
       "id": "mapa-vanguard-bay-transporte",
       "label": "Vanguard Bay · Transporte",
       "category": "map",
@@ -336,6 +319,38 @@ window.TerraZData.mediaLibrary = {
       "src": "images/maps/vanguard-bay-visao-geral.webp",
       "source": "project",
       "alt": "Vanguard Bay · Visão Geral",
+      "credit": "",
+      "framing": {
+        "fit": "cover",
+        "x": 50,
+        "y": 50,
+        "zoom": 1
+      },
+      "readOnly": true
+    },
+    {
+      "id": "cidade-vista-aerea-dia",
+      "label": "Vanguard Bay · Vista Aérea Dia",
+      "category": "editorial",
+      "src": "images/city/vista-aerea-dia.webp",
+      "source": "project",
+      "alt": "Vanguard Bay · Vista Aérea Dia",
+      "credit": "",
+      "framing": {
+        "fit": "cover",
+        "x": 50,
+        "y": 50,
+        "zoom": 1
+      },
+      "readOnly": true
+    },
+    {
+      "id": "cidade-vista-aerea-noite",
+      "label": "Vanguard Bay · Vista Aérea Noite",
+      "category": "editorial",
+      "src": "images/city/vista-aerea-noite.webp",
+      "source": "project",
+      "alt": "Vanguard Bay · Vista Aérea Noite",
       "credit": "",
       "framing": {
         "fit": "cover",
