@@ -40,6 +40,10 @@ window.TerraZData.characterTaxonomy = {
     {
       "id": "other",
       "label": "Outros"
+    },
+    {
+      "id": "cidadao",
+      "label": "Cidadão"
     }
   ],
   "types": [
@@ -103,7 +107,8 @@ window.TerraZData.characterTaxonomy = {
         "queen"
       ],
       "type": "protagonist",
-      "status": "active"
+      "status": "active",
+      "tags": []
     },
     "Riot": {
       "featured": true,
@@ -112,7 +117,8 @@ window.TerraZData.characterTaxonomy = {
         "lobo-cadmus"
       ],
       "type": "protagonist",
-      "status": "active"
+      "status": "active",
+      "tags": []
     },
     "M'ark": {
       "featured": true,
@@ -122,7 +128,8 @@ window.TerraZData.characterTaxonomy = {
       ],
       "type": "protagonist",
       "status": "missing",
-      "visibility": "public"
+      "visibility": "public",
+      "tags": []
     },
     "Kendra Saunders": {
       "featured": false,
@@ -131,7 +138,8 @@ window.TerraZData.characterTaxonomy = {
         "jlu"
       ],
       "type": "hero",
-      "status": "active"
+      "status": "active",
+      "tags": []
     },
     "Lobo": {
       "featured": false,
@@ -140,7 +148,8 @@ window.TerraZData.characterTaxonomy = {
         "jlu"
       ],
       "type": "antihero",
-      "status": "active"
+      "status": "active",
+      "tags": []
     },
     "M'gann M'orzz": {
       "featured": false,
@@ -150,7 +159,8 @@ window.TerraZData.characterTaxonomy = {
       ],
       "type": "hero",
       "status": "active",
-      "visibility": "public"
+      "visibility": "public",
+      "tags": []
     },
     "J'onn J'onzz": {
       "featured": false,
@@ -159,7 +169,8 @@ window.TerraZData.characterTaxonomy = {
         "jlu"
       ],
       "type": "hero",
-      "status": "active"
+      "status": "active",
+      "tags": []
     },
     "Oliver Queen": {
       "featured": false,
@@ -170,7 +181,8 @@ window.TerraZData.characterTaxonomy = {
         "jlu"
       ],
       "type": "hero",
-      "status": "active"
+      "status": "active",
+      "tags": []
     },
     "Dinah Lance": {
       "featured": false,
@@ -179,7 +191,8 @@ window.TerraZData.characterTaxonomy = {
         "gotham"
       ],
       "type": "hero",
-      "status": "active"
+      "status": "active",
+      "tags": []
     },
     "Connor Hawke": {
       "featured": false,
@@ -187,7 +200,8 @@ window.TerraZData.characterTaxonomy = {
         "queen"
       ],
       "type": "hero",
-      "status": "active"
+      "status": "active",
+      "tags": []
     },
     "Jason Todd": {
       "featured": false,
@@ -196,7 +210,8 @@ window.TerraZData.characterTaxonomy = {
         "new-titans"
       ],
       "type": "antihero",
-      "status": "active"
+      "status": "active",
+      "tags": []
     },
     "Conner Kent": {
       "featured": false,
@@ -205,7 +220,8 @@ window.TerraZData.characterTaxonomy = {
         "novos-titas"
       ],
       "type": "hero",
-      "status": "active"
+      "status": "active",
+      "tags": []
     },
     "Bruce Wayne": {
       "featured": false,
@@ -214,7 +230,8 @@ window.TerraZData.characterTaxonomy = {
         "jlu"
       ],
       "type": "hero",
-      "status": "active"
+      "status": "active",
+      "tags": []
     },
     "Dick Grayson": {
       "featured": false,
@@ -223,7 +240,8 @@ window.TerraZData.characterTaxonomy = {
         "novos-titas"
       ],
       "type": "hero",
-      "status": "active"
+      "status": "active",
+      "tags": []
     },
     "Barbara Gordon": {
       "featured": false,
@@ -232,7 +250,8 @@ window.TerraZData.characterTaxonomy = {
         "jlu"
       ],
       "type": "hero",
-      "status": "active"
+      "status": "active",
+      "tags": []
     },
     "Damian Wayne": {
       "featured": false,
@@ -240,7 +259,8 @@ window.TerraZData.characterTaxonomy = {
         "gotham"
       ],
       "type": "hero",
-      "status": "active"
+      "status": "active",
+      "tags": []
     },
     "Tim Drake": {
       "featured": false,
@@ -248,7 +268,8 @@ window.TerraZData.characterTaxonomy = {
         "gotham"
       ],
       "type": "civilian",
-      "status": "retired"
+      "status": "retired",
+      "tags": []
     },
     "Verity Pennyworth": {
       "featured": false,
@@ -256,7 +277,8 @@ window.TerraZData.characterTaxonomy = {
         "gotham"
       ],
       "type": "civilian",
-      "status": "active"
+      "status": "active",
+      "tags": []
     },
     "Lian Harper": {
       "featured": false,
@@ -265,7 +287,8 @@ window.TerraZData.characterTaxonomy = {
         "new-titans"
       ],
       "type": "hero",
-      "status": "active"
+      "status": "active",
+      "tags": []
     },
     "Roy Harper": {
       "featured": false,
@@ -273,7 +296,8 @@ window.TerraZData.characterTaxonomy = {
         "queen"
       ],
       "type": "hero",
-      "status": "active"
+      "status": "active",
+      "tags": []
     },
     "George Gandenzio Toombs": {
       "featured": false,
@@ -281,7 +305,8 @@ window.TerraZData.characterTaxonomy = {
         "vanguard"
       ],
       "type": "npc",
-      "status": "active"
+      "status": "active",
+      "tags": []
     },
     "Michael Carter": {
       "featured": false,
@@ -290,7 +315,8 @@ window.TerraZData.characterTaxonomy = {
         "lobo-cadmus"
       ],
       "type": "npc",
-      "status": "active"
+      "status": "active",
+      "tags": []
     }
   }
 };
