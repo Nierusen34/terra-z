@@ -473,6 +473,8 @@ function applyMetaPatch(meta,patch,taxonomy,isPrivate){
 
   if(typesAllowed.has(String(patch.type||""))) next.type=String(patch.type);
   if(statusesAllowed.has(String(patch.status||""))) next.status=String(patch.status);
+  if(!typesAllowed.has(String(next.type||""))) next.type=typesAllowed.has("other") ? "other" : "";
+  if(!statusesAllowed.has(String(next.status||""))) next.status=statusesAllowed.has("unknown") ? "unknown" : "";
   if(typeof patch.featured==="boolean") next.featured=patch.featured;
 
   if(!isPrivate && (patch.visibility==="public" || patch.visibility==="spoiler")){
