@@ -73,6 +73,15 @@ var graphViewPositions=Object.create(null);
 var graphViewDrag=null;
 var graphSuppressClickUntil=0;
 
+var graphFocusNodeId="";
+var graphFullscreen=false;
+var graphInspectorCollapsed=false;
+var graphViewCenter={x:null,y:null};
+var graphPan=null;
+var graphTouchPoints=new Map();
+var graphPinch=null;
+var graphPanSuppressClickUntil=0;
+
 var quickRelationState={
   sourceId:"",
   targetId:"",
@@ -585,6 +594,240 @@ function selectQuickTarget(id){
   quickRelationState.targetId=id;
   openQuickRelation(quickRelationState.sourceId,id,{draft:quickRelationState.draft});
   return true;
+}
+
+function graphCanvasBounds(source){
+  var graph=source || graphData || {nodes:[],quadrants:[]};
+  var minX=0,minY=0,maxX=1000,maxY=720;
+  (graph.quadrants || []).forEach(function(q){
+    minX=Math.min(minX,Number(q.x)||0);
+    minY=Math.min(minY,Number(q.y)||0);
+    maxX=Math.max(maxX,(Number(q.x)||0)+(Number(q.w)||0));
+    maxY=Math.max(maxY,(Number(q.y)||0)+(Number(q.h)||0));
+  });
+  (graph.nodes || []).forEach(function(node){
+    var r=Math.max(38,Number(node.r)||38)+34;
+    minX=Math.min(minX,(Number(node.x)||0)-r);
+    minY=Math.min(minY,(Number(node.y)||0)-r);
+    maxX=Math.max(maxX,(Number(node.x)||0)+r);
+    maxY=Math.max(maxY,(Number(node.y)||0)+r+26);
+  });
+  var pad=42;
+  return {
+    x:Math.floor(minX-pad),
+    y:Math.floor(minY-pad),
+    w:Math.ceil((maxX-minX)+(pad*2)),
+    h:Math.ceil((maxY-minY)+(pad*2))
+  };
+}
+
+function graphQuadrantForNode(node,source){
+  if(!node) return null;
+  var graph=source || graphData || {quadrants:[]};
+  var current=(graph.quadrants || []).find(function(q){
+    return node.x>=q.x && node.x<=q.x+q.w && node.y>=q.y && node.y<=q.y+q.h;
+  });
+  if(current) return current;
+
+  var base=(defaultGraph.nodes || []).find(function(item){return item.id===node.id;});
+  if(base){
+    return (graph.quadrants || []).find(function(q){
+      return base.x>=q.x && base.x<=q.x+q.w && base.y>=q.y && base.y<=q.y+q.h;
+    }) || null;
+  }
+  return null;
+}
+
+function graphConnectedIds(nodeId){
+  var connected=new Set([nodeId]);
+  (graphData && graphData.edges || []).forEach(function(edge){
+    if(!allowed(edge.visibility)) return;
+    if(edge.from===nodeId) connected.add(edge.to);
+    if(edge.to===nodeId) connected.add(edge.from);
+  });
+  return connected;
+}
+
+function graphFocusActive(){
+  return !!(graphFocusNodeId && nodeById(graphFocusNodeId));
+}
+
+function updateGraphFocusButton(){
+  var button=document.getElementById("graphFocusBtn");
+  if(!button) return;
+  var selected=selectedNodeId && nodeById(selectedNodeId);
+  var active=graphFocusActive();
+  button.disabled=!selected;
+  button.textContent=active ? "◎ Rede completa" : "🎯 Foco";
+  button.title=active
+    ? "Mostrar novamente toda a rede"
+    : (selected ? "Destacar somente "+selected.label+" e suas conexões diretas" : "Selecione uma entidade para focar");
+}
+
+function setGraphFocus(nodeId,active){
+  graphFocusNodeId=active===false ? "" : String(nodeId || selectedNodeId || "");
+  renderGraph();
+  renderInspector();
+}
+
+function graphViewportBox(){
+  var bounds=graphCanvasBounds();
+  var zoom=Math.max(.6,Math.min(3,Number(graphScale)||1));
+  if(!Number.isFinite(graphViewCenter.x) || !Number.isFinite(graphViewCenter.y)){
+    graphViewCenter={x:bounds.x+bounds.w/2,y:bounds.y+bounds.h/2};
+  }
+  var w=bounds.w/zoom;
+  var h=bounds.h/zoom;
+  return {
+    x:graphViewCenter.x-w/2,
+    y:graphViewCenter.y-h/2,
+    w:w,
+    h:h,
+    bounds:bounds
+  };
+}
+
+function clampGraphCenter(){
+  var bounds=graphCanvasBounds();
+  if(!Number.isFinite(graphViewCenter.x) || !Number.isFinite(graphViewCenter.y)){
+    graphViewCenter={x:bounds.x+bounds.w/2,y:bounds.y+bounds.h/2};
+    return;
+  }
+  var w=bounds.w/Math.max(.6,graphScale);
+  var h=bounds.h/Math.max(.6,graphScale);
+  if(w<=bounds.w){
+    graphViewCenter.x=Math.max(bounds.x+w/2,Math.min(bounds.x+bounds.w-w/2,graphViewCenter.x));
+  }
+  if(h<=bounds.h){
+    graphViewCenter.y=Math.max(bounds.y+h/2,Math.min(bounds.y+bounds.h-h/2,graphViewCenter.y));
+  }
+}
+
+function fitGraphView(persist){
+  var bounds=graphCanvasBounds();
+  graphViewCenter={x:bounds.x+bounds.w/2,y:bounds.y+bounds.h/2};
+  graphScale=1;
+  if(persist!==false){
+    try{localStorage.setItem(GRAPH_SCALE_KEY,String(graphScale));}catch(error){}
+  }
+  applyGraphScale();
+}
+
+function updateFullscreenUi(){
+  var layout=document.querySelector(".relations-layout");
+  if(layout){
+    layout.classList.toggle("graph-fullscreen",graphFullscreen);
+    layout.classList.toggle("graph-inspector-collapsed",graphInspectorCollapsed);
+  }
+  document.body.classList.toggle("graph-fullscreen-open",graphFullscreen);
+  var button=document.getElementById("graphFullscreenBtn");
+  if(button){
+    button.textContent=graphFullscreen ? "✕ Tela cheia" : "⛶ Tela cheia";
+    button.setAttribute("aria-pressed",graphFullscreen?"true":"false");
+  }
+  var inspectorButton=document.getElementById("graphInspectorToggleBtn");
+  if(inspectorButton){
+    inspectorButton.textContent=graphInspectorCollapsed ? "☰ Mostrar painel" : "☰ Ocultar painel";
+    inspectorButton.setAttribute("aria-pressed",graphInspectorCollapsed?"true":"false");
+  }
+}
+
+function toggleGraphFullscreen(force){
+  graphFullscreen=typeof force==="boolean" ? force : !graphFullscreen;
+  if(!graphFullscreen) graphInspectorCollapsed=false;
+  updateFullscreenUi();
+  requestAnimationFrame(function(){ fitGraphView(false); });
+}
+
+function toggleGraphInspector(){
+  graphInspectorCollapsed=!graphInspectorCollapsed;
+  updateFullscreenUi();
+  requestAnimationFrame(function(){ applyGraphScale(); });
+}
+
+function panGraphByClientDelta(dx,dy,svg,startCenter,startBox){
+  var rect=svg.getBoundingClientRect();
+  if(!rect.width || !rect.height) return;
+  graphViewCenter.x=startCenter.x-(dx/rect.width)*startBox.w;
+  graphViewCenter.y=startCenter.y-(dy/rect.height)*startBox.h;
+  clampGraphCenter();
+  applyGraphScale();
+}
+
+function setupGraphPanZoom(svg){
+  if(!svg || svg.dataset.panZoomReady==="1") return;
+  svg.dataset.panZoomReady="1";
+  svg.style.touchAction="none";
+
+  svg.addEventListener("wheel",function(event){
+    if(event.target.closest && event.target.closest("[data-node-id],[data-edge-id]")) return;
+    event.preventDefault();
+    var factor=event.deltaY<0 ? 1.1 : .9;
+    setGraphScale(graphScale*factor,true);
+  },{passive:false});
+
+  svg.addEventListener("pointerdown",function(event){
+    if(event.button!==undefined && event.button!==0) return;
+    if(event.target.closest && event.target.closest("[data-node-id],[data-edge-id]")) return;
+    if(quickRelationState.picking) return;
+
+    if(event.pointerType==="touch"){
+      graphTouchPoints.set(event.pointerId,{x:event.clientX,y:event.clientY});
+      try{svg.setPointerCapture(event.pointerId);}catch(error){}
+      if(graphTouchPoints.size===2){
+        var pts=Array.from(graphTouchPoints.values());
+        graphPinch={
+          distance:Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y)||1,
+          scale:graphScale
+        };
+        graphPan=null;
+        return;
+      }
+    }
+
+    graphPan={
+      pointerId:event.pointerId,
+      startClientX:event.clientX,
+      startClientY:event.clientY,
+      startCenter:{x:graphViewCenter.x,y:graphViewCenter.y},
+      startBox:graphViewportBox(),
+      moved:false
+    };
+    try{svg.setPointerCapture(event.pointerId);}catch(error){}
+  });
+
+  svg.addEventListener("pointermove",function(event){
+    if(event.pointerType==="touch" && graphTouchPoints.has(event.pointerId)){
+      graphTouchPoints.set(event.pointerId,{x:event.clientX,y:event.clientY});
+      if(graphTouchPoints.size>=2 && graphPinch){
+        event.preventDefault();
+        var pts=Array.from(graphTouchPoints.values()).slice(0,2);
+        var distance=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y)||1;
+        setGraphScale(graphPinch.scale*(distance/graphPinch.distance),false);
+        return;
+      }
+    }
+
+    if(!graphPan || graphPan.pointerId!==event.pointerId) return;
+    event.preventDefault();
+    var dx=event.clientX-graphPan.startClientX;
+    var dy=event.clientY-graphPan.startClientY;
+    if(Math.hypot(dx,dy)>3) graphPan.moved=true;
+    panGraphByClientDelta(dx,dy,svg,graphPan.startCenter,graphPan.startBox);
+  });
+
+  var finish=function(event){
+    if(event.pointerType==="touch") graphTouchPoints.delete(event.pointerId);
+    if(graphTouchPoints.size<2) graphPinch=null;
+    if(graphPan && graphPan.pointerId===event.pointerId){
+      if(graphPan.moved) graphPanSuppressClickUntil=Date.now()+360;
+      graphPan=null;
+    }
+    try{svg.releasePointerCapture(event.pointerId);}catch(error){}
+    try{localStorage.setItem(GRAPH_SCALE_KEY,String(graphScale));}catch(error){}
+  };
+  svg.addEventListener("pointerup",finish);
+  svg.addEventListener("pointercancel",finish);
 }
 
 function graphDisplayNode(node){
