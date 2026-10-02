@@ -225,9 +225,11 @@ test("DC Wiki oferece Card, Grafo e Card + Grafo ao editor",async({page})=>{
     });
     await app.adminLoader.load();
     document.dispatchEvent(new CustomEvent("terra-z:auth-changed",{detail:{authenticated:true}}));
-    document.getElementById("searchInput").value="Zatanna";
-    window.switchSearchMode("fandom");
   });
+
+  await page.locator("#searchInput").fill("Zatanna");
+  await page.locator('.search-tab[data-mode="fandom"]').click();
+  await expect(page.locator("#searchPanel")).toHaveClass(/show/);
 
   const result=page.locator("#searchResults .search-result-item").first();
   await expect(result).toContainText("Zatanna Zatara");
