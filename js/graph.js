@@ -2073,8 +2073,8 @@ function layoutNodesInRegion(nodes,edges,region){
     var y=rows.length===1 ? (top+bottom)/2 : top+(bottom-top)*(rowIndex/(rows.length-1));
     row.forEach(function(node,index){
       var x=row.length===1 ? (left+right)/2 : left+(right-left)*(index/(row.length-1));
-      node.x=Math.round(Math.max(node.r+8,Math.min(1000-node.r-8,x)));
-      node.y=Math.round(Math.max(node.r+8,Math.min(720-node.r-34,y)));
+      node.x=Math.round(Math.max(region.x+node.r+8,Math.min(region.x+region.w-node.r-8,x)));
+      node.y=Math.round(Math.max(region.y+node.r+8,Math.min(region.y+region.h-node.r-34,y)));
     });
   });
 }
@@ -2164,6 +2164,7 @@ function renderLayoutEditor(root){
     return '<line class="ge-layout-edge" data-from="'+escapeAttr(edge.from)+'" data-to="'+escapeAttr(edge.to)+'" x1="'+a.x+'" y1="'+a.y+'" x2="'+b.x+'" y2="'+b.y+'" stroke="'+relationColor(edge.type)+'" stroke-width="'+(1.5+Number(edge.strength||3)*.4)+'"'+dash+'/>';
   }).join("");
   var nodes=editorDraft.nodes.map(layoutEditorNodeVisual).join("");
+  var layoutBounds=graphCanvasBounds(editorDraft);
 
   root.innerHTML='<div class="ge-layout-editor">'+
     '<div class="ge-layout-toolbar">'+
@@ -2180,9 +2181,9 @@ function renderLayoutEditor(root){
         ? '🔗 Modo conexão: toque na segunda bolinha · a origem está destacada · Esc cancela.'
         : 'Arraste para mover · toque para selecionar · use Conectar para criar vínculos · duplo clique no PC para editar.')+
     '</div>'+
-    '<div class="ge-layout-canvas"><svg id="graphLayoutSvg" viewBox="0 0 1000 720" xmlns="http://www.w3.org/2000/svg">'+
+    '<div class="ge-layout-canvas"><svg id="graphLayoutSvg" viewBox="'+layoutBounds.x+' '+layoutBounds.y+' '+layoutBounds.w+' '+layoutBounds.h+'" xmlns="http://www.w3.org/2000/svg">'+
       '<defs>'+clips+'<pattern id="ge-layout-grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="currentColor" stroke-opacity=".08"/></pattern></defs>'+
-      '<rect class="ge-layout-bg" x="0" y="0" width="1000" height="720" fill="url(#ge-layout-grid)"/>'+
+      '<rect class="ge-layout-bg" x="'+layoutBounds.x+'" y="'+layoutBounds.y+'" width="'+layoutBounds.w+'" height="'+layoutBounds.h+'" fill="url(#ge-layout-grid)"/>'+
       zones+edges+nodes+
     '</svg></div>'+
   '</div>';
@@ -2239,8 +2240,9 @@ function renderLayoutEditor(root){
         editorLayoutDrag.moved=true;
         var current=nodeById(id,editorDraft);if(!current)return;
         var point=layoutPoint(svg,moveEvent);
-        current.x=Math.round(Math.max(current.r+8,Math.min(1000-current.r-8,point.x)));
-        current.y=Math.round(Math.max(current.r+8,Math.min(720-current.r-34,point.y)));
+        var dragBounds=graphCanvasBounds(editorDraft);
+        current.x=Math.round(Math.max(dragBounds.x+current.r+8,Math.min(dragBounds.x+dragBounds.w-current.r-8,point.x)));
+        current.y=Math.round(Math.max(dragBounds.y+current.r+8,Math.min(dragBounds.y+dragBounds.h-current.r-34,point.y)));
         updateLayoutNodeDom(svg,current);
         updateLayoutPositionStatus(root,current);
       };
@@ -2347,8 +2349,8 @@ function renderEditorDetail(){
         '<label>Visibilidade<select data-ge-field="visibility">'+visibilityOptions(item.visibility)+'</select></label>'+
         '<label>Cor<input data-ge-field="color" type="color" value="'+escapeAttr(item.color)+'"></label>'+
         '<label>Tamanho<input data-ge-field="r" data-ge-number type="number" min="18" max="120" value="'+item.r+'"></label>'+
-        '<label>Posição X<input data-ge-field="x" data-ge-number type="number" min="0" max="1000" value="'+item.x+'"></label>'+
-        '<label>Posição Y<input data-ge-field="y" data-ge-number type="number" min="0" max="720" value="'+item.y+'"></label>'+
+        '<label>Posição X<input data-ge-field="x" data-ge-number type="number" step="1" value="'+item.x+'"></label>'+
+        '<label>Posição Y<input data-ge-field="y" data-ge-number type="number" step="1" value="'+item.y+'"></label>'+
         '<div class="ge-wide ge-help">O ID permanente é <code>'+escapeHtml(item.id)+'</code>. Para personagem/equipe/local/evento, a referência interna permite abrir diretamente a área correspondente do Terra Z.</div>'+
       '</div>';
   }else{
