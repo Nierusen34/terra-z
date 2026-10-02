@@ -3220,6 +3220,41 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
   font-size:7px;
   color:var(--ink3);
 }
+.graph-canvas-head>.graph-zoom-controls{
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  gap:5px;
+  flex:0 0 auto;
+}
+.graph-zoom-controls button{
+  min-width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink2);
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  cursor:pointer;
+  padding:0 7px;
+}
+.graph-zoom-controls button:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+.graph-zoom-controls input[type="range"]{
+  width:105px;
+  accent-color:var(--accent);
+  cursor:pointer;
+}
+.graph-zoom-controls #graphZoomLabel{
+  min-width:36px;
+  text-align:center;
+  font-size:7px;
+  color:var(--accent);
+}
 
 .graph-wrap-v2{
   margin:0;
@@ -3297,6 +3332,12 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
   font-size:10px;
   pointer-events:none;
 }
+.graph-node-portrait{
+  pointer-events:none;
+}
+.graph-node-v2.selected .graph-node-portrait{
+  filter:saturate(1.08) contrast(1.03);
+}
 
 .graph-legend-v2{
   display:flex;
@@ -3370,6 +3411,92 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
   color:var(--ink3);
 }
 .graph-inspector-card{padding:17px}
+.graph-inspector-portrait{
+  width:100%;
+  margin:0 0 13px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  background:var(--paper3);
+}
+.graph-inspector-portrait .character-portrait.large{
+  width:100%;
+  height:190px;
+  border:0;
+  margin:0;
+}
+.graph-inspector-portrait .character-portrait.large img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 22%;
+}
+.graph-inspector-portrait .character-portrait.large.auto-source img{
+  object-fit:cover;
+  object-position:center 18%;
+}
+.graph-inspector-portrait-fallback{
+  height:130px;
+  display:grid;
+  place-items:center;
+  color:var(--accent);
+  font-size:38px;
+  background:
+    radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--accent) 10%,transparent),transparent 48%),
+    var(--paper3);
+}
+.graph-relation-portraits{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center;
+  gap:7px;
+  margin-bottom:14px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--line2);
+}
+.graph-relation-portraits>div:not(.graph-relation-portrait-arrow){
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px;
+}
+.graph-relation-portraits .graph-inspector-portrait{
+  width:58px;
+  height:58px;
+  margin:0;
+  border-radius:50%;
+}
+.graph-relation-portraits .graph-inspector-portrait .character-portrait.small{
+  width:58px;
+  height:58px;
+  border:0;
+  border-radius:50%;
+}
+.graph-relation-portraits .graph-inspector-portrait .character-portrait.small img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 20%;
+}
+.graph-relation-portraits .graph-inspector-portrait-fallback{
+  display:grid;
+  place-items:center;
+  font-size:20px;
+}
+.graph-relation-portraits>div>span{
+  max-width:90px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-family:'Share Tech Mono',monospace;
+  font-size:6.5px;
+  color:var(--ink2);
+}
+.graph-relation-portrait-arrow{
+  color:var(--accent);
+  font-family:'Share Tech Mono',monospace;
+  font-size:13px;
+}
 .graph-inspector-kicker{
   font-family:'Share Tech Mono',monospace;
   font-size:7px;
@@ -3733,6 +3860,17 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
 }
 @media(max-width:620px){
   .relations-hero>div:first-child{padding:15px}
+  .graph-canvas-head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .graph-canvas-head>.graph-zoom-controls{
+    width:100%;
+  }
+  .graph-zoom-controls input[type="range"]{
+    flex:1;
+    width:auto;
+  }
   .relations-hero h3{font-size:17px}
   .relations-toolbar{grid-template-columns:1fr}
   .relations-toolbar>*{grid-column:1!important}
