@@ -4524,3 +4524,434 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
   .media-library-editor-actions{grid-template-columns:1fr 1fr}
   .media-library-editor-actions>span{display:none}
 }
+
+
+/* ===== ETAPAS 11–13 · ADMINISTRAÇÃO AVANÇADA ===== */
+.taxonomy-manager-tabs{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:1px;
+  background:var(--line2);
+  border-bottom:1px solid var(--line);
+}
+.taxonomy-kind-tab{
+  min-height:48px;
+  border:0;
+  background:var(--paper3);
+  color:var(--ink2);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:10px 12px;
+  cursor:pointer;
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;
+}
+.taxonomy-kind-tab strong{
+  min-width:24px;
+  padding:3px 5px;
+  border-radius:12px;
+  background:var(--paper);
+  color:var(--ink3);
+}
+.taxonomy-kind-tab.active{
+  background:var(--paper);
+  color:var(--accent);
+}
+.character-editor-empty-taxonomy{
+  display:block;
+  width:100%;
+  padding:9px 10px;
+  border:1px dashed var(--line);
+  color:var(--ink3);
+  font-size:8px;
+}
+.character-editor-tags{margin-top:10px}
+
+/* Etapa 12 */
+.bulk-editor-panel,
+.master-quick-panel{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:10060;
+  background:rgba(0,0,0,.78);
+  backdrop-filter:blur(9px);
+  padding:20px 14px;
+  overflow:auto;
+}
+.bulk-editor-panel.show,
+.master-quick-panel.show{
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+}
+.bulk-editor-card,
+.master-quick-card{
+  width:min(1180px,100%);
+  border:1px solid var(--line);
+  background:var(--paper2);
+  box-shadow:0 24px 76px rgba(0,0,0,.5);
+}
+.bulk-editor-head,
+.master-quick-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:18px;
+  padding:17px 20px;
+  border-bottom:1px solid var(--line);
+  background:var(--paper);
+}
+.bulk-editor-head h3,
+.master-quick-head h3{
+  margin:3px 0;
+  font-family:var(--font-title);
+  font-size:21px;
+  color:var(--ink);
+}
+.bulk-editor-head p,
+.master-quick-head p{
+  margin:0;
+  font-size:9px;
+  color:var(--ink3);
+}
+.bulk-editor-eyebrow,
+.master-quick-eyebrow{
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;
+  letter-spacing:1.4px;
+  color:var(--accent);
+}
+.bulk-editor-head>button,
+.master-quick-head-actions button{
+  border:1px solid var(--line);
+  background:var(--paper3);
+  color:var(--ink2);
+  padding:8px 10px;
+  cursor:pointer;
+}
+.bulk-editor-toolbar,
+.master-quick-toolbar{
+  display:grid;
+  grid-template-columns:minmax(220px,1fr) 220px auto auto;
+  gap:8px;
+  padding:11px 14px;
+  border-bottom:1px solid var(--line2);
+  background:var(--paper);
+}
+.bulk-editor-toolbar input,
+.bulk-editor-toolbar select,
+.master-quick-toolbar input,
+.bulk-editor-actions-panel select{
+  min-height:38px;
+  width:100%;
+  border:1px solid var(--line);
+  background:var(--paper3);
+  color:var(--ink);
+  padding:7px 9px;
+  font:inherit;
+  font-size:9px;
+}
+.bulk-editor-toolbar button,
+.master-quick-toolbar button{
+  min-height:38px;
+  border:1px solid var(--line);
+  background:var(--paper3);
+  color:var(--ink2);
+  padding:7px 10px;
+  cursor:pointer;
+  font-size:8px;
+}
+.bulk-editor-summary{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:9px 14px;
+  background:var(--paper3);
+  border-bottom:1px solid var(--line2);
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;
+  color:var(--ink3);
+}
+.bulk-editor-summary strong{
+  font-family:var(--font-title);
+  font-size:17px;
+  color:var(--accent);
+}
+.bulk-editor-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1.35fr) minmax(310px,.65fr);
+  min-height:560px;
+}
+.bulk-editor-characters{
+  max-height:68vh;
+  overflow:auto;
+  padding:10px;
+  border-right:1px solid var(--line);
+}
+.bulk-character-row{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  gap:10px;
+  align-items:flex-start;
+  padding:10px 11px;
+  margin-bottom:6px;
+  border:1px solid var(--line2);
+  background:var(--paper);
+  cursor:pointer;
+}
+.bulk-character-row.selected{
+  border-color:color-mix(in srgb,var(--accent) 60%,var(--line));
+  background:color-mix(in srgb,var(--accent) 5%,var(--paper));
+}
+.bulk-character-row input{margin-top:3px;accent-color:var(--accent)}
+.bulk-character-main{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+.bulk-character-main strong{
+  font-family:var(--font-title);
+  font-size:11px;
+  color:var(--ink);
+}
+.bulk-character-main span{font-size:8px;color:var(--ink2)}
+.bulk-character-main small{
+  font-family:'Share Tech Mono',monospace;
+  font-size:6.5px;
+  line-height:1.5;
+  color:var(--ink3);
+}
+.bulk-editor-actions-panel{
+  padding:14px;
+  background:var(--paper3);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.bulk-editor-actions-panel h4{
+  margin:0 0 2px;
+  font-family:var(--font-title);
+  font-size:14px;
+  color:var(--ink);
+}
+.bulk-editor-actions-panel>label,
+.bulk-editor-operation{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;
+  text-transform:uppercase;
+  color:var(--ink3);
+}
+.bulk-editor-operation{
+  padding:10px;
+  border:1px solid var(--line2);
+  background:var(--paper);
+}
+.bulk-editor-operation>strong{color:var(--ink);font-size:8px}
+.bulk-editor-checks{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  max-height:120px;
+  overflow:auto;
+}
+.bulk-editor-checks label{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  padding:5px 7px;
+  border:1px solid var(--line);
+  background:var(--paper3);
+  text-transform:none;
+  color:var(--ink2);
+}
+.bulk-editor-checks input{accent-color:var(--accent)}
+.bulk-editor-note{
+  padding:9px 10px;
+  border-left:3px solid var(--accent2);
+  background:var(--paper);
+  font-size:7.5px;
+  line-height:1.55;
+  color:var(--ink3);
+}
+.bulk-editor-status{
+  min-height:18px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;
+  color:var(--ink3);
+}
+.bulk-editor-status[data-state="success"]{color:#2f8b57}
+.bulk-editor-status[data-state="error"]{color:#b54242}
+.bulk-editor-status[data-state="working"]{color:var(--accent)}
+#bulkEditorApply{
+  min-height:42px;
+  border:1px solid var(--accent);
+  background:var(--accent);
+  color:#fff;
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;
+  cursor:pointer;
+}
+.bulk-editor-empty{
+  padding:26px 14px;
+  text-align:center;
+  color:var(--ink3);
+  font-size:9px;
+}
+
+/* Etapa 13 */
+.master-quick-head-actions{display:flex;gap:7px}
+.master-quick-stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  background:var(--line2);
+  gap:1px;
+  border-bottom:1px solid var(--line);
+}
+.master-quick-stats>div{
+  display:grid;
+  grid-template-columns:auto auto 1fr;
+  align-items:center;
+  gap:7px;
+  padding:11px 13px;
+  background:var(--paper3);
+}
+.master-quick-stats strong{
+  font-family:var(--font-title);
+  font-size:18px;
+  color:var(--accent);
+}
+.master-quick-stats small{
+  font-family:'Share Tech Mono',monospace;
+  font-size:6.5px;
+  color:var(--ink3);
+}
+.master-quick-toolbar{
+  grid-template-columns:minmax(220px,1fr) auto auto;
+}
+.master-quick-alerts{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  padding:10px 14px 0;
+}
+.master-quick-alerts>div{
+  padding:7px 9px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  font-size:7.5px;
+  color:var(--ink2);
+}
+.master-quick-alerts>[data-state="warning"]{border-color:#b9852d}
+.master-quick-alerts>[data-state="ok"]{border-color:#3d8a61}
+.master-quick-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  padding:14px;
+}
+.master-quick-grid>section{
+  min-width:0;
+  border:1px solid var(--line);
+  background:var(--paper);
+}
+.master-quick-wide{grid-column:1/-1}
+.master-quick-section-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:9px 11px;
+  border-bottom:1px solid var(--line2);
+  background:var(--paper3);
+}
+.master-quick-section-head strong{
+  font-family:var(--font-title);
+  font-size:10px;
+  color:var(--ink);
+}
+.master-quick-section-head span{
+  min-width:24px;
+  text-align:center;
+  padding:2px 6px;
+  border-radius:12px;
+  background:var(--paper);
+  color:var(--accent);
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;
+}
+.master-quick-list{
+  max-height:280px;
+  overflow:auto;
+  padding:8px;
+}
+.master-quick-list.compact{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+}
+.master-quick-item{
+  padding:9px 10px;
+  margin-bottom:6px;
+  border:1px solid var(--line2);
+  background:var(--paper2);
+}
+.master-quick-list.compact .master-quick-item{margin-bottom:0}
+.master-quick-item strong{
+  font-family:var(--font-title);
+  font-size:9.5px;
+  color:var(--ink);
+}
+.master-quick-item p{
+  margin:4px 0 0;
+  font-size:7.5px;
+  line-height:1.5;
+  color:var(--ink2);
+  display:-webkit-box;
+  -webkit-line-clamp:3;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.master-quick-chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px;
+  margin-top:6px;
+}
+.master-quick-chips span{
+  padding:3px 5px;
+  background:var(--paper3);
+  border:1px solid var(--line2);
+  font-family:'Share Tech Mono',monospace;
+  font-size:5.8px;
+  color:var(--ink3);
+}
+.master-quick-empty{
+  padding:18px 12px;
+  text-align:center;
+  color:var(--ink3);
+  font-size:8px;
+}
+
+@media(max-width:780px){
+  .taxonomy-manager-tabs{grid-template-columns:repeat(2,1fr)}
+  .bulk-editor-panel,.master-quick-panel{padding:0}
+  .bulk-editor-card,.master-quick-card{width:100%;min-height:100vh;border:0}
+  .bulk-editor-toolbar,.master-quick-toolbar{grid-template-columns:1fr}
+  .bulk-editor-layout{grid-template-columns:1fr}
+  .bulk-editor-characters{max-height:45vh;border-right:0;border-bottom:1px solid var(--line)}
+  .master-quick-stats{grid-template-columns:repeat(2,1fr)}
+  .master-quick-grid{grid-template-columns:1fr}
+  .master-quick-wide{grid-column:auto}
+  .master-quick-list.compact{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .taxonomy-manager-tabs{grid-template-columns:1fr}
+  .master-quick-stats{grid-template-columns:1fr}
+}
