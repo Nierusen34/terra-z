@@ -146,9 +146,6 @@ function render(){
 function renderSummary(){
   if(el("bulkEditorSelectedCount"))el("bulkEditorSelectedCount").textContent=String(selection?selection.size():0);
 }
-function selectedChecked(selector){
-  return Array.from(document.querySelectorAll(selector+":checked")).map(function(input){return input.value||input.getAttribute(selector.match(/data-[^=\]]+/)[0]);});
-}
 function checkedValues(attr){
   return Array.from(document.querySelectorAll("["+attr+"]:checked")).map(function(input){return input.getAttribute(attr);});
 }
