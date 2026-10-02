@@ -662,6 +662,15 @@ function bindGraphViewDrag(svg,group){
 
   group.addEventListener("pointerdown",function(event){
     if(event.button!==undefined && event.button!==0) return;
+
+    if(!quickRelationState.draft && quickRelationState.picking){
+      event.preventDefault();
+      event.stopPropagation();
+      graphSuppressClickUntil=Date.now()+360;
+      selectQuickTarget(id);
+      return;
+    }
+
     var start=graphDisplayNodeById(id);
     if(!start) return;
 
