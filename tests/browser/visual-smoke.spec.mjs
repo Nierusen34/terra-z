@@ -413,7 +413,7 @@ test("editor conecta duas entidades diretamente pelo mapa",async({page})=>{
   await expectNoPageErrors(errors);
 });
 
-test("grafo oferece foco, tela cheia, ajuste e pan zoom expansível",async({page})=>{
+test("grafo oferece foco, tela cheia, ajuste e pan zoom expansível",async({page},testInfo)=>{
   const errors=watchRuntimeErrors(page);
   await page.goto("/#/universo/relacoes",{waitUntil:"domcontentloaded"});
 
@@ -452,12 +452,30 @@ test("grafo oferece foco, tela cheia, ajuste e pan zoom expansível",async({page
   await page.locator("#graphFitBtn").click();
   await expect.poll(()=>page.evaluate(()=>window.TerraZApp.graph.getViewport().scale)).toBe(1);
 
+  if(testInfo.project.name.includes("mobile")){
+    await expect(page.locator(".graph-wrap-v2")).not.toHaveClass(/mobile-scroll-region/);
+    const normalHead=await page.locator(".graph-canvas-head").boundingBox();
+    expect(normalHead).not.toBeNull();
+    expect(normalHead.height).toBeLessThan(240);
+  }
+
   await page.locator("#graphFullscreenBtn").click();
   await expect(page.locator("#graphRelationsLayout")).toHaveClass(/graph-fullscreen/);
   await expect(page.locator("#graphFullscreenBtn")).toHaveAttribute("aria-pressed","true");
 
-  await page.locator("#graphInspectorToggleBtn").click();
-  await expect(page.locator("#graphRelationsLayout")).toHaveClass(/graph-inspector-collapsed/);
+  if(testInfo.project.name.includes("mobile")){
+    await expect(page.locator("#graphRelationsLayout")).toHaveClass(/graph-inspector-collapsed/);
+    const fullHead=await page.locator(".graph-canvas-head").boundingBox();
+    expect(fullHead).not.toBeNull();
+    expect(fullHead.height).toBeLessThan(190);
+    await page.locator("#graphInspectorToggleBtn").click();
+    await expect(page.locator("#graphRelationsLayout")).not.toHaveClass(/graph-inspector-collapsed/);
+    await page.locator("#graphInspectorToggleBtn").click();
+    await expect(page.locator("#graphRelationsLayout")).toHaveClass(/graph-inspector-collapsed/);
+  }else{
+    await page.locator("#graphInspectorToggleBtn").click();
+    await expect(page.locator("#graphRelationsLayout")).toHaveClass(/graph-inspector-collapsed/);
+  }
 
   await page.locator("#graphZoomRange").evaluate(el=>{
     el.value="150";
