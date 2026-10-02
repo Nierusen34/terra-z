@@ -66,8 +66,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 140,
-      "y": 130,
+      "x": 190,
+      "y": 35,
       "color": "#c45a1c",
       "r": 34,
       "visibility": "public"
@@ -89,8 +89,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 140,
-      "y": 240,
+      "x": 234,
+      "y": 44,
       "color": "#8b1a1a",
       "r": 34,
       "visibility": "public"
@@ -112,8 +112,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 300,
-      "y": 240,
+      "x": 271,
+      "y": 69,
       "color": "#c45a1c",
       "r": 34,
       "visibility": "public"
@@ -135,8 +135,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 400,
-      "y": 130,
+      "x": 296,
+      "y": 106,
       "color": "#3a3028",
       "r": 34,
       "visibility": "public"
@@ -158,8 +158,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 700,
-      "y": 130,
+      "x": 305,
+      "y": 150,
       "color": "#1a1512",
       "r": 34,
       "visibility": "public"
@@ -181,8 +181,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 800,
-      "y": 130,
+      "x": 296,
+      "y": 194,
       "color": "#8b1a1a",
       "r": 34,
       "visibility": "public"
@@ -204,8 +204,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 600,
-      "y": 240,
+      "x": 271,
+      "y": 231,
       "color": "#8b1a1a",
       "r": 34,
       "visibility": "public"
@@ -227,8 +227,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 700,
-      "y": 240,
+      "x": 234,
+      "y": 256,
       "color": "#8b1a1a",
       "r": 34,
       "visibility": "public"
@@ -250,8 +250,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 800,
-      "y": 240,
+      "x": 190,
+      "y": 265,
       "color": "#8b1a1a",
       "r": 34,
       "visibility": "public"
@@ -273,8 +273,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 120,
-      "y": 470,
+      "x": 146,
+      "y": 256,
       "color": "#0a8a4a",
       "r": 34,
       "visibility": "public"
@@ -296,8 +296,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 400,
-      "y": 470,
+      "x": 109,
+      "y": 231,
       "color": "#0064a8",
       "r": 34,
       "visibility": "public"
@@ -319,8 +319,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 260,
-      "y": 580,
+      "x": 84,
+      "y": 194,
       "color": "#0a8a4a",
       "r": 34,
       "visibility": "public"
@@ -342,8 +342,8 @@ window.TerraZData.graphOverride = {
         "y": 0,
         "zoom": 2
       },
-      "x": 120,
-      "y": 650,
+      "x": 500,
+      "y": 150,
       "color": "#3a3028",
       "r": 34,
       "visibility": "public"
@@ -365,8 +365,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 400,
-      "y": 650,
+      "x": 75,
+      "y": 150,
       "color": "#0a8a4a",
       "r": 34,
       "visibility": "public"
@@ -388,8 +388,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 660,
-      "y": 490,
+      "x": 84,
+      "y": 106,
       "color": "#3a3028",
       "r": 40,
       "visibility": "public"
@@ -411,8 +411,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 660,
-      "y": 620,
+      "x": 109,
+      "y": 69,
       "color": "#3a3028",
       "r": 40,
       "visibility": "public"
@@ -434,8 +434,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 800,
-      "y": 620,
+      "x": 146,
+      "y": 44,
       "color": "#8b1a1a",
       "r": 34,
       "visibility": "public"
