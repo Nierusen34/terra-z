@@ -109,6 +109,27 @@ function normalizeGraph(input){
     visibility:visibility(n && n.visibility)
   })) : [];
 
+  for(const node of nodes){
+    if(node.mediaMode==="library" && !node.mediaId){
+      const error=new Error("Entidade com mídia da Biblioteca precisa selecionar um ativo.");
+      error.status=400;
+      error.code="missing_graph_media_asset";
+      throw error;
+    }
+    if(node.mediaMode==="url" && !node.mediaUrl){
+      const error=new Error("Entidade com URL própria precisa informar uma URL HTTPS válida.");
+      error.status=400;
+      error.code="invalid_graph_media_url";
+      throw error;
+    }
+    if(node.visibility==="master" && node.mediaMode==="library"){
+      const error=new Error("Entidades Mestre não podem usar ativos públicos da Biblioteca. Use URL direta ou sem imagem.");
+      error.status=400;
+      error.code="master_graph_public_media";
+      throw error;
+    }
+  }
+
   const nodeIds=new Set(nodes.map(n=>n.id));
   if(nodeIds.size!==nodes.length){
     const error=new Error("O grafo contém IDs de nós duplicados.");
