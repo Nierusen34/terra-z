@@ -126,12 +126,23 @@ function findCityBySlug(slug){
   return cities.find(function(item){ return item && slugify(item.city) === slugify(slug); }) || null;
 }
 
+function looseSlug(value){
+  return slugify(value).replace(/^(?:o|a|os|as|the)-/,'');
+}
+
 function findDistrictBySlug(slug){
   var districts=window.TerraZData && window.TerraZData.districts;
   if(!Array.isArray(districts)) return null;
   var wanted=slugify(slug);
+  var looseWanted=looseSlug(slug);
   return districts.find(function(item){
-    return item && (slugify(item.id) === wanted || slugify(item.name) === wanted);
+    if(!item) return false;
+    var idSlug=slugify(item.id);
+    var nameSlug=slugify(item.name);
+    return idSlug === wanted ||
+      nameSlug === wanted ||
+      looseSlug(item.id) === looseWanted ||
+      looseSlug(item.name) === looseWanted;
   }) || null;
 }
 
