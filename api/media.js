@@ -1,7 +1,7 @@
 import { applyCors } from "./_lib/cors.js";
 import { requireEditor } from "./_lib/auth.js";
 import { getHead, readTextFile, readBinaryFile, commitFiles } from "./_lib/github.js";
-import { parseDataAssignment, renderCharacterMedia } from "./_lib/data-files.js";
+import { parseDataAssignment, renderCharacterMedia, renderMediaLibrary } from "./_lib/data-files.js";
 import {
   PRIVATE_CHARACTER_DATA_PATH,
   readPrivateCharacterData,
@@ -365,6 +365,66 @@ function privateMediaDefault(name){
   return {src:"",alt:name,source:"local",credit:""};
 }
 
+const LIBRARY_CATEGORIES=new Set(["portrait","graph","map","editorial","team","other"]);
+
+function normalizeLibraryAsset(input,existing,id){
+  const source=input && typeof input === "object" && !Array.isArray(input) ? input : {};
+  const previous=existing && typeof existing === "object" ? existing : {};
+  const label=safeDcText(source.label || previous.label || id,160);
+  const category=LIBRARY_CATEGORIES.has(source.category)
+    ? source.category
+    : (LIBRARY_CATEGORIES.has(previous.category) ? previous.category : "other");
+  const sourceType=source.source === "external" ? "external" : (previous.source === "external" ? "external" : "local");
+  let src=String(source.src !== undefined ? source.src : (previous.src || "")).trim();
+
+  if(sourceType==="external"){
+    src=safeHttpsUrl(src,1600);
+    if(!src){
+      const error=new Error("Informe uma URL HTTPS válida para o ativo externo.");
+      error.status=400;
+      error.code="invalid_library_url";
+      throw error;
+    }
+  }else if(src && !/^images\/library\/[a-z0-9._-]+\.(png|jpe?g|webp)$/i.test(src)){
+    const error=new Error("Caminho local inválido para a Biblioteca de Mídia.");
+    error.status=400;
+    error.code="invalid_library_path";
+    throw error;
+  }
+
+  return {
+    id,
+    label,
+    category,
+    src,
+    source:sourceType,
+    alt:safeDcText(source.alt !== undefined ? source.alt : (previous.alt || label),180),
+    credit:safeDcText(source.credit !== undefined ? source.credit : (previous.credit || ""),240),
+    framing:normalizeFramingPreset(source.framing || previous.framing),
+    createdAt:String(previous.createdAt || source.createdAt || new Date().toISOString()),
+    updatedAt:new Date().toISOString()
+  };
+}
+
+function normalizeLibrary(data){
+  const input=data && typeof data === "object" && !Array.isArray(data) ? data : {};
+  const assets=Array.isArray(input.assets) ? input.assets : [];
+  return {
+    version:1,
+    assets:assets.filter(asset=>asset && asset.id).slice(0,1000)
+  };
+}
+
+function uniqueLibraryId(label,assets,currentId){
+  const base=slugify(label || "midia") || "midia";
+  const used=new Set((assets || []).map(asset=>String(asset && asset.id || "")).filter(Boolean));
+  if(currentId) used.delete(currentId);
+  if(!used.has(base)) return base;
+  let suffix=2;
+  while(used.has(base+"-"+suffix)) suffix++;
+  return base+"-"+suffix;
+}
+
 export default async function handler(req,res){
   if(applyCors(req,res)) return;
 
@@ -378,7 +438,7 @@ export default async function handler(req,res){
     }
 
     const path = String((req.query || {}).path || "");
-    if(!/^images\/characters\/[a-z0-9._-]+\.(png|jpe?g|webp)$/i.test(path)){
+    if(!/^images\/(?:characters|library)\/[a-z0-9._-]+\.(png|jpe?g|webp)$/i.test(path)){
       return res.status(400).json({error:"invalid_media_path"});
     }
 
@@ -403,6 +463,112 @@ export default async function handler(req,res){
 
   try {
     const requestBody = req.body || {};
+
+    if(req.method === "POST" && (
+      requestBody.action === "library-upsert" ||
+      requestBody.action === "library-upload" ||
+      requestBody.action === "library-delete"
+    )){
+      const action=requestBody.action;
+      const head=await getHead();
+      const libraryFile=await readTextFile("data/media-library.js");
+      const library=normalizeLibrary(parseDataAssignment(libraryFile.content,"mediaLibrary"));
+      const requestedId=slugify(requestBody.id || "");
+      const index=library.assets.findIndex(asset=>asset && asset.id===requestedId);
+      const existing=index>=0 ? library.assets[index] : null;
+
+      if(action === "library-delete"){
+        if(!requestedId || !existing){
+          return res.status(404).json({error:"library_asset_not_found",message:"Ativo de mídia não encontrado."});
+        }
+
+        library.assets.splice(index,1);
+        const files=[
+          {path:"data/media-library.js",content:renderMediaLibrary(library),encoding:"utf-8"}
+        ];
+        const previousPath=String(existing.src || "");
+        if(existing.source==="local" && /^images\/library\/[a-z0-9._-]+\.(png|jpe?g|webp)$/i.test(previousPath)){
+          try{
+            await readBinaryFile(previousPath);
+            files.push({path:previousPath,delete:true});
+          }catch(error){
+            if(!error || error.status!==404) throw error;
+          }
+        }
+
+        const commit=await commitFiles(files,"media: excluir ativo "+(existing.label || existing.id),head);
+        return res.status(200).json({
+          ok:true,sha:commit.sha,deleted:existing.id,
+          library,status_url:statusUrl(req,commit.sha)
+        });
+      }
+
+      let id=requestedId || uniqueLibraryId(requestBody.label,library.assets,"");
+      if(!existing && library.assets.some(asset=>asset.id===id)){
+        id=uniqueLibraryId(requestBody.label,library.assets,"");
+      }
+
+      let asset;
+      const files=[];
+
+      if(action === "library-upload"){
+        const mime=String(requestBody.mimeType || "").toLowerCase();
+        const extension=EXTENSIONS[mime];
+        if(!extension){
+          return res.status(400).json({error:"invalid_media",message:"Use PNG, JPEG ou WebP."});
+        }
+
+        let encoded=String(requestBody.contentBase64 || "");
+        const comma=encoded.indexOf(",");
+        if(encoded.startsWith("data:") && comma>=0) encoded=encoded.slice(comma+1);
+        encoded=encoded.replace(/\s+/g,"");
+        const buffer=Buffer.from(encoded,"base64");
+
+        if(!buffer.length || buffer.length>MAX_BYTES){
+          return res.status(413).json({error:"image_too_large",message:"A imagem deve ter no máximo 2 MB."});
+        }
+        if(!validMagic(buffer,mime)){
+          return res.status(400).json({error:"invalid_image",message:"O conteúdo do arquivo não corresponde ao formato informado."});
+        }
+
+        const imagePath="images/library/"+id+"."+extension;
+        asset=normalizeLibraryAsset({
+          ...requestBody,
+          source:"local",
+          src:imagePath
+        },existing,id);
+
+        if(existing && existing.source==="local" && existing.src && existing.src!==imagePath &&
+           /^images\/library\/[a-z0-9._-]+\.(png|jpe?g|webp)$/i.test(existing.src)){
+          try{
+            await readBinaryFile(existing.src);
+            files.push({path:existing.src,delete:true});
+          }catch(error){
+            if(!error || error.status!==404) throw error;
+          }
+        }
+
+        files.push({path:imagePath,content:buffer.toString("base64"),encoding:"base64"});
+      }else{
+        asset=normalizeLibraryAsset(requestBody,existing,id);
+      }
+
+      if(index>=0) library.assets[index]=asset;
+      else library.assets.push(asset);
+      library.assets.sort((a,b)=>String(a.label||"").localeCompare(String(b.label||""),"pt-BR"));
+
+      files.push({path:"data/media-library.js",content:renderMediaLibrary(library),encoding:"utf-8"});
+      const commit=await commitFiles(
+        files,
+        existing ? ("media: atualizar ativo "+asset.label) : ("media: criar ativo "+asset.label),
+        head
+      );
+
+      return res.status(200).json({
+        ok:true,sha:commit.sha,asset,library,
+        status_url:statusUrl(req,commit.sha)
+      });
+    }
 
     if(req.method === "POST" && requestBody.action === "configure-display"){
       const character=String(requestBody.character || "").trim();
