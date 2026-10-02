@@ -604,7 +604,6 @@ function checkGraph(data){
   const adminFoundation=read("js/admin-foundation.js");
   const adminLoaderRuntime=read("js/admin-loader.js");
   if(!adminFoundation.includes("createSelection") ||
-     !adminFoundation.includes("batchApply") ||
      !adminFoundation.includes("filterRows")){
     fail("Infraestrutura compartilhada para etapas 11–13 está incompleta.");
   }
@@ -676,6 +675,33 @@ function checkGraph(data){
     fail("OPERATIONS.md ausente; novas conversas precisam de uma política operacional persistente.");
   }
   pass("Fluxo oficial GitHub → Actions → Deploy Hook → Vercel está documentado e testado");
+}
+
+function checkModuleRegistry(){
+  const html=read("index.html");
+  const loader=read("js/admin-loader.js");
+  const direct=[...html.matchAll(/<script[^>]+src=["']([^"']+)["']/g)]
+    .map(match=>String(match[1]||"").replace(/^\.\//,""))
+    .filter(path=>path.startsWith("js/"));
+  const lazy=[...loader.matchAll(/["'](js\/[^"']+\.js)["']/g)].map(match=>match[1]);
+  const registered=direct.concat(lazy);
+  const duplicates=registered.filter((path,index)=>registered.indexOf(path)!==index);
+
+  if(duplicates.length){
+    fail("Módulos JavaScript registrados mais de uma vez: "+[...new Set(duplicates)].join(", "));
+  }
+
+  const files=fs.readdirSync(path.join(root,"js"),{withFileTypes:true})
+    .filter(entry=>entry.isFile()&&entry.name.endsWith(".js"))
+    .map(entry=>"js/"+entry.name)
+    .sort();
+  const orphaned=files.filter(file=>!registered.includes(file));
+
+  if(orphaned.length){
+    fail("Módulos JavaScript órfãos, não carregados nem pelo boot nem pelo lazy loader: "+orphaned.join(", "));
+  }else{
+    pass(files.length+" módulos JavaScript possuem caminho de carregamento explícito");
+  }
 }
 
 function checkAdvancedAdmin(data){
@@ -855,6 +881,7 @@ checkMediaLibrary(data);
 checkSessions(data,characters);
 checkTimeline(data,characters);
 checkGraph(data);
+checkModuleRegistry();
 checkAdvancedAdmin(data);
 checkEncryptedFiles();
 checkVercel();

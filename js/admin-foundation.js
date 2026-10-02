@@ -76,40 +76,12 @@ function filterRows(rows,options){
   });
 }
 
-function batchApply(rows,ids,updater,getId){
-  var idSet=new Set(unique(ids));
-  getId=typeof getId==="function" ? getId : function(row){ return row && row.id; };
-  updater=typeof updater==="function" ? updater : function(row){ return row; };
-
-  return (Array.isArray(rows)?rows:[]).map(function(row,index){
-    var id=String(getId(row,index) || "");
-    return idSet.has(id) ? updater(row,index) : row;
-  });
-}
-
-function groupBy(rows,key){
-  var groups=new Map();
-  (Array.isArray(rows)?rows:[]).forEach(function(row){
-    var value=typeof key==="function" ? key(row) : row && row[key];
-    var values=Array.isArray(value) ? value : [value];
-    values.forEach(function(item){
-      var label=String(item || "").trim();
-      if(!label) return;
-      if(!groups.has(label)) groups.set(label,[]);
-      groups.get(label).push(row);
-    });
-  });
-  return groups;
-}
-
 window.TerraZApp.adminFoundation={
   normalize:normalize,
   slugify:slugify,
   unique:unique,
   createSelection:createSelection,
-  filterRows:filterRows,
-  batchApply:batchApply,
-  groupBy:groupBy
+  filterRows:filterRows
 };
 
 document.dispatchEvent(new CustomEvent("terra-z:admin-foundation-ready"));
