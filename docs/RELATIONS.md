@@ -60,9 +60,22 @@ A página principal oferece:
 - conexões diretas;
 - intensidade da relação;
 - notas narrativas;
-- abertura da entidade por deep link quando houver destino.
+- abertura da entidade por deep link quando houver destino;
+- controle de escala de 75% a 200%, persistido no navegador.
+
+A escala inicial é 130% para priorizar legibilidade. O botão **100%** retorna ao tamanho-base.
 
 O mapa usa formas distintas por tipo de entidade, linhas curvas, intensidade visual por força do vínculo e setas para relações direcionais.
+
+### Retratos de personagens
+
+Nós do tipo `character` reutilizam o mesmo registro de `data/character-media.js` usado nas fichas. Quando existe retrato:
+
+- a imagem aparece recortada dentro do nó circular;
+- a imagem também aparece no painel de inspeção da entidade;
+- ao inspecionar uma relação entre personagens, os dois retratos aparecem lado a lado.
+
+Retratos automáticos continuam sendo resolvidos pelo sistema já existente de `js/character-media.js`, incluindo DC Database e URLs externas. Não existe um segundo cadastro de imagem para o grafo.
 
 ## Editor
 
