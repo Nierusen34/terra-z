@@ -374,7 +374,9 @@ function normalizeLibraryAsset(input,existing,id){
   const category=LIBRARY_CATEGORIES.has(source.category)
     ? source.category
     : (LIBRARY_CATEGORIES.has(previous.category) ? previous.category : "other");
-  const sourceType=source.source === "external" ? "external" : (previous.source === "external" ? "external" : "local");
+  const sourceType=(source.source==="external" || source.source==="local")
+    ? source.source
+    : (previous.source==="external" ? "external" : "local");
   let src=String(source.src !== undefined ? source.src : (previous.src || "")).trim();
 
   if(sourceType==="external"){
