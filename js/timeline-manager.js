@@ -575,7 +575,19 @@ function labelFor(id){
 
 function getEvent(id){
   var event=eventsCache.find(function(row){ return row.id===String(id || ""); });
-  return event ? JSON.parse(JSON.stringify(event)) : null;
+  if(!event) return null;
+
+  var copy=JSON.parse(JSON.stringify(event));
+  if(copy.source==="lore"){
+    var article=document.querySelector('#timelineData [data-timeline-id="'+CSS.escape(copy.id)+'"]');
+    if(article){
+      var dateNode=article.querySelector(".timeline-event-date");
+      var textNode=article.querySelector(".timeline-event-text");
+      if(dateNode) copy.year=String(dateNode.textContent || "").trim();
+      if(textNode) copy.text=String(textNode.textContent || "").trim();
+    }
+  }
+  return copy;
 }
 
 function rebuildPublicTimeline(items){
