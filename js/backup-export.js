@@ -12,6 +12,18 @@ function el(id){return document.getElementById(id);}
 function app(){return window.TerraZApp||{};}
 function backend(){return app().backend;}
 function authenticated(){var b=backend();return !!(b&&b.isAuthenticated&&b.isAuthenticated());}
+var capability=null;
+async function supported(force){
+  if(force)capability=null;
+  if(capability!==null)return capability;
+  var b=backend();
+  if(!b||!b.health)return false;
+  try{
+    var health=await b.health();
+    capability=!!(health&&health.backup_export_v2===true);
+  }catch(error){capability=false;}
+  return capability;
+}
 function download(name,content,type){
   var blob=new Blob([content],{type:type||"application/octet-stream"});
   var url=URL.createObjectURL(blob);
@@ -25,6 +37,10 @@ function setStatus(message,state){
 }
 async function completeBackup(){
   if(!authenticated())return;
+  if(!(await supported(false))){
+    showToast("O backup completo aguarda o novo checkpoint da Vercel.","warning",6000);
+    return;
+  }
   var button=el("backupExportComplete");if(button)button.disabled=true;
   setStatus("Montando snapshot criptografado da campanha…","working");
   try{
@@ -43,6 +59,10 @@ async function serverBackup(){
 }
 async function exportPublicJson(){
   if(!authenticated())return;
+  if(!(await supported(false))){
+    showToast("O snapshot JSON aguarda o novo checkpoint da Vercel.","warning",6000);
+    return;
+  }
   var button=el("backupExportPublicJson");if(button)button.disabled=true;
   try{
     var result=await serverBackup();
@@ -111,7 +131,16 @@ async function exportReading(includeMaster){
 async function open(){
   if(!authenticated()){showToast("Entre como editor para abrir Backup e Exportação.","warning",4500);return;}
   var panel=el("backupExportPanel");if(panel)panel.classList.add("show");
-  setStatus("O backup completo mantém o conteúdo Mestre criptografado.","idle");
+  var ready=await supported(false);
+  var complete=el("backupExportComplete"),publicJson=el("backupExportPublicJson");
+  if(complete)complete.disabled=!ready;
+  if(publicJson)publicJson.disabled=!ready;
+  setStatus(
+    ready
+      ? "O backup completo mantém o conteúdo Mestre criptografado."
+      : "Backup JSON completo aguarda o novo checkpoint; exportações HTML continuam disponíveis.",
+    ready?"idle":"warning"
+  );
   document.body.style.overflow="hidden";
 }
 function close(){
@@ -127,6 +156,7 @@ function setup(){
   var htmlMaster=el("backupExportHtmlMaster");if(htmlMaster)htmlMaster.addEventListener("click",function(){exportReading(true);});
   var old=el("backupExportLocalDraft");if(old)old.addEventListener("click",function(){if(app().editor&&app().editor.exportEdits)app().editor.exportEdits();});
   var panel=el("backupExportPanel");if(panel)panel.addEventListener("click",function(e){if(e.target===panel)close();});
+  document.addEventListener("terra-z:auth-changed",function(){capability=null;});
 }
 setup();
 window.TerraZApp.backupExport={open:open,close:close,complete:completeBackup,exportPublic:exportPublicJson,exportReading:exportReading};
