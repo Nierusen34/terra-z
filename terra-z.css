@@ -3000,3 +3000,51 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
   .timeline-event-body{padding:10px}
   .timeline-period-title{align-items:flex-start;flex-direction:column;gap:4px}
 }
+
+
+/* ===== ETAPA 8B · EDITOR DE EVENTOS DA LINHA DO TEMPO ===== */
+.timeline-editor-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding-bottom:9px;
+  border-bottom:1px solid var(--line2);
+}
+.timeline-editor-toolbar>div{display:flex;flex-direction:column;gap:2px}
+.timeline-editor-toolbar strong{font-family:var(--font-title);font-size:11px;color:var(--ink)}
+.timeline-editor-toolbar span{font-size:8px;color:var(--ink3)}
+.timeline-editor-toolbar .campaign-add-btn{flex:0 0 auto}
+.timeline-event-actions button.danger:hover{border-color:#b44242;color:#b44242}
+.timeline-editor-eyebrow{
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;
+  letter-spacing:1.2px;
+  color:var(--accent);
+  margin-bottom:2px;
+}
+.timeline-editor-permalink{
+  margin:3px 0 8px;
+  padding:8px 10px;
+  border:1px dashed var(--line);
+  background:var(--paper3);
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;
+  color:var(--ink3);
+  overflow-wrap:anywhere;
+}
+.timeline-editor-status{
+  min-height:18px;
+  margin:0 0 8px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;
+  color:var(--ink3);
+}
+.timeline-editor-status[data-state="working"]{color:#bd8a28}
+.timeline-editor-status[data-state="secure"]{color:#76578d}
+.timeline-editor-status[data-state="error"]{color:#b44242}
+.timeline-editor-card{max-width:820px}
+@media(max-width:560px){
+  .timeline-editor-toolbar{align-items:stretch;flex-direction:column}
+  .timeline-editor-toolbar .campaign-add-btn{width:100%;min-height:42px}
+}
