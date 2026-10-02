@@ -990,8 +990,34 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2
 
 <div class="sub-content" id="sub-tz-timeline">
 <div class="section-title">📅 Linha do Tempo</div>
-<div class="info-box timeline-shell"><div class="label">👆 Toque nos itens</div>
-<div id="timelineData"></div>
+<div class="timeline-overview">
+  <div>
+    <div class="timeline-kicker">CRONOLOGIA CENTRAL · TERRA Z</div>
+    <h3>História do universo e campanha em uma única sequência</h3>
+    <p>Eventos de lore permanecem canônicos e editáveis. Sessões registradas no Diário entram automaticamente aqui, conectadas às fichas, lugares e equipes já existentes.</p>
+  </div>
+  <div class="timeline-overview-stats" aria-label="Resumo da linha do tempo">
+    <div><strong id="timelineTotalCount">0</strong><span>Eventos</span></div>
+    <div><strong id="timelineSessionCount">0</strong><span>Sessões</span></div>
+    <div><strong id="timelineConnectionCount">0</strong><span>Conexões</span></div>
+  </div>
+</div>
+
+<div class="timeline-toolbar">
+  <div class="timeline-search-wrap">
+    <input id="timelineSearch" type="search" placeholder="🔎 Buscar evento, personagem, local ou equipe..." autocomplete="off">
+    <button id="timelineClear" type="button">Limpar</button>
+  </div>
+  <div id="timelineFilters" class="timeline-filters" aria-label="Camadas da linha do tempo"></div>
+  <div class="timeline-view-actions">
+    <button id="timelineExpandAll" type="button">Expandir tudo</button>
+    <button id="timelineCollapseAll" type="button">Recolher tudo</button>
+  </div>
+</div>
+
+<div id="timelineStatus" class="timeline-status" aria-live="polite"></div>
+<div class="info-box timeline-shell">
+  <div id="timelineData"></div>
 </div>
 </div>
 
@@ -1399,6 +1425,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="js/taxonomy-manager.js" defer></script>
 <script src="js/router.js" defer></script>
 <script src="js/sessions.js" defer></script>
+<script src="js/timeline-manager.js" defer></script>
 <script src="js/session-editor.js" defer></script>
 <script src="js/integrity-checker.js" defer></script>
 <script src="js/history-manager.js" defer></script>

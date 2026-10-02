@@ -218,6 +218,54 @@ function checkSessions(data,characters){
   pass(sessions.length+" sessões públicas validadas");
 }
 
+function checkTimeline(data,characters){
+  const groups=Array.isArray(data.timeline)?data.timeline:[];
+  const ids=new Set();
+  const allowedCategories=new Set(["history","pre-campaign","campaign","current","future"]);
+  let eventCount=0;
+
+  if(!groups.length){
+    fail("Linha do tempo canônica está vazia");
+    return;
+  }
+
+  for(const group of groups){
+    if(!group||!String(group.title||"").trim()) fail("Grupo da linha do tempo sem título");
+    if(!Array.isArray(group&&group.items)) fail("Grupo da linha do tempo sem items: "+String(group&&group.title||"sem título"));
+
+    for(const item of Array.isArray(group&&group.items)?group.items:[]){
+      eventCount++;
+      const id=String(item&&item.id||"");
+      if(!id) fail("Evento da linha do tempo sem ID");
+      else if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) fail("ID de evento inválido: "+id);
+      else if(ids.has(id)) fail("ID duplicado na linha do tempo: "+id);
+      else ids.add(id);
+
+      const category=String(item&&item.category||"");
+      if(!allowedCategories.has(category)) fail("Categoria inválida na linha do tempo: "+id+" / "+category);
+      if(!Number.isFinite(Number(item&&item.sortKey))) fail("sortKey inválido na linha do tempo: "+id);
+      if(!String(item&&item.year||"").trim()) fail("Evento sem rótulo temporal: "+id);
+      if(!String(item&&item.text||"").trim()) fail("Evento sem descrição: "+id);
+
+      if(!item.edit||!item.edit.year||!item.edit.year.id||!item.edit.text||!item.edit.text.id){
+        fail("Evento sem IDs editáveis estáveis: "+id);
+      }
+
+      for(const name of Array.isArray(item&&item.characters)?item.characters:[]){
+        if(characters&&!characters.has(name)) warn("Linha do tempo "+id+" referencia personagem não público: "+name);
+      }
+    }
+  }
+
+  const html=read("index.html");
+  const router=read("js/router.js");
+  if(!html.includes('src="js/timeline-manager.js"')) fail("Gerenciador da linha do tempo não está carregado no index.html");
+  if(!router.includes("timeline-event")||!router.includes("timelineEventRoute")) fail("Roteador não oferece deep links para eventos da linha do tempo");
+  if(!exists("docs/TIMELINE.md")) fail("docs/TIMELINE.md ausente");
+
+  pass(eventCount+" eventos canônicos da linha do tempo validados");
+}
+
 function checkGraph(data){
   const graph=data.graphOverride&&Array.isArray(data.graphOverride.nodes)?data.graphOverride:data.defaultGraph;
   if(!graph){ warn("Nenhum grafo encontrado"); return; }
@@ -358,6 +406,7 @@ checkIndexAssets();
 const data=loadTerraData();
 const characters=checkCharacterData(data);
 checkSessions(data,characters);
+checkTimeline(data,characters);
 checkGraph(data);
 checkEncryptedFiles();
 checkVercel();

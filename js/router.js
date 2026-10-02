@@ -202,6 +202,9 @@ function parseRoute(route){
   if(first === 'distritos' && parts[1]){
     return {kind:'district',route:'/distritos/'+slugify(parts[1]),slug:slugify(parts[1]),title:'Distrito'};
   }
+  if(first === 'linha-do-tempo' && parts[1]){
+    return {kind:'timeline-event',route:'/linha-do-tempo/'+slugify(parts[1]),id:slugify(parts[1]),title:'Evento'};
+  }
 
   if(first === 'universo' && parts[1] === 'personagens' && parts[2]){
     return {kind:'character',route:'/personagens/'+slugify(parts[2]),slug:slugify(parts[2]),title:'Personagem'};
@@ -217,6 +220,9 @@ function parseRoute(route){
   }
   if(first === 'cidade' && parts[1] === 'distritos' && parts[2]){
     return {kind:'district',route:'/distritos/'+slugify(parts[2]),slug:slugify(parts[2]),title:'Distrito'};
+  }
+  if(first === 'universo' && parts[1] === 'linha-do-tempo' && parts[2]){
+    return {kind:'timeline-event',route:'/linha-do-tempo/'+slugify(parts[2]),id:slugify(parts[2]),title:'Evento'};
   }
 
   var section=sectionForRoute(route);
@@ -417,6 +423,34 @@ function applyRoute(route,options){
       return parsed;
     }
 
+    if(parsed.kind === 'timeline-event'){
+      navigateSection('tab-terraz','sub-tz-timeline');
+      var eventRoute=timelineEventRoute(parsed.id);
+      if(eventRoute !== parsed.route && options.canonicalize !== false) writeRoute(eventRoute,{replace:true});
+
+      var tryFocus=function(attempt){
+        var timeline=window.TerraZApp && window.TerraZApp.timeline;
+        var found=timeline && timeline.focus
+          ? timeline.focus(parsed.id)
+          : focusTarget(eventRoute);
+
+        if(found){
+          updateTitle(timeline && timeline.labelFor ? timeline.labelFor(parsed.id) : 'Linha do Tempo');
+          return;
+        }
+
+        if(attempt<8){
+          setTimeout(function(){ tryFocus(attempt+1); },60);
+        }else{
+          warnOnce('timeline:'+parsed.id,'Evento da linha do tempo não encontrado neste link.');
+          updateTitle('Universo · Linha do Tempo');
+        }
+      };
+      setTimeout(function(){ tryFocus(0); },0);
+      remember(eventRoute);
+      return parsed;
+    }
+
     warnOnce('route:'+parsed.route,'Este link não corresponde a uma área atual do Terra Z.');
     writeRoute('/capa',{replace:true,force:true});
     navigateSection('tab-home',null);
@@ -498,13 +532,19 @@ function districtRoute(value){
   var district=findDistrictBySlug(value);
   return '/distritos/'+slugify(district ? (district.id || district.name) : value);
 }
+function timelineEventRoute(id){
+  return '/linha-do-tempo/'+slugify(id);
+}
 
 function openSession(id,options){ return go(sessionRoute(id),options); }
 function openTeam(name,options){ return go(teamRoute(name),options); }
 function openCity(name,options){ return go(cityRoute(name),options); }
 function openDistrict(value,options){ return go(districtRoute(value),options); }
+function openTimelineEvent(id,options){ return go(timelineEventRoute(id),options); }
 
 function routeForLocation(name){
+  var normalized=looseSlug(name);
+  if(normalized === 'vanguard-bay' || normalized === 'vanguard') return '/cidade/visao-geral';
   var district=findDistrictBySlug(name);
   if(district) return districtRoute(district.id || district.name);
   var city=findCityBySlug(name);
@@ -736,6 +776,7 @@ window.TerraZApp.router = {
   openTeam:openTeam,
   openCity:openCity,
   openDistrict:openDistrict,
+  openTimelineEvent:openTimelineEvent,
   openLocation:openLocation,
   routeForLocation:routeForLocation,
   routeForSection:routeForSection,
@@ -743,6 +784,7 @@ window.TerraZApp.router = {
   teamRoute:teamRoute,
   cityRoute:cityRoute,
   districtRoute:districtRoute,
+  timelineEventRoute:timelineEventRoute,
   copyCurrentLink:copyCurrentLink,
   copyRoute:copyRoute,
   current:function(){ return rawRouteFromLocation() || routeForCurrentUi(); },
