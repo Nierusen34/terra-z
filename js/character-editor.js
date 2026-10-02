@@ -667,7 +667,15 @@ function setCreateDependentButtons(disabled){
   }
   if(graph){
     graph.disabled = disabled;
-    graph.title = disabled ? 'Salve o personagem primeiro para adicionar relações no grafo' : 'Relações / Grafo';
+    graph.title = disabled ? 'Salve o personagem primeiro para adicionar relações no grafo' : 'Ver / conectar no grafo';
+  }
+
+  var portraitJump=document.querySelector('[data-character-editor-jump="characterEditorPortraitSection"]');
+  if(portraitJump){
+    portraitJump.disabled=disabled;
+    portraitJump.title=disabled
+      ? 'Salve o personagem primeiro para configurar fonte e enquadramento do retrato'
+      : 'Ir para as opções de retrato';
   }
 }
 
