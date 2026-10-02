@@ -148,7 +148,8 @@ window.TerraZData.characterTaxonomy = {
         "novos-titas"
       ],
       "type": "hero",
-      "status": "active"
+      "status": "active",
+      "visibility": "public"
     },
     "J'onn J'onzz": {
       "featured": false,
