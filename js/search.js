@@ -23,6 +23,8 @@ var fandomTextTranslationCache = {};
 var fandomTranslationMode = 'original';
 var fandomTranslatorPromise = null;
 var fandomTranslationRunId = 0;
+var fandomImageCache = {};
+var dcImportCurrent = null;
 
 if(searchInput){
   searchInput.addEventListener('keydown', function(e){
@@ -204,7 +206,9 @@ function renderFandomResults(data, query){
     var title = titles[i], desc = descriptions[i] || '';
     html += '<div class="search-result-item"><div class="r-info"><a class="r-title" href="#" data-title="' + escapeAttr(title) + '">' + escapeHtml(title) + '</a>';
     if(desc) html += '<div class="r-snippet">' + escapeHtml(desc) + '</div>';
-    html += '<div class="r-source">📚 dc.fandom.com</div></div><div class="r-actions"><button class="primary" data-title="' + escapeAttr(title) + '">📖 Ler aqui</button></div></div>';
+    html += '<div class="r-source">📚 dc.fandom.com</div></div><div class="r-actions"><button class="primary" data-title="' + escapeAttr(title) + '">📖 Ler aqui</button>';
+    if(canDcImport()) html += '<button class="dc-import-result-btn" data-dc-import-title="' + escapeAttr(title) + '">＋ Terra Z</button>';
+    html += '</div></div>';
   }
   document.getElementById('searchResults').innerHTML = html;
   document.querySelectorAll('#searchResults [data-title]').forEach(function(el){
@@ -215,6 +219,231 @@ function renderFandomResults(data, query){
       openFandomModal(title);
     });
   });
+  document.querySelectorAll('#searchResults [data-dc-import-title]').forEach(function(el){
+    el.addEventListener('click',function(e){
+      e.preventDefault();e.stopPropagation();
+      openDcImport(el.getAttribute('data-dc-import-title') || '');
+    });
+  });
+}
+
+function dcImportKey(value){
+  return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+}
+
+function dcImportDisplayName(title){
+  var raw=String(title || '').trim();
+  return raw.replace(/\s+\((?:prime earth|new earth|earth-[^)]+|pre-zero hour|post-zero hour)\)\s*$/i,'').trim() || raw;
+}
+
+function canDcImport(){
+  var b=window.TerraZApp && window.TerraZApp.backend;
+  return !!(b && b.isAuthenticated && b.isAuthenticated());
+}
+
+async function ensureDcImportAdmin(){
+  var app=window.TerraZApp || {};
+  if(app.adminLoader && app.adminLoader.load) await app.adminLoader.load();
+  var b=app.backend;
+  if(!b || !b.isAuthenticated || !b.isAuthenticated()){
+    showToast('Entre como editor para adicionar referências da DC ao Terra Z.','warning',5000);
+    if(app.publishing && app.publishing.open) app.publishing.open();
+    return false;
+  }
+  return true;
+}
+
+function findExistingDcCharacter(title){
+  var app=window.TerraZApp || {};
+  var characters=app.characters;
+  var names=characters && characters.names ? characters.names() : [];
+  var keys=[title,dcImportDisplayName(title)].map(dcImportKey).filter(Boolean);
+  return names.find(function(name){ return keys.includes(dcImportKey(name)); }) || '';
+}
+
+function findExistingDcGraphNode(title,characterName){
+  var graph=window.TerraZApp && window.TerraZApp.graph;
+  var data=graph && graph.getData ? graph.getData() : {nodes:[]};
+  var keys=[title,dcImportDisplayName(title),characterName].map(dcImportKey).filter(Boolean);
+  return (data.nodes || []).find(function(node){
+    return [node.ref,node.label,node.subtitle].map(dcImportKey).filter(Boolean)
+      .some(function(key){ return keys.includes(key); });
+  }) || null;
+}
+
+function dcImportState(title){
+  var character=findExistingDcCharacter(title);
+  var node=findExistingDcGraphNode(title,character);
+  return {character:character,node:node};
+}
+
+function updateDcImportExisting(){
+  var root=document.getElementById('dcImportExisting');
+  var cardBtn=document.getElementById('dcImportCardBtn');
+  var graphBtn=document.getElementById('dcImportGraphBtn');
+  var bothBtn=document.getElementById('dcImportBothBtn');
+  if(!dcImportCurrent || !root) return;
+
+  var state=dcImportState(dcImportCurrent.title);
+  dcImportCurrent.existingCharacter=state.character;
+  dcImportCurrent.existingNode=state.node;
+
+  var chips=[];
+  if(state.character) chips.push('<span class="exists">✓ Card: '+escapeHtml(state.character)+'</span>');
+  else chips.push('<span>Card ainda não existe</span>');
+  if(state.node) chips.push('<span class="exists">✓ Grafo: '+escapeHtml(state.node.label || state.node.id)+'</span>');
+  else chips.push('<span>Bolinha ainda não existe</span>');
+  root.innerHTML=chips.join('');
+
+  if(cardBtn) cardBtn.textContent=state.character ? '✏️ Abrir Card existente' : '＋ Criar Card';
+  if(graphBtn) graphBtn.textContent=state.node ? '◎ Abrir no Grafo' : '◎ Adicionar ao Grafo';
+  if(bothBtn){
+    bothBtn.disabled=!!(state.character && state.node);
+    bothBtn.textContent=state.character && state.node
+      ? '✓ Card + Grafo já existem'
+      : (state.character ? '＋ Vincular Card ao Grafo' : '＋ Card + Grafo');
+  }
+}
+
+async function fetchDcImportImage(title){
+  if(fandomImageCache[title]) return fandomImageCache[title];
+  var url='https://dc.fandom.com/api.php?action=query&format=json&formatversion=2&redirects=1'+
+    '&prop=pageimages%7Cinfo&inprop=url&piprop=thumbnail%7Coriginal&pithumbsize=720&pilicense=any'+
+    '&titles='+encodeURIComponent(title)+'&origin=*';
+  try{
+    var response=await fetch(url);
+    if(!response.ok) throw new Error('HTTP '+response.status);
+    var data=await response.json();
+    var page=data && data.query && data.query.pages && data.query.pages[0];
+    var image=page && ((page.thumbnail && page.thumbnail.source) || (page.original && page.original.source)) || '';
+    var result={imageUrl:image,fullImageUrl:(page && page.original && page.original.source) || image};
+    fandomImageCache[title]=result;
+    return result;
+  }catch(error){
+    console.warn('Terra Z DC import image:',error);
+    return {imageUrl:'',fullImageUrl:''};
+  }
+}
+
+function closeDcImport(){
+  var panel=document.getElementById('dcImportPanel');
+  if(panel){
+    panel.classList.remove('show');
+    panel.setAttribute('aria-hidden','true');
+  }
+  dcImportCurrent=null;
+  if(!document.getElementById('fandomModal').classList.contains('show')) document.body.style.overflow='';
+}
+
+async function openDcImport(title){
+  title=String(title || '').trim();
+  if(!title) return;
+  if(!(await ensureDcImportAdmin())) return;
+
+  dcImportCurrent={
+    title:title,
+    name:dcImportDisplayName(title),
+    imageUrl:'',
+    fullImageUrl:''
+  };
+
+  var panel=document.getElementById('dcImportPanel');
+  var name=document.getElementById('dcImportName');
+  var source=document.getElementById('dcImportSource');
+  var preview=document.getElementById('dcImportPreview');
+  var status=document.getElementById('dcImportStatus');
+  if(name) name.textContent=dcImportCurrent.name;
+  if(source) source.textContent='DC Database · '+title;
+  if(preview) preview.innerHTML='<div class="dc-import-preview-placeholder">DC</div>';
+  if(status) status.textContent='Buscando imagem de referência…';
+
+  updateDcImportExisting();
+
+  if(panel){
+    panel.classList.add('show');
+    panel.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+  }
+
+  var image=await fetchDcImportImage(title);
+  if(!dcImportCurrent || dcImportCurrent.title!==title) return;
+  dcImportCurrent.imageUrl=image.imageUrl || '';
+  dcImportCurrent.fullImageUrl=image.fullImageUrl || image.imageUrl || '';
+  if(preview){
+    preview.innerHTML=dcImportCurrent.imageUrl
+      ? '<img src="'+escapeAttr(dcImportCurrent.imageUrl)+'" alt="'+escapeAttr(dcImportCurrent.name)+'" referrerpolicy="no-referrer">'
+      : '<div class="dc-import-preview-placeholder">DC</div>';
+  }
+  if(status) status.textContent=dcImportCurrent.imageUrl
+    ? 'Referência visual encontrada. Revise tudo antes de salvar no Terra Z.'
+    : 'Sem imagem automática; ainda é possível criar o card ou a bolinha.';
+}
+
+async function runDcImport(action){
+  if(!dcImportCurrent) return;
+  if(!(await ensureDcImportAdmin())) return;
+
+  var current={...dcImportCurrent};
+  var state=dcImportState(current.title);
+  var app=window.TerraZApp || {};
+
+  if(action==='card'){
+    closeDcImport();
+    if(document.getElementById('fandomModal').classList.contains('show')) closeFandomModal();
+    if(state.character){
+      if(app.characterEditor && app.characterEditor.open) app.characterEditor.open(state.character);
+      return;
+    }
+    if(app.characterEditor && app.characterEditor.importFromDc){
+      app.characterEditor.importFromDc({
+        wikiTitle:current.title,
+        name:current.name,
+        addToGraph:false
+      });
+    }
+    return;
+  }
+
+  if(action==='graph'){
+    closeDcImport();
+    if(document.getElementById('fandomModal').classList.contains('show')) closeFandomModal();
+    if(app.graph && app.graph.importFromDc){
+      await app.graph.importFromDc({
+        characterName:state.character || '',
+        label:state.character || current.name,
+        wikiTitle:current.title,
+        imageUrl:current.fullImageUrl || current.imageUrl || ''
+      });
+    }
+    return;
+  }
+
+  if(action==='both'){
+    if(state.character){
+      closeDcImport();
+      if(document.getElementById('fandomModal').classList.contains('show')) closeFandomModal();
+      if(app.graph && app.graph.importFromDc){
+        await app.graph.importFromDc({
+          characterName:state.character,
+          label:state.character,
+          wikiTitle:current.title,
+          imageUrl:''
+        });
+      }
+      return;
+    }
+
+    closeDcImport();
+    if(document.getElementById('fandomModal').classList.contains('show')) closeFandomModal();
+    if(app.characterEditor && app.characterEditor.importFromDc){
+      app.characterEditor.importFromDc({
+        wikiTitle:current.title,
+        name:current.name,
+        addToGraph:true
+      });
+    }
+  }
 }
 
 
@@ -421,6 +650,11 @@ function openFandomModal(title){
   modalTitle.textContent = title;
   modalSource.textContent = '📚 dc.fandom.com/wiki/' + title.replace(/ /g,'_');
   externalLink.href = 'https://dc.fandom.com/wiki/' + encodeURIComponent(title.replace(/ /g,'_'));
+  var importBtn=document.getElementById('modalImportBtn');
+  if(importBtn){
+    importBtn.hidden=!canDcImport();
+    importBtn.dataset.dcImportTitle=title;
+  }
   body.innerHTML = '<div class="fandom-loading">Carregando artigo da DC Wiki...</div>';
   modal.classList.add('show');
   document.body.style.overflow = 'hidden';
@@ -620,6 +854,28 @@ setupModalBodyDelegation();
 var fandomTranslateBtn = fandomTranslateButton();
 if(fandomTranslateBtn) fandomTranslateBtn.addEventListener('click', translateFandomArticle);
 
+var modalImportBtn=document.getElementById('modalImportBtn');
+if(modalImportBtn) modalImportBtn.addEventListener('click',function(){
+  openDcImport(modalImportBtn.dataset.dcImportTitle || currentFandomTitle || '');
+});
+var dcImportClose=document.getElementById('dcImportClose');
+if(dcImportClose) dcImportClose.addEventListener('click',closeDcImport);
+var dcImportPanel=document.getElementById('dcImportPanel');
+if(dcImportPanel) dcImportPanel.addEventListener('click',function(event){
+  if(event.target===dcImportPanel) closeDcImport();
+});
+var dcImportCardBtn=document.getElementById('dcImportCardBtn');
+if(dcImportCardBtn) dcImportCardBtn.addEventListener('click',function(){runDcImport('card');});
+var dcImportGraphBtn=document.getElementById('dcImportGraphBtn');
+if(dcImportGraphBtn) dcImportGraphBtn.addEventListener('click',function(){runDcImport('graph');});
+var dcImportBothBtn=document.getElementById('dcImportBothBtn');
+if(dcImportBothBtn) dcImportBothBtn.addEventListener('click',function(){runDcImport('both');});
+
+document.addEventListener('terra-z:auth-changed',function(){
+  var btn=document.getElementById('modalImportBtn');
+  if(btn) btn.hidden=!canDcImport();
+});
+
 window.executeSearch = executeSearch;
 window.closeFandomModal = closeFandomModal;
 window.closeSearchPanel = closeSearchPanel;
@@ -634,7 +890,11 @@ window.TerraZApp.search = {
   back: goBackFandom,
   switchMode: switchSearchMode,
   searchOnFandom: searchOnFandom,
-  translateArticle: translateFandomArticle
+  translateArticle: translateFandomArticle,
+  openImport:openDcImport,
+  closeImport:closeDcImport,
+  importAction:runDcImport,
+  importState:dcImportState
 };
 
 })();
