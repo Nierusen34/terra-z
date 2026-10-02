@@ -547,6 +547,7 @@ function checkGraph(data){
   for(const id of [
     "graphEntityFilter","graphRelationFilter","graphInspector","graphEditorList","graphEditorDetail",
     "graphZoomOut","graphZoomRange","graphZoomLabel","graphZoomIn","graphZoomReset",
+    "graphAutoArrangeBtn","graphUndoBtn","graphRestoreBtn",
     "characterEditorMediaFraming","characterEditorFramingContext","characterEditorFramingFit",
     "characterEditorFramingZoom","characterEditorFramingX","characterEditorFramingY",
     "characterEditorFramingPreview","characterEditorFramingSaveBtn",
@@ -571,6 +572,17 @@ function checkGraph(data){
      !graphRuntime.includes("setGraphScale") ||
      !graphRuntime.includes("graphScale=1.3")){
     fail("Controles persistentes de escala do grafo não foram encontrados.");
+  }
+  if(!html.includes('data-ge-tab="layout"') ||
+     !graphRuntime.includes("renderLayoutEditor") ||
+     !graphRuntime.includes('addEventListener("pointerdown"') ||
+     !graphRuntime.includes("smartArrangeGraph")){
+    fail("Editor visual arrastável do grafo não está completo.");
+  }
+  if(!graphRuntime.includes("storeLayoutBackup") ||
+     !graphRuntime.includes('kind:"layout"') ||
+     !graphRuntime.includes("positions[node.id]")){
+    fail("Backup de layout seguro do grafo não foi identificado.");
   }
   if(!exists("docs/RELATIONS.md")) fail("docs/RELATIONS.md ausente");
   if(!exists("docs/PORTRAIT_FRAMING.md")) fail("docs/PORTRAIT_FRAMING.md ausente");
