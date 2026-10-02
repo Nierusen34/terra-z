@@ -135,3 +135,18 @@ Retratos de personagens Mestre continuam usando a infraestrutura privada de pers
 ## Histórico
 
 `data/media-library.js` e `images/library/` fazem parte do escopo restaurável do histórico de conteúdo.
+
+
+## Acervo estrutural
+
+A Etapa 10 também cataloga as imagens já existentes no repositório fora de `images/characters/`, incluindo:
+
+- mapas;
+- vistas da cidade;
+- imagens de distritos;
+- artes editoriais;
+- artes de equipes.
+
+Esses registros usam `source:"project"` e `readOnly:true`.
+
+Eles não são duplicados nem movidos de pasta. A Biblioteca apenas cria um índice visual sobre os arquivos que o site já utiliza. Eles podem ser selecionados como mídia de uma entidade do grafo, mas não podem ser apagados ou substituídos pelo CRUD da Biblioteca, pois fazem parte da estrutura editorial existente.
