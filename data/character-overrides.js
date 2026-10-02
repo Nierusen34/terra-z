@@ -619,7 +619,7 @@ window.TerraZData.characterOverrides = {
       },
       {
         "title": "🔗 Relações",
-        "content": "<ul><li>Adicione uma relação importante.</li></ul>",
+        "content": "<ul><li>Kendra: Aliado</li></ul>",
         "visibility": "public",
         "position": 4
       }
@@ -630,7 +630,7 @@ window.TerraZData.characterOverrides = {
       "codename": "Metamorpho",
       "age": "",
       "origin": "",
-      "status": ""
+      "status": "Ativo"
     }
   }
 };
