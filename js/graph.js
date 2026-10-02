@@ -75,6 +75,7 @@ var graphSuppressClickUntil=0;
 
 var graphFocusNodeId="";
 var graphFullscreen=false;
+var graphFullscreenSnapshot=null;
 var graphInspectorCollapsed=false;
 var graphViewCenter={x:null,y:null};
 var graphPan=null;
@@ -737,10 +738,34 @@ function updateFullscreenUi(){
 }
 
 function toggleGraphFullscreen(force){
-  graphFullscreen=typeof force==="boolean" ? force : !graphFullscreen;
-  if(!graphFullscreen) graphInspectorCollapsed=false;
+  var nextState=typeof force==="boolean" ? force : !graphFullscreen;
+  if(nextState===graphFullscreen) return;
+
+  if(nextState){
+    graphFullscreenSnapshot={
+      scale:graphScale,
+      center:{x:graphViewCenter.x,y:graphViewCenter.y},
+      inspectorCollapsed:graphInspectorCollapsed
+    };
+    graphFullscreen=true;
+    graphInspectorCollapsed=false;
+    updateFullscreenUi();
+    requestAnimationFrame(function(){ fitGraphView(false); });
+    return;
+  }
+
+  graphFullscreen=false;
+  graphInspectorCollapsed=false;
+  if(graphFullscreenSnapshot){
+    graphScale=graphFullscreenSnapshot.scale;
+    graphViewCenter={
+      x:graphFullscreenSnapshot.center.x,
+      y:graphFullscreenSnapshot.center.y
+    };
+  }
+  graphFullscreenSnapshot=null;
   updateFullscreenUi();
-  requestAnimationFrame(function(){ fitGraphView(false); });
+  requestAnimationFrame(applyGraphScale);
 }
 
 function toggleGraphInspector(){
