@@ -291,6 +291,12 @@ window.TerraZData.characterMedia = {
       "provider": "dc-fandom",
       "wikiTitle": "Michael Carter (New Earth)"
     }
+  },
+  "Rex Mason": {
+    "src": "",
+    "alt": "Rex Mason",
+    "source": "local",
+    "credit": ""
   }
 };
 

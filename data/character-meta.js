@@ -317,6 +317,16 @@ window.TerraZData.characterTaxonomy = {
       "type": "npc",
       "status": "active",
       "tags": []
+    },
+    "Rex Mason": {
+      "featured": false,
+      "nuclei": [
+        "other"
+      ],
+      "type": "npc",
+      "status": "active",
+      "tags": [],
+      "visibility": "public"
     }
   }
 };
