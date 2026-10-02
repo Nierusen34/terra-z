@@ -299,26 +299,72 @@ function checkGraph(data){
   const nodes=Array.isArray(graph.nodes)?graph.nodes:[];
   const edges=Array.isArray(graph.edges)?graph.edges:[];
   const ids=new Set();
+  const edgeIds=new Set();
+  const allowedKinds=new Set(["character","team","faction","organization","location","event","custom"]);
+  const allowedRelations=new Set([
+    "family","ally","tension","clone","member","enemy","mentor","romance",
+    "business","investigation","origin","command","rivalry","other"
+  ]);
+
+  if(Number(graph.version||0)!==3){
+    warn("Snapshot público do grafo ainda está em schema legado; runtime fará migração para v3.");
+  }
 
   for(const node of nodes){
     if(!node||!node.id){ fail("Nó do grafo sem ID"); continue; }
     if(ids.has(node.id)) fail("ID de nó duplicado no grafo: "+node.id);
     ids.add(node.id);
-  }
 
-  for(const node of nodes){
+    if(!String(node.label||"").trim()) fail("Nó do grafo sem nome: "+node.id);
+    if(node.kind && !allowedKinds.has(node.kind)) fail("Tipo de entidade inválido no grafo: "+node.id+" / "+node.kind);
+    if(!Number.isFinite(Number(node.x))||!Number.isFinite(Number(node.y))){
+      fail("Coordenadas inválidas no grafo: "+node.id);
+    }
+
     const level=String(node&&node.visibility||"public");
     if(level==="master"||level==="private") fail("Nó Mestre vazou para o grafo público: "+String(node&&node.id||"sem ID"));
+    if(!["public","spoiler","rumor"].includes(level)) fail("Visibilidade pública inválida no nó: "+node.id+" / "+level);
   }
 
-  for(const edge of edges){
+  for(const [index,edge] of edges.entries()){
+    const edgeId=String(edge&&edge.id||("edge-"+(index+1)));
+    if(edgeIds.has(edgeId)) fail("ID de relação duplicado no grafo: "+edgeId);
+    edgeIds.add(edgeId);
+
     if(!ids.has(edge.from)||!ids.has(edge.to)){
       fail("Relação aponta para nó inexistente: "+String(edge.from)+" -> "+String(edge.to));
     }
+    if(edge.from===edge.to) fail("Relação aponta para o próprio nó: "+edgeId);
+    if(edge.type && !allowedRelations.has(edge.type)) fail("Tipo de relação inválido: "+edgeId+" / "+edge.type);
+    if(edge.strength!==undefined && (!Number.isFinite(Number(edge.strength))||Number(edge.strength)<1||Number(edge.strength)>5)){
+      fail("Intensidade inválida na relação: "+edgeId);
+    }
+
     const level=String(edge&&edge.visibility||"public");
     if(level==="master"||level==="private") fail("Relação Mestre vazou para o grafo público: "+String(edge.from)+" -> "+String(edge.to));
+    if(!["public","spoiler","rumor"].includes(level)) fail("Visibilidade pública inválida na relação: "+edgeId+" / "+level);
   }
-  pass(nodes.length+" nós e "+edges.length+" relações validados");
+
+  const graphRuntime=read("js/graph.js");
+  const graphApi=read("api/graph.js");
+  const healthApi=read("api/health.js");
+  const html=read("index.html");
+
+  if(!graphRuntime.includes("Relações 2.0") && !graphRuntime.includes("supportsGraphV3")){
+    fail("Runtime do Grafo 2.0 não foi identificado.");
+  }
+  if(!graphApi.includes("const NODE_KINDS") || !graphApi.includes("const EDGE_TYPES")){
+    fail("API do grafo não valida entidades e relações do schema v3.");
+  }
+  if(!healthApi.includes("relations_graph_v3:true") || !healthApi.includes("relations_entity_editor:true")){
+    fail("Backend não anuncia capacidades do Grafo 2.0.");
+  }
+  for(const id of ["graphEntityFilter","graphRelationFilter","graphInspector","graphEditorList","graphEditorDetail"]){
+    if(!html.includes('id="'+id+'"')) fail("Interface de Relações 2.0 ausente: "+id);
+  }
+  if(!exists("docs/RELATIONS.md")) fail("docs/RELATIONS.md ausente");
+
+  pass(nodes.length+" nós e "+edges.length+" relações do Grafo 2.0 validados");
 
   const visibilityRuntime=read("js/visibility.js");
   if(!/var\s+mode\s*=\s*['"]safe['"]/.test(visibilityRuntime)){
