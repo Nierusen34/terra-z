@@ -246,6 +246,9 @@ test("DC Wiki oferece Card, Grafo e Card + Grafo ao editor",async({page})=>{
   await expect(page.locator("#characterEditorPanel")).toHaveClass(/show/);
   await expect(page.locator("#characterEditorName")).toHaveValue("Zatanna Zatara");
   await expect(page.locator("#characterEditorTitle")).toContainText("Importar personagem da DC");
+  await expect(page.locator(".character-editor-jumpnav")).toBeVisible();
+  await page.locator('[data-character-editor-jump="characterEditorPortraitSection"]').click();
+  await expect(page.locator("#characterEditorPortraitSection")).toBeVisible();
   await page.evaluate(()=>window.TerraZApp.characterEditor.close());
 
   await page.evaluate(()=>window.TerraZApp.search.openImport("Zatanna Zatara (Prime Earth)"));
@@ -628,6 +631,11 @@ test("Administração avançada renderiza Taxonomias, Lote e Sala do Mestre",asy
 
     document.dispatchEvent(new CustomEvent("terra-z:auth-changed",{detail:{authenticated:true}}));
   });
+
+  await page.evaluate(()=>window.TerraZApp.adminPanel.open());
+  await expect(page.locator("#adminLoggedIn")).toBeVisible();
+  await expect(page.locator(".admin-quick-actions button")).toHaveCount(5);
+  await page.evaluate(()=>window.TerraZApp.adminPanel.close());
 
   await page.evaluate(()=>window.TerraZApp.taxonomyManager.open());
   await expect(page.locator("#taxonomyManagerPanel")).toHaveClass(/show/);
