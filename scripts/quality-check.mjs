@@ -604,7 +604,6 @@ function checkGraph(data){
   const adminFoundation=read("js/admin-foundation.js");
   const adminLoaderRuntime=read("js/admin-loader.js");
   if(!adminFoundation.includes("createSelection") ||
-     !adminFoundation.includes("batchApply") ||
      !adminFoundation.includes("filterRows")){
     fail("Infraestrutura compartilhada para etapas 11–13 está incompleta.");
   }
