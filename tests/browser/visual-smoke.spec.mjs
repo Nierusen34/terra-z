@@ -181,7 +181,7 @@ test("Relações renderiza Armek com mídia independente e painel de inspeção"
   await expectNoPageErrors(errors);
 });
 
-test("visitante pode mover nós localmente e restaurar o layout publicado",async({page})=>{
+test("visitante pode mover nós localmente e restaurar o layout publicado",async({page},testInfo)=>{
   const errors=watchRuntimeErrors(page);
   await page.goto("/#/universo/relacoes",{waitUntil:"domcontentloaded"});
 
@@ -199,10 +199,26 @@ test("visitante pode mover nós localmente e restaurar o layout publicado",async
 
   const box=await node.boundingBox();
   expect(box).not.toBeNull();
-  await page.mouse.move(box.x+box.width/2,box.y+box.height/2);
-  await page.mouse.down();
-  await page.mouse.move(box.x+box.width/2+70,box.y+box.height/2+42,{steps:6});
-  await page.mouse.up();
+  const sx=box.x+box.width/2;
+  const sy=box.y+box.height/2;
+  if(testInfo.project.name.includes("mobile")){
+    await page.evaluate(({sx,sy})=>{
+      const target=document.querySelector('#graphSvg [data-node-id="oliver"]');
+      const fire=(type,x,y,buttons)=>target.dispatchEvent(new PointerEvent(type,{
+        bubbles:true,cancelable:true,pointerId:41,pointerType:"touch",isPrimary:true,
+        clientX:x,clientY:y,buttons
+      }));
+      fire("pointerdown",sx,sy,1);
+      fire("pointermove",sx+35,sy+20,1);
+      fire("pointermove",sx+70,sy+42,1);
+      fire("pointerup",sx+70,sy+42,0);
+    },{sx,sy});
+  }else{
+    await page.mouse.move(sx,sy);
+    await page.mouse.down();
+    await page.mouse.move(sx+70,sy+42,{steps:6});
+    await page.mouse.up();
+  }
 
   await expect.poll(()=>page.evaluate(()=>Object.keys(window.TerraZApp.graph.getViewPositions()).length)).toBe(1);
   const moved=await page.evaluate(()=>window.TerraZApp.graph.getViewPositions().oliver);
@@ -223,7 +239,7 @@ test("visitante pode mover nós localmente e restaurar o layout publicado",async
   await expectNoPageErrors(errors);
 });
 
-test("editor visual do grafo auto-organiza e permite arrastar, adicionar e remover",async({page})=>{
+test("editor visual do grafo auto-organiza e permite arrastar, adicionar e remover",async({page},testInfo)=>{
   const errors=watchRuntimeErrors(page);
   await page.goto("/#/universo/relacoes",{waitUntil:"domcontentloaded"});
 
@@ -273,10 +289,26 @@ test("editor visual do grafo auto-organiza e permite arrastar, adicionar e remov
   const before=await movable.getAttribute("transform");
   const box=await movable.boundingBox();
   expect(box).not.toBeNull();
-  await page.mouse.move(box.x+box.width/2,box.y+box.height/2);
-  await page.mouse.down();
-  await page.mouse.move(box.x+box.width/2+55,box.y+box.height/2+35,{steps:5});
-  await page.mouse.up();
+  const sx=box.x+box.width/2;
+  const sy=box.y+box.height/2;
+  if(testInfo.project.name.includes("mobile")){
+    await page.evaluate(({sx,sy})=>{
+      const target=document.querySelector('#graphLayoutSvg [data-layout-node-id="oliver"]');
+      const fire=(type,x,y,buttons)=>target.dispatchEvent(new PointerEvent(type,{
+        bubbles:true,cancelable:true,pointerId:52,pointerType:"touch",isPrimary:true,
+        clientX:x,clientY:y,buttons
+      }));
+      fire("pointerdown",sx,sy,1);
+      fire("pointermove",sx+28,sy+18,1);
+      fire("pointermove",sx+55,sy+35,1);
+      fire("pointerup",sx+55,sy+35,0);
+    },{sx,sy});
+  }else{
+    await page.mouse.move(sx,sy);
+    await page.mouse.down();
+    await page.mouse.move(sx+55,sy+35,{steps:5});
+    await page.mouse.up();
+  }
   const after=await movable.getAttribute("transform");
   expect(after).not.toBe(before);
 
