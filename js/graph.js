@@ -1708,7 +1708,7 @@ function layoutEditorNodeVisual(node){
     visual='<circle cx="0" cy="0" r="'+r+'" fill="'+escapeAttr(node.color)+'" class="ge-layout-node-bg"/>'+
       '<text x="0" y="4" text-anchor="middle" class="ge-layout-node-icon">'+escapeHtml(node.icon||kind.icon)+'</text>';
   }
-  return '<g class="ge-layout-node'+(node.id===editorSelectedId?" selected":"")+'" data-layout-node-id="'+escapeAttr(node.id)+'" transform="translate('+node.x+' '+node.y+')" tabindex="0" role="button">'+
+  return '<g class="ge-layout-node'+(node.id===editorSelectedId?" selected":"")+(quickRelationState.draft&&quickRelationState.picking&&node.id===quickRelationState.sourceId?" connecting-source":"")+'" data-layout-node-id="'+escapeAttr(node.id)+'" transform="translate('+node.x+' '+node.y+')" tabindex="0" role="button">'+
     '<circle class="ge-layout-hit" cx="0" cy="0" r="'+Math.max(48,r+18)+'" fill="transparent" style="touch-action:none"/>'+
     visual+
     '<text x="0" y="'+(r+17)+'" text-anchor="middle" class="ge-layout-node-label">'+escapeHtml(node.label)+'</text>'+
@@ -1731,8 +1731,10 @@ function refreshLayoutSelection(root){
   var selected=nodeById(editorSelectedId,editorDraft);
   var status=root.querySelector("#geLayoutSelection");
   if(status) status.textContent=selected ? selected.label+" · X "+Math.round(selected.x)+" · Y "+Math.round(selected.y) : "Toque em uma bolinha para selecionar.";
+  var connect=root.querySelector("#geLayoutConnectSelected");
   var edit=root.querySelector("#geLayoutEditSelected");
   var del=root.querySelector("#geLayoutDeleteSelected");
+  if(connect) connect.disabled=!selected;
   if(edit) edit.disabled=!selected;
   if(del) del.disabled=!selected;
 }
@@ -1776,11 +1778,16 @@ function renderLayoutEditor(root){
       '<div><strong>✥ Layout visual</strong><span id="geLayoutSelection">Arraste uma bolinha com o mouse ou dedo.</span></div>'+
       '<div class="ge-layout-actions">'+
         '<button id="geLayoutUndo" type="button">↶ Desfazer</button>'+
+        '<button id="geLayoutConnectSelected" class="primary" type="button" disabled>🔗 Conectar</button>'+
         '<button id="geLayoutEditSelected" type="button" disabled>✏️ Editar dados</button>'+
         '<button id="geLayoutDeleteSelected" class="danger" type="button" disabled>🗑️ Remover</button>'+
       '</div>'+
     '</div>'+
-    '<div class="ge-layout-hint">Arraste para mover · toque para selecionar · duplo clique no PC para editar · as linhas acompanham o movimento em tempo real.</div>'+
+    '<div class="ge-layout-hint">'+
+      (quickRelationState.draft&&quickRelationState.picking
+        ? '🔗 Modo conexão: toque na segunda bolinha · a origem está destacada · Esc cancela.'
+        : 'Arraste para mover · toque para selecionar · use Conectar para criar vínculos · duplo clique no PC para editar.')+
+    '</div>'+
     '<div class="ge-layout-canvas"><svg id="graphLayoutSvg" viewBox="0 0 1000 720" xmlns="http://www.w3.org/2000/svg">'+
       '<defs>'+clips+'<pattern id="ge-layout-grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="currentColor" stroke-opacity=".08"/></pattern></defs>'+
       '<rect class="ge-layout-bg" x="0" y="0" width="1000" height="720" fill="url(#ge-layout-grid)"/>'+
@@ -1797,6 +1804,11 @@ function renderLayoutEditor(root){
       if(event.button!==undefined && event.button!==0) return;
       event.preventDefault();
       event.stopPropagation();
+
+      if(quickRelationState.draft && quickRelationState.picking){
+        selectQuickTarget(id);
+        return;
+      }
 
       var node=nodeById(id,editorDraft);if(!node)return;
       editorSelectedId=id;
@@ -1874,6 +1886,11 @@ function renderLayoutEditor(root){
 
   var bg=root.querySelector(".ge-layout-bg");
   if(bg)bg.addEventListener("pointerdown",function(){editorSelectedId="";refreshLayoutSelection(root);});
+  var connect=root.querySelector("#geLayoutConnectSelected");
+  if(connect)connect.addEventListener("click",function(){
+    if(!nodeById(editorSelectedId,editorDraft))return;
+    openQuickRelation(editorSelectedId,"",{draft:true});
+  });
   var edit=root.querySelector("#geLayoutEditSelected");
   if(edit)edit.addEventListener("click",function(){
     if(!nodeById(editorSelectedId,editorDraft))return;
