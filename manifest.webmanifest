@@ -1,0 +1,54 @@
+{
+  "id": "./",
+  "name": "Terra Z · Vanguard Bay",
+  "short_name": "Terra Z",
+  "description": "Dossiê do Universo Terra Z, Vanguard Bay e sua campanha.",
+  "lang": "pt-BR",
+  "start_url": "./#/capa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#170b2d",
+  "theme_color": "#281044",
+  "categories": [
+    "games",
+    "entertainment"
+  ],
+  "icons": [
+    {
+      "src": "./images/pwa/icon-192.webp",
+      "sizes": "192x192",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "./images/pwa/icon-512.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./images/pwa/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Personagens",
+      "short_name": "Personagens",
+      "url": "./#/universo/personagens"
+    },
+    {
+      "name": "Mapas",
+      "short_name": "Mapas",
+      "url": "./#/mapas/visao-geral"
+    },
+    {
+      "name": "Sessões",
+      "short_name": "Sessões",
+      "url": "./#/universo/sessoes"
+    }
+  ]
+}
