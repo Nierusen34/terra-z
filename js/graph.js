@@ -1781,6 +1781,114 @@ async function openGraphEditor(mode,id){
   }
 }
 
+function importKey(value){
+  return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+}
+
+function importDisplayName(value){
+  var raw=String(value || "").trim();
+  return raw.replace(/\s+\((?:prime earth|new earth|earth-[^)]+|pre-zero hour|post-zero hour)\)\s*$/i,"").trim() || raw;
+}
+
+function importNodePosition(){
+  var quadrants=(editorDraft && editorDraft.quadrants || []).filter(function(q){
+    return Number(q.w)>0 && Number(q.h)>0;
+  });
+  if(!quadrants.length) return {x:500,y:360};
+
+  var ranked=quadrants.map(function(q){
+    var inside=(editorDraft.nodes || []).filter(function(node){
+      return node.x>=q.x && node.x<=q.x+q.w && node.y>=q.y && node.y<=q.y+q.h;
+    }).length;
+    return {q:q,count:inside};
+  }).sort(function(a,b){return a.count-b.count;});
+
+  var choice=ranked[0];
+  var q=choice.q;
+  var index=choice.count;
+  var cols=Math.max(2,Math.floor(Math.max(180,q.w-100)/100));
+  var col=index%cols;
+  var row=Math.floor(index/cols)%Math.max(2,Math.floor(Math.max(160,q.h-120)/100));
+  var x=q.x+58+(col*(Math.max(100,q.w-116)/Math.max(1,cols-1)));
+  var y=q.y+82+(row*96);
+  return {
+    x:Math.round(Math.max(48,Math.min(952,x))),
+    y:Math.round(Math.max(58,Math.min(660,y)))
+  };
+}
+
+function findImportedNode(options){
+  if(!editorDraft) return null;
+  var keys=[
+    options && options.characterName,
+    options && options.label,
+    options && options.wikiTitle,
+    importDisplayName(options && options.wikiTitle)
+  ].map(importKey).filter(Boolean);
+
+  return (editorDraft.nodes || []).find(function(node){
+    var nodeKeys=[node.ref,node.label,node.subtitle].map(importKey).filter(Boolean);
+    return keys.some(function(key){ return nodeKeys.includes(key); });
+  }) || null;
+}
+
+async function importDcNode(options){
+  options=options && typeof options==="object" ? options : {};
+  if(!canEdit()){
+    showToast("Entre como editor para adicionar esta referência ao grafo.","warning",5000);
+    return {ok:false,reason:"auth"};
+  }
+
+  await openGraphEditor("layout","");
+  if(!editorDraft) return {ok:false,reason:"editor"};
+
+  var existing=findImportedNode(options);
+  if(existing){
+    editorSelectedId=existing.id;
+    renderEditorTabs();renderEditorList();renderEditorDetail();
+    showToast(existing.label+" já está no grafo. A entidade existente foi selecionada.","info",4500);
+    return {ok:true,created:false,id:existing.id};
+  }
+
+  pushEditorUndo();
+  var characterName=String(options.characterName || "").trim();
+  var wikiTitle=String(options.wikiTitle || "").trim();
+  var label=String(options.label || characterName || importDisplayName(wikiTitle) || "NOVA ENTIDADE").trim();
+  var pos=importNodePosition();
+  var mediaUrl=/^https:\/\//i.test(String(options.imageUrl || "")) ? String(options.imageUrl) : "";
+  var node={
+    id:makeId("personagem",label),
+    label:label,
+    subtitle:wikiTitle && importKey(wikiTitle)!==importKey(label) ? wikiTitle : "",
+    kind:"character",
+    ref:characterName,
+    route:"",
+    icon:"",
+    mediaMode:characterName ? "character" : (mediaUrl ? "url" : "none"),
+    mediaId:"",
+    mediaUrl:characterName ? "" : mediaUrl,
+    mediaFraming:{fit:"cover",x:50,y:24,zoom:1},
+    x:pos.x,
+    y:pos.y,
+    color:KIND.character.color,
+    r:38,
+    visibility:"public"
+  };
+
+  editorDraft.nodes.push(node);
+  editorSelectedId=node.id;
+  renderEditorTabs();renderEditorList();renderEditorDetail();
+  showToast(
+    characterName
+      ? label+" foi preparado no grafo. Posicione a bolinha e clique em Salvar relações."
+      : label+" foi adicionado como rascunho da DC. Posicione a bolinha e clique em Salvar relações.",
+    "success",
+    5800
+  );
+  return {ok:true,created:true,id:node.id};
+}
+
 function closeGraphEditor(){
   var modal=document.getElementById("graphEditorModal");
   if(modal) modal.classList.remove("show");
@@ -1983,6 +2091,16 @@ window.TerraZApp.graph={
   closeEditor:closeGraphEditor,
   autoArrange:function(){ if(editorDraft){ autoArrangeDraft(); return clone(editorDraft); } return null; },
   openLayout:function(){ return openGraphEditor("layout",""); },
+  importCharacter:function(name,options){
+    options=options || {};
+    return importDcNode({
+      characterName:name,
+      label:name,
+      wikiTitle:options.wikiTitle || "",
+      imageUrl:""
+    });
+  },
+  importFromDc:function(options){ return importDcNode(options || {}); },
   resetView:function(){ resetGraphViewPositions(true); },
   getViewPositions:function(){ return clone(graphViewPositions); },
   reset:function(){ openGraphEditor("nodes",""); resetDraft(); },
