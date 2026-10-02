@@ -14,14 +14,15 @@ Carregado diretamente por `index.html`:
 6. `js/visibility.js` — Público / Spoiler / Mestre;
 7. `js/media.js` e `js/character-media.js` — imagens e enquadramento;
 8. `js/navigation.js` e `js/mobile-polish.js` — navegação e mobile;
-9. `js/search.js` — busca;
-10. `js/characters.js`, `js/home-protagonists.js`, `js/favorites.js` — personagens;
-11. `js/presentation.js` — apresentação;
-12. `js/graph.js` — Relações 2.0;
-13. `js/character-filters.js` — filtros/taxonomias na página;
-14. `js/router.js` e `js/world-links.js` — deep links e links entre entidades;
-15. `js/sessions.js` — Diário;
-16. `js/timeline-manager.js` — Timeline 2.0.
+9. `js/search.js` — busca Local/DC Wiki;
+10. `js/command-palette.js` — Busca Global 2.0 / Central de Comandos;
+11. `js/characters.js`, `js/home-protagonists.js`, `js/favorites.js` — personagens;
+12. `js/presentation.js` — apresentação;
+13. `js/graph.js` — Relações 2.0;
+14. `js/character-filters.js` — filtros/taxonomias na página;
+15. `js/router.js` e `js/world-links.js` — deep links e links entre entidades;
+16. `js/sessions.js` — Diário;
+17. `js/timeline-manager.js` — Timeline 2.0.
 
 O objetivo é manter o boot público leve. Ferramentas de escrita não devem ser carregadas antes de o usuário abrir Administração.
 
@@ -42,6 +43,8 @@ O objetivo é manter o boot público leve. Ferramentas de escrita não devem ser
 - `js/taxonomy-manager.js`;
 - `js/bulk-editor.js`;
 - `js/master-quick.js`;
+- `js/session-mode.js`;
+- `js/backup-export.js`;
 - `js/session-editor.js`;
 - `js/timeline-editor.js`;
 - `js/integrity-checker.js`;
@@ -90,3 +93,14 @@ Algumas funções continuam em `window` exclusivamente por compatibilidade com l
 6. Ferramentas administrativas novas entram no lazy loader, não no boot público.
 7. Todo arquivo `js/*.js` deve ter um caminho explícito de carregamento. O Quality Gate reprova módulos órfãos ou registrados duas vezes.
 8. Código temporário ou helper sem consumidor deve ser removido antes de integrar ao `main`.
+
+
+## Fase 14
+
+A camada final antes do PWA inclui:
+
+- **Busca Global 2.0** no runtime público, acionada por `Ctrl+K`;
+- **Modo Sessão** no lazy loader administrativo, com estado temporário em `sessionStorage`;
+- **Backup e Exportação** no lazy loader, reutilizando `/api/publish`.
+
+A Fase 14 não aumenta a contagem serverless.

@@ -95,6 +95,26 @@ test("todas as rotas principais e deep links essenciais permanecem navegáveis",
   await expectNoPageErrors(errors);
 });
 
+test("Busca Global 2.0 encontra entidades e navega por Ctrl+K",async({page})=>{
+  const errors=watchRuntimeErrors(page);
+
+  await page.goto("/#/capa",{waitUntil:"domcontentloaded"});
+  await expect.poll(()=>page.evaluate(()=>Boolean(window.TerraZApp&&window.TerraZApp.commandPalette))).toBe(true);
+
+  await page.keyboard.press("Control+K");
+  await expect(page.locator("#commandPalette")).toHaveClass(/show/);
+  await page.locator("#commandPaletteInput").fill("Gotham");
+  await expect(page.locator("#commandPaletteResults .command-palette-result").first()).toContainText("Gotham");
+
+  const count=await page.locator("#commandPaletteResults .command-palette-result").count();
+  expect(count).toBeGreaterThan(0);
+
+  await page.locator("#commandPaletteResults .command-palette-result").first().click();
+  await expect.poll(()=>page.evaluate(()=>window.TerraZApp.router.current())).toContain("/cidades/gotham-city");
+
+  await expectNoPageErrors(errors);
+});
+
 test("Relações renderiza Armek com mídia independente e painel de inspeção",async({page})=>{
   const errors=watchRuntimeErrors(page);
 
@@ -183,7 +203,10 @@ test("Administração avançada renderiza Taxonomias, Lote e Sala do Mestre",asy
       ok:true,
       taxonomy_manager_v2:true,
       bulk_editor_v1:true,
-      master_quick_panel_v1:true
+      master_quick_panel_v1:true,
+      command_palette_v2:true,
+      session_mode_v1:true,
+      backup_export_v2:true
     });
     window.TerraZApp.backend.request=async(path)=>{
       if(String(path).startsWith("/api/master")){
@@ -231,5 +254,88 @@ test("Administração avançada renderiza Taxonomias, Lote e Sala do Mestre",asy
 
   await page.evaluate(()=>window.TerraZApp.masterQuick.close());
 
+  await expectNoPageErrors(errors);
+});
+
+
+test("Fase 14 renderiza Modo Sessão e Backup com rascunho temporário",async({page})=>{
+  const errors=watchRuntimeErrors(page);
+
+  await page.goto("/#/capa",{waitUntil:"domcontentloaded"});
+
+  await page.evaluate(async()=>{
+    await window.TerraZApp.adminLoader.load();
+
+    const sampleMaster={
+      version:1,
+      notes:[{id:"n1",title:"Nota",body:"Segredo de teste",tags:["teste"],updatedAt:"2026-10-02T12:00:00.000Z"}],
+      revelations:[],
+      goals:[{id:"g1",title:"Investigar Vanguard",owner:"Grupo",body:"Objetivo ativo",status:"active",characters:[],updatedAt:"2026-10-02T12:00:00.000Z"}],
+      clues:[{id:"c1",title:"Pista do Dique",body:"Uma pista oculta",truth:"true",status:"hidden",characters:[],locations:["O Dique"],updatedAt:"2026-10-02T12:00:00.000Z"}],
+      npcStates:[{id:"npc1",name:"Senhorita C",state:"Ativa",location:"Downtown",intention:"Observar",status:"active",notes:"",updatedAt:"2026-10-02T12:00:00.000Z"}],
+      timelineEvents:[]
+    };
+
+    window.TerraZApp.backend.isConfigured=()=>true;
+    window.TerraZApp.backend.isAuthenticated=()=>true;
+    window.TerraZApp.backend.health=async()=>({
+      ok:true,
+      visibility_system:"public-spoiler-master",
+      taxonomy_manager_v2:true,
+      bulk_editor_v1:true,
+      master_quick_panel_v1:true,
+      command_palette_v2:true,
+      session_mode_v1:true,
+      backup_export_v2:true
+    });
+    window.TerraZApp.backend.request=async(path,options)=>{
+      if(String(path).startsWith("/api/master")){
+        return {content:{characters:{},master:sampleMaster,graph:{nodes:[],edges:[]}}};
+      }
+      if(String(path).startsWith("/api/publish")&&options&&options.body&&options.body.action==="export-backup"){
+        return {ok:true,backup:{
+          schema:"terra-z-backup-v2",
+          head_sha:"0123456789012345678901234567890123456789",
+          files:{
+            "data/sessions.js":"public",
+            "data/private-character-data.enc.json":"encrypted",
+            "data/private-sessions.enc.json":"encrypted"
+          },
+          media_manifest:[]
+        }};
+      }
+      return {ok:true};
+    };
+
+    document.dispatchEvent(new CustomEvent("terra-z:auth-changed",{detail:{authenticated:true}}));
+    await window.TerraZApp.privateContent.load();
+  });
+
+  await page.evaluate(()=>window.TerraZApp.sessionMode.open());
+  await expect(page.locator("#sessionModePanel")).toHaveClass(/show/);
+  await expect(page.locator("#sessionModeGoals")).toContainText("Investigar Vanguard");
+  await expect(page.locator("#sessionModeClues")).toContainText("Pista do Dique");
+  await expect(page.locator("#sessionModeNpcs")).toContainText("Senhorita C");
+
+  await page.locator("#sessionModeTitleInput").fill("Sessão de teste");
+  await page.locator("#sessionModeLogInput").fill("O grupo entrou no Dique.");
+  await page.locator("#sessionModeAddLog").click();
+  await expect(page.locator("#sessionModeLog .session-mode-log-item")).toHaveCount(1);
+
+  const stored=await page.evaluate(()=>JSON.parse(sessionStorage.getItem("terraZ_session_mode_v1")||"null"));
+  expect(stored.title).toBe("Sessão de teste");
+  expect(stored.log).toHaveLength(1);
+  await page.evaluate(()=>window.TerraZApp.sessionMode.close());
+
+  await page.evaluate(()=>window.TerraZApp.backupExport.open());
+  await expect(page.locator("#backupExportPanel")).toHaveClass(/show/);
+  await expect(page.locator("#backupExportComplete")).toBeEnabled();
+  await expect(page.locator("#backupExportHtmlPublic")).toBeVisible();
+  await expect(page.locator("#backupExportHtmlMaster")).toBeVisible();
+
+  const hasDraftApi=await page.evaluate(()=>typeof window.TerraZApp.sessionEditor.openDraft==="function");
+  expect(hasDraftApi).toBe(true);
+
+  await page.evaluate(()=>window.TerraZApp.backupExport.close());
   await expectNoPageErrors(errors);
 });

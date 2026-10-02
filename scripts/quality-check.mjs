@@ -803,6 +803,76 @@ function checkAdvancedAdmin(data){
   pass("Etapa 13 · Sala do Mestre validada");
 }
 
+function checkPhase14(){
+  const html=read("index.html");
+  const commandPalette=read("js/command-palette.js");
+  const sessionMode=read("js/session-mode.js");
+  const backupExport=read("js/backup-export.js");
+  const sessionEditor=read("js/session-editor.js");
+  const adminLoader=read("js/admin-loader.js");
+  const adminPanel=read("js/admin-panel.js");
+  const publishApi=read("api/publish.js");
+  const health=read("api/health.js");
+
+  for(const id of [
+    "commandPalette","commandPaletteInput","commandPaletteResults","commandPaletteBtn",
+    "sessionModePanel","sessionModeCharacters","sessionModeNpcs","sessionModeGoals","sessionModeClues","sessionModeLog","sessionModeFinish",
+    "backupExportPanel","backupExportComplete","backupExportPublicJson","backupExportHtmlPublic","backupExportHtmlMaster"
+  ]){
+    if(!html.includes('id="'+id+'"')) fail("Fase 14 · elemento de interface ausente: "+id);
+  }
+
+  if(!html.includes('src="js/command-palette.js"')){
+    fail("Busca Global 2.0 não está no runtime público.");
+  }
+  if(!commandPalette.includes('event.ctrlKey||event.metaKey') ||
+     !commandPalette.includes('getMasterState') ||
+     !commandPalette.includes('routeForLocation')){
+    fail("Busca Global 2.0 não cobre atalho, conteúdo Mestre e navegação por entidades.");
+  }
+
+  for(const module of ['"js/session-mode.js"','"js/backup-export.js"']){
+    if(!adminLoader.includes(module)) fail("Fase 14 · módulo administrativo ausente do lazy loader: "+module);
+  }
+  if(!adminPanel.includes("action === 'session-mode'") ||
+     !adminPanel.includes("action === 'backup-export'")){
+    fail("Fase 14 não está conectada ao painel administrativo.");
+  }
+
+  if(!sessionMode.includes('sessionStorage.setItem(KEY') ||
+     !sessionMode.includes('sessionStorage.getItem(KEY') ||
+     sessionMode.includes('localStorage.setItem(KEY')){
+    fail("Modo Sessão deve persistir somente em sessionStorage.");
+  }
+  if(!sessionMode.includes("openDraft") || !sessionEditor.includes("openDraft:openDraft")){
+    fail("Modo Sessão não prepara o editor normal de sessão.");
+  }
+
+  if(!publishApi.includes('body.action === "export-backup"') ||
+     !publishApi.includes('schema:"terra-z-backup-v2"') ||
+     !publishApi.includes('private_content:"encrypted-aes-256-gcm"')){
+    fail("Backup completo criptografado não está implementado em /api/publish.");
+  }
+  if(!backupExport.includes('path==="data/private-character-data.enc.json"') ||
+     !backupExport.includes('path==="data/private-sessions.enc.json"')){
+    fail("Snapshot público não remove explicitamente os cofres privados.");
+  }
+  if(!backupExport.includes('backup_export_v2===true')){
+    fail("Backup v2 não está protegido por capability do backend.");
+  }
+
+  if(!health.includes("command_palette_v2:true") ||
+     !health.includes("session_mode_v1:true") ||
+     !health.includes("backup_export_v2:true")){
+    fail("Backend não anuncia capacidades da Fase 14.");
+  }
+  if(!exists("docs/PHASE_14.md")) fail("docs/PHASE_14.md ausente.");
+
+  pass("Etapa 14A · Busca Global 2.0 validada");
+  pass("Etapa 14B · Modo Sessão validado");
+  pass("Etapa 14C · Backup e Exportação validada");
+}
+
 function checkEncryptedFiles(){
   for(const file of ["data/private-character-data.enc.json","data/private-sessions.enc.json"]){
     if(!exists(file)){ fail("Arquivo criptografado ausente: "+file); continue; }
@@ -883,6 +953,7 @@ checkTimeline(data,characters);
 checkGraph(data);
 checkModuleRegistry();
 checkAdvancedAdmin(data);
+checkPhase14();
 checkEncryptedFiles();
 checkVercel();
 checkSensitivePublicPatterns();

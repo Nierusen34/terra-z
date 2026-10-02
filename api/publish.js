@@ -37,6 +37,17 @@ const RESTORABLE_CONTENT_PREFIXES = [
   "images/library/"
 ];
 
+const BACKUP_CONTENT_PATHS = [
+  ...RESTORABLE_CONTENT_PATHS,
+  "data/characters.js",
+  "data/locations.js",
+  "data/cities.js",
+  "data/teams.js",
+  "data/events.js",
+  "data/relations.js",
+  "data/visibility.js"
+];
+
 // Primeiro commit em que os personagens privados já haviam sido removidos
 // dos arquivos públicos e migrados para o cofre criptografado.
 const SECURE_RESTORE_BASELINE_SHA = "41a39546a3e838da2d0e5f0350cc74b018066d13";
@@ -447,6 +458,42 @@ export default async function handler(req,res){
     }
 
     const body = req.body || {};
+
+    if(body.action === "export-backup"){
+      const uniquePaths=[...new Set(BACKUP_CONTENT_PATHS)];
+      const rows=await Promise.all(uniquePaths.map(async path=>{
+        const file=await readTextFile(path);
+        return [path,file.content];
+      }));
+      const files=Object.fromEntries(rows);
+      const mediaPaths=new Set();
+
+      for(const content of Object.values(files)){
+        const re=/images\/(?:characters|library)\/[a-z0-9._/-]+\.(?:png|jpe?g|webp|gif|svg)/gi;
+        let match;
+        while((match=re.exec(String(content || "")))!==null) mediaPaths.add(match[0]);
+      }
+
+      const head=await getHead();
+      res.setHeader("Cache-Control","no-store, max-age=0");
+      return res.status(200).json({
+        ok:true,
+        backup:{
+          schema:"terra-z-backup-v2",
+          generated_at:new Date().toISOString(),
+          repository:"Nierusen34/terra-z",
+          branch:"main",
+          head_sha:head,
+          private_content:"encrypted-aes-256-gcm",
+          files,
+          media_manifest:[...mediaPaths].sort(),
+          notes:[
+            "Conteúdo Mestre permanece criptografado neste arquivo.",
+            "Imagens binárias não são duplicadas no JSON; o manifesto registra seus caminhos no repositório."
+          ]
+        }
+      });
+    }
 
     if(body.action === "timeline-event-upsert" || body.action === "timeline-event-delete"){
       const deleting=body.action === "timeline-event-delete";

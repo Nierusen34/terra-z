@@ -497,6 +497,23 @@ function handleAction(action){
     return;
   }
 
+  if(action === 'session-mode'){
+    requireEditorAction(async function(){
+      close();
+      if(app.privateContent && app.privateContent.load) await app.privateContent.load();
+      if(app.sessionMode && app.sessionMode.open) app.sessionMode.open();
+    });
+    return;
+  }
+
+  if(action === 'backup-export'){
+    requireEditorAction(function(){
+      close();
+      if(app.backupExport && app.backupExport.open) app.backupExport.open();
+    });
+    return;
+  }
+
   if(action === 'integrity'){
     requireEditorAction(function(){
       close();
