@@ -1,80 +1,64 @@
 # Camada de dados — Terra Z
 
-Esta pasta contém dados canônicos/estruturados que não devem depender da lógica de interface.
+A pasta `data/` contém o estado canônico e os overrides estruturados do universo. A lógica de interface permanece em `js/`.
 
-## Arquivos atuais
+## Arquivos principais
 
-### `characters.js`
+- `characters.js` — fichas públicas canônicas;
+- `character-overrides.js` — personagens criados/alterados e tombstones;
+- `character-meta.js` — taxonomias e metadados públicos;
+- `character-media.js` — mídia/enquadramento de personagens;
+- `media-library.js` — Biblioteca de Mídia;
+- `relations.js` — grafo base;
+- `graph-overrides.js` — Grafo 2.0 publicado;
+- `locations.js` — distritos e locais de Vanguard Bay;
+- `events.js` — eventos anuais;
+- `timeline.js` — eventos públicos/spoiler da Timeline;
+- `cities.js` — cidades externas;
+- `teams.js` — equipes e membros de referência;
+- `sessions.js` — sessões públicas/spoiler;
+- `visibility.js` — metadados auxiliares de visibilidade;
+- `content-overrides.js` — edições textuais publicadas.
 
-Expõe `window.TerraZData.characters`.
+## Conteúdo Mestre
 
-Contém as fichas locais de personagens usadas pelo modal de fichas e pela integração com cards.
+Conteúdo Mestre não deve ser gravado em arquivos JavaScript públicos.
 
-### `relations.js`
+Os cofres atuais são:
 
-Expõe `window.TerraZData.defaultGraph`.
+- `private-character-data.enc.json` — fichas Mestre, seções privadas, conteúdo Mestre, Timeline Mestre e grafo Mestre;
+- `private-sessions.enc.json` — sessões Mestre.
 
-Contém o estado canônico padrão do grafo de relações. O grafo editado pelo usuário continua sendo armazenado separadamente em `localStorage`.
+Ambos usam envelope AES-256-GCM e são lidos somente pelo backend autenticado.
 
-### `locations.js`
+## Runtime
 
-Expõe `window.TerraZData.districts`.
+`js/runtime-data.js` pode atualizar os contêineres públicos a partir do backend sem depender de um novo deploy estático para cada alteração de conteúdo.
 
-Contém os sete distritos de Vanguard Bay, seus tipos, locais internos, imagens, legendas e os metadados necessários para preservar os IDs estáveis do editor.
+Os módulos de renderização consomem `window.TerraZData` e reagem aos eventos de atualização.
 
-### `events.js`
+## Persistência
 
-Expõe `window.TerraZData.annualEvents`.
-
-Contém os eventos anuais de Vanguard Bay e seus metadados de edição.
-
-### `timeline.js`
-
-Expõe `window.TerraZData.timeline`.
-
-Contém os grupos e itens da linha do tempo do universo, preservando os IDs estáveis de ano e descrição.
-
-### `cities.js`
-
-Expõe `window.TerraZData.externalCities`.
-
-Contém as 15 cidades externas de referência e suas distâncias/tempos de viagem a partir de Vanguard Bay.
-
-### `teams.js`
-
-Expõe `window.TerraZData.teams`.
-
-Contém a lista histórica de equipes e a tabela de membros da Liga da Justiça usada pelo dossiê.
-
-## Renderização
-
-`terra-z.js` transforma esses dados em HTML antes de registrar os listeners que dependem deles.
-
-Os renderers são idempotentes: se o container já possuir conteúdo — por exemplo, em um HTML exportado com edições consolidadas — o conteúdo existente não é sobrescrito.
+Dados estruturados publicados são persistidos no GitHub. `localStorage` é reservado a preferências/rascunhos locais compatíveis com cada ferramenta; ele não é a fonte canônica do Grafo, personagens, sessões ou Timeline.
 
 ## IDs de edição
 
-Conteúdo retirado do HTML continua carregando:
+Conteúdo editorial editável preserva:
 
-- `data-edit-id`: identificador permanente atual;
-- `data-legacy-edit-id`: identificador usado para migrar backups antigos.
-
-A soma de IDs estáticos no HTML e IDs presentes nesta camada deve continuar cobrindo todos os elementos editáveis esperados, sem duplicatas.
+- `data-edit-id` — identificador permanente;
+- `data-legacy-edit-id` — compatibilidade com backups antigos quando aplicável.
 
 ## Contrato
 
-Os arquivos desta pasta devem:
+Arquivos de `data/` devem:
 
 1. conter dados, não comportamento de interface;
-2. preservar a estrutura esperada pelo `terra-z.js`;
-3. ser carregados antes de `terra-z.js`;
-4. evitar manipular DOM;
-5. evitar registrar listeners;
-6. não gravar diretamente em `localStorage`;
-7. manter metadados de edição quando o conteúdo correspondente for editável.
+2. preservar a estrutura esperada pelos renderers;
+3. ser carregados antes dos módulos que os consomem;
+4. não manipular DOM;
+5. não registrar listeners;
+6. não gravar em `localStorage`;
+7. manter IDs estáveis e referências válidas;
+8. nunca expor conteúdo marcado Mestre.
 
-## Próximos candidatos
-
-A separação futura pode considerar outros conjuntos tabulares de lore com fonte canônica clara, mas deve evitar transformar toda a prosa editorial do site em dados apenas por uniformidade.
-
-A partir deste ponto, a maior dívida estrutural deixa de ser a localização dos dados principais e passa a ser a concentração de comportamento em `terra-z.js`.
+O Quality Gate valida estrutura, referências, privacidade e presença dos arquivos criptografados antes de qualquer checkpoint de produção.
