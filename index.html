@@ -1484,12 +1484,42 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0 · Jan 2027
 <div class="mh-actions">
 <button id="modalBackBtn" style="display:none">← Voltar</button>
 <button id="modalTranslateBtn" type="button" disabled>🌐 Traduzir PT-BR</button>
+<button id="modalImportBtn" type="button" hidden>＋ Terra Z</button>
 <a id="modalExternal" href="#" target="_blank" rel="noopener" class="primary">🔗 Wiki Original</a>
 <button id="modalCloseBtn">✕ Fechar</button>
 </div>
 </div>
 <div class="fandom-modal-body" id="modalBody"></div>
 </div>
+</div>
+
+<div id="dcImportPanel" class="dc-import-panel" role="dialog" aria-modal="true" aria-labelledby="dcImportTitle" aria-hidden="true">
+  <div class="dc-import-card">
+    <div class="dc-import-head">
+      <div>
+        <div class="dc-import-eyebrow">DC DATABASE → TERRA Z</div>
+        <h3 id="dcImportTitle">Adicionar ao Terra Z</h3>
+      </div>
+      <button id="dcImportClose" type="button" aria-label="Fechar">✕</button>
+    </div>
+    <div class="dc-import-content">
+      <div id="dcImportPreview" class="dc-import-preview">
+        <div class="dc-import-preview-placeholder">DC</div>
+      </div>
+      <div class="dc-import-info">
+        <strong id="dcImportName">Personagem</strong>
+        <span id="dcImportSource">dc.fandom.com</span>
+        <div id="dcImportExisting" class="dc-import-existing"></div>
+        <p>O Terra Z usa apenas o título e a referência visual como ponto de partida. Biografia, status e demais informações da DC Wiki não são importados automaticamente para o cânone.</p>
+      </div>
+    </div>
+    <div id="dcImportStatus" class="dc-import-status" aria-live="polite"></div>
+    <div class="dc-import-actions">
+      <button id="dcImportCardBtn" type="button">＋ Criar Card</button>
+      <button id="dcImportGraphBtn" type="button">◎ Adicionar ao Grafo</button>
+      <button id="dcImportBothBtn" class="primary" type="button">＋ Card + Grafo</button>
+    </div>
+  </div>
 </div>
 
 <div class="session-editor-panel" id="sessionEditorPanel" role="dialog" aria-modal="true" aria-labelledby="sessionEditorTitle">
