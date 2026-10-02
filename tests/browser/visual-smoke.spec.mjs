@@ -43,6 +43,49 @@ test("boot público permanece leve e navegável",async({page},testInfo)=>{
   await expectNoPageErrors(errors);
 });
 
+test("PWA registra, expõe manifesto e mantém o núcleo público offline",async({page},testInfo)=>{
+  const errors=watchRuntimeErrors(page);
+
+  await page.goto("/#/capa",{waitUntil:"domcontentloaded"});
+  const manifest=await page.evaluate(async()=>{
+    const response=await fetch("./manifest.webmanifest");
+    return response.json();
+  });
+
+  expect(manifest.name).toContain("Terra Z");
+  expect(manifest.display).toBe("standalone");
+  expect(manifest.start_url).toBe("./#/capa");
+  expect(manifest.icons.some(icon=>String(icon.sizes||"").includes("192x192"))).toBe(true);
+  expect(manifest.icons.some(icon=>String(icon.purpose||"").includes("maskable"))).toBe(true);
+
+  await expect.poll(()=>page.evaluate(async()=>{
+    if(!("serviceWorker" in navigator))return false;
+    await navigator.serviceWorker.ready;
+    return Boolean(navigator.serviceWorker.controller);
+  }),{timeout:12000}).toBe(true);
+
+  if(testInfo.project.name==="mobile-chromium"){
+    const label=await page.locator("#commandPaletteBtn").evaluate(node=>
+      getComputedStyle(node,"::after").content
+    );
+    expect(label).toContain("Central");
+    await page.locator("#commandPaletteBtn").click();
+    await expect(page.locator("#commandPalette")).toHaveClass(/show/);
+    await page.locator("#commandPaletteClose").click();
+  }
+
+  await page.context().setOffline(true);
+  try{
+    await page.reload({waitUntil:"domcontentloaded"});
+    await expect(page.locator(".masthead")).toBeVisible();
+    await expect(page.locator("#pwaNetworkStatus")).toBeVisible();
+  }finally{
+    await page.context().setOffline(false);
+  }
+
+  await expectNoPageErrors(errors);
+});
+
 test("todas as rotas principais e deep links essenciais permanecem navegáveis",async({page})=>{
   const errors=watchRuntimeErrors(page);
 
