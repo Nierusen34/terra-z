@@ -122,6 +122,7 @@ export default async function handler(req,res){
     session_mode_v1:true,
     backup_export_v2:true,
     pwa_v1:true,
+    table_mode_v1:true,
     image_optimization:"webp-v1",
     secure_master_timeline:true,
     timeline_event_editor:true,
