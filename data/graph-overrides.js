@@ -333,14 +333,14 @@ window.TerraZData.graphOverride = {
       "ref": "",
       "route": "",
       "icon": "",
-      "mediaMode": "none",
-      "mediaId": "",
+      "mediaMode": "library",
+      "mediaId": "armek",
       "mediaUrl": "",
       "mediaFraming": {
         "fit": "cover",
-        "x": 50,
-        "y": 24,
-        "zoom": 1
+        "x": 54,
+        "y": 0,
+        "zoom": 2
       },
       "x": 120,
       "y": 650,
