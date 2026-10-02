@@ -199,6 +199,11 @@
             <strong>Visibilidade e acesso</strong>
             <small>Revisar o que está Público, Spoiler ou Mestre em toda a campanha.</small>
           </button>
+          <button class="admin-action" data-admin-action="media-library">
+            <span class="admin-action-icon">🖼️</span>
+            <strong>Biblioteca de Mídia</strong>
+            <small>Gerenciar imagens reutilizáveis, retratos e ativos usados no grafo.</small>
+          </button>
         </div>
       </div>
 
@@ -1453,6 +1458,115 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <div class="pres-inner"></div>
 </div>
 
+<div id="mediaLibraryModal" class="media-library-modal" role="dialog" aria-modal="true" aria-labelledby="mediaLibraryTitle">
+  <div class="media-library-shell">
+    <div class="media-library-head">
+      <div>
+        <div class="media-library-eyebrow">ETAPA 10 · ACERVO VISUAL</div>
+        <h3 id="mediaLibraryTitle">🖼️ Biblioteca de Mídia</h3>
+        <p>Retratos de personagens e ativos independentes reutilizáveis em entidades do grafo.</p>
+      </div>
+      <button id="mediaLibraryClose" type="button">✕ Fechar</button>
+    </div>
+
+    <div class="media-library-stats">
+      <div><strong id="mediaLibraryTotal">0</strong><span>Itens</span></div>
+      <div><strong id="mediaLibraryUsed">0</strong><span>Em uso</span></div>
+      <div><strong id="mediaLibraryOrphan">0</strong><span>Órfãos</span></div>
+    </div>
+
+    <div class="media-library-toolbar">
+      <input id="mediaLibrarySearch" type="search" autocomplete="off" placeholder="Buscar imagem, personagem, uso ou crédito...">
+      <select id="mediaLibraryFilter">
+        <option value="all">Todos</option>
+        <option value="characters">Retratos de personagens</option>
+        <option value="library">Ativos reutilizáveis</option>
+        <option value="orphan">Órfãos</option>
+        <option value="portrait">Retratos independentes</option>
+        <option value="graph">Grafo</option>
+        <option value="map">Mapas</option>
+        <option value="editorial">Editorial</option>
+        <option value="team">Equipes</option>
+        <option value="other">Outros</option>
+      </select>
+      <button id="mediaLibraryAdd" class="primary" type="button" disabled>＋ Novo ativo</button>
+    </div>
+
+    <div id="mediaLibraryGrid" class="media-library-grid"></div>
+  </div>
+</div>
+
+<div id="mediaLibraryEditor" class="media-library-editor" role="dialog" aria-modal="true" aria-labelledby="mediaLibraryEditorTitle">
+  <div class="media-library-editor-card">
+    <div class="media-library-editor-head">
+      <div>
+        <div class="media-library-eyebrow">ATIVO REUTILIZÁVEL</div>
+        <h3 id="mediaLibraryEditorTitle">＋ Novo ativo</h3>
+      </div>
+      <button id="mediaLibraryEditorClose" type="button">✕</button>
+    </div>
+
+    <div class="media-library-editor-layout">
+      <div class="media-library-form">
+        <label>Nome do ativo
+          <input id="mediaAssetLabel" type="text" maxlength="160" placeholder="Ex.: Armek">
+        </label>
+        <label>Categoria
+          <select id="mediaAssetCategory">
+            <option value="portrait">Retrato</option>
+            <option value="graph" selected>Grafo</option>
+            <option value="map">Mapa</option>
+            <option value="editorial">Editorial</option>
+            <option value="team">Equipe</option>
+            <option value="other">Outro</option>
+          </select>
+        </label>
+        <label>Fonte
+          <select id="mediaAssetSource">
+            <option value="local">Arquivo local</option>
+            <option value="external">URL externa</option>
+          </select>
+        </label>
+        <label id="mediaAssetFileWrap">Arquivo
+          <input id="mediaAssetFile" type="file" accept="image/png,image/jpeg,image/webp">
+          <small>PNG, JPEG ou WebP · até 2 MB.</small>
+        </label>
+        <label id="mediaAssetUrlWrap" hidden>URL HTTPS
+          <input id="mediaAssetUrl" type="url" maxlength="1600" placeholder="https://...">
+        </label>
+        <label>Crédito / origem
+          <input id="mediaAssetCredit" type="text" maxlength="240" placeholder="Artista, publicação ou fonte">
+        </label>
+
+        <div class="media-library-framing">
+          <strong>Enquadramento padrão</strong>
+          <label>Modo
+            <select id="mediaAssetFit">
+              <option value="cover">Preencher / recortar</option>
+              <option value="contain">Imagem inteira</option>
+            </select>
+          </label>
+          <label>Horizontal <input id="mediaAssetX" type="range" min="0" max="100" step="1" value="50"></label>
+          <label>Vertical <input id="mediaAssetY" type="range" min="0" max="100" step="1" value="50"></label>
+          <label>Ampliação <input id="mediaAssetZoom" type="range" min="50" max="250" step="5" value="100"></label>
+        </div>
+      </div>
+
+      <div class="media-library-editor-preview">
+        <span>Prévia</span>
+        <div id="mediaAssetPreview"></div>
+      </div>
+    </div>
+
+    <div class="media-library-editor-actions">
+      <button id="mediaAssetDelete" class="danger" type="button" hidden>🗑️ Excluir ativo</button>
+      <span></span>
+      <button id="mediaAssetCancel" type="button">Cancelar</button>
+      <button id="mediaAssetSave" class="primary" type="button">💾 Salvar ativo</button>
+    </div>
+  </div>
+</div>
+
 <div id="graphEditorModal" role="dialog" aria-modal="true" aria-labelledby="graphEditorTitle">
 <div class="graph-editor-inner graph-editor-v2">
 <div class="graph-editor-header">
@@ -1515,6 +1629,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="data/character-overrides.js" defer></script>
 <script src="data/character-meta.js" defer></script>
 <script src="data/character-media.js" defer></script>
+<script src="data/media-library.js" defer></script>
 <script src="data/relations.js" defer></script>
 <script src="data/graph-overrides.js" defer></script>
 <script src="data/locations.js" defer></script>
@@ -1540,6 +1655,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="js/media.js" defer></script>
 <script src="js/character-media.js" defer></script>
 <script src="js/media-manager.js" defer></script>
+<script src="js/media-library.js" defer></script>
 <script src="js/portrait-browser.js" defer></script>
 <script src="js/navigation.js" defer></script>
 <script src="js/mobile-polish.js" defer></script>
