@@ -1843,17 +1843,28 @@ async function importDcNode(options){
   await openGraphEditor("layout","");
   if(!editorDraft) return {ok:false,reason:"editor"};
 
+  var characterName=String(options.characterName || "").trim();
+  var wikiTitle=String(options.wikiTitle || "").trim();
   var existing=findImportedNode(options);
   if(existing){
+    if(characterName && importKey(existing.ref)!==importKey(characterName)){
+      pushEditorUndo();
+      existing.kind="character";
+      existing.ref=characterName;
+      existing.mediaMode="character";
+      existing.mediaId="";
+      existing.mediaUrl="";
+      if(!existing.subtitle && wikiTitle && importKey(wikiTitle)!==importKey(existing.label)) existing.subtitle=wikiTitle;
+      showToast(existing.label+" já estava no grafo e foi vinculado ao novo card. Revise e salve as relações.","success",5200);
+    }else{
+      showToast(existing.label+" já está no grafo. A entidade existente foi selecionada.","info",4500);
+    }
     editorSelectedId=existing.id;
     renderEditorTabs();renderEditorList();renderEditorDetail();
-    showToast(existing.label+" já está no grafo. A entidade existente foi selecionada.","info",4500);
-    return {ok:true,created:false,id:existing.id};
+    return {ok:true,created:false,id:existing.id,linked:!!characterName};
   }
 
   pushEditorUndo();
-  var characterName=String(options.characterName || "").trim();
-  var wikiTitle=String(options.wikiTitle || "").trim();
   var label=String(options.label || characterName || importDisplayName(wikiTitle) || "NOVA ENTIDADE").trim();
   var pos=importNodePosition();
   var mediaUrl=/^https:\/\//i.test(String(options.imageUrl || "")) ? String(options.imageUrl) : "";
