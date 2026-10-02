@@ -444,7 +444,12 @@ async function saveMediaFraming(){
     showToast('Enquadramento atualizado em cards, ficha e grafo.','success',4500);
 
     var runtime=window.TerraZApp && window.TerraZApp.runtimeData;
-    if(runtime && runtime.refresh) runtime.refresh({force:true,bust:result.sha,silent:true});
+    if(runtime && runtime.refresh) await runtime.refresh({force:true,bust:result.sha,silent:true});
+
+    if(result.private){
+      var privateApi=window.TerraZApp && window.TerraZApp.privateContent;
+      if(privateApi && privateApi.reload) await privateApi.reload();
+    }
 
     var publishing=window.TerraZApp && window.TerraZApp.publishing;
     if(publishing && publishing.trackDeployment && result.status_url){
