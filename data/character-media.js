@@ -204,6 +204,26 @@ window.TerraZData.characterMedia = {
     "auto": {
       "provider": "dc-fandom",
       "wikiTitle": "Timothy Drake (Prime Earth)"
+    },
+    "framing": {
+      "card": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "sheet": {
+        "fit": "cover",
+        "x": 50,
+        "y": 8,
+        "zoom": 1
+      },
+      "graph": {
+        "fit": "cover",
+        "x": 22,
+        "y": 8,
+        "zoom": 1.6
+      }
     }
   },
   "Verity Pennyworth": {
