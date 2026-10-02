@@ -1,5 +1,5 @@
 import { applyCors } from "./_lib/cors.js";
-import { githubConfig, getHead, readTextFile } from "./_lib/github.js";
+import { githubConfig, getHead, readTextFile, pagesRunStatus, workflowRunStatus } from "./_lib/github.js";
 import { parseDataAssignment } from "./_lib/data-files.js";
 
 
@@ -38,6 +38,25 @@ export default async function handler(req,res){
     return res.status(405).json({error:"method_not_allowed"});
   }
 
+
+  if(String((req.query || {}).mode || "") === "status"){
+    const sha=String((req.query || {}).sha || "");
+    if(!/^[a-f0-9]{40}$/i.test(sha)){
+      return res.status(400).json({error:"invalid_sha"});
+    }
+
+    try{
+      const kind=String((req.query || {}).kind || "pages").toLowerCase();
+      const result=kind === "vercel"
+        ? await workflowRunStatus(sha,"Vercel production checkpoint")
+        : await pagesRunStatus(sha);
+      res.setHeader("Cache-Control","no-store, max-age=0");
+      return res.status(200).json({...result,kind});
+    }catch(error){
+      console.error(error);
+      return res.status(200).json({status:"pending"});
+    }
+  }
 
   if(String((req.query || {}).runtime || "") === "1"){
     res.setHeader("Cache-Control","no-store, max-age=0");
@@ -91,6 +110,8 @@ export default async function handler(req,res){
     portrait_framing:true,
     media_library_v1:true,
     graph_independent_media:true,
+    api_consolidation_v1:true,
+    serverless_functions:8,
     secure_master_timeline:true,
     timeline_event_editor:true,
     history_restore:true,
