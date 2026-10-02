@@ -95,6 +95,7 @@ async function openAdmin(){
     if(button){
       button.disabled=false;
       delete button.dataset.loading;
+      if(loaded) button.removeEventListener("click",openAdmin);
     }
   }
 }
