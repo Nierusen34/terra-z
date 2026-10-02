@@ -153,3 +153,33 @@ window.TerraZData.characterTaxonomy = ${JSON.stringify(data,null,2)};
 })();
 `;
 }
+
+
+export function renderTimeline(data){
+  const groups=Array.isArray(data) ? data : [];
+  return `(function(){
+"use strict";
+
+window.TerraZData = window.TerraZData || {};
+
+// Linha do tempo canônica do universo Terra Z.
+// Sessões continuam no Diário da Campanha e são agregadas dinamicamente.
+window.TerraZData.timeline = ${JSON.stringify(groups,null,2)};
+
+window.TerraZData.timelineSchema = {
+  id:"slug-estavel-do-evento",
+  category:"history | pre-campaign | campaign | current | future",
+  sortKey:"número cronológico YYYYMMDD; períodos imprecisos usam valor aproximado estável",
+  year:"rótulo exibido",
+  title:"título opcional",
+  text:"descrição canônica",
+  characters:["Nome exato da ficha"],
+  locations:["Distrito, cidade ou local"],
+  teams:["Nome exato da equipe"],
+  visibility:"public | spoiler",
+  edit:{year:{id:"tz-...",legacyId:"e-..."},text:{id:"tz-...",legacyId:"e-..."}}
+};
+
+})();
+`;
+}
