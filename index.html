@@ -1286,6 +1286,52 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 </div>
 </div>
 
+<div id="characterEditorMediaFraming" class="character-editor-media-framing">
+<div class="character-editor-section-title">🖼️ Enquadramento do retrato</div>
+<p class="character-editor-note">A mesma imagem pode ter um enquadramento diferente nos cards, na ficha e no grafo. “Imagem inteira” preserva a arte sem corte; “Preencher” ocupa toda a área e pode recortar bordas.</p>
+
+<div class="character-framing-layout">
+  <div class="character-framing-controls">
+    <label>Aplicar em
+      <select id="characterEditorFramingContext">
+        <option value="card">Cards de personagem</option>
+        <option value="sheet">Ficha do personagem</option>
+        <option value="graph">Grafo e relações</option>
+      </select>
+    </label>
+
+    <label>Modo
+      <select id="characterEditorFramingFit">
+        <option value="cover">Preencher / recortar</option>
+        <option value="contain">Imagem inteira / sem corte</option>
+      </select>
+    </label>
+
+    <label class="character-framing-range">Ampliação
+      <div><input id="characterEditorFramingZoom" type="range" min="50" max="250" step="5" value="100"><span id="characterEditorFramingZoomValue">100%</span></div>
+    </label>
+
+    <label class="character-framing-range">Posição horizontal
+      <div><input id="characterEditorFramingX" type="range" min="0" max="100" step="1" value="50"><span id="characterEditorFramingXValue">50%</span></div>
+    </label>
+
+    <label class="character-framing-range">Posição vertical
+      <div><input id="characterEditorFramingY" type="range" min="0" max="100" step="1" value="50"><span id="characterEditorFramingYValue">50%</span></div>
+    </label>
+  </div>
+
+  <div class="character-framing-preview-wrap">
+    <div class="character-framing-preview-label">Prévia</div>
+    <div id="characterEditorFramingPreview" class="character-framing-preview" data-context="card"></div>
+  </div>
+</div>
+
+<div class="character-editor-media-actions character-framing-actions">
+<button id="characterEditorFramingResetBtn" type="button">↶ Padrão deste contexto</button>
+<button id="characterEditorFramingSaveBtn" class="primary" type="button">💾 Salvar enquadramento</button>
+</div>
+</div>
+
 <div class="character-editor-section-title">Organização</div>
 <div class="character-editor-meta-grid">
 <label>Tipo<select id="characterEditorType"></select></label>
