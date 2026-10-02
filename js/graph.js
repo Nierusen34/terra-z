@@ -1004,6 +1004,12 @@ function renderGraph(){
   var html=renderDefs(nodes);
 
   html+='<rect x="0" y="0" width="1000" height="720" class="graph-grid-bg" fill="url(#graph-grid)"/>';
+  if(!quickRelationState.draft && quickRelationState.picking && quickRelationState.sourceId){
+    var quickSource=graphDisplayNodeById(quickRelationState.sourceId);
+    if(quickSource){
+      html+='<line id="graphConnectPreview" class="graph-connect-preview" x1="'+quickSource.x+'" y1="'+quickSource.y+'" x2="'+quickSource.x+'" y2="'+quickSource.y+'"/>';
+    }
+  }
 
   (graphData.quadrants || []).forEach(function(q){
     html+='<g class="graph-zone">'+
@@ -1082,7 +1088,9 @@ function renderGraph(){
   svg.querySelectorAll("[data-node-id]").forEach(function(group){
     bindGraphViewDrag(svg,group);
     var choose=function(){
-      selectedNodeId=group.getAttribute("data-node-id") || "";
+      var id=group.getAttribute("data-node-id") || "";
+      if(selectQuickTarget(id)) return;
+      selectedNodeId=id;
       selectedEdgeId="";
       renderGraph();
       renderInspector();
@@ -1102,6 +1110,16 @@ function renderGraph(){
       openNodeRoute(node);
     });
   });
+
+  if(!quickRelationState.draft && quickRelationState.picking){
+    svg.addEventListener("pointermove",function(event){
+      var line=svg.querySelector("#graphConnectPreview");
+      if(!line) return;
+      var point=svgPointFromEvent(svg,event);
+      line.setAttribute("x2",Math.max(0,Math.min(1000,point.x)));
+      line.setAttribute("y2",Math.max(0,Math.min(720,point.y)));
+    },{passive:true});
+  }
 
   svg.querySelectorAll("[data-edge-id]").forEach(function(group){
     group.addEventListener("click",function(event){
@@ -1181,7 +1199,7 @@ function renderInspector(){
       '</div>'+
       '<div class="graph-inspector-actions">'+
         (route ? '<button type="button" id="graphInspectorOpen">Abrir entidade →</button>' : '')+
-        (canEdit() ? '<button type="button" id="graphInspectorEdit">✏️ Editar</button>' : '')+
+        (canEdit() ? '<button type="button" id="graphInspectorConnect" class="primary">🔗 Conectar</button><button type="button" id="graphInspectorEdit">⚙️ Editar</button>' : '')+
       '</div>'+
       '<div class="graph-inspector-relations">'+
         '<div class="graph-inspector-heading">Conexões diretas</div>'+
@@ -1199,6 +1217,8 @@ function renderInspector(){
     hydrateInspectorPortraits(root);
     var open=document.getElementById("graphInspectorOpen");
     if(open) open.addEventListener("click",function(){ openNodeRoute(node); });
+    var connect=document.getElementById("graphInspectorConnect");
+    if(connect) connect.addEventListener("click",function(){ beginQuickPick(node.id,{draft:false}); });
     var edit=document.getElementById("graphInspectorEdit");
     if(edit) edit.addEventListener("click",function(){ openGraphEditor("nodes",node.id); });
     root.querySelectorAll("[data-inspector-edge]").forEach(function(button){
@@ -1330,10 +1350,15 @@ function setupGraphView(){
   if(zoomReset) zoomReset.addEventListener("click",function(){ setGraphScale(1,true); });
   if(zoomRange) zoomRange.addEventListener("input",function(){ setGraphScale(Number(zoomRange.value)/100,true); });
   applyGraphScale();
+  updateConnectBar();
 
   var svg=document.getElementById("graphSvg");
   if(svg) svg.addEventListener("click",function(event){
     if(event.target===svg || event.target.classList.contains("graph-grid-bg")){
+      if(quickRelationState.picking){
+        showToast("Escolha uma bolinha de destino ou cancele a conexão.","info",2800);
+        return;
+      }
       selectedNodeId="";
       selectedEdgeId="";
       renderGraph();
