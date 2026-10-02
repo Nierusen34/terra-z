@@ -388,7 +388,7 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 745,
+      "x": 569,
       "y": 462,
       "color": "#3a3028",
       "r": 44,
@@ -436,6 +436,29 @@ window.TerraZData.graphOverride = {
       },
       "x": 918,
       "y": 628,
+      "color": "#8b1a1a",
+      "r": 38,
+      "visibility": "public"
+    },
+    {
+      "id": "rex-mason",
+      "label": "Rex Mason",
+      "subtitle": "Metamorpho",
+      "kind": "character",
+      "ref": "Rex Mason",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 916,
+      "y": 519,
       "color": "#8b1a1a",
       "r": 38,
       "visibility": "public"
