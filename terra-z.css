@@ -6429,3 +6429,175 @@ body.pwa-offline #backupExportPublicJson{
   .graph-quick-actions button{min-height:46px}
   .graph-quick-actions #graphQuickPickBtn{grid-column:1/-1}
 }
+
+
+/* ===== GRAFO · VIEWPORT EXPANSÍVEL / FOCO / TELA CHEIA ===== */
+.graph-zoom-controls{
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.graph-zoom-controls #graphFitBtn,
+.graph-zoom-controls #graphFocusBtn,
+.graph-zoom-controls #graphInspectorToggleBtn,
+.graph-zoom-controls #graphFullscreenBtn{
+  min-width:auto;
+  white-space:nowrap;
+  padding:0 9px;
+  font-size:7.5px;
+}
+.graph-wrap-v2{
+  position:relative;
+  overflow:hidden;
+  cursor:grab;
+  overscroll-behavior:contain;
+}
+.graph-wrap-v2:active{cursor:grabbing}
+.graph-wrap-v2 svg{
+  min-width:0;
+  width:100%;
+  height:auto;
+  aspect-ratio:1000/720;
+  display:block;
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
+}
+.graph-edge-group,
+.graph-node-v2{
+  transition:opacity .2s ease,filter .2s ease;
+}
+.graph-node-v2.focus-primary{
+  opacity:1;
+  filter:saturate(1.08);
+}
+.graph-node-v2.focus-related{opacity:1}
+.graph-node-v2.focus-muted{
+  opacity:.22;
+  filter:saturate(.5);
+}
+.graph-edge-group.focus-relevant{opacity:1}
+.graph-edge-group.focus-muted{
+  opacity:.08;
+  pointer-events:none;
+}
+.graph-edge-group.cross-nucleus .graph-edge-line{
+  stroke-linecap:round;
+}
+.graph-edge-group.cross-nucleus:not(.selected):not(.focus-relevant) .graph-edge-label{
+  opacity:.18;
+}
+.graph-edge-group.cross-nucleus.focus-relevant .graph-edge-label,
+.graph-edge-group.cross-nucleus.selected .graph-edge-label{
+  opacity:1;
+}
+.graph-inspector-collapsed{
+  grid-template-columns:minmax(0,1fr)!important;
+}
+.graph-inspector-collapsed>.graph-inspector{
+  display:none;
+}
+
+body.graph-fullscreen-open{
+  overflow:hidden!important;
+}
+.relations-layout.graph-fullscreen{
+  position:fixed;
+  inset:0;
+  z-index:10280;
+  grid-template-columns:minmax(0,1fr) 320px;
+  gap:0;
+  align-items:stretch;
+  width:100vw;
+  height:100dvh;
+  padding:0;
+  background:var(--paper2);
+}
+.relations-layout.graph-fullscreen.graph-inspector-collapsed{
+  grid-template-columns:minmax(0,1fr);
+}
+.relations-layout.graph-fullscreen .graph-canvas-card{
+  height:100dvh;
+  display:flex;
+  flex-direction:column;
+  border:0;
+  min-width:0;
+}
+.relations-layout.graph-fullscreen .graph-canvas-head{
+  flex:0 0 auto;
+  position:relative;
+  z-index:4;
+  padding:10px 14px;
+}
+.relations-layout.graph-fullscreen .graph-connect-bar{
+  flex:0 0 auto;
+}
+.relations-layout.graph-fullscreen .graph-wrap-v2{
+  flex:1 1 auto;
+  min-height:0;
+  background:
+    radial-gradient(circle at 30% 20%,color-mix(in srgb,var(--accent) 6%,transparent),transparent 34%),
+    var(--paper3);
+}
+.relations-layout.graph-fullscreen .graph-wrap-v2 svg{
+  width:100%;
+  height:100%;
+  aspect-ratio:auto;
+}
+.relations-layout.graph-fullscreen .graph-legend-v2{
+  flex:0 0 auto;
+  max-height:74px;
+  overflow:auto;
+}
+.relations-layout.graph-fullscreen>.graph-inspector{
+  position:static;
+  top:auto;
+  height:100dvh;
+  min-height:0;
+  overflow:auto;
+  border-width:0 0 0 1px;
+  z-index:5;
+}
+
+@media(max-width:1050px){
+  .relations-layout.graph-fullscreen{
+    grid-template-columns:minmax(0,1fr) 300px;
+  }
+}
+@media(max-width:760px){
+  .graph-zoom-controls #graphFitBtn,
+  .graph-zoom-controls #graphFocusBtn,
+  .graph-zoom-controls #graphInspectorToggleBtn,
+  .graph-zoom-controls #graphFullscreenBtn{
+    min-height:36px;
+    flex:1 1 auto;
+  }
+  .graph-wrap-v2 svg{
+    aspect-ratio:4/3;
+  }
+  .relations-layout.graph-fullscreen{
+    display:block;
+    padding:0;
+  }
+  .relations-layout.graph-fullscreen .graph-canvas-card{
+    height:100dvh;
+  }
+  .relations-layout.graph-fullscreen>.graph-inspector{
+    display:block;
+    position:absolute;
+    z-index:8;
+    left:8px;
+    right:8px;
+    bottom:8px;
+    height:auto;
+    max-height:46dvh;
+    overflow:auto;
+    border:1px solid var(--line);
+    box-shadow:0 16px 50px rgba(0,0,0,.48);
+  }
+  .relations-layout.graph-fullscreen.graph-inspector-collapsed>.graph-inspector{
+    display:none;
+  }
+  .relations-layout.graph-fullscreen .graph-legend-v2{
+    max-height:56px;
+  }
+}
