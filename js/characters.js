@@ -97,7 +97,8 @@ function openFichaModal(characterName, options){
   var uploadBtn = canUploadPortrait ? '<button class="fh-link" id="fichaUploadPortraitBtn" title="Enviar imagem própria">🖼️</button>' : '';
   var browsePortraitBtn = canEditCharacter ? '<button class="fh-link" id="fichaBrowsePortraitBtn" title="Escolher versão ou imagem na DC Database">🎴</button>' : '';
   var editBtn = canEditCharacter ? '<button class="fh-link" id="fichaEditCharacterBtn" title="Editar personagem">✏️</button>' : '';
-  header.innerHTML = portrait + '<div class="fh-info"><div class="fh-eyebrow">' + escapeHtml(ficha.eyebrow) + '</div><h2>' + escapeHtml(characterName) + '</h2></div><div class="fh-actions">' + editBtn + browsePortraitBtn + uploadBtn + '<button class="fh-link" id="fichaCopyLinkBtn" title="Copiar link direto">🔗</button><button class="fh-close" id="fichaCloseBtn">✕</button></div>';
+  var graphBtn = window.TerraZApp.graph ? '<button class="fh-link" id="fichaGraphBtn" title="Ver este personagem no grafo">◎</button>' : '';
+  header.innerHTML = portrait + '<div class="fh-info"><div class="fh-eyebrow">' + escapeHtml(ficha.eyebrow) + '</div><h2>' + escapeHtml(characterName) + '</h2></div><div class="fh-actions">' + graphBtn + editBtn + browsePortraitBtn + uploadBtn + '<button class="fh-link" id="fichaCopyLinkBtn" title="Copiar link direto">🔗</button><button class="fh-close" id="fichaCloseBtn">✕</button></div>';
   var bodyHtml = '';
   var privateSecrets = (window.TerraZApp.privateContent && window.TerraZApp.privateContent.getCharacterSecrets)
     ? window.TerraZApp.privateContent.getCharacterSecrets(characterName)
@@ -150,6 +151,14 @@ function openFichaModal(characterName, options){
     }
   };
   document.getElementById('fichaCloseBtn').addEventListener('click', closeFichaModal);
+  var graphCharacterBtn = document.getElementById('fichaGraphBtn');
+  if(graphCharacterBtn) graphCharacterBtn.addEventListener('click', function(){
+    closeFichaModal({keepRoute:true});
+    var graph=window.TerraZApp.graph;
+    if(!graph || !graph.focusCharacter || !graph.focusCharacter(characterName)){
+      showToast('Este personagem ainda não possui uma bolinha no grafo.','info',4200);
+    }
+  });
   var editCharacterBtn = document.getElementById('fichaEditCharacterBtn');
   if(editCharacterBtn) editCharacterBtn.addEventListener('click', function(){
     if(window.TerraZApp.characterEditor) window.TerraZApp.characterEditor.open(characterName);
