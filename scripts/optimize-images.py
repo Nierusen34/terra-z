@@ -91,6 +91,9 @@ if converted:
             f"{after/1024/1024:.2f} MB | {100*(1-after/before):.1f}% |"
         )
 else:
+    if report.exists():
+        print("Nenhuma nova imagem exige conversão; relatório anterior preservado.")
+        raise SystemExit(0)
     lines.append("Nenhuma imagem atingiu os critérios de conversão.")
 
 report.write_text("\n".join(lines)+"\n",encoding="utf-8")
