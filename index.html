@@ -1407,7 +1407,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0
   <select id="graphEntityFilter" aria-label="Filtrar tipo de entidade"></select>
   <select id="graphRelationFilter" aria-label="Filtrar tipo de relação"></select>
   <button id="graphClearFilters" type="button">Limpar filtros</button>
-  <button class="primary" id="graphOpenBtn" type="button" disabled>✏️ Administrar relações</button>
+  <button class="primary" id="graphOpenBtn" type="button" disabled>✏️ Editar / organizar</button>
 </div>
 
 <div class="relations-layout">
@@ -1415,7 +1415,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0
     <div class="graph-canvas-head">
       <div>
         <strong>Mapa de relações</strong>
-        <span>Clique para inspecionar · duplo clique abre a entidade quando houver destino.</span>
+        <span>Clique para inspecionar · duplo clique abre a entidade · editores podem organizar visualmente com mouse ou toque.</span>
       </div>
       <div class="graph-zoom-controls" aria-label="Tamanho do grafo">
         <button id="graphZoomOut" type="button" title="Diminuir grafo">−</button>
@@ -1913,6 +1913,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0 · Jan 2027
   <div class="graph-editor-tabs" role="tablist">
     <button type="button" data-ge-tab="nodes" class="active" aria-pressed="true">◎ Entidades</button>
     <button type="button" data-ge-tab="edges" aria-pressed="false">↔ Relações</button>
+    <button type="button" data-ge-tab="layout" aria-pressed="false">✥ Layout visual</button>
   </div>
   <input id="graphEditorSearch" type="search" placeholder="Buscar no editor..." autocomplete="off">
   <button id="graphEditorAdd" class="primary" type="button">＋ Nova entidade</button>
@@ -1927,8 +1928,9 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0 · Jan 2027
 
 <div class="graph-editor-footer graph-editor-footer-v2">
   <div class="graph-editor-footer-left">
-    <button id="graphAutoArrangeBtn" type="button">✦ Auto-organizar</button>
-    <button id="graphRestoreBtn" type="button">↶ Backup anterior</button>
+    <button id="graphAutoArrangeBtn" type="button">✦ Auto-organizar inteligente</button>
+    <button id="graphUndoBtn" type="button">↶ Desfazer</button>
+    <button id="graphRestoreBtn" type="button">⏮ Layout anterior</button>
     <button id="graphResetBtn" type="button">⟳ Carregar padrão</button>
   </div>
   <div class="graph-editor-footer-right">
