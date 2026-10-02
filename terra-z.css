@@ -4833,7 +4833,7 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
   color:var(--ink3);
 }
 .master-quick-toolbar{
-  grid-template-columns:minmax(220px,1fr) auto auto;
+  grid-template-columns:minmax(220px,1fr) auto auto auto;
 }
 .master-quick-toolbar input{font-size:12px}
 .master-quick-toolbar button{font-size:10px}
