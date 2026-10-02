@@ -204,6 +204,9 @@ function setup(){
   var workspace=el("masterQuickWorkspace");if(workspace)workspace.addEventListener("click",function(){
     close();var w=window.TerraZApp&&window.TerraZApp.masterWorkspace;if(w&&w.open)w.open();
   });
+  var table=el("masterQuickTableMode");if(table)table.addEventListener("click",function(){
+    close();var tableMode=window.TerraZApp&&window.TerraZApp.tableMode;if(tableMode&&tableMode.open)tableMode.open();
+  });
   var mode=el("masterQuickSessionMode");if(mode)mode.addEventListener("click",function(){
     close();var sessionMode=window.TerraZApp&&window.TerraZApp.sessionMode;if(sessionMode&&sessionMode.open)sessionMode.open();
   });
