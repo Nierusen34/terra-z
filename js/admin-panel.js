@@ -434,6 +434,14 @@ function handleAction(action){
     return;
   }
 
+  if(action === 'media-library'){
+    requireEditorAction(function(){
+      close();
+      if(app.mediaLibrary && app.mediaLibrary.open) app.mediaLibrary.open();
+    });
+    return;
+  }
+
   if(action === 'new-character'){
     requireEditorAction(function(){
       close();
