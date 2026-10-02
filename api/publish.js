@@ -331,7 +331,7 @@ function normalizeTimelineEvent(input,existing,id){
   const category=TIMELINE_CATEGORIES.has(source.category) ? source.category : "current";
   const visibility=TIMELINE_VISIBILITY.has(source.visibility) ? source.visibility : "public";
   const rawSort=Number(source.sortKey);
-  const sortKey=Number.isFinite(rawSort) && rawSort>=0
+  const sortKey=Number.isFinite(rawSort) && rawSort>0
     ? rawSort
     : timelineSortFromLabel(source.sortValue || year);
 
@@ -347,7 +347,7 @@ function normalizeTimelineEvent(input,existing,id){
     error.status=400;
     throw error;
   }
-  if(!Number.isFinite(sortKey)){
+  if(!Number.isFinite(sortKey) || sortKey<=0){
     const error=new Error("A ordem cronológica do evento é inválida.");
     error.code="timeline_sort_invalid";
     error.status=400;
