@@ -15,7 +15,7 @@ window.TerraZData.graphOverride = {
       "w": 470,
       "h": 340,
       "color": "#c45a1c",
-      "bg": "rgba(196,90,28,.06)"
+      "bg": "rgba(196,90,28,.05)"
     },
     {
       "id": "wayne",
@@ -25,7 +25,7 @@ window.TerraZData.graphOverride = {
       "w": 470,
       "h": 340,
       "color": "#0064a8",
-      "bg": "rgba(0,100,168,.06)"
+      "bg": "rgba(0,100,168,.05)"
     },
     {
       "id": "marciano",
@@ -35,7 +35,7 @@ window.TerraZData.graphOverride = {
       "w": 470,
       "h": 320,
       "color": "#0a8a4a",
-      "bg": "rgba(10,138,74,.06)"
+      "bg": "rgba(10,138,74,.05)"
     },
     {
       "id": "lobo",
@@ -45,7 +45,7 @@ window.TerraZData.graphOverride = {
       "w": 470,
       "h": 320,
       "color": "#7a4aff",
-      "bg": "rgba(122,74,255,.06)"
+      "bg": "rgba(122,74,255,.05)"
     }
   ],
   "nodes": [
@@ -66,10 +66,10 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 190,
-      "y": 35,
+      "x": 140,
+      "y": 130,
       "color": "#c45a1c",
-      "r": 34,
+      "r": 38,
       "visibility": "public"
     },
     {
@@ -89,10 +89,10 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 234,
-      "y": 44,
+      "x": 140,
+      "y": 240,
       "color": "#8b1a1a",
-      "r": 34,
+      "r": 38,
       "visibility": "public"
     },
     {
@@ -112,10 +112,10 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 271,
-      "y": 69,
+      "x": 300,
+      "y": 240,
       "color": "#c45a1c",
-      "r": 34,
+      "r": 38,
       "visibility": "public"
     },
     {
@@ -135,10 +135,10 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 296,
-      "y": 106,
+      "x": 400,
+      "y": 130,
       "color": "#3a3028",
-      "r": 34,
+      "r": 38,
       "visibility": "public"
     },
     {
@@ -158,10 +158,10 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 305,
-      "y": 150,
+      "x": 700,
+      "y": 130,
       "color": "#1a1512",
-      "r": 34,
+      "r": 38,
       "visibility": "public"
     },
     {
@@ -181,10 +181,10 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 296,
-      "y": 194,
+      "x": 800,
+      "y": 130,
       "color": "#8b1a1a",
-      "r": 34,
+      "r": 38,
       "visibility": "public"
     },
     {
@@ -204,10 +204,10 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 271,
-      "y": 231,
+      "x": 600,
+      "y": 240,
       "color": "#8b1a1a",
-      "r": 34,
+      "r": 38,
       "visibility": "public"
     },
     {
@@ -227,10 +227,10 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 234,
-      "y": 256,
+      "x": 700,
+      "y": 240,
       "color": "#8b1a1a",
-      "r": 34,
+      "r": 38,
       "visibility": "public"
     },
     {
@@ -250,10 +250,10 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 190,
-      "y": 265,
+      "x": 800,
+      "y": 240,
       "color": "#8b1a1a",
-      "r": 34,
+      "r": 38,
       "visibility": "public"
     },
     {
@@ -273,10 +273,10 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 146,
-      "y": 256,
+      "x": 120,
+      "y": 470,
       "color": "#0a8a4a",
-      "r": 34,
+      "r": 38,
       "visibility": "public"
     },
     {
@@ -296,10 +296,10 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 109,
-      "y": 231,
+      "x": 400,
+      "y": 470,
       "color": "#0064a8",
-      "r": 34,
+      "r": 38,
       "visibility": "public"
     },
     {
@@ -319,33 +319,33 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 84,
-      "y": 194,
+      "x": 260,
+      "y": 580,
       "color": "#0a8a4a",
-      "r": 34,
+      "r": 38,
       "visibility": "public"
     },
     {
       "id": "armek",
       "label": "ARMEK",
-      "subtitle": "",
+      "subtitle": "Armek",
       "kind": "custom",
       "ref": "",
       "route": "",
       "icon": "",
-      "mediaMode": "library",
-      "mediaId": "armek",
+      "mediaMode": "none",
+      "mediaId": "",
       "mediaUrl": "",
       "mediaFraming": {
         "fit": "cover",
-        "x": 54,
-        "y": 0,
-        "zoom": 2
+        "x": 50,
+        "y": 24,
+        "zoom": 1
       },
-      "x": 500,
-      "y": 150,
+      "x": 120,
+      "y": 650,
       "color": "#3a3028",
-      "r": 34,
+      "r": 38,
       "visibility": "public"
     },
     {
@@ -365,10 +365,10 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 75,
-      "y": 150,
+      "x": 400,
+      "y": 650,
       "color": "#0a8a4a",
-      "r": 34,
+      "r": 38,
       "visibility": "public"
     },
     {
@@ -388,10 +388,10 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 84,
-      "y": 106,
+      "x": 660,
+      "y": 490,
       "color": "#3a3028",
-      "r": 40,
+      "r": 44,
       "visibility": "public"
     },
     {
@@ -411,10 +411,10 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 109,
-      "y": 69,
+      "x": 660,
+      "y": 620,
       "color": "#3a3028",
-      "r": 40,
+      "r": 44,
       "visibility": "public"
     },
     {
@@ -434,231 +434,231 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 146,
-      "y": 44,
+      "x": 800,
+      "y": 620,
       "color": "#8b1a1a",
-      "r": 34,
+      "r": 38,
       "visibility": "public"
     }
   ],
   "edges": [
     {
-      "id": "edge-1",
+      "id": "oliver-dinah",
       "from": "oliver",
       "to": "dinah",
-      "type": "family",
+      "type": "romance",
       "label": "casal",
       "note": "",
-      "strength": 3,
+      "strength": 5,
       "directed": false,
       "visibility": "public"
     },
     {
-      "id": "edge-2",
+      "id": "oliver-tristan",
       "from": "oliver",
       "to": "tristan",
       "type": "family",
       "label": "pai",
       "note": "",
-      "strength": 3,
-      "directed": false,
+      "strength": 5,
+      "directed": true,
       "visibility": "public"
     },
     {
-      "id": "edge-3",
+      "id": "dinah-tristan",
       "from": "dinah",
       "to": "tristan",
       "type": "family",
       "label": "mãe",
       "note": "",
-      "strength": 3,
-      "directed": false,
+      "strength": 5,
+      "directed": true,
       "visibility": "public"
     },
     {
-      "id": "edge-4",
+      "id": "oliver-connor",
       "from": "oliver",
       "to": "connor",
       "type": "family",
       "label": "pai",
       "note": "",
-      "strength": 3,
-      "directed": false,
+      "strength": 5,
+      "directed": true,
       "visibility": "public"
     },
     {
-      "id": "edge-5",
+      "id": "tristan-connor",
       "from": "tristan",
       "to": "connor",
       "type": "family",
       "label": "irmãos",
       "note": "",
-      "strength": 3,
+      "strength": 5,
       "directed": false,
       "visibility": "public"
     },
     {
-      "id": "edge-6",
+      "id": "bruce-damian",
       "from": "bruce",
       "to": "damian",
       "type": "family",
       "label": "biológico",
       "note": "",
-      "strength": 3,
-      "directed": false,
+      "strength": 5,
+      "directed": true,
       "visibility": "public"
     },
     {
-      "id": "edge-7",
+      "id": "bruce-jason",
       "from": "bruce",
       "to": "jason",
       "type": "family",
       "label": "adotivo",
       "note": "",
-      "strength": 3,
-      "directed": false,
+      "strength": 4,
+      "directed": true,
       "visibility": "public"
     },
     {
-      "id": "edge-8",
+      "id": "bruce-dick",
       "from": "bruce",
       "to": "dick",
       "type": "family",
       "label": "adotivo",
       "note": "",
-      "strength": 3,
-      "directed": false,
+      "strength": 4,
+      "directed": true,
       "visibility": "public"
     },
     {
-      "id": "edge-9",
+      "id": "bruce-tim",
       "from": "bruce",
       "to": "tim",
       "type": "family",
       "label": "adotivo",
       "note": "",
-      "strength": 3,
-      "directed": false,
+      "strength": 4,
+      "directed": true,
       "visibility": "public"
     },
     {
-      "id": "edge-10",
+      "id": "mgann-armek",
       "from": "mgann",
       "to": "armek",
       "type": "tension",
       "label": "vítima",
       "note": "",
-      "strength": 3,
+      "strength": 5,
       "directed": false,
       "visibility": "public"
     },
     {
-      "id": "edge-11",
+      "id": "armek-mark",
       "from": "armek",
       "to": "mark",
       "type": "family",
       "label": "pai",
       "note": "",
-      "strength": 3,
-      "directed": false,
+      "strength": 5,
+      "directed": true,
       "visibility": "public"
     },
     {
-      "id": "edge-12",
+      "id": "mgann-mark",
       "from": "mgann",
       "to": "mark",
       "type": "family",
       "label": "mãe",
       "note": "",
-      "strength": 3,
-      "directed": false,
+      "strength": 5,
+      "directed": true,
       "visibility": "public"
     },
     {
-      "id": "edge-13",
+      "id": "mgann-conner2",
       "from": "mgann",
       "to": "conner2",
-      "type": "ally",
+      "type": "romance",
       "label": "casal",
       "note": "",
-      "strength": 3,
+      "strength": 5,
       "directed": false,
       "visibility": "public"
     },
     {
-      "id": "edge-14",
+      "id": "mgann-jonn",
       "from": "mgann",
       "to": "jonn",
-      "type": "ally",
+      "type": "mentor",
       "label": "mentor",
       "note": "",
-      "strength": 3,
-      "directed": false,
+      "strength": 4,
+      "directed": true,
       "visibility": "public"
     },
     {
-      "id": "edge-15",
+      "id": "jonn-armek",
       "from": "jonn",
       "to": "armek",
-      "type": "tension",
+      "type": "enemy",
       "label": "inimigos",
       "note": "",
-      "strength": 3,
+      "strength": 5,
       "directed": false,
       "visibility": "public"
     },
     {
-      "id": "edge-16",
+      "id": "conner2-mark",
       "from": "conner2",
       "to": "mark",
       "type": "ally",
       "label": "paterno",
       "note": "",
-      "strength": 3,
-      "directed": false,
+      "strength": 4,
+      "directed": true,
       "visibility": "public"
     },
     {
-      "id": "edge-17",
+      "id": "jonn-mark",
       "from": "jonn",
       "to": "mark",
-      "type": "ally",
+      "type": "mentor",
       "label": "mentor",
       "note": "",
-      "strength": 3,
-      "directed": false,
+      "strength": 4,
+      "directed": true,
       "visibility": "public"
     },
     {
-      "id": "edge-18",
+      "id": "lobo-riot",
       "from": "lobo",
       "to": "riot",
-      "type": "clone",
+      "type": "origin",
       "label": "origem genética",
       "note": "",
-      "strength": 3,
-      "directed": false,
+      "strength": 5,
+      "directed": true,
       "visibility": "public"
     },
     {
-      "id": "edge-19",
+      "id": "kendra-riot",
       "from": "kendra",
       "to": "riot",
       "type": "family",
       "label": "mãe adotiva",
       "note": "",
-      "strength": 3,
-      "directed": false,
+      "strength": 5,
+      "directed": true,
       "visibility": "public"
     },
     {
-      "id": "edge-20",
+      "id": "kendra-lobo",
       "from": "kendra",
       "to": "lobo",
       "type": "tension",
-      "label": "aliados/inimigos",
+      "label": "aliados / inimigos",
       "note": "",
-      "strength": 3,
+      "strength": 4,
       "directed": false,
       "visibility": "public"
     }
