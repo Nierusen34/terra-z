@@ -84,6 +84,21 @@ function open(id){
   }
 }
 
+function openDraft(draft){
+  var b=backend();
+  if(!b || !b.isConfigured() || !b.isAuthenticated()){
+    showToast('Entre como editor para preparar o registro da sessão.','warning',5000);
+    return;
+  }
+  fill(draft || {});
+  currentId='';
+  var panel=el('sessionEditorPanel');
+  if(panel){
+    panel.classList.add('show');
+    document.body.style.overflow='hidden';
+  }
+}
+
 function close(){
   currentId = '';
   var deleteBtn = el('sessionDeleteBtn');
@@ -252,6 +267,7 @@ setup();
 
 window.TerraZApp.sessionEditor = {
   open:open,
+  openDraft:openDraft,
   close:close,
   refresh:refresh,
   deleteSession:requestDelete
