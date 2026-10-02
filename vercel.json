@@ -7,5 +7,23 @@
   },
   "git": {
     "deploymentEnabled": false
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/api/master-template",
+      "destination": "/api/master?action=template"
+    },
+    {
+      "source": "/api/master-finalize",
+      "destination": "/api/master?action=finalize"
+    },
+    {
+      "source": "/api/private-sessions",
+      "destination": "/api/session?action=private"
+    },
+    {
+      "source": "/api/status",
+      "destination": "/api/health?mode=status"
+    }
+  ]
 }
