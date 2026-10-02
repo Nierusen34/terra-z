@@ -697,9 +697,13 @@ function clampGraphCenter(){
   var h=bounds.h/Math.max(.6,graphScale);
   if(w<=bounds.w){
     graphViewCenter.x=Math.max(bounds.x+w/2,Math.min(bounds.x+bounds.w-w/2,graphViewCenter.x));
+  }else{
+    graphViewCenter.x=bounds.x+bounds.w/2;
   }
   if(h<=bounds.h){
     graphViewCenter.y=Math.max(bounds.y+h/2,Math.min(bounds.y+bounds.h-h/2,graphViewCenter.y));
+  }else{
+    graphViewCenter.y=bounds.y+bounds.h/2;
   }
 }
 
