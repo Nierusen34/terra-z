@@ -523,7 +523,7 @@ async function saveQuickRelation(){
   if(quickRelationState.draft){
     pushEditorUndo();
     editorDraft.edges.push(edge);
-    editorSelectedId=edge.id;
+    editorSelectedId=editorMode==="layout" ? edge.from : edge.id;
     closeQuickRelationModal();
     resetQuickRelationState();
     if(editorMode==="layout") renderEditorDetail();
@@ -1004,12 +1004,6 @@ function renderGraph(){
   var html=renderDefs(nodes);
 
   html+='<rect x="0" y="0" width="1000" height="720" class="graph-grid-bg" fill="url(#graph-grid)"/>';
-  if(!quickRelationState.draft && quickRelationState.picking && quickRelationState.sourceId){
-    var quickSource=graphDisplayNodeById(quickRelationState.sourceId);
-    if(quickSource){
-      html+='<line id="graphConnectPreview" class="graph-connect-preview" x1="'+quickSource.x+'" y1="'+quickSource.y+'" x2="'+quickSource.x+'" y2="'+quickSource.y+'"/>';
-    }
-  }
 
   (graphData.quadrants || []).forEach(function(q){
     html+='<g class="graph-zone">'+
@@ -1039,6 +1033,13 @@ function renderGraph(){
         : '')+
     '</g>';
   });
+
+  if(!quickRelationState.draft && quickRelationState.picking && quickRelationState.sourceId){
+    var quickSource=graphDisplayNodeById(quickRelationState.sourceId);
+    if(quickSource){
+      html+='<line id="graphConnectPreview" class="graph-connect-preview" x1="'+quickSource.x+'" y1="'+quickSource.y+'" x2="'+quickSource.x+'" y2="'+quickSource.y+'"/>';
+    }
+  }
 
   nodes.forEach(function(node){
     var selected=node.id===selectedNodeId;
@@ -2269,8 +2270,8 @@ async function importDcNode(options){
   renderEditorTabs();renderEditorList();renderEditorDetail();
   showToast(
     characterName
-      ? label+" foi preparado no grafo. Posicione a bolinha e clique em Salvar relações."
-      : label+" foi adicionado como rascunho da DC. Posicione a bolinha e clique em Salvar relações.",
+      ? label+" foi preparado no grafo. Posicione a bolinha, use “Conectar” se quiser criar vínculos e depois salve."
+      : label+" foi adicionado como rascunho da DC. Posicione a bolinha, conecte se necessário e depois salve.",
     "success",
     5800
   );
