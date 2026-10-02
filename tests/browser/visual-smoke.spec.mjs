@@ -226,15 +226,15 @@ test("editor visual do grafo auto-organiza e permite arrastar, adicionar e remov
   expect(arranged.lobo.x).toBeGreaterThan(500);
   expect(arranged.lobo.y).toBeGreaterThan(380);
 
-  const bruce=layout.locator('[data-layout-node-id="bruce"]');
-  const before=await bruce.getAttribute("transform");
-  const box=await bruce.boundingBox();
+  const movable=layout.locator('[data-layout-node-id="oliver"]');
+  const before=await movable.getAttribute("transform");
+  const box=await movable.boundingBox();
   expect(box).not.toBeNull();
   await page.mouse.move(box.x+box.width/2,box.y+box.height/2);
   await page.mouse.down();
   await page.mouse.move(box.x+box.width/2+55,box.y+box.height/2+35,{steps:5});
   await page.mouse.up();
-  const after=await bruce.getAttribute("transform");
+  const after=await movable.getAttribute("transform");
   expect(after).not.toBe(before);
 
   const countBefore=await layout.locator("[data-layout-node-id]").count();
