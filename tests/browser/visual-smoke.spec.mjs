@@ -318,6 +318,82 @@ test("Relações renderiza Armek com mídia independente e painel de inspeção"
   await expectNoPageErrors(errors);
 });
 
+test("editor conecta duas entidades diretamente pelo mapa",async({page})=>{
+  const errors=watchRuntimeErrors(page);
+  await page.goto("/#/universo/relacoes",{waitUntil:"domcontentloaded"});
+
+  const pair=await page.evaluate(async()=>{
+    await window.TerraZApp.adminLoader.load();
+    const app=window.TerraZApp;
+    app.backend.isConfigured=()=>true;
+    app.backend.isAuthenticated=()=>true;
+    app.backend.health=async()=>({
+      ok:true,
+      relations_graph_v3:true,
+      relations_entity_editor:true,
+      visibility_system:"public-spoiler-master",
+      secure_master_relations:true
+    });
+    window.__quickRelationRequests=[];
+    app.backend.request=async(path,options)=>{
+      window.__quickRelationRequests.push({path,body:options&&options.body});
+      if(path==="/api/graph"){
+        return {
+          ok:true,
+          sha:"quick-relation-test",
+          graph:options.body.graph,
+          publicGraph:options.body.graph,
+          status_url:""
+        };
+      }
+      throw new Error("Unexpected request "+path);
+    };
+    if(app.runtimeData) app.runtimeData.refresh=async()=>({ok:true});
+    if(app.privateContent) app.privateContent.reload=async()=>null;
+    document.dispatchEvent(new CustomEvent("terra-z:auth-changed",{detail:{authenticated:true}}));
+
+    const data=app.graph.getData();
+    const nodes=data.nodes.filter(n=>n.visibility==="public").slice(0,30);
+    for(let i=0;i<nodes.length;i++){
+      for(let j=i+1;j<nodes.length;j++){
+        const linked=data.edges.some(e=>
+          (e.from===nodes[i].id&&e.to===nodes[j].id) ||
+          (e.from===nodes[j].id&&e.to===nodes[i].id)
+        );
+        if(!linked) return {from:nodes[i].id,to:nodes[j].id};
+      }
+    }
+    throw new Error("Nenhum par desconectado disponível para teste.");
+  });
+
+  const from=page.locator('#graphSvg [data-node-id="'+pair.from+'"]');
+  await from.click();
+  await expect(page.locator("#graphInspectorConnect")).toBeVisible();
+  await page.locator("#graphInspectorConnect").click();
+
+  await expect(page.locator("#graphConnectBar")).toBeVisible();
+  await expect(page.locator("#graphConnectPreview")).toHaveCount(1);
+
+  const to=page.locator('#graphSvg [data-node-id="'+pair.to+'"]');
+  await to.click();
+  await expect(page.locator("#graphQuickRelationModal")).toHaveClass(/show/);
+  await expect(page.locator("#graphQuickFromLabel")).not.toHaveText("—");
+  await expect(page.locator("#graphQuickToLabel")).not.toHaveText("Escolha o destino");
+
+  await page.locator("#graphQuickType").selectOption("other");
+  await page.locator("#graphQuickLabel").fill("Teste UX");
+  await page.locator("#graphQuickSave").click();
+
+  await expect(page.locator("#graphQuickRelationModal")).not.toHaveClass(/show/);
+  const requests=await page.evaluate(()=>window.__quickRelationRequests);
+  const graphRequest=requests.find(row=>row.path==="/api/graph");
+  expect(graphRequest).toBeTruthy();
+  expect(graphRequest.body.graph.edges.some(edge=>edge.label==="Teste UX")).toBe(true);
+  await expect(page.locator("#graphInspector")).toContainText("Teste UX");
+
+  await expectNoPageErrors(errors);
+});
+
 test("visitante pode mover nós localmente e restaurar o layout publicado",async({page},testInfo)=>{
   const errors=watchRuntimeErrors(page);
   await page.goto("/#/universo/relacoes",{waitUntil:"domcontentloaded"});
@@ -449,6 +525,13 @@ test("editor visual do grafo auto-organiza e permite arrastar, adicionar e remov
   const after=await movable.getAttribute("transform");
   expect(after).not.toBe(before);
 
+  await expect(page.locator("#geLayoutConnectSelected")).toBeEnabled();
+  await page.locator("#geLayoutConnectSelected").click();
+  await expect(page.locator("#graphQuickRelationModal")).toHaveClass(/show/);
+  await expect(page.locator("#graphQuickPickBtn")).toBeVisible();
+  await page.locator("#graphQuickCancel").click();
+  await expect(page.locator("#graphQuickRelationModal")).not.toHaveClass(/show/);
+
   const countBefore=await layout.locator("[data-layout-node-id]").count();
   await page.locator("#graphEditorAdd").click();
   await expect(layout.locator("[data-layout-node-id]")).toHaveCount(countBefore+1);
@@ -475,6 +558,7 @@ test("ficha pública abre sem quebrar o layout",async({page})=>{
   await expect(page.locator("#fichaModal")).toHaveClass(/show/);
   await expect(page.locator("#fichaHeader h2")).toContainText("M'gann");
   await expect(page.locator("#fichaBody .ficha-section").first()).toBeVisible();
+  await expect(page.locator("#fichaGraphBtn")).toBeVisible();
 
   await expectNoPageErrors(errors);
 });
