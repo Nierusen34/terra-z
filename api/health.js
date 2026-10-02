@@ -87,6 +87,7 @@ export default async function handler(req,res){
     secure_master_relations:true,
     relations_graph_v3:true,
     relations_entity_editor:true,
+    portrait_framing:true,
     secure_master_timeline:true,
     timeline_event_editor:true,
     history_restore:true,
