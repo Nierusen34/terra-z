@@ -1529,7 +1529,7 @@ function addEditorItem(){
 
 function deleteEditorCurrent(){
   if(!editorSelectedId) return;
-  var item=editorMode==="nodes" ? nodeById(editorSelectedId,editorDraft) : edgeById(editorSelectedId,editorDraft);
+  var item=editorMode==="edges" ? edgeById(editorSelectedId,editorDraft) : nodeById(editorSelectedId,editorDraft);
   if(!item) return;
 
   var isNode=editorMode!=="edges";
