@@ -527,6 +527,8 @@ function checkGraph(data){
   const graphApi=read("api/graph.js");
   const graphHealthApi=read("api/health.js");
   const html=read("index.html");
+  const css=read("terra-z.css");
+  const mobilePolish=read("js/mobile-polish.js");
 
   if(!graphRuntime.includes("Relações 2.0") && !graphRuntime.includes("supportsGraphV3")){
     fail("Runtime do Grafo 2.0 não foi identificado.");
@@ -585,6 +587,13 @@ function checkGraph(data){
      !graphRuntime.includes("graphQuadrantForNode") ||
      !graphRuntime.includes("cubicPoint")){
     fail("Roteamento visual entre núcleos do grafo não foi identificado.");
+  }
+  if(!html.includes('class="graph-zoom-primary"') ||
+     !html.includes('class="graph-map-actions"') ||
+     !css.includes("GRAFO · COMPOSIÇÃO MOBILE COMPACTA") ||
+     !graphRuntime.includes("graphCompactViewport") ||
+     !mobilePolish.includes("graph-wrap-v2")){
+    fail("Composição compacta mobile/PWA do grafo não foi identificada.");
   }
   if(!html.includes('data-ge-tab="layout"') ||
      !graphRuntime.includes("renderLayoutEditor") ||
