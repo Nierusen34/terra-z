@@ -1427,15 +1427,19 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0
         <span>Arraste o fundo para navegar · roda/pinça ajusta o zoom · arraste bolinhas para reorganizar só na sua tela.</span>
       </div>
       <div class="graph-zoom-controls" aria-label="Navegação do grafo">
-        <button id="graphZoomOut" type="button" title="Diminuir zoom">−</button>
-        <input id="graphZoomRange" type="range" min="60" max="300" step="5" value="115" aria-label="Zoom do grafo">
-        <span id="graphZoomLabel">115%</span>
-        <button id="graphZoomIn" type="button" title="Aumentar zoom">＋</button>
-        <button id="graphFitBtn" type="button" title="Enquadrar toda a rede">⊙ Ajustar</button>
-        <button id="graphFocusBtn" type="button" title="Selecione uma entidade para focar" disabled>🎯 Foco</button>
-        <button id="graphViewResetBtn" type="button" title="Restaurar as posições publicadas" disabled>↺ Posições</button>
-        <button id="graphInspectorToggleBtn" type="button" title="Mostrar ou ocultar painel lateral">☰ Ocultar painel</button>
-        <button id="graphFullscreenBtn" type="button" aria-pressed="false" title="Abrir mapa expandido">⛶ Tela cheia</button>
+        <div class="graph-zoom-primary">
+          <button id="graphZoomOut" type="button" title="Diminuir zoom">−</button>
+          <input id="graphZoomRange" type="range" min="60" max="300" step="5" value="115" aria-label="Zoom do grafo">
+          <span id="graphZoomLabel">115%</span>
+          <button id="graphZoomIn" type="button" title="Aumentar zoom">＋</button>
+        </div>
+        <div class="graph-map-actions">
+          <button id="graphFitBtn" type="button" title="Enquadrar toda a rede">⊙ Ajustar</button>
+          <button id="graphFocusBtn" type="button" title="Selecione uma entidade para focar" disabled>🎯 Foco</button>
+          <button id="graphViewResetBtn" type="button" title="Restaurar as posições publicadas" disabled>↺ Posições</button>
+          <button id="graphInspectorToggleBtn" type="button" title="Mostrar ou ocultar painel lateral">☰ Ocultar painel</button>
+          <button id="graphFullscreenBtn" type="button" aria-pressed="false" title="Abrir mapa expandido">⛶ Tela cheia</button>
+        </div>
       </div>
     </div>
     <div id="graphConnectBar" class="graph-connect-bar" hidden>
