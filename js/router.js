@@ -631,7 +631,7 @@ function decorateTable(bodyId,items,nameKey,routeBuilder){
     var cell=row.cells && row.cells[0];
     if(cell){
       cell.classList.add('deep-link-name');
-      addCopyButton(cell,route,name);
+      cell.title='Abrir link permanente para '+name;
       bindOpenTarget(cell,route);
     }
   });
