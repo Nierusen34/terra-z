@@ -9,7 +9,12 @@ import {
   createCheckpointCommit,
   restoreContentSnapshot
 } from "./_lib/github.js";
-import { parseDataAssignment, renderContentOverrides } from "./_lib/data-files.js";
+import { parseDataAssignment, renderContentOverrides, renderTimeline } from "./_lib/data-files.js";
+import {
+  PRIVATE_CHARACTER_DATA_PATH,
+  readPrivateCharacterData,
+  renderPrivateCharacterData
+} from "./_lib/private-character-data.js";
 
 const ALLOWED_TAGS = new Set(["br","strong","em","b","i","u","s","ul","ol","li","span","a","small","sup","sub","blockquote","code"]);
 const VOID_TAGS = new Set(["br"]);
@@ -21,6 +26,7 @@ const RESTORABLE_CONTENT_PATHS = [
   "data/character-media.js",
   "data/graph-overrides.js",
   "data/sessions.js",
+  "data/timeline.js",
   "data/private-character-data.enc.json",
   "data/private-sessions.enc.json"
 ];
@@ -52,6 +58,7 @@ function commitKind(message){
   if(text.startsWith("characters:")) return "character";
   if(text.startsWith("sessions:") || text.startsWith("session:")) return "session";
   if(text.startsWith("relations:")) return "graph";
+  if(text.startsWith("timeline:")) return "content";
   if(text.startsWith("content:")) return "content";
   if(text.startsWith("security:")) return "security";
   if(text.startsWith("media:")) return "media";
@@ -220,6 +227,158 @@ function statusUrl(req,sha){
   return proto + "://" + host + "/api/status?sha=" + encodeURIComponent(sha);
 }
 
+const TIMELINE_CATEGORIES = new Set(["history","pre-campaign","campaign","current","future"]);
+const TIMELINE_VISIBILITY = new Set(["public","spoiler","master"]);
+
+function timelineText(value,max=12000){
+  return String(value == null ? "" : value)
+    .replace(/[<>\u0000]/g,"")
+    .trim()
+    .slice(0,max);
+}
+
+function timelineList(value,maxItems=40,maxLen=180){
+  if(!Array.isArray(value)) return [];
+  return value.slice(0,maxItems).map(item => timelineText(item,maxLen)).filter(Boolean);
+}
+
+function timelineSlug(value){
+  return String(value || "")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .toLowerCase()
+    .replace(/['’]/g,"")
+    .replace(/[^a-z0-9]+/g,"-")
+    .replace(/^-+|-+$/g,"")
+    .slice(0,100);
+}
+
+function timelineSortFromLabel(value){
+  const raw=String(value || "").trim();
+  if(!raw) return 0;
+  if(/^\d{8}$/.test(raw)) return Number(raw);
+  const iso=raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(iso) return Number(iso[1]+iso[2]+iso[3]);
+  if(/^\d{4}$/.test(raw)) return Number(raw+"0101");
+  const year=raw.match(/\b(\d{4})\b/);
+  return year ? Number(year[1]+"0101") : 0;
+}
+
+function timelinePeriodForSort(sortKey){
+  const value=Number(sortKey || 0);
+  if(value && value<10000000) return "Séculos Atrás – Marte";
+  if(value<20100000) return "1950–2008 – Chegada e Tragédia";
+  if(value<20260000) return "2010–2025 – Heróis e Tragédias";
+  if(value<20280000) return "2026–2027 – Pré-Campanha e Campanha";
+  return "Futuro";
+}
+
+function timelineFlatten(groups){
+  const rows=[];
+  for(const group of Array.isArray(groups) ? groups : []){
+    for(const item of Array.isArray(group && group.items) ? group.items : []){
+      if(item && item.id) rows.push({...item});
+    }
+  }
+  return rows;
+}
+
+function timelineGroups(items){
+  const order=[
+    "Séculos Atrás – Marte",
+    "1950–2008 – Chegada e Tragédia",
+    "2010–2025 – Heróis e Tragédias",
+    "2026–2027 – Pré-Campanha e Campanha",
+    "Futuro"
+  ];
+  const grouped=new Map(order.map((title,index)=>[title,{title,order:(index+1)*10,items:[]}]));
+
+  for(const item of items || []){
+    const title=timelinePeriodForSort(item && item.sortKey);
+    if(!grouped.has(title)) grouped.set(title,{title,order:999,items:[]});
+    grouped.get(title).items.push(item);
+  }
+
+  return [...grouped.values()]
+    .map(group=>({
+      ...group,
+      items:group.items.sort((a,b)=>{
+        const delta=Number(a.sortKey||0)-Number(b.sortKey||0);
+        return delta || String(a.id||"").localeCompare(String(b.id||""));
+      })
+    }))
+    .filter(group=>group.items.length)
+    .sort((a,b)=>a.order-b.order);
+}
+
+function timelineUniqueId(base,publicItems,privateItems){
+  const used=new Set(
+    [...(publicItems || []),...(privateItems || [])]
+      .map(item=>String(item && item.id || ""))
+      .filter(Boolean)
+  );
+  let candidate=timelineSlug(base) || "evento";
+  if(!used.has(candidate)) return candidate;
+  let suffix=2;
+  while(used.has(candidate+"-"+suffix)) suffix++;
+  return candidate+"-"+suffix;
+}
+
+function normalizeTimelineEvent(input,existing,id){
+  const source=input && typeof input === "object" && !Array.isArray(input) ? input : {};
+  const year=timelineText(source.year,120);
+  const title=timelineText(source.title,180);
+  const text=timelineText(source.text,12000);
+  const category=TIMELINE_CATEGORIES.has(source.category) ? source.category : "current";
+  const visibility=TIMELINE_VISIBILITY.has(source.visibility) ? source.visibility : "public";
+  const rawSort=Number(source.sortKey);
+  const sortKey=Number.isFinite(rawSort) && rawSort>=0
+    ? rawSort
+    : timelineSortFromLabel(source.sortValue || year);
+
+  if(!year){
+    const error=new Error("Informe a data/rótulo temporal do evento.");
+    error.code="timeline_year_required";
+    error.status=400;
+    throw error;
+  }
+  if(!title && !text){
+    const error=new Error("Informe um título ou descrição para o evento.");
+    error.code="timeline_content_required";
+    error.status=400;
+    throw error;
+  }
+  if(!Number.isFinite(sortKey)){
+    const error=new Error("A ordem cronológica do evento é inválida.");
+    error.code="timeline_sort_invalid";
+    error.status=400;
+    throw error;
+  }
+
+  const event={
+    id,
+    category,
+    sortKey,
+    year,
+    ...(title ? {title} : {}),
+    text,
+    characters:timelineList(source.characters),
+    locations:timelineList(source.locations),
+    teams:timelineList(source.teams),
+    visibility
+  };
+
+  if(visibility !== "master" && existing && existing.edit){
+    event.edit=existing.edit;
+  }
+  return event;
+}
+
+function timelineEditIds(event){
+  const edit=event && event.edit || {};
+  return [edit.year && edit.year.id,edit.text && edit.text.id].filter(Boolean);
+}
+
+
 export default async function handler(req,res){
   if(applyCors(req,res)) return;
   if(req.method !== "GET" && req.method !== "POST"){
@@ -286,6 +445,165 @@ export default async function handler(req,res){
     }
 
     const body = req.body || {};
+
+    if(body.action === "timeline-event-upsert" || body.action === "timeline-event-delete"){
+      const deleting=body.action === "timeline-event-delete";
+      const requestedId=timelineSlug(body.id || (body.event && body.event.id));
+
+      const [timelineFile,privateData,currentOverridesFile]=await Promise.all([
+        readTextFile("data/timeline.js"),
+        readPrivateCharacterData(),
+        readTextFile("data/content-overrides.js")
+      ]);
+
+      const publicGroups=parseDataAssignment(timelineFile.content,"timeline");
+      let publicItems=timelineFlatten(publicGroups);
+      privateData.master=privateData.master && typeof privateData.master === "object" && !Array.isArray(privateData.master)
+        ? privateData.master
+        : {};
+      let privateItems=Array.isArray(privateData.master.timelineEvents)
+        ? privateData.master.timelineEvents.slice()
+        : [];
+      let overrides=parseDataAssignment(currentOverridesFile.content,"contentOverrides");
+
+      const publicIndex=publicItems.findIndex(item=>item && item.id===requestedId);
+      const privateIndex=privateItems.findIndex(item=>item && item.id===requestedId);
+      const existingPublic=publicIndex>=0 ? publicItems[publicIndex] : null;
+      const existingPrivate=privateIndex>=0 ? privateItems[privateIndex] : null;
+      const existing=existingPublic || existingPrivate;
+      const previousVisibility=existingPrivate ? "master" : (existingPublic && existingPublic.visibility || "public");
+
+      if(deleting){
+        if(!requestedId || !existing){
+          return res.status(404).json({
+            error:"timeline_event_not_found",
+            message:"Evento da linha do tempo não encontrado."
+          });
+        }
+
+        if(publicIndex>=0) publicItems.splice(publicIndex,1);
+        if(privateIndex>=0) privateItems.splice(privateIndex,1);
+
+        let overridesChanged=false;
+        for(const editId of timelineEditIds(existingPublic)){
+          if(Object.prototype.hasOwnProperty.call(overrides,editId)){
+            delete overrides[editId];
+            overridesChanged=true;
+          }
+        }
+
+        privateData.master.timelineEvents=privateItems;
+        const files=[
+          {path:"data/timeline.js",content:renderTimeline(timelineGroups(publicItems)),encoding:"utf-8"}
+        ];
+        if(privateIndex>=0){
+          files.push({
+            path:PRIVATE_CHARACTER_DATA_PATH,
+            content:renderPrivateCharacterData(privateData),
+            encoding:"utf-8"
+          });
+        }
+        if(overridesChanged){
+          files.push({
+            path:"data/content-overrides.js",
+            content:renderContentOverrides(overrides),
+            encoding:"utf-8"
+          });
+        }
+
+        const head=await getHead();
+        const commit=await commitFiles(
+          files,
+          "timeline: apagar " + timelineText((existing && (existing.title || existing.year)) || requestedId,100),
+          head
+        );
+
+        return res.status(200).json({
+          ok:true,
+          sha:commit.sha,
+          deleted:requestedId,
+          previous_visibility:previousVisibility,
+          status_url:statusUrl(req,commit.sha)
+        });
+      }
+
+      const input=body.event && typeof body.event === "object" ? body.event : {};
+      const id=requestedId || timelineUniqueId(
+        [input.year,input.title,input.text].filter(Boolean).join("-"),
+        publicItems,
+        privateItems
+      );
+      const event=normalizeTimelineEvent(input,existingPublic,id);
+
+      publicItems=publicItems.filter(item=>item && item.id!==id);
+      privateItems=privateItems.filter(item=>item && item.id!==id);
+
+      let overridesChanged=false;
+      if(existingPublic && existingPublic.edit){
+        const yearId=existingPublic.edit.year && existingPublic.edit.year.id;
+        const textId=existingPublic.edit.text && existingPublic.edit.text.id;
+
+        if(event.visibility === "master"){
+          for(const editId of [yearId,textId].filter(Boolean)){
+            if(Object.prototype.hasOwnProperty.call(overrides,editId)){
+              delete overrides[editId];
+              overridesChanged=true;
+            }
+          }
+        }else{
+          if(yearId && Object.prototype.hasOwnProperty.call(overrides,yearId)){
+            overrides[yearId]=await sanitizeValue(event.year);
+            overridesChanged=true;
+          }
+          if(textId && Object.prototype.hasOwnProperty.call(overrides,textId)){
+            overrides[textId]=await sanitizeValue(event.text);
+            overridesChanged=true;
+          }
+        }
+      }
+
+      if(event.visibility === "master"){
+        privateItems.push({...event,visibility:"master",updatedAt:new Date().toISOString()});
+      }else{
+        publicItems.push(event);
+      }
+
+      privateData.master.timelineEvents=privateItems;
+      const files=[
+        {path:"data/timeline.js",content:renderTimeline(timelineGroups(publicItems)),encoding:"utf-8"}
+      ];
+
+      if(event.visibility === "master" || existingPrivate){
+        files.push({
+          path:PRIVATE_CHARACTER_DATA_PATH,
+          content:renderPrivateCharacterData(privateData),
+          encoding:"utf-8"
+        });
+      }
+      if(overridesChanged){
+        files.push({
+          path:"data/content-overrides.js",
+          content:renderContentOverrides(overrides),
+          encoding:"utf-8"
+        });
+      }
+
+      const head=await getHead();
+      const label=timelineText(event.title || event.year || event.id,100);
+      const commit=await commitFiles(
+        files,
+        existing ? ("timeline: atualizar "+label) : ("timeline: criar "+label),
+        head
+      );
+
+      return res.status(200).json({
+        ok:true,
+        sha:commit.sha,
+        event,
+        previous_visibility:previousVisibility,
+        status_url:statusUrl(req,commit.sha)
+      });
+    }
 
     if(body.action === "restore-content"){
       if(body.confirm !== true){
