@@ -957,6 +957,7 @@ function checkPhase15(){
   const session=read("js/session-mode.js");
   const health=read("api/health.js");
   const nav=read("js/navigation.js");
+  const bootstrap=read("terra-z.js");
   const pkg=JSON.parse(read("package.json"));
 
   for(const id of [
@@ -982,7 +983,7 @@ function checkPhase15(){
 
   if(!health.includes("table_mode_v1:true")) fail("Etapa 15 · backend não anuncia table_mode_v1.");
   if(pkg.version!=="1.4.0") fail("Terra Z não foi promovido para package version 1.4.0.");
-  if(!html.includes("v1.4.0") || !nav.includes("v1.4.0")) fail("Identidade visual ainda não anuncia v1.4.0.");
+  if(!html.includes("v1.4.0") || !nav.includes("v1.4.0") || !bootstrap.includes("Universo Terra Z · v1.4.0")) fail("Identidade visual ainda não anuncia v1.4.0 em todos os pontos de entrada.");
   if(!exists("docs/PHASE_15.md")) fail("docs/PHASE_15.md ausente.");
 
   pass("Etapa 15 · Modo Mesa e Terra Z v1.4.0 validados");
