@@ -347,7 +347,7 @@ function checkGraph(data){
 
   const graphRuntime=read("js/graph.js");
   const graphApi=read("api/graph.js");
-  const healthApi=read("api/health.js");
+  const graphHealthApi=read("api/health.js");
   const html=read("index.html");
 
   if(!graphRuntime.includes("Relações 2.0") && !graphRuntime.includes("supportsGraphV3")){
@@ -356,7 +356,7 @@ function checkGraph(data){
   if(!graphApi.includes("const NODE_KINDS") || !graphApi.includes("const EDGE_TYPES")){
     fail("API do grafo não valida entidades e relações do schema v3.");
   }
-  if(!healthApi.includes("relations_graph_v3:true") || !healthApi.includes("relations_entity_editor:true")){
+  if(!graphHealthApi.includes("relations_graph_v3:true") || !graphHealthApi.includes("relations_entity_editor:true")){
     fail("Backend não anuncia capacidades do Grafo 2.0.");
   }
   for(const id of ["graphEntityFilter","graphRelationFilter","graphInspector","graphEditorList","graphEditorDetail"]){
