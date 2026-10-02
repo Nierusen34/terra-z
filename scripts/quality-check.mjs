@@ -104,8 +104,54 @@ function checkIndexAssets(){
   if(duplicated.length) fail("IDs HTML duplicados: "+duplicated.map(([id,count])=>id+" ("+count+")").join(", "));
   else pass("IDs HTML estáticos são únicos");
 
-  if(!html.includes('src="js/integrity-checker.js"')) fail("Verificador de integridade não está carregado no index.html");
-  else pass("Verificador de integridade está conectado ao site");
+  const adminLoader=read("js/admin-loader.js");
+  if(!html.includes('src="js/admin-loader.js"')) fail("Carregador administrativo não está conectado ao index.html");
+  if(!adminLoader.includes('"js/integrity-checker.js"')) fail("Verificador de integridade não está registrado no lazy loader");
+  else pass("Ferramentas administrativas usam carregamento sob demanda");
+
+  const directlyLoadedAdmin=[
+    "js/admin-panel.js","js/editor.js","js/private-content.js","js/master-workspace.js",
+    "js/publishing.js","js/master-migration.js","js/media-manager.js","js/media-library.js",
+    "js/portrait-browser.js","js/character-editor.js","js/taxonomy-manager.js",
+    "js/session-editor.js","js/timeline-editor.js","js/integrity-checker.js",
+    "js/history-manager.js","js/visibility-manager.js"
+  ].filter(src=>html.includes('src="'+src+'"'));
+  if(directlyLoadedAdmin.length) fail("Módulos administrativos ainda carregados no boot: "+directlyLoadedAdmin.join(", "));
+  else pass("Módulos administrativos foram removidos do carregamento inicial");
+}
+
+function checkPerformanceBudget(){
+  const html=read("index.html");
+  const scripts=[...html.matchAll(/<script\s+src="([^"]+)"/g)].map(match=>match[1]);
+  const localScripts=scripts.filter(src=>!/^https?:/i.test(src));
+
+  if(localScripts.length>40){
+    fail("Boot público excedeu o orçamento de scripts: "+localScripts.length+" > 40");
+  }else{
+    pass("Boot público dentro do orçamento: "+localScripts.length+"/40 scripts");
+  }
+
+  const heavyPngs=[
+    ...walk("images/city",file=>file.toLowerCase().endsWith(".png")&&fs.statSync(file).size>1_000_000),
+    ...walk("images/districts",file=>file.toLowerCase().endsWith(".png")&&fs.statSync(file).size>1_000_000)
+  ];
+  if(heavyPngs.length){
+    fail("Imagens PNG pesadas voltaram ao acervo: "+heavyPngs.map(rel).join(", "));
+  }else{
+    pass("Cidade/distritos não possuem PNG > 1 MB");
+  }
+
+  const imageFiles=walk("images",file=>/\.(?:png|jpe?g|webp|gif)$/i.test(file));
+  const imageBytes=imageFiles.reduce((total,file)=>total+fs.statSync(file).size,0);
+  const imageMb=imageBytes/1024/1024;
+  if(imageMb>20) warn("Acervo de imagens acima de 20 MB: "+imageMb.toFixed(2)+" MB");
+  else pass("Acervo visual otimizado: "+imageMb.toFixed(2)+" MB");
+
+  const qualityWorkflow=read(".github/workflows/quality-gate.yml");
+  const devSmoke=read(".github/workflows/dev-smoke.yml");
+  if(!qualityWorkflow.includes("- dev")) fail("Quality Gate não monitora o branch dev.");
+  if(!/branches:\s*[\s\S]*- dev/.test(devSmoke)) fail("Dev smoke não monitora o branch dev.");
+  if(!exists("docs/IMAGE_OPTIMIZATION.md")) fail("Relatório de otimização de imagens ausente.");
 }
 
 function checkCharacterData(data){
@@ -300,7 +346,8 @@ function checkTimeline(data,characters){
   const html=read("index.html");
   const router=read("js/router.js");
   if(!html.includes('src="js/timeline-manager.js"')) fail("Gerenciador da linha do tempo não está carregado no index.html");
-  if(!html.includes('src="js/timeline-editor.js"')) fail("Editor estruturado da linha do tempo não está carregado no index.html");
+  const adminLoader=read("js/admin-loader.js");
+  if(!adminLoader.includes('"js/timeline-editor.js"')) fail("Editor estruturado da linha do tempo não está registrado no lazy loader");
   if(!router.includes("timeline-event")||!router.includes("timelineEventRoute")) fail("Roteador não oferece deep links para eventos da linha do tempo");
   if(!exists("docs/TIMELINE.md")) fail("docs/TIMELINE.md ausente");
 
@@ -529,6 +576,17 @@ function checkGraph(data){
   }
   if(!exists("docs/MEDIA_LIBRARY.md")) fail("docs/MEDIA_LIBRARY.md ausente");
 
+  const adminFoundation=read("js/admin-foundation.js");
+  const adminLoaderRuntime=read("js/admin-loader.js");
+  if(!adminFoundation.includes("createSelection") ||
+     !adminFoundation.includes("batchApply") ||
+     !adminFoundation.includes("filterRows")){
+    fail("Infraestrutura compartilhada para etapas 11–13 está incompleta.");
+  }
+  if(!adminLoaderRuntime.includes('"js/admin-foundation.js"')){
+    fail("Infraestrutura administrativa não está registrada no lazy loader.");
+  }
+
   pass(nodes.length+" nós e "+edges.length+" relações do Grafo 2.0 validados");
 
   const visibilityRuntime=read("js/visibility.js");
@@ -570,7 +628,7 @@ function checkGraph(data){
 
   const healthApi=read("api/health.js");
   const deployWorkflow=read(".github/workflows/vercel-deploy-hook.yml");
-  const statusApi=read("api/status.js");
+  const vercelConfig=JSON.parse(read("vercel.json"));
 
   if(!healthApi.includes('deployment_strategy:"github-actions-deploy-hook"') ||
      !healthApi.includes('vercel_connector_required:false')){
@@ -580,8 +638,14 @@ function checkGraph(data){
      !deployWorkflow.includes("VERCEL_DEPLOY_HOOK_URL")){
     fail("Workflow oficial de produção via Deploy Hook não está configurado.");
   }
-  if(!statusApi.includes('workflowRunStatus(sha,"Vercel production checkpoint")')){
-    fail("api/status.js não acompanha o workflow oficial de produção.");
+  if(!healthApi.includes('workflowRunStatus(sha,"Vercel production checkpoint")')){
+    fail("api/health.js não acompanha o workflow oficial de produção.");
+  }
+  const rewrites=Array.isArray(vercelConfig.rewrites) ? vercelConfig.rewrites : [];
+  for(const source of ["/api/status","/api/master-template","/api/master-finalize","/api/private-sessions"]){
+    if(!rewrites.some(row=>row&&row.source===source)){
+      fail("Rewrite de compatibilidade ausente: "+source);
+    }
   }
   if(!exists("OPERATIONS.md")){
     fail("OPERATIONS.md ausente; novas conversas precisam de uma política operacional persistente.");
@@ -613,10 +677,27 @@ function checkVercel(){
     const topLevel=fs.readdirSync(path.join(root,"api"),{withFileTypes:true})
       .filter(entry=>entry.isFile()&&entry.name.endsWith(".js")).length;
     if(topLevel>12) fail("Vercel Hobby: "+topLevel+" funções serverless de nível superior; máximo conhecido do projeto é 12");
-    else pass("Quantidade de funções serverless dentro do limite: "+topLevel+"/12");
+    else if(topLevel>9) warn("Funções serverless dentro do limite, mas acima da meta otimizada: "+topLevel+"/12");
+    else pass("Arquitetura serverless otimizada: "+topLevel+"/12 (meta <= 9)");
 
     if(config.git&&config.git.deploymentEnabled===false){
       warn("Deploy automático da Vercel está pausado (staging intencional)");
+    }
+
+    for(const legacy of ["master-template.js","master-finalize.js","private-sessions.js","status.js"]){
+      if(exists("api/"+legacy)) fail("Endpoint legado ainda ocupa função serverless: api/"+legacy);
+    }
+    const masterApi=read("api/master.js");
+    const sessionApi=read("api/session.js");
+    const healthApi=read("api/health.js");
+    if(!masterApi.includes('action === "template"') || !masterApi.includes('action === "finalize"')){
+      fail("api/master.js não consolidou template/finalização.");
+    }
+    if(!sessionApi.includes('action !== "private"')){
+      fail("api/session.js não consolidou leitura de sessões privadas.");
+    }
+    if(!healthApi.includes('mode || "") === "status"')){
+      fail("api/health.js não consolidou acompanhamento de status.");
     }
   }catch(error){
     fail("vercel.json inválido: "+error.message);
@@ -643,6 +724,7 @@ function checkSensitivePublicPatterns(){
 console.log("\nTerra Z · Quality Gate\n");
 checkSyntax();
 checkIndexAssets();
+checkPerformanceBudget();
 const data=loadTerraData();
 const characters=checkCharacterData(data);
 checkMediaLibrary(data);

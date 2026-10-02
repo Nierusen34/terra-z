@@ -29,11 +29,13 @@ async function staticSmoke(){
   const home=await fetchText(root+"?smoke="+stamp);
   if(!/<title[\s>]/i.test(home.text)) throw new Error("HTML principal não contém <title>");
   if(!home.text.includes("js/characters.js")) throw new Error("HTML principal não carrega js/characters.js");
-  if(!home.text.includes("js/integrity-checker.js")) throw new Error("HTML principal não carrega o verificador de integridade");
+  if(!home.text.includes("js/admin-loader.js")) throw new Error("HTML principal não carrega o lazy loader administrativo");
 
   const assets=[
     "terra-z.css",
     "js/characters.js",
+    "js/admin-loader.js",
+    "js/admin-foundation.js",
     "js/integrity-checker.js",
     "data/character-overrides.js",
     "data/character-meta.js",
