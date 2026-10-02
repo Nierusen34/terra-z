@@ -49,12 +49,12 @@ window.TerraZData.mediaLibrary = {
       "credit": "",
       "framing": {
         "fit": "cover",
-        "x": 50,
-        "y": 50,
+        "x": 54,
+        "y": 0,
         "zoom": 1
       },
       "createdAt": "2026-10-02T03:38:31.294Z",
-      "updatedAt": "2026-10-02T03:38:31.294Z"
+      "updatedAt": "2026-10-02T03:39:02.021Z"
     },
     {
       "id": "distrito-bar-urso-polar",
