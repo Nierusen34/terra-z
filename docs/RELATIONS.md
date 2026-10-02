@@ -141,6 +141,10 @@ O mapa oferece:
 
 No modo tela cheia, o inspector permanece ao lado no desktop e funciona como painel sobreposto/retrátil no mobile.
 
+No mobile/PWA, os controles do mapa são compactados em duas faixas curtas: zoom e ações do viewport. O cabeçalho deixa de reservar altura de desktop e o grafo aparece imediatamente abaixo dos controles. Ao entrar em **Tela cheia** em uma tela estreita, o inspector começa recolhido para priorizar o mapa e pode ser reaberto por **Mostrar painel**.
+
+A antiga dica **“Deslize o grafo horizontalmente”** não é usada no Grafo 2.0, pois o mapa agora possui pan/zoom próprio.
+
 ### Foco narrativo
 
 Selecionar uma entidade ativa foco contextual:
