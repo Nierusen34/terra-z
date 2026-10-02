@@ -1113,16 +1113,19 @@ function hydrateInspectorPortraits(root){
 function readGraphScale(){
   try{
     var raw=Number(localStorage.getItem(GRAPH_SCALE_KEY));
-    if(Number.isFinite(raw) && raw>=.75 && raw<=2) return raw;
+    if(Number.isFinite(raw) && raw>=.6 && raw<=3) return raw;
   }catch(error){}
-  return 1.3;
+  return 1.15;
 }
 
 function applyGraphScale(){
   var svg=document.getElementById("graphSvg");
   if(svg){
-    svg.style.width=Math.round(graphScale*100)+"%";
-    svg.style.minWidth=Math.round(780*graphScale)+"px";
+    clampGraphCenter();
+    var box=graphViewportBox();
+    svg.setAttribute("viewBox",[box.x,box.y,box.w,box.h].map(function(n){return Math.round(n*100)/100;}).join(" "));
+    svg.style.width="100%";
+    svg.style.minWidth="0";
     svg.style.maxWidth="none";
   }
 
@@ -1133,7 +1136,7 @@ function applyGraphScale(){
 }
 
 function setGraphScale(value,persist){
-  var next=Math.max(.75,Math.min(2,Number(value) || 1.3));
+  var next=Math.max(.6,Math.min(3,Number(value) || 1.15));
   graphScale=Math.round(next*20)/20;
   if(persist!==false){
     try{ localStorage.setItem(GRAPH_SCALE_KEY,String(graphScale)); }catch(error){}
@@ -1203,16 +1206,58 @@ function nodeShape(node){
   return '<circle cx="'+x+'" cy="'+y+'" r="'+r+'"'+common+'/>';
 }
 
+function cubicPoint(a,c1,c2,b,t){
+  var mt=1-t;
+  return {
+    x:mt*mt*mt*a.x+3*mt*mt*t*c1.x+3*mt*t*t*c2.x+t*t*t*b.x,
+    y:mt*mt*mt*a.y+3*mt*mt*t*c1.y+3*mt*t*t*c2.y+t*t*t*b.y
+  };
+}
+
 function curveForEdge(a,b,index){
+  var qa=graphQuadrantForNode(a),qb=graphQuadrantForNode(b);
+  var cross=!!(qa && qb && qa.id!==qb.id);
   var dx=b.x-a.x,dy=b.y-a.y;
   var length=Math.sqrt(dx*dx+dy*dy) || 1;
-  var sign=index%2===0 ? 1 : -1;
-  var amount=Math.min(42,Math.max(12,length*.08))*sign;
-  var mx=(a.x+b.x)/2 + (-dy/length)*amount;
-  var my=(a.y+b.y)/2 + (dx/length)*amount;
+
+  if(!cross){
+    var sign=index%2===0 ? 1 : -1;
+    var amount=Math.min(42,Math.max(12,length*.08))*sign;
+    var mx=(a.x+b.x)/2 + (-dy/length)*amount;
+    var my=(a.y+b.y)/2 + (dx/length)*amount;
+    return {
+      d:"M "+a.x+" "+a.y+" Q "+mx+" "+my+" "+b.x+" "+b.y,
+      mx:mx,my:my,cross:false
+    };
+  }
+
+  var bounds=graphCanvasBounds();
+  var lanes=[
+    {side:"top",score:(a.y-bounds.y)+(b.y-bounds.y)},
+    {side:"bottom",score:(bounds.y+bounds.h-a.y)+(bounds.y+bounds.h-b.y)},
+    {side:"left",score:(a.x-bounds.x)+(b.x-bounds.x)},
+    {side:"right",score:(bounds.x+bounds.w-a.x)+(bounds.x+bounds.w-b.x)}
+  ].sort(function(x,y){return x.score-y.score;});
+  var side=lanes[0].side;
+  var margin=18+(index%3)*12;
+  var c1,c2;
+  if(side==="top"){
+    var yTop=bounds.y+margin;
+    c1={x:a.x,y:yTop};c2={x:b.x,y:yTop};
+  }else if(side==="bottom"){
+    var yBottom=bounds.y+bounds.h-margin;
+    c1={x:a.x,y:yBottom};c2={x:b.x,y:yBottom};
+  }else if(side==="left"){
+    var xLeft=bounds.x+margin;
+    c1={x:xLeft,y:a.y};c2={x:xLeft,y:b.y};
+  }else{
+    var xRight=bounds.x+bounds.w-margin;
+    c1={x:xRight,y:a.y};c2={x:xRight,y:b.y};
+  }
+  var mid=cubicPoint(a,c1,c2,b,.5);
   return {
-    d:"M "+a.x+" "+a.y+" Q "+mx+" "+my+" "+b.x+" "+b.y,
-    mx:mx,my:my
+    d:"M "+a.x+" "+a.y+" C "+c1.x+" "+c1.y+" "+c2.x+" "+c2.y+" "+b.x+" "+b.y,
+    mx:mid.x,my:mid.y,cross:true
   };
 }
 
