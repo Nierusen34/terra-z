@@ -18,6 +18,23 @@ function el(id){ return document.getElementById(id); }
 function backend(){ return window.TerraZApp && window.TerraZApp.backend; }
 
 var visibilityCapability=null;
+var portraitFramingCapability=null;
+var framingDraft=null;
+
+async function supportsPortraitFraming(){
+  if(portraitFramingCapability !== null) return portraitFramingCapability;
+  var b=backend();
+  if(!b || !b.health) return false;
+
+  try{
+    var health=await b.health();
+    portraitFramingCapability=!!(health && health.portrait_framing === true);
+  }catch(error){
+    portraitFramingCapability=false;
+  }
+
+  return portraitFramingCapability;
+}
 
 async function supportsVisibilitySystem(){
   if(visibilityCapability !== null) return visibilityCapability;
@@ -222,6 +239,226 @@ function setCreateFieldsVisible(visible){
 function mediaFor(name){
   var all = (window.TerraZData && window.TerraZData.characterMedia) || {};
   return all[name] || {};
+}
+
+function characterMediaApi(){
+  return window.TerraZApp && window.TerraZApp.characterMedia;
+}
+
+function cloneFrame(frame){
+  return {
+    fit:frame && frame.fit === 'contain' ? 'contain' : 'cover',
+    x:Number(frame && frame.x),
+    y:Number(frame && frame.y),
+    zoom:Number(frame && frame.zoom)
+  };
+}
+
+function buildFramingDraft(name){
+  var api=characterMediaApi();
+  var meta=api && api.get ? api.get(name) : {};
+  var automatic=!!(meta && meta.automatic);
+  var contexts=['card','sheet','graph'];
+  var draft={};
+
+  contexts.forEach(function(context){
+    var frame=api && api.getFraming
+      ? api.getFraming(name,context)
+      : (context === 'sheet' && automatic
+        ? {fit:'contain',x:50,y:8,zoom:1}
+        : {fit:'cover',x:50,y:context === 'sheet' ? 50 : 24,zoom:1});
+    draft[context]=cloneFrame(frame);
+  });
+
+  return draft;
+}
+
+function currentFramingContext(){
+  var select=el('characterEditorFramingContext');
+  var value=select ? select.value : 'card';
+  return value === 'sheet' || value === 'graph' ? value : 'card';
+}
+
+function framingCurrent(){
+  if(!framingDraft) framingDraft=buildFramingDraft(currentName);
+  var context=currentFramingContext();
+  if(!framingDraft[context]) framingDraft[context]=buildFramingDraft(currentName)[context];
+  return framingDraft[context];
+}
+
+function refreshFramingLabels(){
+  var frame=framingCurrent();
+  if(el('characterEditorFramingZoomValue')) el('characterEditorFramingZoomValue').textContent=Math.round(frame.zoom*100)+'%';
+  if(el('characterEditorFramingXValue')) el('characterEditorFramingXValue').textContent=Math.round(frame.x)+'%';
+  if(el('characterEditorFramingYValue')) el('characterEditorFramingYValue').textContent=Math.round(frame.y)+'%';
+}
+
+function renderFramingPreview(){
+  var preview=el('characterEditorFramingPreview');
+  if(!preview || !currentName) return;
+
+  var api=characterMediaApi();
+  var context=currentFramingContext();
+  var frame=framingCurrent();
+  preview.setAttribute('data-context',context);
+
+  if(api && api.renderPortraitHtml){
+    preview.innerHTML=api.renderPortraitHtml(
+      currentName,
+      context === 'card' ? 'small' : 'large',
+      context,
+      frame
+    );
+    if(api.hydrate) api.hydrate(preview);
+
+    var meta=api.get ? api.get(currentName) : {};
+    if(meta && meta.automatic && !meta.src && api.resolveAutomatic){
+      api.resolveAutomatic(currentName).then(function(result){
+        if(result && result.found && currentName && preview.isConnected){
+          preview.innerHTML=api.renderPortraitHtml(
+            currentName,
+            context === 'card' ? 'small' : 'large',
+            context,
+            framingCurrent()
+          );
+          if(api.hydrate) api.hydrate(preview);
+        }
+      });
+    }
+  }else{
+    preview.innerHTML='<div class="character-framing-no-preview">Prévia indisponível.</div>';
+  }
+}
+
+function syncFramingControls(){
+  if(!framingDraft || !currentName) return;
+  var frame=framingCurrent();
+
+  if(el('characterEditorFramingFit')) el('characterEditorFramingFit').value=frame.fit;
+  if(el('characterEditorFramingZoom')) el('characterEditorFramingZoom').value=String(Math.round(frame.zoom*100));
+  if(el('characterEditorFramingX')) el('characterEditorFramingX').value=String(Math.round(frame.x));
+  if(el('characterEditorFramingY')) el('characterEditorFramingY').value=String(Math.round(frame.y));
+
+  refreshFramingLabels();
+  renderFramingPreview();
+}
+
+function updateFramingDraftFromControls(){
+  if(!framingDraft || !currentName) return;
+  var frame=framingCurrent();
+
+  frame.fit=el('characterEditorFramingFit') && el('characterEditorFramingFit').value === 'contain' ? 'contain' : 'cover';
+  frame.zoom=Math.max(.5,Math.min(2.5,Number(el('characterEditorFramingZoom') ? el('characterEditorFramingZoom').value : 100)/100));
+  frame.x=Math.max(0,Math.min(100,Number(el('characterEditorFramingX') ? el('characterEditorFramingX').value : 50)));
+  frame.y=Math.max(0,Math.min(100,Number(el('characterEditorFramingY') ? el('characterEditorFramingY').value : 50)));
+
+  refreshFramingLabels();
+  renderFramingPreview();
+}
+
+async function refreshFramingAccess(){
+  var button=el('characterEditorFramingSaveBtn');
+  if(!button) return;
+
+  var b=backend();
+  var authenticated=!!(b && b.isAuthenticated && b.isAuthenticated());
+  var supported=authenticated ? await supportsPortraitFraming() : false;
+  button.disabled=!(authenticated && supported);
+
+  if(!authenticated) button.title='Entre como editor para salvar o enquadramento';
+  else if(!supported) button.title='Publique o checkpoint atual para ativar o ajuste de enquadramento na Vercel';
+  else button.title='Salvar enquadramento para cards, ficha e grafo';
+}
+
+function fillMediaFraming(name){
+  var panel=el('characterEditorMediaFraming');
+  if(panel) panel.hidden=!name || createMode;
+  framingDraft=name && !createMode ? buildFramingDraft(name) : null;
+
+  if(!name || createMode) return;
+
+  if(el('characterEditorFramingContext')) el('characterEditorFramingContext').value='card';
+  syncFramingControls();
+  refreshFramingAccess();
+}
+
+function resetCurrentFraming(){
+  if(!currentName || !framingDraft) return;
+  var context=currentFramingContext();
+  var api=characterMediaApi();
+  var meta=api && api.get ? api.get(currentName) : {};
+  var automatic=!!(meta && meta.automatic);
+  var fallback=api && api.defaultFraming
+    ? api.defaultFraming(context,automatic)
+    : (context === 'sheet' && automatic
+      ? {fit:'contain',x:50,y:8,zoom:1}
+      : {fit:'cover',x:50,y:context === 'sheet' ? 50 : 24,zoom:1});
+
+  framingDraft[context]=cloneFrame(fallback);
+  syncFramingControls();
+}
+
+async function saveMediaFraming(){
+  if(createMode || !currentName || !framingDraft) return;
+
+  var b=backend();
+  if(!b || !b.isAuthenticated || !b.isAuthenticated()){
+    showToast('Entre como editor para ajustar o enquadramento.','warning',5000);
+    return;
+  }
+
+  if(!(await supportsPortraitFraming())){
+    showToast('Publique primeiro o checkpoint atual para ativar o enquadramento de retratos na Vercel.','warning',6500);
+    return;
+  }
+
+  updateFramingDraftFromControls();
+
+  var button=el('characterEditorFramingSaveBtn');
+  if(button){ button.disabled=true; button.textContent='Salvando…'; }
+
+  try{
+    var result=await b.request('/api/media',{
+      method:'POST',
+      body:{
+        action:'configure-display',
+        character:currentName,
+        framing:framingDraft
+      }
+    });
+
+    window.TerraZData=window.TerraZData || {};
+    window.TerraZData.characterMedia=window.TerraZData.characterMedia || {};
+    window.TerraZData.characterMedia[currentName]=result.media || window.TerraZData.characterMedia[currentName] || {};
+
+    var api=characterMediaApi();
+    if(api && api.refresh) api.refresh(document);
+
+    framingDraft=buildFramingDraft(currentName);
+    syncFramingControls();
+
+    document.dispatchEvent(new CustomEvent('terra-z:character-media-changed',{
+      detail:{character:currentName,framingChanged:true}
+    }));
+
+    showToast('Enquadramento atualizado em cards, ficha e grafo.','success',4500);
+
+    var runtime=window.TerraZApp && window.TerraZApp.runtimeData;
+    if(runtime && runtime.refresh) runtime.refresh({force:true,bust:result.sha,silent:true});
+
+    var publishing=window.TerraZApp && window.TerraZApp.publishing;
+    if(publishing && publishing.trackDeployment && result.status_url){
+      publishing.trackDeployment(result.status_url);
+    }
+  }catch(error){
+    console.error('Terra Z portrait framing:',error);
+    showToast(error.message || 'Falha ao salvar o enquadramento.','error',6000);
+  }finally{
+    if(button){
+      button.disabled=false;
+      button.textContent='💾 Salvar enquadramento';
+    }
+  }
 }
 
 function syncMediaSourceFields(){
@@ -471,6 +708,7 @@ async function open(name){
   setCreateDependentButtons(false);
   refreshPortraitRemoval(name);
   fillMediaSource(name);
+  fillMediaFraming(name);
   fillOrganization(metaFor(name));
 
   var title = el('characterEditorTitle');
@@ -517,6 +755,7 @@ function openCreate(){
   setCreateDependentButtons(true);
   refreshPortraitRemoval('');
   fillMediaSource('');
+  fillMediaFraming('');
   fillOrganization({featured:false,nuclei:['other'],type:'npc',status:'active',visibility:'public'});
 
   var title = el('characterEditorTitle');
@@ -548,6 +787,7 @@ function close(){
   setCreateDependentButtons(false);
   refreshPortraitRemoval('');
   fillMediaSource('');
+  fillMediaFraming('');
 
   var deleteBtn = el('characterEditorDelete');
   if(deleteBtn) deleteBtn.hidden = true;
@@ -821,6 +1061,13 @@ function setup(){
   });
   if(el('characterEditorMediaSaveBtn')) el('characterEditorMediaSaveBtn').addEventListener('click',saveMediaSource);
   if(el('characterEditorMediaRefreshBtn')) el('characterEditorMediaRefreshBtn').addEventListener('click',refreshAutomaticPortrait);
+  if(el('characterEditorFramingContext')) el('characterEditorFramingContext').addEventListener('change',syncFramingControls);
+  if(el('characterEditorFramingFit')) el('characterEditorFramingFit').addEventListener('change',updateFramingDraftFromControls);
+  ['characterEditorFramingZoom','characterEditorFramingX','characterEditorFramingY'].forEach(function(id){
+    if(el(id)) el(id).addEventListener('input',updateFramingDraftFromControls);
+  });
+  if(el('characterEditorFramingResetBtn')) el('characterEditorFramingResetBtn').addEventListener('click',resetCurrentFraming);
+  if(el('characterEditorFramingSaveBtn')) el('characterEditorFramingSaveBtn').addEventListener('click',saveMediaFraming);
 
   if(sections){
     sections.addEventListener('click',function(event){
@@ -839,7 +1086,9 @@ function setup(){
 
   document.addEventListener('terra-z:auth-changed',function(){
     visibilityCapability=null;
+    portraitFramingCapability=null;
     refreshCreateButton();
+    refreshFramingAccess();
     var b = backend();
     if(!b || !b.isAuthenticated()) close();
   });
@@ -849,6 +1098,7 @@ function setup(){
     if(currentName){
       refreshPortraitRemoval(currentName);
       fillMediaSource(currentName);
+      fillMediaFraming(currentName);
     }
   });
 
@@ -857,6 +1107,7 @@ function setup(){
     if(currentName && changed === currentName){
       refreshPortraitRemoval(currentName);
       fillMediaSource(currentName);
+      fillMediaFraming(currentName);
     }
   });
 
