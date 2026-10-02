@@ -54,6 +54,24 @@ A Administração mantém todas as seções atuais, mas adiciona uma faixa **Uso
 
 As ferramentas completas continuam nas seções originais.
 
+### Grafo expansível
+
+A revisão foi estendida para preparar o crescimento próximo do mapa de relações.
+
+Foram adicionados:
+
+- modo tela cheia;
+- inspector retrátil;
+- foco automático da entidade selecionada e suas conexões diretas;
+- rótulos menos agressivos para vínculos entre núcleos;
+- roteamento periférico de relações inter-núcleo;
+- pan/zoom por viewport;
+- roda do mouse e pinça touch;
+- enquadramento de toda a rede;
+- canvas calculado dinamicamente para futuros núcleos.
+
+A mudança atua na visualização. Schema, relações, coordenadas publicadas e permissões continuam compatíveis com o Grafo 2.0.
+
 ## Áreas revisadas sem mudança estrutural
 
 ### Busca e Central de Comandos
