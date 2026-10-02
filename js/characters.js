@@ -76,7 +76,8 @@ function canViewCharacter(name){
   return level !== 'spoiler';
 }
 
-function openFichaModal(characterName, options){\n  options = options || {};
+function openFichaModal(characterName, options){
+  options = options || {};
   if(!canViewCharacter(characterName)){
     showToast('Esta ficha é visível apenas para editores autorizados.','warning',4500);
     return;
