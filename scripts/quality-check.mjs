@@ -546,7 +546,8 @@ function checkGraph(data){
   }
   for(const id of [
     "graphEntityFilter","graphRelationFilter","graphInspector","graphEditorList","graphEditorDetail",
-    "graphZoomOut","graphZoomRange","graphZoomLabel","graphZoomIn","graphZoomReset","graphViewResetBtn",
+    "graphZoomOut","graphZoomRange","graphZoomLabel","graphZoomIn","graphFitBtn","graphFocusBtn",
+    "graphViewResetBtn","graphInspectorToggleBtn","graphFullscreenBtn",
     "graphAutoArrangeBtn","graphUndoBtn","graphRestoreBtn",
     "characterEditorMediaFraming","characterEditorFramingContext","characterEditorFramingFit",
     "characterEditorFramingZoom","characterEditorFramingX","characterEditorFramingY",
@@ -570,8 +571,20 @@ function checkGraph(data){
   }
   if(!graphRuntime.includes("GRAPH_SCALE_KEY") ||
      !graphRuntime.includes("setGraphScale") ||
-     !graphRuntime.includes("graphScale=1.3")){
-    fail("Controles persistentes de escala do grafo não foram encontrados.");
+     !graphRuntime.includes("graphViewportBox") ||
+     !graphRuntime.includes("fitGraphView")){
+    fail("Viewport persistente e controles de zoom do grafo não foram encontrados.");
+  }
+  if(!graphRuntime.includes("toggleGraphFullscreen") ||
+     !graphRuntime.includes("graphFocusNodeId") ||
+     !graphRuntime.includes("setupGraphPanZoom") ||
+     !graphRuntime.includes("graphCanvasBounds")){
+    fail("Tela cheia, foco e pan/zoom expansível do grafo estão incompletos.");
+  }
+  if(!graphRuntime.includes("cross-nucleus") ||
+     !graphRuntime.includes("graphQuadrantForNode") ||
+     !graphRuntime.includes("cubicPoint")){
+    fail("Roteamento visual entre núcleos do grafo não foi identificado.");
   }
   if(!html.includes('data-ge-tab="layout"') ||
      !graphRuntime.includes("renderLayoutEditor") ||
