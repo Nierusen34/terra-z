@@ -280,6 +280,12 @@ function characterPortraitUrl(node){
   return String(meta.src || "");
 }
 
+function characterFramingStyle(node){
+  if(!node || node.kind!=="character" || !node.ref) return "";
+  var api=characterMediaApi();
+  return api && api.framingStyle ? api.framingStyle(node.ref,"graph") : "--portrait-fit:cover;--portrait-x:50%;--portrait-y:24%;--portrait-zoom:1";
+}
+
 function queueGraphPortrait(node){
   if(!node || node.kind!=="character" || !node.ref) return;
   if(characterPortraitUrl(node) || graphPortraitPending[node.ref]) return;
@@ -305,7 +311,7 @@ function inspectorPortrait(node,size){
   if(node.kind==="character" && node.ref){
     var api=characterMediaApi();
     if(api && api.renderPortraitHtml){
-      return '<div class="graph-inspector-portrait">'+api.renderPortraitHtml(node.ref,size || "large")+'</div>';
+      return '<div class="graph-inspector-portrait">'+api.renderPortraitHtml(node.ref,size || "large","graph")+'</div>';
     }
   }
   return '<div class="graph-inspector-portrait graph-inspector-portrait-fallback"><span>'+escapeHtml(node.icon || kind.icon)+'</span></div>';
@@ -514,7 +520,11 @@ function renderGraph(){
         '</g>'+
         (!portrait
           ? '<text x="'+node.x+'" y="'+(node.y+3)+'" text-anchor="middle" class="graph-node-icon">'+escapeHtml(node.icon || kind.icon)+'</text>'
-          : '<image class="graph-node-portrait" href="'+escapeAttr(portrait)+'" x="'+(node.x-node.r+3)+'" y="'+(node.y-node.r+3)+'" width="'+((node.r-3)*2)+'" height="'+((node.r-3)*2)+'" preserveAspectRatio="xMidYMid slice" clip-path="url(#graph-portrait-clip-'+svgId(node.id)+')" referrerpolicy="no-referrer"/>'+
+          : '<foreignObject class="graph-node-portrait-fo" x="'+(node.x-node.r+3)+'" y="'+(node.y-node.r+3)+'" width="'+((node.r-3)*2)+'" height="'+((node.r-3)*2)+'" clip-path="url(#graph-portrait-clip-'+svgId(node.id)+')">'+
+              '<div xmlns="http://www.w3.org/1999/xhtml" class="graph-node-portrait-frame" style="'+escapeAttr(characterFramingStyle(node))+'">'+
+                '<img src="'+escapeAttr(portrait)+'" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">'+
+              '</div>'+
+            '</foreignObject>'+
             '<circle cx="'+node.x+'" cy="'+node.y+'" r="'+(node.r-1.5)+'" fill="none" stroke="var(--graph-node-stroke,#fff)" stroke-width="2.5"/>');
     }else{
       nodeVisual=
