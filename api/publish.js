@@ -24,6 +24,7 @@ const RESTORABLE_CONTENT_PATHS = [
   "data/character-overrides.js",
   "data/character-meta.js",
   "data/character-media.js",
+  "data/media-library.js",
   "data/graph-overrides.js",
   "data/sessions.js",
   "data/timeline.js",
@@ -32,7 +33,8 @@ const RESTORABLE_CONTENT_PATHS = [
 ];
 
 const RESTORABLE_CONTENT_PREFIXES = [
-  "images/characters/"
+  "images/characters/",
+  "images/library/"
 ];
 
 // Primeiro commit em que os personagens privados já haviam sido removidos
