@@ -192,6 +192,35 @@ function checkCharacterData(data){
     if(auto&&auto.provider==="dc-fandom"&&!String(auto.wikiTitle||"").trim()){
       fail("Fonte DC sem wikiTitle para "+name);
     }
+
+    const framing=row&&row.framing;
+    if(framing!==undefined){
+      if(!framing||typeof framing!=="object"||Array.isArray(framing)){
+        fail("Enquadramento inválido para "+name);
+      }else{
+        for(const context of ["card","sheet","graph"]){
+          const frame=framing[context];
+          if(frame===undefined) continue;
+          if(!frame||typeof frame!=="object"||Array.isArray(frame)){
+            fail("Enquadramento "+context+" inválido para "+name);
+            continue;
+          }
+          if(!["cover","contain"].includes(String(frame.fit||""))){
+            fail("Modo de enquadramento inválido para "+name+" / "+context);
+          }
+          for(const axis of ["x","y"]){
+            const value=Number(frame[axis]);
+            if(!Number.isFinite(value)||value<0||value>100){
+              fail("Posição "+axis+" inválida para "+name+" / "+context);
+            }
+          }
+          const zoom=Number(frame.zoom);
+          if(!Number.isFinite(zoom)||zoom<0.5||zoom>2.5){
+            fail("Zoom inválido para "+name+" / "+context);
+          }
+        }
+      }
+    }
   }
 
   pass("Taxonomia e mídia dos personagens passaram pelas validações estruturais");
@@ -359,9 +388,15 @@ function checkGraph(data){
   if(!graphHealthApi.includes("relations_graph_v3:true") || !graphHealthApi.includes("relations_entity_editor:true")){
     fail("Backend não anuncia capacidades do Grafo 2.0.");
   }
+  if(!graphHealthApi.includes("portrait_framing:true")){
+    fail("Backend não anuncia suporte a enquadramento de retratos.");
+  }
   for(const id of [
     "graphEntityFilter","graphRelationFilter","graphInspector","graphEditorList","graphEditorDetail",
-    "graphZoomOut","graphZoomRange","graphZoomLabel","graphZoomIn","graphZoomReset"
+    "graphZoomOut","graphZoomRange","graphZoomLabel","graphZoomIn","graphZoomReset",
+    "characterEditorMediaFraming","characterEditorFramingContext","characterEditorFramingFit",
+    "characterEditorFramingZoom","characterEditorFramingX","characterEditorFramingY",
+    "characterEditorFramingPreview","characterEditorFramingSaveBtn"
   ]){
     if(!html.includes('id="'+id+'"')) fail("Interface de Relações 2.0 ausente: "+id);
   }
@@ -371,12 +406,30 @@ function checkGraph(data){
      !graphRuntime.includes("inspectorPortrait")){
     fail("Grafo 2.0 não está integrado ao sistema de retratos dos personagens.");
   }
+  if(!graphRuntime.includes("characterFramingStyle") ||
+     !graphRuntime.includes("graph-node-portrait-frame")){
+    fail("Grafo 2.0 não está aplicando o enquadramento configurado dos retratos.");
+  }
   if(!graphRuntime.includes("GRAPH_SCALE_KEY") ||
      !graphRuntime.includes("setGraphScale") ||
      !graphRuntime.includes("graphScale=1.3")){
     fail("Controles persistentes de escala do grafo não foram encontrados.");
   }
   if(!exists("docs/RELATIONS.md")) fail("docs/RELATIONS.md ausente");
+  if(!exists("docs/PORTRAIT_FRAMING.md")) fail("docs/PORTRAIT_FRAMING.md ausente");
+
+  const mediaApi=read("api/media.js");
+  const mediaRuntime=read("js/character-media.js");
+  const characterEditor=read("js/character-editor.js");
+  if(!mediaApi.includes('requestBody.action === "configure-display"')){
+    fail("API de mídia não oferece persistência estruturada do enquadramento.");
+  }
+  if(!mediaRuntime.includes("getFraming") || !mediaRuntime.includes("framingStyle")){
+    fail("Runtime de mídia não oferece enquadramento compartilhado.");
+  }
+  if(!characterEditor.includes("saveMediaFraming") || !characterEditor.includes("renderFramingPreview")){
+    fail("Editor de personagem não oferece prévia/salvamento do enquadramento.");
+  }
 
   pass(nodes.length+" nós e "+edges.length+" relações do Grafo 2.0 validados");
 
