@@ -1300,6 +1300,47 @@ function updateFilterOptions(){
   }
 }
 
+function setupQuickRelation(){
+  var connectCancel=document.getElementById("graphConnectCancelBtn");
+  if(connectCancel) connectCancel.addEventListener("click",cancelQuickRelation);
+
+  var connectChoose=document.getElementById("graphConnectChooseBtn");
+  if(connectChoose) connectChoose.addEventListener("click",function(){
+    if(quickRelationState.sourceId) openQuickRelation(quickRelationState.sourceId,"",{draft:false});
+  });
+
+  var modal=document.getElementById("graphQuickRelationModal");
+  if(modal) modal.addEventListener("click",function(event){
+    if(event.target===modal) cancelQuickRelation();
+  });
+
+  var close=document.getElementById("graphQuickRelationClose");
+  var cancel=document.getElementById("graphQuickCancel");
+  var save=document.getElementById("graphQuickSave");
+  var pick=document.getElementById("graphQuickPickBtn");
+  var target=document.getElementById("graphQuickTarget");
+
+  if(close) close.addEventListener("click",cancelQuickRelation);
+  if(cancel) cancel.addEventListener("click",cancelQuickRelation);
+  if(save) save.addEventListener("click",saveQuickRelation);
+  if(pick) pick.addEventListener("click",function(){
+    beginQuickPick(quickRelationState.sourceId,{draft:quickRelationState.draft});
+  });
+  if(target) target.addEventListener("change",function(){
+    quickRelationState.targetId=target.value || "";
+    updateQuickPair();
+  });
+
+  document.addEventListener("keydown",function(event){
+    if(event.key!=="Escape") return;
+    var quickModal=document.getElementById("graphQuickRelationModal");
+    if((quickModal && quickModal.classList.contains("show")) || quickRelationState.picking){
+      event.preventDefault();
+      cancelQuickRelation();
+    }
+  });
+}
+
 function setupGraphView(){
   graphScale=readGraphScale();
   updateFilterOptions();
@@ -1367,6 +1408,7 @@ function setupGraphView(){
   });
 
   refreshGraphAccess();
+  setupQuickRelation();
 }
 
 async function refreshGraphAccess(){
@@ -2236,6 +2278,10 @@ async function importDcNode(options){
 }
 
 function closeGraphEditor(){
+  if(quickRelationState.draft){
+    closeQuickRelationModal();
+    resetQuickRelationState();
+  }
   var modal=document.getElementById("graphEditorModal");
   if(modal) modal.classList.remove("show");
   document.body.style.overflow="";
@@ -2431,12 +2477,40 @@ try{
   console.error("Terra Z Graph 2.0:",error);
 }
 
+function focusCharacterInGraph(name,options){
+  options=options || {};
+  var key=slugify(name);
+  var node=(graphData && graphData.nodes || []).find(function(row){
+    return row.kind==="character" && (
+      slugify(row.ref)===key ||
+      slugify(row.label)===key ||
+      slugify(row.subtitle)===key
+    );
+  });
+  if(!node) return false;
+
+  var r=router();
+  if(r && r.go) r.go("/universo/relacoes");
+  selectedNodeId=node.id;
+  selectedEdgeId="";
+  setTimeout(function(){
+    renderGraph();renderInspector();
+    var target=document.querySelector(".graph-canvas-card");
+    if(target) target.scrollIntoView({behavior:"smooth",block:"start"});
+    if(options.connect===true && canEdit()) beginQuickPick(node.id,{draft:false});
+  },60);
+  return true;
+}
+
 window.TerraZApp.graph={
   render:renderGraph,
   openEditor:openGraphEditor,
   closeEditor:closeGraphEditor,
   autoArrange:function(){ if(editorDraft){ autoArrangeDraft(); return clone(editorDraft); } return null; },
   openLayout:function(){ return openGraphEditor("layout",""); },
+  beginConnect:function(id,options){ return beginQuickPick(id,options || {}); },
+  openQuickRelation:function(sourceId,targetId,options){ return openQuickRelation(sourceId,targetId,options || {}); },
+  focusCharacter:focusCharacterInGraph,
   importCharacter:function(name,options){
     options=options || {};
     return importDcNode({
