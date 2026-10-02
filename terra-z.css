@@ -6625,3 +6625,22 @@ body.graph-fullscreen-open{
     padding:8px;
   }
 }
+
+
+/* O mapa normal também funciona como viewport, sem crescer indefinidamente com novos núcleos */
+.graph-wrap-v2{
+  height:clamp(520px,65vh,720px);
+  min-height:520px;
+}
+.graph-wrap-v2 svg{
+  width:100%;
+  height:100%;
+  aspect-ratio:auto!important;
+}
+@media(max-width:760px){
+  .graph-wrap-v2{
+    height:60dvh;
+    min-height:420px;
+    max-height:620px;
+  }
+}
