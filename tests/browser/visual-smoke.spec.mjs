@@ -181,6 +181,48 @@ test("Relações renderiza Armek com mídia independente e painel de inspeção"
   await expectNoPageErrors(errors);
 });
 
+test("visitante pode mover nós localmente e restaurar o layout publicado",async({page})=>{
+  const errors=watchRuntimeErrors(page);
+  await page.goto("/#/universo/relacoes",{waitUntil:"domcontentloaded"});
+
+  const graph=page.locator("#graphSvg");
+  await expect(graph).toBeVisible();
+  const node=graph.locator('[data-node-id="oliver"]');
+  await expect(node).toBeVisible();
+  await expect(node.locator(".graph-node-drag-hit")).toHaveCSS("touch-action","none");
+
+  const canonicalBefore=await page.evaluate(()=>{
+    const n=window.TerraZApp.graph.getData().nodes.find(row=>row.id==="oliver");
+    return {x:n.x,y:n.y};
+  });
+  expect(await page.evaluate(()=>window.TerraZApp.graph.getViewPositions())).toEqual({});
+
+  const box=await node.boundingBox();
+  expect(box).not.toBeNull();
+  await page.mouse.move(box.x+box.width/2,box.y+box.height/2);
+  await page.mouse.down();
+  await page.mouse.move(box.x+box.width/2+70,box.y+box.height/2+42,{steps:6});
+  await page.mouse.up();
+
+  await expect.poll(()=>page.evaluate(()=>Object.keys(window.TerraZApp.graph.getViewPositions()).length)).toBe(1);
+  const moved=await page.evaluate(()=>window.TerraZApp.graph.getViewPositions().oliver);
+  expect(Math.abs(moved.x-canonicalBefore.x)+Math.abs(moved.y-canonicalBefore.y)).toBeGreaterThan(20);
+
+  const canonicalAfterMove=await page.evaluate(()=>{
+    const n=window.TerraZApp.graph.getData().nodes.find(row=>row.id==="oliver");
+    return {x:n.x,y:n.y};
+  });
+  expect(canonicalAfterMove).toEqual(canonicalBefore);
+
+  const reset=page.locator("#graphViewResetBtn");
+  await expect(reset).toBeEnabled();
+  await reset.click();
+  await expect.poll(()=>page.evaluate(()=>Object.keys(window.TerraZApp.graph.getViewPositions()).length)).toBe(0);
+  await expect(reset).toBeDisabled();
+
+  await expectNoPageErrors(errors);
+});
+
 test("editor visual do grafo auto-organiza e permite arrastar, adicionar e remover",async({page})=>{
   const errors=watchRuntimeErrors(page);
   await page.goto("/#/universo/relacoes",{waitUntil:"domcontentloaded"});
@@ -207,6 +249,7 @@ test("editor visual do grafo auto-organiza e permite arrastar, adicionar e remov
   const layout=page.locator("#graphLayoutSvg");
   await expect(layout).toBeVisible();
   await expect.poll(()=>layout.locator("[data-layout-node-id]").count()).toBeGreaterThan(10);
+  await expect(layout.locator(".ge-layout-hit").first()).toHaveCSS("touch-action","none");
 
   await page.locator("#graphAutoArrangeBtn").click();
   const arranged=await page.evaluate(()=>{
