@@ -4,8 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Universo Terra Z – Vanguard Bay e Universo DC alternativo">
-<meta name="theme-color" content="#8b1a1a">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📰</text></svg>">
+<meta name="theme-color" content="#281044">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Terra Z">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/webp" sizes="192x192" href="./images/pwa/icon-192.webp">
+<link rel="apple-touch-icon" href="./images/pwa/icon-192.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lora:ital,wght@0,400;0,700;1,400&family=Share+Tech+Mono&family=Cormorant+Garamond:wght@600;700&family=Anton&family=Oswald:wght@500;700&family=Bebas+Neue&family=Inter:wght@400;600&display=swap">
@@ -46,7 +52,7 @@
 <div class="topbar-actions" aria-label="Ferramentas do dossiê">
 <button id="favoritesBtn" title="Abrir sua seleção de cards favoritos">⭐ Favoritos</button>
 <button id="copyRouteBtn" title="Copiar link direto para a área ou item atual">🔗 Link atual</button>
-<button id="commandPaletteBtn" title="Busca Global 2.0 · Ctrl+K">⌘K Busca Global</button>
+<button id="commandPaletteBtn" title="Central de Comandos · Ctrl+K">⚡ Central</button>
 <span class="topbar-separator" aria-hidden="true"></span>
 <button id="readingBtn" title="Ocultar a interface e priorizar a leitura contínua">📖 Modo Leitura</button>
 <button id="presentationBtn" title="Apresentar a seção atual como um dossiê em slides">▶ Modo Apresentação</button>
@@ -84,7 +90,7 @@
   <div class="command-palette-card">
     <div class="command-palette-head">
       <div>
-        <div class="command-palette-eyebrow">ETAPA 14A · BUSCA GLOBAL 2.0</div>
+        <div class="command-palette-eyebrow">TERRA Z · NAVEGAÇÃO RÁPIDA</div>
         <h3 id="commandPaletteTitle">⌘ Central de Comandos</h3>
       </div>
       <button id="commandPaletteClose" type="button" aria-label="Fechar">✕</button>
@@ -94,7 +100,7 @@
       <input id="commandPaletteInput" type="search" autocomplete="off" placeholder="Personagem, cidade, local, sessão, pista, comando...">
       <kbd>Ctrl K</kbd>
     </div>
-    <div id="commandPaletteInfo" class="command-palette-info">Digite para buscar em todo o Terra Z.</div>
+    <div id="commandPaletteInfo" class="command-palette-info">Digite para localizar entidades e ações.</div>
     <div id="commandPaletteResults" class="command-palette-results"></div>
     <div class="command-palette-footer">
       <span>↑↓ navegar</span><span>↵ abrir</span><span>Esc fechar</span>
@@ -1937,6 +1943,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="js/sessions.js" defer></script>
 <script src="js/timeline-manager.js" defer></script>
 <script src="js/world-links.js" defer></script>
+<script src="js/pwa.js" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   var btnMap = {
