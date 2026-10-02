@@ -1005,6 +1005,19 @@ function mediaModeOptions(value){
   }).join("");
 }
 
+function graphEditorMediaPreview(item){
+  var media=nodeMedia(item);
+  var kind=KIND[item.kind] || KIND.custom;
+  if(!media.src){
+    return '<div class="ge-media-preview empty"><span>'+escapeHtml(item.icon || kind.icon)+'</span><small>Sem imagem</small></div>';
+  }
+  return '<div class="ge-media-preview">'+
+    '<div class="graph-node-portrait-frame" style="'+escapeAttr(media.style)+'">'+
+      '<img src="'+escapeAttr(media.src)+'" alt="'+escapeAttr(item.label || "")+'" loading="lazy" decoding="async" referrerpolicy="no-referrer">'+
+    '</div>'+
+  '</div>';
+}
+
 function renderEditorDetail(){
   var root=document.getElementById("graphEditorDetail");
   if(!root) return;
@@ -1028,6 +1041,7 @@ function renderEditorDetail(){
         '<label>Ícone<input data-ge-field="icon" type="text" maxlength="12" value="'+escapeAttr(item.icon)+'" placeholder="'+escapeAttr((KIND[item.kind]||KIND.custom).icon)+'"></label>'+
         '<div class="ge-wide ge-media-box">'+
           '<div class="ge-media-box-head"><strong>Imagem da entidade</strong><button type="button" id="geOpenMediaLibrary">🖼️ Biblioteca</button></div>'+
+          '<div class="ge-media-preview-row">'+graphEditorMediaPreview(item)+'</div>'+
           '<div class="ge-media-grid">'+
             '<label>Fonte visual<select data-ge-field="mediaMode">'+mediaModeOptions(item.mediaMode)+'</select></label>'+
             (item.mediaMode==="library"
@@ -1082,8 +1096,19 @@ function renderEditorDetail(){
       if(input.hasAttribute("data-ge-number") || field==="strength") value=Number(value);
       item[field]=value;
       if(editorMode==="nodes" && field==="kind" && !item.color) item.color=KIND[value].color;
+      if(editorMode==="nodes" && field==="mediaId" && item.mediaMode==="library"){
+        var asset=libraryAsset(value);
+        if(asset && asset.framing){
+          item.mediaFraming={
+            fit:asset.framing.fit==="contain" ? "contain" : "cover",
+            x:Number(asset.framing.x ?? 50),
+            y:Number(asset.framing.y ?? 50),
+            zoom:Number(asset.framing.zoom ?? 1)
+          };
+        }
+      }
       renderEditorList();
-      if(field==="mediaMode") renderEditorDetail();
+      if(field==="mediaMode" || field==="mediaId" || field==="mediaUrl") renderEditorDetail();
     };
     input.addEventListener("input",handler);
     input.addEventListener("change",handler);
@@ -1097,6 +1122,8 @@ function renderEditorDetail(){
       else if(field!=="fit") value=Number(value);
       item.mediaFraming=item.mediaFraming || {fit:"cover",x:50,y:24,zoom:1};
       item.mediaFraming[field]=value;
+      var preview=root.querySelector(".ge-media-preview-row");
+      if(preview) preview.innerHTML=graphEditorMediaPreview(item);
     };
     input.addEventListener("input",update);
     input.addEventListener("change",update);
