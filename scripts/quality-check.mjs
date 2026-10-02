@@ -149,9 +149,34 @@ function checkPerformanceBudget(){
 
   const qualityWorkflow=read(".github/workflows/quality-gate.yml");
   const devSmoke=read(".github/workflows/dev-smoke.yml");
+  const browserWorkflow=read(".github/workflows/browser-visual.yml");
+  const playwrightConfig=read("playwright.config.mjs");
+  const browserTests=read("tests/browser/visual-smoke.spec.mjs");
   if(!qualityWorkflow.includes("- dev")) fail("Quality Gate não monitora o branch dev.");
   if(!/branches:\s*[\s\S]*- dev/.test(devSmoke)) fail("Dev smoke não monitora o branch dev.");
   if(!exists("docs/IMAGE_OPTIMIZATION.md")) fail("Relatório de otimização de imagens ausente.");
+  if(!exists("docs/BROWSER_TESTING.md")) fail("Documentação de testes de navegador ausente.");
+
+  if(!browserWorkflow.includes("pull_request:") || !browserWorkflow.includes("- main")){
+    fail("Workflow de navegador não está protegido pelo fluxo PR → main.");
+  }
+  if(!browserWorkflow.includes("retention-days: 1")){
+    fail("Artifacts visuais devem ter retenção de 1 dia.");
+  }
+  if(!browserWorkflow.includes("if: failure()")){
+    fail("Screenshots de navegador só podem ser enviados em caso de falha.");
+  }
+  if(!playwrightConfig.includes('screenshot:"only-on-failure"')){
+    fail("Playwright deve capturar screenshots somente em falhas.");
+  }
+  if(!playwrightConfig.includes('video:"off"') || !playwrightConfig.includes('trace:"off"')){
+    fail("Vídeo/trace do Playwright devem permanecer desligados por padrão.");
+  }
+  if(!browserTests.includes('[data-node-id="armek"]') ||
+     !browserTests.includes("script[data-admin-module]")){
+    fail("Browser smoke não cobre mídia independente do grafo e lazy loading administrativo.");
+  }
+  pass("Playwright configurado sem acervo permanente de screenshots");
 }
 
 function checkCharacterData(data){
