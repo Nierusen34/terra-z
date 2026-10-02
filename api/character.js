@@ -573,20 +573,41 @@ export default async function handler(req,res){
     }
 
     if(req.method === "POST" && body.action === "update-taxonomy"){
-      const metaFile=await readTextFile("data/character-meta.js");
+      const [metaFile,privateData]=await Promise.all([
+        readTextFile("data/character-meta.js"),
+        readPrivateCharacterData()
+      ]);
       const current=parseDataAssignment(metaFile.content,"characterTaxonomy");
       const taxonomy=normalizeTaxonomyPayload(current,body);
 
+      privateData.characters=privateData.characters && typeof privateData.characters==="object" && !Array.isArray(privateData.characters)
+        ? privateData.characters
+        : {};
+
+      for(const name of Object.keys(privateData.characters)){
+        const profile=privateProfile(privateData.characters[name]);
+        if(!profile) continue;
+        profile.meta=applyMetaPatch(profile.meta||{}, {
+          nucleiReplace:Array.isArray(profile.meta&&profile.meta.nuclei) ? profile.meta.nuclei : [],
+          tagsReplace:Array.isArray(profile.meta&&profile.meta.tags) ? profile.meta.tags : [],
+          type:String(profile.meta&&profile.meta.type||""),
+          status:String(profile.meta&&profile.meta.status||"")
+        },taxonomy,true);
+      }
+
       const head=await getHead();
-      const commit=await commitFiles(
-        [{
+      const commit=await commitFiles([
+        {
           path:"data/character-meta.js",
           content:renderCharacterTaxonomy(taxonomy),
           encoding:"utf-8"
-        }],
-        "characters: atualizar taxonomias do universo",
-        head
-      );
+        },
+        {
+          path:PRIVATE_CHARACTER_DATA_PATH,
+          content:renderPrivateCharacterData(privateData),
+          encoding:"utf-8"
+        }
+      ],"characters: atualizar taxonomias do universo",head);
 
       return res.status(200).json({
         ok:true,
