@@ -142,6 +142,15 @@
         <button id="adminLogoutBtn" type="button">Sair</button>
       </div>
 
+      <div class="admin-quick-actions" aria-label="Ações frequentes">
+        <span>Uso frequente</span>
+        <button type="button" data-admin-action="table-mode">🎲 Modo Mesa</button>
+        <button type="button" data-admin-action="new-character">＋ Personagem</button>
+        <button type="button" data-admin-action="new-session">＋ Sessão</button>
+        <button type="button" data-admin-action="graph">🔗 Grafo</button>
+        <button type="button" data-admin-action="publish">🚀 Publicar</button>
+      </div>
+
       <section class="admin-dashboard" aria-labelledby="adminDashboardTitle">
         <div class="admin-dashboard-head">
           <div>
@@ -1407,7 +1416,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0
   <select id="graphEntityFilter" aria-label="Filtrar tipo de entidade"></select>
   <select id="graphRelationFilter" aria-label="Filtrar tipo de relação"></select>
   <button id="graphClearFilters" type="button">Limpar filtros</button>
-  <button class="primary" id="graphOpenBtn" type="button" disabled>✏️ Editar / organizar</button>
+  <button class="primary" id="graphOpenBtn" type="button" disabled>⚙️ Organização avançada</button>
 </div>
 
 <div class="relations-layout">
@@ -1424,6 +1433,16 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0
         <button id="graphZoomIn" type="button" title="Ampliar grafo">＋</button>
         <button id="graphZoomReset" type="button" title="Voltar para 100%">100%</button>
         <button id="graphViewResetBtn" type="button" title="Restaurar as posições publicadas" disabled>↺ Posições</button>
+      </div>
+    </div>
+    <div id="graphConnectBar" class="graph-connect-bar" hidden>
+      <div>
+        <strong id="graphConnectBarTitle">🔗 Criando conexão</strong>
+        <span id="graphConnectBarText">Escolha a segunda entidade no mapa.</span>
+      </div>
+      <div class="graph-connect-bar-actions">
+        <button id="graphConnectChooseBtn" type="button">⌕ Escolher da lista</button>
+        <button id="graphConnectCancelBtn" type="button">✕ Cancelar</button>
       </div>
     </div>
     <div class="graph-wrap graph-wrap-v2">
@@ -1596,6 +1615,15 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0 · Jan 2027
 <button id="characterEditorClose">✕</button>
 </div>
 
+<nav class="character-editor-jumpnav" aria-label="Navegação do editor">
+  <button type="button" data-character-editor-jump="characterEditorBasicSection">Básico</button>
+  <button type="button" data-character-editor-jump="characterEditorPortraitSection">Retrato</button>
+  <button type="button" data-character-editor-jump="characterEditorOrganizationSection">Organização</button>
+  <button type="button" data-character-editor-jump="characterEditorSheetSection">Ficha</button>
+  <button type="button" data-character-editor-jump="characterEditorMasterSection">Mestre</button>
+</nav>
+
+<div id="characterEditorBasicSection" class="character-editor-anchor">
 <div class="character-editor-grid">
 <label>Personagem<input id="characterEditorName" type="text" readonly maxlength="160"></label>
 <label>Subtítulo / classificação<input id="characterEditorEyebrow" type="text" maxlength="240"></label>
@@ -1612,13 +1640,15 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0 · Jan 2027
 <label>Status<input id="characterEditorCardStatus" type="text" maxlength="200" placeholder="Ex.: Ativo"></label>
 </div>
 </div>
+</div>
 
 <div class="character-editor-toolbar">
 <button id="characterEditorPortraitBtn" type="button">🖼️ Trocar retrato</button>
 <button id="characterEditorRemovePortraitBtn" type="button" class="danger" hidden>🗑️ Remover retrato</button>
-<button id="characterEditorGraphBtn" type="button">🔗 Relações / Grafo</button>
+<button id="characterEditorGraphBtn" type="button">◎ Ver / conectar no grafo</button>
 </div>
 
+<div id="characterEditorPortraitSection" class="character-editor-anchor">
 <div id="characterEditorMediaSource" class="character-editor-media-source">
 <div class="character-editor-section-title">🛰️ Fonte automática do retrato</div>
 <p class="character-editor-note">Altera somente a imagem do personagem. O nome e o conteúdo da ficha não são modificados.</p>
@@ -1695,7 +1725,9 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0 · Jan 2027
 <button id="characterEditorFramingSaveBtn" class="primary" type="button" disabled>💾 Salvar enquadramento</button>
 </div>
 </div>
+</div>
 
+<div id="characterEditorOrganizationSection" class="character-editor-anchor">
 <div class="character-editor-section-title">Organização</div>
 <div class="character-editor-meta-grid">
 <label>Tipo<select id="characterEditorType"></select></label>
@@ -1718,14 +1750,19 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0 · Jan 2027
 <div class="character-editor-note">Tags — etiquetas livres para busca, organização e edição em lote.</div>
 <div id="characterEditorTags"></div>
 </div>
+</div>
 
+<div id="characterEditorSheetSection" class="character-editor-anchor">
 <div class="character-editor-section-title">Seções da ficha</div>
 <div id="characterEditorSections"></div>
 <button id="characterEditorAddSection" type="button" class="character-editor-add">＋ Adicionar seção</button>
+</div>
 
+<div id="characterEditorMasterSection" class="character-editor-anchor">
 <div class="character-editor-section-title private">🔒 Segredos do Mestre</div>
 <p class="character-editor-note">Um segredo por linha. Estes dados são armazenados de forma privada e não entram na ficha pública.</p>
 <textarea id="characterEditorSecrets" rows="7" placeholder="Um segredo por linha"></textarea>
+</div>
 
 <div class="character-editor-status" id="characterEditorStatus"></div>
 
@@ -1970,6 +2007,61 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0 · Jan 2027
   </div>
 </div>
 </div>
+</div>
+
+<div id="graphQuickRelationModal" class="graph-quick-relation-modal" role="dialog" aria-modal="true" aria-labelledby="graphQuickRelationTitle" aria-hidden="true">
+  <div class="graph-quick-relation-card">
+    <div class="graph-quick-relation-head">
+      <div>
+        <div class="graph-editor-eyebrow">RELAÇÃO RÁPIDA</div>
+        <h3 id="graphQuickRelationTitle">🔗 Conectar entidades</h3>
+      </div>
+      <button id="graphQuickRelationClose" type="button" aria-label="Fechar">✕</button>
+    </div>
+    <div class="graph-quick-pair">
+      <div><span>Origem</span><strong id="graphQuickFromLabel">—</strong></div>
+      <div class="graph-quick-arrow">↔</div>
+      <div><span>Destino</span><strong id="graphQuickToLabel">—</strong></div>
+    </div>
+    <div class="graph-quick-form">
+      <label>Destino
+        <select id="graphQuickTarget"></select>
+      </label>
+      <label>Tipo de relação
+        <select id="graphQuickType"></select>
+      </label>
+      <label>Rótulo opcional
+        <input id="graphQuickLabel" type="text" maxlength="180" placeholder="Ex.: parceiros de investigação">
+      </label>
+      <label>Intensidade
+        <select id="graphQuickStrength">
+          <option value="1">1 · Leve</option>
+          <option value="2">2</option>
+          <option value="3" selected>3 · Média</option>
+          <option value="4">4</option>
+          <option value="5">5 · Forte</option>
+        </select>
+      </label>
+      <label class="graph-quick-check"><input id="graphQuickDirected" type="checkbox"> Relação com direção (→)</label>
+      <label>Visibilidade
+        <select id="graphQuickVisibility">
+          <option value="public">🌐 Público</option>
+          <option value="spoiler">⚠️ Spoiler</option>
+          <option value="master">🔒 Mestre</option>
+        </select>
+      </label>
+      <label class="graph-quick-wide">Nota opcional
+        <textarea id="graphQuickNote" rows="3" maxlength="800" placeholder="Contexto breve da relação..."></textarea>
+      </label>
+    </div>
+    <div id="graphQuickStatus" class="graph-quick-status" aria-live="polite"></div>
+    <div class="graph-quick-actions">
+      <button id="graphQuickPickBtn" type="button">◎ Escolher no mapa</button>
+      <span></span>
+      <button id="graphQuickCancel" type="button">Cancelar</button>
+      <button id="graphQuickSave" class="primary" type="button">＋ Criar conexão</button>
+    </div>
+  </div>
 </div>
 
 <div id="confirmModal">
