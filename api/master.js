@@ -1,6 +1,7 @@
 import { applyCors } from "./_lib/cors.js";
 import { requireEditor } from "./_lib/auth.js";
-import { getHead, commitFiles } from "./_lib/github.js";
+import { getHead, readTextFile, commitFiles } from "./_lib/github.js";
+import { buildMasterContent, validateMasterContent, stripPublicSecrets } from "./_lib/master-migration.js";
 import {
   PRIVATE_CHARACTER_DATA_PATH,
   readPrivateCharacterData,
@@ -143,6 +144,11 @@ function normalizeMasterState(value){
   };
 }
 
+function statusUrl(req,sha){
+  const proto=String(req.headers["x-forwarded-proto"]||"https").split(",")[0].trim();
+  return proto+"://"+req.headers.host+"/api/status?sha="+encodeURIComponent(sha);
+}
+
 function legacyMasterContent(){
   const raw = process.env.MASTER_CONTENT_JSON;
   if(!raw) return {characters:{}};
@@ -164,6 +170,74 @@ export default async function handler(req,res){
   if(!requireEditor(req,res)) return;
 
   try {
+    const action=String((req.query || {}).action || "").toLowerCase();
+
+    if(req.method === "GET" && action === "template"){
+      const file=await readTextFile("data/characters.js");
+      const result=buildMasterContent(file.content);
+      return res.status(200).json({
+        ok:true,
+        content:result.content,
+        characters:result.characterCount,
+        secrets:result.secretCount
+      });
+    }
+
+    if(req.method === "POST" && action === "finalize"){
+      if(!process.env.MASTER_CONTENT_JSON){
+        return res.status(409).json({
+          error:"master_content_missing",
+          message:"Configure MASTER_CONTENT_JSON na Vercel antes de finalizar a migração."
+        });
+      }
+
+      let master;
+      try{
+        master=JSON.parse(process.env.MASTER_CONTENT_JSON);
+      }catch{
+        return res.status(409).json({
+          error:"master_content_invalid",
+          message:"MASTER_CONTENT_JSON não contém JSON válido."
+        });
+      }
+
+      const head=await getHead();
+      const file=await readTextFile("data/characters.js");
+      const publicState=buildMasterContent(file.content);
+
+      if(publicState.secretCount===0){
+        return res.status(200).json({
+          ok:true,
+          already_migrated:true,
+          characters:0,
+          secrets:0
+        });
+      }
+
+      const validation=validateMasterContent(master,file.content);
+      if(!validation.ok){
+        return res.status(409).json({
+          error:"master_content_mismatch",
+          message:"O conteúdo privado não corresponde aos segredos públicos atuais. Gere e configure novamente o JSON Mestre.",
+          missing:validation.missing,
+          mismatched:validation.mismatched
+        });
+      }
+
+      const stripped=stripPublicSecrets(file.content);
+      const commit=await commitFiles([
+        {path:"data/characters.js",content:stripped,encoding:"utf-8"}
+      ],"security: mover segredos de personagens para conteúdo privado",head);
+
+      return res.status(200).json({
+        ok:true,
+        sha:commit.sha,
+        characters:validation.characterCount,
+        secrets:validation.secretCount,
+        status_url:statusUrl(req,commit.sha)
+      });
+    }
+
     if(req.method === "POST"){
       const body = req.body || {};
       const privateData = await readPrivateCharacterData();
