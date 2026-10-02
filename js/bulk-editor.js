@@ -12,6 +12,7 @@ var foundation=window.TerraZApp.adminFoundation;
 var selection=foundation&&foundation.createSelection
   ? foundation.createSelection({eventName:"terra-z:bulk-selection-changed"})
   : null;
+var capability=null;
 
 function el(id){return document.getElementById(id);}
 function backend(){return window.TerraZApp&&window.TerraZApp.backend;}
@@ -23,6 +24,20 @@ function charactersApi(){return window.TerraZApp&&window.TerraZApp.characters;}
 function authenticated(){
   var b=backend();
   return !!(b&&b.isAuthenticated&&b.isAuthenticated());
+}
+
+async function supported(force){
+  if(force) capability=null;
+  if(capability!==null) return capability;
+  var b=backend();
+  if(!b||!b.health) return false;
+  try{
+    var health=await b.health();
+    capability=!!(health&&health.bulk_editor_v1===true);
+  }catch(error){
+    capability=false;
+  }
+  return capability;
 }
 function label(list,id){
   var item=(Array.isArray(list)?list:[]).find(function(row){return row&&row.id===id;});
@@ -161,6 +176,10 @@ function setStatus(message,state){
   node.textContent=message||"";node.setAttribute("data-state",state||"idle");
 }
 async function apply(){
+  if(!(await supported(false))){
+    showToast("Publique o checkpoint atual para ativar a Edição em Lote no backend.","warning",6500);
+    return;
+  }
   var names=selection?selection.values():[];
   if(!names.length){showToast("Selecione ao menos um personagem.","warning",4000);return;}
   var patch=buildPatch();
@@ -200,6 +219,10 @@ async function apply(){
 }
 async function open(){
   if(!authenticated()){showToast("Entre como editor para usar a edição em lote.","warning",4500);return;}
+  if(!(await supported(false))){
+    showToast("A Edição em Lote aguarda o novo checkpoint da Vercel.","warning",6500);
+    return;
+  }
   var p=privateApi();if(p&&p.load)await p.load();
   if(selection)selection.clear();
   renderControls();render();setStatus("","idle");
@@ -219,6 +242,7 @@ function setup(){
   var clear=el("bulkEditorClearSelection");if(clear)clear.addEventListener("click",function(){selection.clear();render();});
   var panel=el("bulkEditorPanel");if(panel)panel.addEventListener("click",function(e){if(e.target===panel)close();});
   document.addEventListener("terra-z:taxonomy-changed",function(){if(panel&&panel.classList.contains("show")){renderControls();render();}});
+  document.addEventListener("terra-z:auth-changed",function(){capability=null;});
 }
 setup();
 window.TerraZApp.bulkEditor={open:open,close:close,refresh:render};
