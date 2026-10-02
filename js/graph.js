@@ -66,6 +66,8 @@ var editorDraft=null;
 var editorMode="nodes";
 var editorSelectedId="";
 var editorSearch="";
+var editorUndoStack=[];
+var editorLayoutDrag=null;
 
 function clone(value){ return JSON.parse(JSON.stringify(value)); }
 function backend(){ return window.TerraZApp && window.TerraZApp.backend; }
@@ -202,9 +204,24 @@ function loadGraph(){
 function saveLocalGraph(){
   try{
     var snapshot=publicGraphSnapshot(graphData);
-    var previous=localStorage.getItem(GRAPH_KEY);
-    if(previous) localStorage.setItem(GRAPH_BACKUP_KEY,previous);
     localStorage.setItem(GRAPH_KEY,JSON.stringify(snapshot));
+  }catch(error){ console.error(error); }
+}
+
+function storeLayoutBackup(graph){
+  try{
+    var source=normalizeGraph(graph);
+    var positions={};
+    source.nodes.forEach(function(node){
+      if(normalizeVisibility(node.visibility)==="master") return;
+      positions[node.id]={x:node.x,y:node.y,r:node.r};
+    });
+    localStorage.setItem(GRAPH_BACKUP_KEY,JSON.stringify({
+      version:2,
+      kind:"layout",
+      savedAt:new Date().toISOString(),
+      positions:positions
+    }));
   }catch(error){ console.error(error); }
 }
 
@@ -909,8 +926,10 @@ function renderEditorTabs(){
     button.classList.toggle("active",active);
     button.setAttribute("aria-pressed",active?"true":"false");
   });
+  var modal=document.getElementById("graphEditorModal");
+  if(modal) modal.classList.toggle("graph-editor-layout-mode",editorMode==="layout");
   var add=document.getElementById("graphEditorAdd");
-  if(add) add.textContent=editorMode==="nodes" ? "＋ Nova entidade" : "＋ Nova relação";
+  if(add) add.textContent=editorMode==="edges" ? "＋ Nova relação" : "＋ Nova entidade";
 }
 
 function editorItemTitle(item){
@@ -930,7 +949,7 @@ function editorItemSubtitle(item){
 
 function editorItems(){
   var graph=editorGraph();
-  var items=editorMode==="nodes" ? graph.nodes : graph.edges;
+  var items=editorMode==="edges" ? graph.edges : graph.nodes;
   var needle=editorSearch.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
   if(!needle) return items;
   return items.filter(function(item){
@@ -942,6 +961,7 @@ function editorItems(){
 function renderEditorList(){
   var root=document.getElementById("graphEditorList");
   if(!root) return;
+  if(editorMode==="layout"){ root.innerHTML=""; return; }
   var items=editorItems();
   root.innerHTML=items.length ? items.map(function(item){
     var id=item.id;
@@ -1020,16 +1040,348 @@ function graphEditorMediaPreview(item){
   '</div>';
 }
 
+
+function pushEditorUndoSnapshot(snapshot){
+  if(!snapshot) return;
+  editorUndoStack.push(clone(snapshot));
+  if(editorUndoStack.length>12) editorUndoStack.shift();
+}
+
+function pushEditorUndo(){
+  if(editorDraft) pushEditorUndoSnapshot(editorDraft);
+}
+
+function undoEditorDraft(){
+  if(!editorUndoStack.length){
+    showToast("Nada para desfazer nesta edição.","info",3000);
+    return;
+  }
+  editorDraft=normalizeGraph(editorUndoStack.pop());
+  if(editorSelectedId && !nodeById(editorSelectedId,editorDraft) && !edgeById(editorSelectedId,editorDraft)) editorSelectedId="";
+  renderEditorTabs();renderEditorList();renderEditorDetail();
+  showToast("Última alteração de layout desfeita.","info",3000);
+}
+
+function pointQuadrant(node,quadrants){
+  return (quadrants || []).find(function(q){
+    return node.x>=q.x && node.x<=q.x+q.w && node.y>=q.y && node.y<=q.y+q.h;
+  }) || null;
+}
+
+function defaultQuadrantId(nodeId,quadrants){
+  var base=(defaultGraph.nodes || []).find(function(node){ return node.id===nodeId; });
+  if(!base) return "";
+  var q=pointQuadrant(base,quadrants);
+  return q ? q.id : "";
+}
+
+function smartLayoutAssignments(graph){
+  var quadrants=(graph.quadrants || []).filter(function(q){
+    return Number.isFinite(Number(q.x))&&Number.isFinite(Number(q.y))&&Number(q.w)>0&&Number(q.h)>0;
+  });
+  if(!quadrants.length){
+    quadrants=[{id:"__all",title:"REDE",x:20,y:20,w:960,h:680,color:"#777",bg:"transparent"}];
+  }
+
+  var valid=new Set(quadrants.map(function(q){return q.id;}));
+  var assignment={};
+  var buckets={};
+  quadrants.forEach(function(q){buckets[q.id]=[];});
+
+  graph.nodes.forEach(function(node){
+    var qid=defaultQuadrantId(node.id,quadrants);
+    if(!qid){
+      var current=pointQuadrant(node,quadrants);
+      qid=current ? current.id : "";
+    }
+    if(qid && valid.has(qid)) assignment[node.id]=qid;
+  });
+
+  for(var pass=0;pass<6;pass++){
+    var changed=false;
+    graph.nodes.forEach(function(node){
+      if(assignment[node.id]) return;
+      var score={};
+      graph.edges.forEach(function(edge){
+        var other="";
+        if(edge.from===node.id) other=edge.to;
+        else if(edge.to===node.id) other=edge.from;
+        if(!other || !assignment[other]) return;
+        score[assignment[other]]=(score[assignment[other]]||0)+Math.max(1,Number(edge.strength)||1);
+      });
+      var best=Object.keys(score).sort(function(a,b){return score[b]-score[a];})[0];
+      if(best){assignment[node.id]=best;changed=true;}
+    });
+    if(!changed) break;
+  }
+
+  graph.nodes.forEach(function(node){
+    var qid=assignment[node.id];
+    if(!qid){
+      qid=quadrants.slice().sort(function(a,b){
+        var ac=Object.values(assignment).filter(function(x){return x===a.id;}).length;
+        var bc=Object.values(assignment).filter(function(x){return x===b.id;}).length;
+        return ac-bc;
+      })[0].id;
+      assignment[node.id]=qid;
+    }
+    buckets[qid].push(node);
+  });
+
+  return {quadrants:quadrants,buckets:buckets,assignment:assignment};
+}
+
+function layoutRowsForNodes(nodes,edges){
+  if(!nodes.length) return [];
+  var ids=new Set(nodes.map(function(node){return node.id;}));
+  var adjacency={};
+  nodes.forEach(function(node){adjacency[node.id]=[];});
+  edges.forEach(function(edge){
+    if(!ids.has(edge.from)||!ids.has(edge.to)) return;
+    adjacency[edge.from].push(edge.to);
+    adjacency[edge.to].push(edge.from);
+  });
+
+  var unvisited=new Set(nodes.map(function(node){return node.id;}));
+  var levels=[];
+  while(unvisited.size){
+    var candidates=nodes.filter(function(node){return unvisited.has(node.id);});
+    candidates.sort(function(a,b){
+      var degreeDiff=(adjacency[b.id]||[]).length-(adjacency[a.id]||[]).length;
+      if(degreeDiff) return degreeDiff;
+      var da=(defaultGraph.nodes||[]).find(function(n){return n.id===a.id;});
+      var db=(defaultGraph.nodes||[]).find(function(n){return n.id===b.id;});
+      var ax=da?da.x:a.x,bx=db?db.x:b.x;
+      return ax-bx || String(a.label).localeCompare(String(b.label),"pt-BR");
+    });
+    var root=candidates[0];
+    var queue=[{id:root.id,depth:0}];
+    unvisited.delete(root.id);
+    var seen=new Set([root.id]);
+    while(queue.length){
+      var current=queue.shift();
+      (levels[current.depth]=levels[current.depth]||[]).push(nodeById(current.id,{nodes:nodes}));
+      (adjacency[current.id]||[]).forEach(function(next){
+        if(seen.has(next)||!unvisited.has(next)) return;
+        seen.add(next);unvisited.delete(next);
+        queue.push({id:next,depth:current.depth+1});
+      });
+    }
+  }
+
+  levels.forEach(function(row){
+    row.sort(function(a,b){
+      var da=(defaultGraph.nodes||[]).find(function(n){return n.id===a.id;});
+      var db=(defaultGraph.nodes||[]).find(function(n){return n.id===b.id;});
+      var ax=da?da.x:a.x,bx=db?db.x:b.x;
+      return ax-bx || String(a.label).localeCompare(String(b.label),"pt-BR");
+    });
+  });
+  return levels.filter(Boolean);
+}
+
+function layoutNodesInRegion(nodes,edges,region){
+  if(!nodes.length) return;
+  var maxRadius=nodes.reduce(function(max,node){return Math.max(max,Number(node.r)||38);},38);
+  var side=Math.max(54,maxRadius+18);
+  var top=region.y+Math.max(72,maxRadius+38);
+  var bottom=region.y+region.h-Math.max(66,maxRadius+28);
+  var left=region.x+side;
+  var right=region.x+region.w-side;
+  var maxPerRow=Math.max(2,Math.floor(Math.max(120,right-left)/Math.max(86,maxRadius*2+16)));
+  var levels=layoutRowsForNodes(nodes,edges);
+  var rows=[];
+  levels.forEach(function(level){
+    for(var i=0;i<level.length;i+=maxPerRow) rows.push(level.slice(i,i+maxPerRow));
+  });
+  if(!rows.length) rows=[nodes.slice()];
+
+  rows.forEach(function(row,rowIndex){
+    var y=rows.length===1 ? (top+bottom)/2 : top+(bottom-top)*(rowIndex/(rows.length-1));
+    row.forEach(function(node,index){
+      var x=row.length===1 ? (left+right)/2 : left+(right-left)*(index/(row.length-1));
+      node.x=Math.round(Math.max(node.r+8,Math.min(1000-node.r-8,x)));
+      node.y=Math.round(Math.max(node.r+8,Math.min(720-node.r-34,y)));
+    });
+  });
+}
+
+function smartArrangeGraph(graph){
+  var setup=smartLayoutAssignments(graph);
+  setup.quadrants.forEach(function(q){
+    layoutNodesInRegion(setup.buckets[q.id]||[],graph.edges||[],q);
+  });
+  return graph;
+}
+
+function layoutEditorNodeVisual(node){
+  var kind=KIND[node.kind]||KIND.custom;
+  var media=nodeMedia(node);
+  var r=Math.max(22,Math.min(52,Number(node.r)||38));
+  var visual="";
+  if(media.src){
+    visual='<circle cx="0" cy="0" r="'+r+'" fill="'+escapeAttr(node.color)+'" class="ge-layout-node-bg"/>'+
+      '<image href="'+escapeAttr(media.src)+'" x="'+(-r+3)+'" y="'+(-r+3)+'" width="'+((r-3)*2)+'" height="'+((r-3)*2)+'" preserveAspectRatio="xMidYMid slice" clip-path="url(#ge-layout-clip-'+svgId(node.id)+')"/>'+
+      '<circle cx="0" cy="0" r="'+(r-1.5)+'" fill="none" class="ge-layout-node-ring"/>';
+  }else{
+    visual='<circle cx="0" cy="0" r="'+r+'" fill="'+escapeAttr(node.color)+'" class="ge-layout-node-bg"/>'+
+      '<text x="0" y="4" text-anchor="middle" class="ge-layout-node-icon">'+escapeHtml(node.icon||kind.icon)+'</text>';
+  }
+  return '<g class="ge-layout-node'+(node.id===editorSelectedId?" selected":"")+'" data-layout-node-id="'+escapeAttr(node.id)+'" transform="translate('+node.x+' '+node.y+')" tabindex="0" role="button">'+
+    visual+
+    '<text x="0" y="'+(r+17)+'" text-anchor="middle" class="ge-layout-node-label">'+escapeHtml(node.label)+'</text>'+
+  '</g>';
+}
+
+function layoutPoint(svg,event){
+  var ctm=svg.getScreenCTM();
+  if(!ctm) return {x:0,y:0};
+  var point=svg.createSVGPoint();
+  point.x=event.clientX;point.y=event.clientY;
+  return point.matrixTransform(ctm.inverse());
+}
+
+function refreshLayoutSelection(root){
+  if(!root) return;
+  root.querySelectorAll("[data-layout-node-id]").forEach(function(group){
+    group.classList.toggle("selected",group.getAttribute("data-layout-node-id")===editorSelectedId);
+  });
+  var selected=nodeById(editorSelectedId,editorDraft);
+  var status=root.querySelector("#geLayoutSelection");
+  if(status) status.textContent=selected ? selected.label+" · X "+Math.round(selected.x)+" · Y "+Math.round(selected.y) : "Toque em uma bolinha para selecionar.";
+  var edit=root.querySelector("#geLayoutEditSelected");
+  var del=root.querySelector("#geLayoutDeleteSelected");
+  if(edit) edit.disabled=!selected;
+  if(del) del.disabled=!selected;
+}
+
+function updateLayoutNodeDom(svg,node){
+  var group=svg.querySelector('[data-layout-node-id="'+CSS.escape(node.id)+'"]');
+  if(group) group.setAttribute("transform","translate("+node.x+" "+node.y+")");
+  svg.querySelectorAll('.ge-layout-edge[data-from="'+CSS.escape(node.id)+'"]').forEach(function(line){
+    line.setAttribute("x1",node.x);line.setAttribute("y1",node.y);
+  });
+  svg.querySelectorAll('.ge-layout-edge[data-to="'+CSS.escape(node.id)+'"]').forEach(function(line){
+    line.setAttribute("x2",node.x);line.setAttribute("y2",node.y);
+  });
+}
+
+function renderLayoutEditor(root){
+  if(!editorDraft){root.innerHTML="";return;}
+  var clips=editorDraft.nodes.map(function(node){
+    var r=Math.max(22,Math.min(52,Number(node.r)||38));
+    return '<clipPath id="ge-layout-clip-'+svgId(node.id)+'"><circle cx="0" cy="0" r="'+Math.max(10,r-4)+'"/></clipPath>';
+  }).join("");
+  var zones=(editorDraft.quadrants||[]).map(function(q){
+    return '<g class="ge-layout-zone"><rect x="'+q.x+'" y="'+q.y+'" width="'+q.w+'" height="'+q.h+'" rx="18" fill="'+escapeAttr(q.bg)+'" stroke="'+escapeAttr(q.color)+'"/>'+
+      '<text x="'+(q.x+18)+'" y="'+(q.y+27)+'" fill="'+escapeAttr(q.color)+'">'+escapeHtml(q.title)+'</text></g>';
+  }).join("");
+  var edges=(editorDraft.edges||[]).map(function(edge){
+    var a=nodeById(edge.from,editorDraft),b=nodeById(edge.to,editorDraft);
+    if(!a||!b) return "";
+    var dash=(edge.type==="tension"||edge.type==="enemy"||edge.type==="rivalry"||edge.type==="clone")?' stroke-dasharray="8 6"':"";
+    return '<line class="ge-layout-edge" data-from="'+escapeAttr(edge.from)+'" data-to="'+escapeAttr(edge.to)+'" x1="'+a.x+'" y1="'+a.y+'" x2="'+b.x+'" y2="'+b.y+'" stroke="'+relationColor(edge.type)+'" stroke-width="'+(1.5+Number(edge.strength||3)*.4)+'"'+dash+'/>';
+  }).join("");
+  var nodes=editorDraft.nodes.map(layoutEditorNodeVisual).join("");
+
+  root.innerHTML='<div class="ge-layout-editor">'+
+    '<div class="ge-layout-toolbar">'+
+      '<div><strong>✥ Layout visual</strong><span id="geLayoutSelection">Arraste uma bolinha com o mouse ou dedo.</span></div>'+
+      '<div class="ge-layout-actions">'+
+        '<button id="geLayoutUndo" type="button">↶ Desfazer</button>'+
+        '<button id="geLayoutEditSelected" type="button" disabled>✏️ Editar dados</button>'+
+        '<button id="geLayoutDeleteSelected" class="danger" type="button" disabled>🗑️ Remover</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="ge-layout-hint">Arraste para mover · toque para selecionar · duplo clique no PC para editar · as linhas acompanham o movimento em tempo real.</div>'+
+    '<div class="ge-layout-canvas"><svg id="graphLayoutSvg" viewBox="0 0 1000 720" xmlns="http://www.w3.org/2000/svg">'+
+      '<defs>'+clips+'<pattern id="ge-layout-grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="currentColor" stroke-opacity=".08"/></pattern></defs>'+
+      '<rect class="ge-layout-bg" x="0" y="0" width="1000" height="720" fill="url(#ge-layout-grid)"/>'+
+      zones+edges+nodes+
+    '</svg></div>'+
+  '</div>';
+
+  var svg=root.querySelector("#graphLayoutSvg");
+  refreshLayoutSelection(root);
+
+  svg.querySelectorAll("[data-layout-node-id]").forEach(function(group){
+    var id=group.getAttribute("data-layout-node-id");
+    group.addEventListener("pointerdown",function(event){
+      if(event.button!==undefined && event.button!==0) return;
+      event.preventDefault();
+      var node=nodeById(id,editorDraft);if(!node)return;
+      editorSelectedId=id;
+      refreshLayoutSelection(root);
+      editorLayoutDrag={
+        id:id,
+        pointerId:event.pointerId,
+        startClientX:event.clientX,
+        startClientY:event.clientY,
+        snapshot:clone(editorDraft),
+        undoPushed:false,
+        moved:false
+      };
+      try{group.setPointerCapture(event.pointerId);}catch(error){}
+    });
+    group.addEventListener("pointermove",function(event){
+      if(!editorLayoutDrag||editorLayoutDrag.id!==id||editorLayoutDrag.pointerId!==event.pointerId)return;
+      var distance=Math.hypot(event.clientX-editorLayoutDrag.startClientX,event.clientY-editorLayoutDrag.startClientY);
+      if(distance<3&&!editorLayoutDrag.moved)return;
+      if(!editorLayoutDrag.undoPushed){
+        pushEditorUndoSnapshot(editorLayoutDrag.snapshot);
+        editorLayoutDrag.undoPushed=true;
+      }
+      editorLayoutDrag.moved=true;
+      var node=nodeById(id,editorDraft);if(!node)return;
+      var point=layoutPoint(svg,event);
+      node.x=Math.round(Math.max(node.r+8,Math.min(1000-node.r-8,point.x)));
+      node.y=Math.round(Math.max(node.r+8,Math.min(720-node.r-34,point.y)));
+      updateLayoutNodeDom(svg,node);
+      refreshLayoutSelection(root);
+    });
+    var end=function(event){
+      if(!editorLayoutDrag||editorLayoutDrag.id!==id||editorLayoutDrag.pointerId!==event.pointerId)return;
+      try{group.releasePointerCapture(event.pointerId);}catch(error){}
+      editorLayoutDrag=null;
+    };
+    group.addEventListener("pointerup",end);
+    group.addEventListener("pointercancel",end);
+    group.addEventListener("dblclick",function(event){
+      event.preventDefault();event.stopPropagation();
+      editorSelectedId=id;editorMode="nodes";
+      renderEditorTabs();renderEditorList();renderEditorDetail();
+    });
+    group.addEventListener("keydown",function(event){
+      if(event.key==="Enter"||event.key===" "){
+        event.preventDefault();editorSelectedId=id;refreshLayoutSelection(root);
+      }
+    });
+  });
+
+  var bg=root.querySelector(".ge-layout-bg");
+  if(bg)bg.addEventListener("pointerdown",function(){editorSelectedId="";refreshLayoutSelection(root);});
+  var edit=root.querySelector("#geLayoutEditSelected");
+  if(edit)edit.addEventListener("click",function(){
+    if(!nodeById(editorSelectedId,editorDraft))return;
+    editorMode="nodes";renderEditorTabs();renderEditorList();renderEditorDetail();
+  });
+  var del=root.querySelector("#geLayoutDeleteSelected");
+  if(del)del.addEventListener("click",deleteEditorCurrent);
+  var undo=root.querySelector("#geLayoutUndo");
+  if(undo)undo.addEventListener("click",undoEditorDraft);
+}
+
 function renderEditorDetail(){
   var root=document.getElementById("graphEditorDetail");
   if(!root) return;
+  if(editorMode==="layout"){ renderLayoutEditor(root); return; }
 
   if(!editorSelectedId){
     root.innerHTML='<div class="ge-detail-empty"><strong>Escolha um item</strong><p>Selecione uma entidade ou relação na lista, ou crie uma nova.</p></div>';
     return;
   }
 
-  var item=editorMode==="nodes" ? nodeById(editorSelectedId,editorDraft) : edgeById(editorSelectedId,editorDraft);
+  var item=editorMode==="edges" ? edgeById(editorSelectedId,editorDraft) : nodeById(editorSelectedId,editorDraft);
   if(!item){ editorSelectedId=""; return renderEditorDetail(); }
 
   if(editorMode==="nodes"){
@@ -1142,7 +1494,8 @@ function renderEditorDetail(){
 }
 
 function addEditorItem(){
-  if(editorMode==="nodes"){
+  pushEditorUndo();
+  if(editorMode==="nodes" || editorMode==="layout"){
     var count=editorDraft.nodes.length;
     var id=makeId("entidade","entidade-"+(count+1));
     var angle=(count%12)/12*Math.PI*2;
@@ -1176,12 +1529,14 @@ function deleteEditorCurrent(){
   var item=editorMode==="nodes" ? nodeById(editorSelectedId,editorDraft) : edgeById(editorSelectedId,editorDraft);
   if(!item) return;
 
-  var message=editorMode==="nodes"
+  var isNode=editorMode!=="edges";
+  var message=isNode
     ? 'Excluir "'+item.label+'"? Todas as relações ligadas a esta entidade também serão removidas.'
     : 'Excluir esta relação do grafo?';
 
-  showConfirm("Excluir "+(editorMode==="nodes"?"entidade":"relação"),message,function(){
-    if(editorMode==="nodes"){
+  showConfirm("Excluir "+(isNode?"entidade":"relação"),message,function(){
+    pushEditorUndo();
+    if(isNode){
       editorDraft.nodes=editorDraft.nodes.filter(function(node){ return node.id!==item.id; });
       editorDraft.edges=editorDraft.edges.filter(function(edge){ return edge.from!==item.id && edge.to!==item.id; });
     }else{
@@ -1194,32 +1549,10 @@ function deleteEditorCurrent(){
 
 function autoArrangeDraft(){
   if(!editorDraft || !editorDraft.nodes.length) return;
-  var groups={};
-  editorDraft.nodes.forEach(function(node){
-    var kind=normalizeKind(node.kind);
-    (groups[kind]=groups[kind] || []).push(node);
-  });
-
-  var kinds=Object.keys(groups);
-  var centers=[
-    [190,150],[500,150],[810,150],
-    [190,390],[500,390],[810,390],
-    [500,610]
-  ];
-
-  kinds.forEach(function(kind,groupIndex){
-    var nodes=groups[kind];
-    var center=centers[groupIndex%centers.length];
-    var radius=nodes.length>1 ? Math.min(115,42+nodes.length*10) : 0;
-    nodes.forEach(function(node,index){
-      var angle=nodes.length>1 ? (index/nodes.length)*Math.PI*2-Math.PI/2 : 0;
-      node.x=Math.round(center[0]+Math.cos(angle)*radius);
-      node.y=Math.round(center[1]+Math.sin(angle)*radius);
-    });
-  });
-
-  showToast("Layout reorganizado no rascunho. Salve para publicar.","info",4000);
-  renderEditorDetail();
+  pushEditorUndo();
+  smartArrangeGraph(editorDraft);
+  showToast("Layout reorganizado por núcleos e relações. Revise arrastando os nós antes de salvar.","info",5000);
+  renderEditorList();renderEditorDetail();
 }
 
 async function openGraphEditor(mode,id){
@@ -1235,9 +1568,11 @@ async function openGraphEditor(mode,id){
   }
 
   editorDraft=normalizeGraph(graphData);
-  editorMode=mode==="edges" ? "edges" : "nodes";
+  editorMode=mode==="edges" ? "edges" : (mode==="layout" ? "layout" : "nodes");
   editorSelectedId=id || "";
   editorSearch="";
+  editorUndoStack=[];
+  editorLayoutDrag=null;
 
   var modal=document.getElementById("graphEditorModal");
   var search=document.getElementById("graphEditorSearch");
@@ -1254,18 +1589,37 @@ function closeGraphEditor(){
   var modal=document.getElementById("graphEditorModal");
   if(modal) modal.classList.remove("show");
   document.body.style.overflow="";
-  editorDraft=null;editorSelectedId="";editorSearch="";
+  editorDraft=null;editorSelectedId="";editorSearch="";editorUndoStack=[];editorLayoutDrag=null;
 }
 
 function restoreEditorBackup(){
   try{
     var raw=localStorage.getItem(GRAPH_BACKUP_KEY);
-    if(!raw){ showToast("Nenhum backup local anterior encontrado.","warning"); return; }
-    editorDraft=normalizeGraph(JSON.parse(raw));
+    if(!raw){ showToast("Nenhum layout anterior encontrado neste dispositivo.","warning"); return; }
+    var parsed=JSON.parse(raw);
+    var positions={};
+    if(parsed && parsed.kind==="layout" && parsed.positions){
+      positions=parsed.positions;
+    }else if(parsed && Array.isArray(parsed.nodes)){
+      parsed.nodes.forEach(function(node){
+        if(node && node.id) positions[node.id]={x:node.x,y:node.y,r:node.r};
+      });
+    }
+    var keys=Object.keys(positions);
+    if(!keys.length){showToast("O backup anterior não possui posições válidas.","warning");return;}
+    pushEditorUndo();
+    var restored=0;
+    editorDraft.nodes.forEach(function(node){
+      var pos=positions[node.id];if(!pos)return;
+      if(Number.isFinite(Number(pos.x)))node.x=Number(pos.x);
+      if(Number.isFinite(Number(pos.y)))node.y=Number(pos.y);
+      if(Number.isFinite(Number(pos.r)))node.r=Math.max(18,Math.min(120,Number(pos.r)));
+      restored++;
+    });
     editorSelectedId="";
     renderEditorList();renderEditorDetail();
-    showToast("Backup carregado no editor. Salve para publicar.","info",4200);
-  }catch(error){ showToast("Não foi possível abrir o backup local.","error"); }
+    showToast("Layout anterior restaurado em "+restored+" entidade"+(restored===1?"":"s")+". Salve para publicar.","info",4800);
+  }catch(error){ showToast("Não foi possível abrir o layout anterior.","error"); }
 }
 
 function graphUsesAdvancedVisibility(graph){
@@ -1299,7 +1653,9 @@ async function saveGraphEditor(){
   if(save){ save.disabled=true;save.textContent="Salvando…"; }
 
   try{
+    var graphBeforeSave=graphData ? clone(graphData) : null;
     var result=await b.request("/api/graph",{method:"POST",body:{graph:editorDraft}});
+    if(graphBeforeSave) storeLayoutBackup(graphBeforeSave);
     publishedGraph=result.publicGraph ? clone(result.publicGraph) : publishedGraph;
     graphData=result.graph ? normalizeGraph(result.graph) : normalizeGraph(editorDraft);
 
@@ -1336,6 +1692,7 @@ function resetDraft(){
     "Restaurar grafo padrão",
     "Substituir o rascunho atual pelo grafo padrão do Terra Z? Nada será publicado até você clicar em Salvar alterações.",
     function(){
+      pushEditorUndo();
       editorDraft=normalizeGraph(defaultGraph);
       editorSelectedId="";
       renderEditorList();renderEditorDetail();
@@ -1351,7 +1708,8 @@ function setupGraphEditor(){
 
   document.querySelectorAll("[data-ge-tab]").forEach(function(button){
     button.addEventListener("click",function(){
-      editorMode=button.getAttribute("data-ge-tab")==="edges" ? "edges" : "nodes";
+      var requested=button.getAttribute("data-ge-tab");
+      editorMode=requested==="edges" ? "edges" : (requested==="layout" ? "layout" : "nodes");
       editorSelectedId="";
       renderEditorTabs();renderEditorList();renderEditorDetail();
     });
@@ -1368,6 +1726,7 @@ function setupGraphEditor(){
     graphCancelBtn:closeGraphEditor,
     graphEditorAdd:addEditorItem,
     graphAutoArrangeBtn:autoArrangeDraft,
+    graphUndoBtn:undoEditorDraft,
     graphRestoreBtn:restoreEditorBackup,
     graphResetBtn:resetDraft,
     graphSaveBtn:saveGraphEditor
@@ -1424,6 +1783,8 @@ window.TerraZApp.graph={
   render:renderGraph,
   openEditor:openGraphEditor,
   closeEditor:closeGraphEditor,
+  autoArrange:function(){ if(editorDraft){ autoArrangeDraft(); return clone(editorDraft); } return null; },
+  openLayout:function(){ return openGraphEditor("layout",""); },
   reset:function(){ openGraphEditor("nodes",""); resetDraft(); },
   getData:function(){ return graphData ? clone(graphData) : {version:3,quadrants:[],nodes:[],edges:[]}; },
   getCharacterMap:function(){
