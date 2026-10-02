@@ -46,6 +46,7 @@
 <div class="topbar-actions" aria-label="Ferramentas do dossiê">
 <button id="favoritesBtn" title="Abrir sua seleção de cards favoritos">⭐ Favoritos</button>
 <button id="copyRouteBtn" title="Copiar link direto para a área ou item atual">🔗 Link atual</button>
+<button id="commandPaletteBtn" title="Busca Global 2.0 · Ctrl+K">⌘K Busca Global</button>
 <span class="topbar-separator" aria-hidden="true"></span>
 <button id="readingBtn" title="Ocultar a interface e priorizar a leitura contínua">📖 Modo Leitura</button>
 <button id="presentationBtn" title="Apresentar a seção atual como um dossiê em slides">▶ Modo Apresentação</button>
@@ -77,6 +78,28 @@
 <button class="search-close" id="searchClose" title="Fechar">✕</button>
 </div>
 <div id="searchResults" class="search-results"></div>
+</div>
+
+<div id="commandPalette" class="command-palette" role="dialog" aria-modal="true" aria-labelledby="commandPaletteTitle">
+  <div class="command-palette-card">
+    <div class="command-palette-head">
+      <div>
+        <div class="command-palette-eyebrow">ETAPA 14A · BUSCA GLOBAL 2.0</div>
+        <h3 id="commandPaletteTitle">⌘ Central de Comandos</h3>
+      </div>
+      <button id="commandPaletteClose" type="button" aria-label="Fechar">✕</button>
+    </div>
+    <div class="command-palette-search">
+      <span>⌕</span>
+      <input id="commandPaletteInput" type="search" autocomplete="off" placeholder="Personagem, cidade, local, sessão, pista, comando...">
+      <kbd>Ctrl K</kbd>
+    </div>
+    <div id="commandPaletteInfo" class="command-palette-info">Digite para buscar em todo o Terra Z.</div>
+    <div id="commandPaletteResults" class="command-palette-results"></div>
+    <div class="command-palette-footer">
+      <span>↑↓ navegar</span><span>↵ abrir</span><span>Esc fechar</span>
+    </div>
+  </div>
 </div>
 
 <div id="favoritesPanel"></div>
@@ -245,6 +268,11 @@
             <strong>Sala do Mestre</strong>
             <small>Objetivos, pistas, NPCs, revelações e últimos acontecimentos.</small>
           </button>
+          <button class="admin-action private" data-admin-action="session-mode">
+            <span class="admin-action-icon">🎬</span>
+            <strong>Modo Sessão</strong>
+            <small>Conduzir a mesa, marcar presença, pistas e registrar acontecimentos rápidos.</small>
+          </button>
           <button class="admin-action private" data-admin-action="privacy-migrate">
             <span class="admin-action-icon">🔐</span>
             <strong>Privacidade real</strong>
@@ -264,9 +292,10 @@
             🕘 <strong>Histórico e Produção</strong>
             <small>Revisar alterações, restaurar conteúdo e publicar checkpoints seguros.</small>
           </button>
-          <button class="admin-action" data-admin-action="backup">📤 <strong>Backup JSON</strong></button>
-          <button class="admin-action" data-admin-action="import">📂 <strong>Importar backup</strong></button>
-          <button class="admin-action" data-admin-action="export-html">📥 <strong>Exportar HTML</strong></button>
+          <button class="admin-action" data-admin-action="backup-export">🧳 <strong>Backup e Exportação</strong><small>Snapshot completo criptografado e dossiês portáteis.</small></button>
+          <button class="admin-action" data-admin-action="backup">📤 <strong>Exportar rascunho local</strong></button>
+          <button class="admin-action" data-admin-action="import">📂 <strong>Importar rascunho local</strong></button>
+          <button class="admin-action" data-admin-action="export-html">📥 <strong>Exportar HTML editado</strong></button>
           <button class="admin-action danger" data-admin-action="reset">🔄 <strong>Resetar rascunho local</strong></button>
         </div>
       </div>
@@ -592,6 +621,7 @@
     <div class="master-quick-toolbar">
       <input id="masterQuickSearch" type="search" placeholder="Buscar pista, objetivo, NPC, revelação ou nota..." autocomplete="off">
       <button id="masterQuickWorkspace" type="button">🗝️ Abrir conteúdo Mestre</button>
+      <button id="masterQuickSessionMode" type="button">🎬 Modo Sessão</button>
       <button id="masterQuickNewSession" type="button">📓 Registrar sessão</button>
     </div>
 
@@ -623,6 +653,102 @@
         <div id="masterQuickRecent" class="master-quick-list compact"></div>
       </section>
     </div>
+  </div>
+</div>
+
+<div id="sessionModePanel" class="session-mode-panel" role="dialog" aria-modal="true" aria-labelledby="sessionModeTitle">
+  <div class="session-mode-card">
+    <div class="session-mode-head">
+      <div>
+        <div class="session-mode-eyebrow">ETAPA 14B · MESA DO MESTRE</div>
+        <h3 id="sessionModeTitle">🎬 Modo Sessão</h3>
+        <p>Rascunho temporário para conduzir a mesa. Nada é publicado até você revisar o registro final.</p>
+      </div>
+      <button id="sessionModeClose" type="button">✕</button>
+    </div>
+
+    <div class="session-mode-meta">
+      <label>Título / capítulo<input id="sessionModeTitleInput" type="text" maxlength="160" placeholder="Ex.: Ecos do Dique"></label>
+      <label>Data no universo<input id="sessionModeWorldDate" type="text" maxlength="120" placeholder="Ex.: 5 de Janeiro de 2027"></label>
+      <label>Local atual<input id="sessionModeLocation" type="text" maxlength="180" placeholder="Ex.: Downtown"></label>
+      <label>Registro final<select id="sessionModeVisibility"><option value="master">🔒 Mestre</option><option value="spoiler">⚠️ Spoiler</option><option value="public">🌐 Público</option></select></label>
+    </div>
+
+    <div class="session-mode-grid">
+      <section>
+        <div class="session-mode-section-head"><strong>👥 Personagens em cena</strong><span>seleção</span></div>
+        <div id="sessionModeCharacters" class="session-mode-choices"></div>
+      </section>
+      <section>
+        <div class="session-mode-section-head"><strong>👤 NPCs em cena</strong><span>Mestre</span></div>
+        <div id="sessionModeNpcs" class="session-mode-choices"></div>
+      </section>
+      <section>
+        <div class="session-mode-section-head"><strong>🎯 Objetivos trabalhados</strong><span>ativos</span></div>
+        <div id="sessionModeGoals" class="session-mode-choices"></div>
+      </section>
+      <section>
+        <div class="session-mode-section-head"><strong>🧩 Pistas usadas</strong><span>não altera o cânone</span></div>
+        <div id="sessionModeClues" class="session-mode-choices"></div>
+      </section>
+      <section class="session-mode-log-section">
+        <div class="session-mode-section-head"><strong>📝 Registro rápido</strong><span>Ctrl+Enter adiciona</span></div>
+        <div class="session-mode-log-form">
+          <select id="sessionModeLogType">
+            <option>Narrativa</option><option>Decisão</option><option>Consequência</option><option>Pista</option><option>Combate</option><option>NPC</option><option>Nota</option>
+          </select>
+          <textarea id="sessionModeLogInput" rows="3" placeholder="O que acabou de acontecer?"></textarea>
+          <button id="sessionModeAddLog" type="button">＋ Adicionar ao registro</button>
+        </div>
+        <div id="sessionModeLog" class="session-mode-log"></div>
+      </section>
+    </div>
+
+    <div class="session-mode-footer">
+      <div id="sessionModeDraftStatus">Rascunho temporário desta sessão do navegador.</div>
+      <div>
+        <button id="sessionModeClear" type="button" class="danger">Limpar rascunho</button>
+        <button id="sessionModeFinish" type="button" class="primary">📓 Concluir e preparar registro</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="backupExportPanel" class="backup-export-panel" role="dialog" aria-modal="true" aria-labelledby="backupExportTitle">
+  <div class="backup-export-card">
+    <div class="backup-export-head">
+      <div>
+        <div class="backup-export-eyebrow">ETAPA 14C · PORTABILIDADE E SEGURANÇA</div>
+        <h3 id="backupExportTitle">🧳 Backup e Exportação</h3>
+        <p>Crie cópias portáteis sem alterar o projeto.</p>
+      </div>
+      <button id="backupExportClose" type="button">✕</button>
+    </div>
+
+    <div class="backup-export-grid">
+      <button id="backupExportComplete" type="button" class="backup-export-option primary-option">
+        <span>🔐</span><strong>Backup completo criptografado</strong>
+        <small>Dados canônicos + conteúdo editável + cofres Mestre ainda criptografados + manifesto de mídia.</small>
+      </button>
+      <button id="backupExportPublicJson" type="button" class="backup-export-option">
+        <span>📦</span><strong>Snapshot público JSON</strong>
+        <small>Dados visíveis da campanha em formato estruturado e portátil.</small>
+      </button>
+      <button id="backupExportHtmlPublic" type="button" class="backup-export-option">
+        <span>📖</span><strong>Dossiê público HTML</strong>
+        <small>Arquivo único para leitura fora do Terra Z.</small>
+      </button>
+      <button id="backupExportHtmlMaster" type="button" class="backup-export-option private-option">
+        <span>🗝️</span><strong>Dossiê Mestre HTML</strong>
+        <small>Inclui conteúdo Mestre descriptografado no arquivo exportado. Guarde-o em local privado.</small>
+      </button>
+      <button id="backupExportLocalDraft" type="button" class="backup-export-option">
+        <span>💾</span><strong>Rascunho local do editor</strong>
+        <small>Exporta somente as alterações locais ainda não publicadas.</small>
+      </button>
+    </div>
+    <div class="backup-export-note">O backup completo não duplica imagens em Base64. Ele registra os caminhos da mídia; os binários continuam preservados no Git/GitHub.</div>
+    <div id="backupExportStatus" class="backup-export-status" data-state="idle"></div>
   </div>
 </div>
 
@@ -1800,6 +1926,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <script src="js/navigation.js" defer></script>
 <script src="js/mobile-polish.js" defer></script>
 <script src="js/search.js" defer></script>
+<script src="js/command-palette.js" defer></script>
 <script src="js/characters.js" defer></script>
 <script src="js/home-protagonists.js" defer></script>
 <script src="js/favorites.js" defer></script>
