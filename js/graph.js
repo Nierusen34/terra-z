@@ -1181,7 +1181,9 @@ function inspectorEmpty(){
   return '<div class="graph-inspector-empty">'+
     '<div class="graph-inspector-symbol">◎</div>'+
     '<strong>Selecione uma entidade ou relação</strong>'+
-    '<p>Clique em um nó ou vínculo para ver detalhes, conexões e atalhos narrativos.</p>'+
+    '<p>Clique em um nó ou vínculo para ver detalhes e conexões.'+
+      (canEdit() ? ' Para criar um vínculo: selecione uma bolinha e use <strong>Conectar</strong>.' : '')+
+    '</p>'+
   '</div>';
 }
 
