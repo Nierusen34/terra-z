@@ -373,7 +373,6 @@ window.TerraZData.timeline = [
         "category": "pre-campaign",
         "sortKey": 20260000,
         "characters": [
-          "Clark Kent",
           "M'ark"
         ],
         "locations": [],
