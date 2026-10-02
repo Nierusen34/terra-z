@@ -1318,7 +1318,7 @@ function renderGraph(){
     var geometry=curveForEdge(a,b,index);
     var color=relationColor(edge.type);
     var selected=edge.id===selectedEdgeId;
-    var focusRelevant=!focusSet || edge.from===graphFocusNodeId || edge.to===graphFocusNodeId;
+    var focusRelevant=!!(focusSet && (edge.from===graphFocusNodeId || edge.to===graphFocusNodeId));
     var width=1.2+Number(edge.strength || 3)*.45;
     var dash=(edge.type==="tension" || edge.type==="enemy" || edge.type==="rivalry" || edge.type==="clone") ? ' stroke-dasharray="7 5"' : "";
     var marker=edge.directed ? ' marker-end="url(#graph-arrow-'+escapeAttr(edge.type)+')"' : "";
@@ -1549,6 +1549,7 @@ function renderInspector(){
       button.addEventListener("click",function(){
         selectedEdgeId=button.getAttribute("data-inspector-edge");
         selectedNodeId="";
+        graphFocusNodeId="";
         renderGraph();
         renderInspector();
       });
@@ -2791,6 +2792,8 @@ function refreshGraphFromSources(){
   graphData=loadGraph();
   graphViewPositions=Object.create(null);
   graphViewDrag=null;
+  graphViewCenter={x:null,y:null};
+  graphFocusNodeId="";
   saveLocalGraph();
   renderGraph();renderInspector();
 }
@@ -2845,6 +2848,8 @@ function focusCharacterInGraph(name,options){
   if(r && r.go) r.go("/universo/relacoes");
   selectedNodeId=node.id;
   selectedEdgeId="";
+  graphFocusNodeId=node.id;
+  graphViewCenter={x:Number(node.x)||500,y:Number(node.y)||360};
   setTimeout(function(){
     renderGraph();renderInspector();
     var target=document.querySelector(".graph-canvas-card");
