@@ -45,6 +45,52 @@ function automaticTitle(config){
   return 'Retrato automático · DC Database (Fandom)';
 }
 
+function defaultFraming(context,automatic){
+  context=context === 'graph' ? 'graph' : (context === 'sheet' ? 'sheet' : 'card');
+
+  if(context === 'sheet'){
+    return automatic
+      ? {fit:'contain',x:50,y:8,zoom:1}
+      : {fit:'cover',x:50,y:50,zoom:1};
+  }
+  if(context === 'graph') return {fit:'cover',x:50,y:24,zoom:1};
+  return {fit:'cover',x:50,y:24,zoom:1};
+}
+
+function clamp(value,min,max,fallback){
+  var number=Number(value);
+  if(!Number.isFinite(number)) return fallback;
+  return Math.min(max,Math.max(min,number));
+}
+
+function normalizeFramingPreset(value,fallback){
+  value=value && typeof value === 'object' ? value : {};
+  fallback=fallback || {fit:'cover',x:50,y:50,zoom:1};
+  return {
+    fit:value.fit === 'contain' ? 'contain' : (value.fit === 'cover' ? 'cover' : fallback.fit),
+    x:clamp(value.x,0,100,fallback.x),
+    y:clamp(value.y,0,100,fallback.y),
+    zoom:clamp(value.zoom,.5,2.5,fallback.zoom)
+  };
+}
+
+function getFraming(name,context,override){
+  var item=media[name] || {};
+  var automatic=!item.src && !!automaticConfig(item);
+  var fallback=defaultFraming(context,automatic);
+  if(override) return normalizeFramingPreset(override,fallback);
+  var framing=item.framing && typeof item.framing === 'object' ? item.framing : {};
+  return normalizeFramingPreset(framing[context],fallback);
+}
+
+function framingStyle(name,context,override){
+  var frame=getFraming(name,context,override);
+  return '--portrait-fit:'+frame.fit+
+    ';--portrait-x:'+frame.x+'%'+
+    ';--portrait-y:'+frame.y+'%'+
+    ';--portrait-zoom:'+frame.zoom;
+}
+
 function getMeta(name){
   var item = media[name] || {};
   var resolved = autoResolved[name] || null;
@@ -57,7 +103,8 @@ function getMeta(name){
     source: item.src ? (item.source || 'local') : (resolved ? resolved.provider : (automaticConfig(item) ? 'auto' : (item.source || ''))),
     credit: item.credit || (resolved && resolved.source) || '',
     pageUrl: (resolved && resolved.pageUrl) || '',
-    automatic: !item.src && !!automaticConfig(item)
+    automatic: !item.src && !!automaticConfig(item),
+    framing:item.framing && typeof item.framing === 'object' ? item.framing : {}
   };
 }
 
@@ -229,11 +276,13 @@ function resolveAutomatic(name){
   return autoPending[name];
 }
 
-function renderPortraitHtml(name, size){
+function renderPortraitHtml(name, size, context, framingOverride){
   var meta = getMeta(name);
   var item = media[name] || {};
   var auto = automaticConfig(item);
+  context=context || (size === 'large' ? 'sheet' : 'card');
   var cls = 'character-portrait ' + (size === 'large' ? 'large' : 'small');
+  var frameStyle=framingStyle(name,context,framingOverride);
 
   if(meta.src){
     var src = meta.src;
@@ -244,7 +293,7 @@ function renderPortraitHtml(name, size){
     var title = size === 'large'
       ? ' title="Clique para ampliar o retrato"'
       : (meta.automatic ? ' title="' + escapeAttr(automaticTitle(auto)) + '"' : '');
-    return '<div class="' + cls + sourceClass + '" data-character="' + escapeAttr(name) + '"' + zoomAttrs + title + '>' +
+    return '<div class="' + cls + sourceClass + '" data-character="' + escapeAttr(name) + '" data-portrait-context="' + escapeAttr(context) + '" style="' + escapeAttr(frameStyle) + '"' + zoomAttrs + title + '>' +
       '<img data-src="' + escapeAttr(src) + '" data-full-src="' + escapeAttr(meta.fullImageUrl || src) + '" alt="' + escapeAttr(meta.alt) + '" loading="lazy" decoding="async" referrerpolicy="no-referrer">' +
       '</div>';
   }
@@ -253,7 +302,7 @@ function renderPortraitHtml(name, size){
     ? ' data-auto-portrait="1" data-auto-state="idle" title="Buscando retrato automático na DC Database"'
     : '';
 
-  return '<div class="' + cls + ' placeholder' + (auto ? ' auto-pending' : '') + '" data-character="' + escapeAttr(name) + '"' + autoAttrs + ' aria-label="Sem retrato para ' + escapeAttr(name) + '">' +
+  return '<div class="' + cls + ' placeholder' + (auto ? ' auto-pending' : '') + '" data-character="' + escapeAttr(name) + '" data-portrait-context="' + escapeAttr(context) + '" style="' + escapeAttr(frameStyle) + '"' + autoAttrs + ' aria-label="Sem retrato para ' + escapeAttr(name) + '">' +
     '<span>' + escapeHtml(initials(name)) + '</span>' +
     '</div>';
 }
@@ -279,8 +328,9 @@ function replaceAutomaticPortrait(wrapper,result){
 
   var name = wrapper.getAttribute('data-character');
   var size = wrapper.classList.contains('large') ? 'large' : 'small';
+  var context=wrapper.getAttribute('data-portrait-context') || (size === 'large' ? 'sheet' : 'card');
   var holder = document.createElement('div');
-  holder.innerHTML = renderPortraitHtml(name,size);
+  holder.innerHTML = renderPortraitHtml(name,size,context);
   var next = holder.firstElementChild;
 
   if(next){
@@ -474,8 +524,9 @@ function refreshPortraits(root){
     var name = wrapper.getAttribute('data-character');
     if(!name) return;
     var size = wrapper.classList.contains('large') ? 'large' : 'small';
+    var context=wrapper.getAttribute('data-portrait-context') || (size === 'large' ? 'sheet' : 'card');
     var holder = document.createElement('div');
-    holder.innerHTML = renderPortraitHtml(name,size);
+    holder.innerHTML = renderPortraitHtml(name,size,context);
     var next = holder.firstElementChild;
     if(next){
       wrapper.replaceWith(next);
@@ -496,6 +547,9 @@ document.addEventListener('terra-z:private-content-cleared',function(){
 
 window.TerraZApp.characterMedia = {
   get:getMeta,
+  getFraming:getFraming,
+  framingStyle:framingStyle,
+  defaultFraming:defaultFraming,
   renderPortraitHtml:renderPortraitHtml,
   decorateCard:decorateCard,
   hydrate:hydratePortraits,
