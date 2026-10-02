@@ -507,13 +507,17 @@ test("visitante pode mover nós localmente e restaurar o layout publicado",async
 
   await graph.scrollIntoViewIfNeeded();
   await expect(node).toBeVisible();
-  const box=await node.locator(".graph-node-drag-hit").boundingBox();
-  expect(box).not.toBeNull();
-  const sx=box.x+box.width/2;
-  const sy=box.y+box.height/2;
+
   if(testInfo.project.name.includes("mobile")){
-    await page.evaluate(({sx,sy})=>{
-      const target=document.querySelector('#graphSvg [data-node-id="oliver"]');
+    await page.evaluate(()=>{
+      const svg=document.getElementById("graphSvg");
+      const target=svg.querySelector('[data-node-id="oliver"]');
+      const hit=target.querySelector(".graph-node-drag-hit");
+      const p=svg.createSVGPoint();
+      p.x=Number(hit.getAttribute("cx"));
+      p.y=Number(hit.getAttribute("cy"));
+      const client=p.matrixTransform(svg.getScreenCTM());
+      const sx=client.x,sy=client.y;
       const fire=(type,x,y,buttons)=>target.dispatchEvent(new PointerEvent(type,{
         bubbles:true,cancelable:true,pointerId:41,pointerType:"touch",isPrimary:true,
         clientX:x,clientY:y,buttons
@@ -522,8 +526,12 @@ test("visitante pode mover nós localmente e restaurar o layout publicado",async
       fire("pointermove",sx+35,sy+20,1);
       fire("pointermove",sx+70,sy+42,1);
       fire("pointerup",sx+70,sy+42,0);
-    },{sx,sy});
+    });
   }else{
+    const box=await node.locator(".graph-node-drag-hit").boundingBox();
+    expect(box).not.toBeNull();
+    const sx=box.x+box.width/2;
+    const sy=box.y+box.height/2;
     await page.mouse.move(sx,sy);
     await page.mouse.down();
     await page.mouse.move(sx+70,sy+42,{steps:6});
