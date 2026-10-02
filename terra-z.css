@@ -3253,9 +3253,17 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
   cursor:pointer;
   padding:0 7px;
 }
-.graph-zoom-controls button:hover{
+.graph-zoom-controls button:hover:not(:disabled){
   border-color:var(--accent);
   color:var(--accent);
+}
+.graph-zoom-controls button:disabled{
+  opacity:.42;
+  cursor:not-allowed;
+}
+.graph-zoom-controls #graphViewResetBtn{
+  min-width:76px;
+  white-space:nowrap;
 }
 .graph-zoom-controls input[type="range"]{
   width:105px;
@@ -3309,10 +3317,24 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
   letter-spacing:.2px;
 }
 .graph-node-v2{
-  cursor:pointer;
+  cursor:grab;
   outline:none;
   transition:opacity .2s;
+  touch-action:none;
 }
+.graph-node-v2:active,
+.graph-node-v2.dragging{cursor:grabbing}
+.graph-node-drag-hit{
+  fill:transparent;
+  pointer-events:all;
+  touch-action:none;
+}
+.graph-wrap-v2.is-node-dragging{
+  overflow:hidden;
+  overscroll-behavior:none;
+  touch-action:none;
+}
+.graph-wrap-v2.is-node-dragging .graph-node-v2{cursor:grabbing}
 .graph-node-v2.search-context{opacity:.35}
 .graph-node-v2.search-match{opacity:1}
 .graph-node-v2:hover .graph-node-label,
@@ -3883,10 +3905,19 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
   }
   .graph-canvas-head>.graph-zoom-controls{
     width:100%;
+    flex-wrap:wrap;
   }
   .graph-zoom-controls input[type="range"]{
-    flex:1;
+    flex:1 1 120px;
     width:auto;
+  }
+  .graph-zoom-controls #graphViewResetBtn{
+    min-width:108px;
+    min-height:36px;
+  }
+  .graph-node-drag-hit{
+    pointer-events:all;
+    touch-action:none;
   }
   .relations-hero h3{font-size:17px}
   .relations-toolbar{grid-template-columns:1fr}
@@ -5804,6 +5835,16 @@ body.pwa-offline #backupExportPublicJson{
   outline:none;
   touch-action:none;
 }
+.ge-layout-hit{
+  fill:transparent;
+  pointer-events:all;
+  touch-action:none;
+}
+.ge-layout-canvas.is-node-dragging{
+  overflow:hidden;
+  overscroll-behavior:none;
+  touch-action:none;
+}
 .ge-layout-node:active{
   cursor:grabbing;
 }
@@ -5880,5 +5921,9 @@ body.pwa-offline #backupExportPublicJson{
   .ge-layout-canvas svg{
     min-width:700px;
     min-height:504px;
+  }
+  .ge-layout-hit{
+    pointer-events:all;
+    touch-action:none;
   }
 }
