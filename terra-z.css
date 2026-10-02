@@ -6649,3 +6649,143 @@ body.graph-fullscreen-open{
 .relations-layout.graph-fullscreen .graph-canvas-head{
   z-index:12;
 }
+
+
+/* ===== GRAFO · COMPOSIÇÃO MOBILE COMPACTA ===== */
+.graph-zoom-primary,
+.graph-map-actions{
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+.graph-zoom-primary{
+  flex:0 1 auto;
+}
+.graph-map-actions{
+  flex:1 1 auto;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+}
+.graph-zoom-primary input[type="range"]{
+  min-width:90px;
+}
+
+@media(max-width:760px){
+  /* Evita que flex-basis de desktop vire altura gigante quando o cabeçalho muda para coluna. */
+  .graph-canvas-head{
+    gap:9px;
+    padding:10px;
+  }
+  .graph-canvas-head>div:first-child{
+    flex:0 0 auto;
+    width:100%;
+  }
+  .graph-canvas-head>.graph-zoom-controls{
+    flex:0 0 auto;
+    width:100%;
+    max-width:none;
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    justify-content:flex-start;
+    gap:7px;
+  }
+
+  .graph-zoom-primary{
+    width:100%;
+    display:grid;
+    grid-template-columns:42px minmax(0,1fr) 42px 42px;
+    align-items:center;
+    gap:6px;
+  }
+  .graph-zoom-primary #graphZoomOut{grid-column:1}
+  .graph-zoom-primary #graphZoomRange{
+    grid-column:2;
+    width:100%;
+    min-width:0;
+  }
+  .graph-zoom-primary #graphZoomLabel{
+    grid-column:3;
+    min-width:0;
+  }
+  .graph-zoom-primary #graphZoomIn{grid-column:4}
+
+  .graph-map-actions{
+    width:100%;
+    display:grid;
+    grid-template-columns:repeat(6,minmax(0,1fr));
+    gap:6px;
+  }
+  .graph-map-actions #graphFitBtn{grid-column:span 2}
+  .graph-map-actions #graphFocusBtn{grid-column:span 2}
+  .graph-map-actions #graphViewResetBtn{grid-column:span 2}
+  .graph-map-actions #graphInspectorToggleBtn{grid-column:span 3}
+  .graph-map-actions #graphFullscreenBtn{grid-column:span 3}
+
+  .graph-zoom-controls button,
+  .graph-zoom-controls #graphViewResetBtn,
+  .graph-zoom-controls #graphFitBtn,
+  .graph-zoom-controls #graphFocusBtn,
+  .graph-zoom-controls #graphInspectorToggleBtn,
+  .graph-zoom-controls #graphFullscreenBtn{
+    min-width:0;
+    width:100%;
+    min-height:38px;
+    height:38px;
+    padding:0 6px;
+  }
+
+  .graph-map-actions #graphFullscreenBtn{
+    border-color:color-mix(in srgb,var(--accent) 55%,var(--line));
+  }
+
+  /* O aviso antigo de rolagem horizontal não se aplica mais ao viewport pan/zoom. */
+  .graph-wrap-v2.mobile-scroll-region::before{
+    display:none!important;
+    content:none!important;
+  }
+
+  .graph-wrap-v2{
+    height:58dvh;
+    min-height:390px;
+    max-height:570px;
+  }
+
+  /* Em tela cheia o mapa, não o cabeçalho, é o protagonista. */
+  .relations-layout.graph-fullscreen .graph-canvas-head>div:first-child{
+    display:none;
+  }
+  .relations-layout.graph-fullscreen .graph-canvas-head{
+    gap:6px;
+    padding:7px 8px;
+  }
+  .relations-layout.graph-fullscreen .graph-canvas-head>.graph-zoom-controls{
+    gap:6px;
+  }
+  .relations-layout.graph-fullscreen .graph-wrap-v2{
+    height:auto;
+    min-height:0;
+    max-height:none;
+  }
+}
+
+@media(max-width:430px){
+  .graph-canvas-head strong{font-size:10px}
+  .graph-canvas-head span{font-size:6.5px;line-height:1.45}
+  .graph-zoom-primary{
+    grid-template-columns:40px minmax(0,1fr) 38px 40px;
+  }
+  .graph-map-actions{
+    gap:5px;
+  }
+  .graph-zoom-controls button,
+  .graph-zoom-controls #graphViewResetBtn,
+  .graph-zoom-controls #graphFitBtn,
+  .graph-zoom-controls #graphFocusBtn,
+  .graph-zoom-controls #graphInspectorToggleBtn,
+  .graph-zoom-controls #graphFullscreenBtn{
+    min-height:36px;
+    height:36px;
+    font-size:7px;
+  }
+}
