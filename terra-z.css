@@ -4282,6 +4282,11 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
   cursor:pointer;
 }
 .media-library-card-actions button:hover{border-color:var(--accent);color:var(--accent)}
+.media-library-card-actions button:disabled{
+  opacity:.55;
+  cursor:default;
+  border-style:dashed;
+}
 .media-library-placeholder{
   width:100%;
   height:100%;
@@ -4421,6 +4426,42 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
   cursor:pointer;
 }
 .ge-media-box-head button:hover{border-color:var(--accent);color:var(--accent)}
+.ge-media-preview-row{
+  display:flex;
+  justify-content:center;
+  margin:0 0 10px;
+  padding:10px;
+  border:1px solid var(--line2);
+  background:var(--paper3);
+}
+.ge-media-preview{
+  width:112px;
+  height:112px;
+  overflow:hidden;
+  border-radius:50%;
+  border:3px solid var(--paper);
+  outline:1px solid var(--line);
+  background:var(--paper3);
+}
+.ge-media-preview .graph-node-portrait-frame{
+  width:100%;
+  height:100%;
+  border-radius:50%;
+}
+.ge-media-preview.empty{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  color:var(--ink3);
+}
+.ge-media-preview.empty span{font-size:28px}
+.ge-media-preview.empty small{
+  font-family:'Share Tech Mono',monospace;
+  font-size:6px;
+  text-transform:uppercase;
+}
 .ge-media-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
