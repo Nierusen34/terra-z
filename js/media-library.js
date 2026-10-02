@@ -161,7 +161,9 @@ function render(){
       '</div>'+
       '<div class="media-library-card-actions">'+
         (item.kind==="asset"
-          ? '<button type="button" data-media-edit="'+escapeAttr(item.id)+'">✏️ Editar</button>'
+          ? (item.readOnly
+              ? '<button type="button" disabled>📁 Ativo do projeto</button>'
+              : '<button type="button" data-media-edit="'+escapeAttr(item.id)+'">✏️ Editar</button>')
           : '<button type="button" data-media-character="'+escapeAttr(item.character)+'">👤 Personagem</button>')+
       '</div>'+
     '</article>';
@@ -275,6 +277,10 @@ function setEditorState(asset){
 function openEditor(id){
   if(!el("mediaLibraryEditor")) return;
   var asset=id ? getAsset(id) : null;
+  if(asset && asset.readOnly){
+    showToast("Este ativo pertence ao acervo estrutural do projeto. Ele pode ser reutilizado, mas não é alterado por esta biblioteca.","info",5500);
+    return;
+  }
   setEditorState(asset);
   el("mediaLibraryEditor").classList.add("show");
 }
@@ -399,6 +405,10 @@ async function saveAsset(){
 function requestDelete(){
   var asset=getAsset(selectedId);
   if(!asset) return;
+  if(asset.readOnly){
+    showToast("Ativos estruturais do projeto não podem ser excluídos pela Biblioteca.","warning",5000);
+    return;
+  }
   var use=graphUsage(asset.id);
   if(use.length){
     showToast("Este ativo está em uso no grafo: "+use.join(", ")+". Remova a associação antes de excluir.","warning",7000);
