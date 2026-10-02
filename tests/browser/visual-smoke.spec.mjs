@@ -360,16 +360,24 @@ test("editor conecta duas entidades diretamente pelo mapa",async({page})=>{
     document.dispatchEvent(new CustomEvent("terra-z:auth-changed",{detail:{authenticated:true}}));
 
     const data=app.graph.getData();
-    const nodes=data.nodes.filter(n=>n.visibility==="public").slice(0,30);
+    const nodes=data.nodes.filter(n=>n.visibility==="public").slice(0,40);
+    const quadrant=node=>data.quadrants.find(q=>
+      node.x>=q.x&&node.x<=q.x+q.w&&node.y>=q.y&&node.y<=q.y+q.h
+    )?.id || "";
+    let fallback=null;
     for(let i=0;i<nodes.length;i++){
       for(let j=i+1;j<nodes.length;j++){
         const linked=data.edges.some(e=>
           (e.from===nodes[i].id&&e.to===nodes[j].id) ||
           (e.from===nodes[j].id&&e.to===nodes[i].id)
         );
-        if(!linked) return {from:nodes[i].id,to:nodes[j].id};
+        if(linked) continue;
+        const pair={from:nodes[i].id,to:nodes[j].id,cross:!!(quadrant(nodes[i])&&quadrant(nodes[j])&&quadrant(nodes[i])!==quadrant(nodes[j]))};
+        if(pair.cross) return pair;
+        if(!fallback) fallback=pair;
       }
     }
+    if(fallback) return fallback;
     throw new Error("Nenhum par desconectado disponível para teste.");
   });
 
@@ -395,7 +403,11 @@ test("editor conecta duas entidades diretamente pelo mapa",async({page})=>{
   const requests=await page.evaluate(()=>window.__quickRelationRequests);
   const graphRequest=requests.find(row=>row.path==="/api/graph");
   expect(graphRequest).toBeTruthy();
-  expect(graphRequest.body.graph.edges.some(edge=>edge.label==="Teste UX")).toBe(true);
+  const created=graphRequest.body.graph.edges.find(edge=>edge.label==="Teste UX");
+  expect(created).toBeTruthy();
+  if(pair.cross){
+    await expect(page.locator('#graphSvg [data-edge-id="'+created.id+'"]')).toHaveClass(/cross-nucleus/);
+  }
   await expect(page.locator("#graphInspector")).toContainText("Teste UX");
 
   await expectNoPageErrors(errors);
