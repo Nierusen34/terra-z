@@ -104,8 +104,20 @@ function checkIndexAssets(){
   if(duplicated.length) fail("IDs HTML duplicados: "+duplicated.map(([id,count])=>id+" ("+count+")").join(", "));
   else pass("IDs HTML estáticos são únicos");
 
-  if(!html.includes('src="js/integrity-checker.js"')) fail("Verificador de integridade não está carregado no index.html");
-  else pass("Verificador de integridade está conectado ao site");
+  const adminLoader=read("js/admin-loader.js");
+  if(!html.includes('src="js/admin-loader.js"')) fail("Carregador administrativo não está conectado ao index.html");
+  if(!adminLoader.includes('"js/integrity-checker.js"')) fail("Verificador de integridade não está registrado no lazy loader");
+  else pass("Ferramentas administrativas usam carregamento sob demanda");
+
+  const directlyLoadedAdmin=[
+    "js/admin-panel.js","js/editor.js","js/private-content.js","js/master-workspace.js",
+    "js/publishing.js","js/master-migration.js","js/media-manager.js","js/media-library.js",
+    "js/portrait-browser.js","js/character-editor.js","js/taxonomy-manager.js",
+    "js/session-editor.js","js/timeline-editor.js","js/integrity-checker.js",
+    "js/history-manager.js","js/visibility-manager.js"
+  ].filter(src=>html.includes('src="'+src+'"'));
+  if(directlyLoadedAdmin.length) fail("Módulos administrativos ainda carregados no boot: "+directlyLoadedAdmin.join(", "));
+  else pass("Módulos administrativos foram removidos do carregamento inicial");
 }
 
 function checkCharacterData(data){
@@ -300,7 +312,8 @@ function checkTimeline(data,characters){
   const html=read("index.html");
   const router=read("js/router.js");
   if(!html.includes('src="js/timeline-manager.js"')) fail("Gerenciador da linha do tempo não está carregado no index.html");
-  if(!html.includes('src="js/timeline-editor.js"')) fail("Editor estruturado da linha do tempo não está carregado no index.html");
+  const adminLoader=read("js/admin-loader.js");
+  if(!adminLoader.includes('"js/timeline-editor.js"')) fail("Editor estruturado da linha do tempo não está registrado no lazy loader");
   if(!router.includes("timeline-event")||!router.includes("timelineEventRoute")) fail("Roteador não oferece deep links para eventos da linha do tempo");
   if(!exists("docs/TIMELINE.md")) fail("docs/TIMELINE.md ausente");
 
@@ -528,6 +541,17 @@ function checkGraph(data){
     fail("Runtime da Biblioteca de Mídia está incompleto.");
   }
   if(!exists("docs/MEDIA_LIBRARY.md")) fail("docs/MEDIA_LIBRARY.md ausente");
+
+  const adminFoundation=read("js/admin-foundation.js");
+  const adminLoaderRuntime=read("js/admin-loader.js");
+  if(!adminFoundation.includes("createSelection") ||
+     !adminFoundation.includes("batchApply") ||
+     !adminFoundation.includes("filterRows")){
+    fail("Infraestrutura compartilhada para etapas 11–13 está incompleta.");
+  }
+  if(!adminLoaderRuntime.includes('"js/admin-foundation.js"')){
+    fail("Infraestrutura administrativa não está registrada no lazy loader.");
+  }
 
   pass(nodes.length+" nós e "+edges.length+" relações do Grafo 2.0 validados");
 
