@@ -180,10 +180,11 @@ function openFichaModal(characterName, options){\n  options = options || {};
   }
 }
 
-function closeFichaModal(){
+function closeFichaModal(options){
+  options = options || {};
   document.getElementById('fichaModal').classList.remove('show');
   document.body.style.overflow = '';
-  if(window.TerraZApp.router) window.TerraZApp.router.clearCharacter();
+  if(window.TerraZApp.router && !options.fromRouter) window.TerraZApp.router.clearCharacter();
 }
 
 
