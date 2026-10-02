@@ -200,7 +200,8 @@ function emptyMasterState(){
     revelations:[],
     goals:[],
     clues:[],
-    npcStates:[]
+    npcStates:[],
+    timelineEvents:[]
   };
 }
 
