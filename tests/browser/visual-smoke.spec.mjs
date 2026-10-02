@@ -43,6 +43,58 @@ test("boot público permanece leve e navegável",async({page},testInfo)=>{
   await expectNoPageErrors(errors);
 });
 
+test("todas as rotas principais e deep links essenciais permanecem navegáveis",async({page})=>{
+  const errors=watchRuntimeErrors(page);
+
+  await page.goto("/#/capa",{waitUntil:"domcontentloaded"});
+  await expect.poll(async()=>page.evaluate(()=>Boolean(window.TerraZApp&&window.TerraZApp.router))).toBe(true);
+
+  const routes=[
+    ["/capa","#tab-home.active"],
+    ["/cidade/visao-geral","#sub-visao.active"],
+    ["/cidade/distritos","#sub-distritos.active"],
+    ["/cidade/historia","#sub-historia.active"],
+    ["/cidade/cultura","#sub-cultura.active"],
+    ["/cidade/eventos","#sub-eventos.active"],
+    ["/mapas/visao-geral","#sub-mapa-detalhado.active"],
+    ["/mapas/transporte","#sub-mapa-transporte.active"],
+    ["/mapas/nacional","#sub-mapa-nacional.active"],
+    ["/mapas/criminalidade","#sub-mapa-criminal.active"],
+    ["/transporte/internas","#sub-dist-internas.active"],
+    ["/transporte/cidades","#sub-cidades-externas.active"],
+    ["/transporte/sistema","#sub-sistema-transporte.active"],
+    ["/universo/visao-geral","#sub-universo-visao.active"],
+    ["/universo/personagens","#sub-tz-personagens.active"],
+    ["/universo/linha-do-tempo","#sub-tz-timeline.active"],
+    ["/universo/equipes","#sub-tz-equipes.active"],
+    ["/universo/relacoes","#sub-tz-relacoes.active"],
+    ["/universo/sessoes","#sub-tz-sessoes.active"]
+  ];
+
+  for(const [route,selector] of routes){
+    await page.evaluate(r=>window.TerraZApp.router.go(r),route);
+    await expect(page.locator(selector)).toBeVisible();
+    await expect.poll(()=>page.evaluate(()=>window.TerraZApp.router.current())).toBe(route);
+  }
+
+  const deepLinks=[
+    "/personagens/mgann-morzz",
+    "/sessoes/2026-09-27-dupla-improvavel",
+    "/equipes/liga-da-justica",
+    "/cidades/gotham-city",
+    "/distritos/o-dique",
+    "/linha-do-tempo/encontro-em-vanguard-bay"
+  ];
+
+  for(const route of deepLinks){
+    await page.evaluate(r=>window.TerraZApp.router.go(r),route);
+    await expect.poll(()=>page.evaluate(()=>window.TerraZApp.router.current())).toBe(route);
+  }
+
+  await expect(page.locator("#timelineData [data-timeline-id=\"encontro-em-vanguard-bay\"]")).toBeVisible();
+  await expectNoPageErrors(errors);
+});
+
 test("Relações renderiza Armek com mídia independente e painel de inspeção",async({page})=>{
   const errors=watchRuntimeErrors(page);
 
@@ -115,13 +167,13 @@ test("Administração avançada renderiza Taxonomias, Lote e Sala do Mestre",asy
   await page.evaluate(async()=>{
     await window.TerraZApp.adminLoader.load();
 
-    const emptyMaster={
+    const sampleMaster={
       version:1,
-      notes:[],
-      revelations:[],
-      goals:[],
-      clues:[],
-      npcStates:[],
+      notes:[{id:"note-1",title:"Preparação",body:"Revisar os contatos de Vanguard Bay antes da próxima sessão.",tags:["sessão"],updatedAt:"2026-10-01T21:00:00.000Z"}],
+      revelations:[{id:"rev-1",title:"Contato oculto",body:"A identidade do contato ainda não foi revelada.",trigger:"Quando o grupo chegar ao centro cívico",status:"planned",characters:[],updatedAt:"2026-10-01T21:00:00.000Z"}],
+      goals:[{id:"goal-1",title:"Encontrar o telepata",owner:"Grupo",body:"Avançar a investigação sem revelar a origem da missão.",status:"active",characters:["Tristan Queen","Riot"],updatedAt:"2026-10-01T21:00:00.000Z"}],
+      clues:[{id:"clue-1",title:"Celular hackeado",body:"O aparelho ainda contém uma pista útil.",truth:"true",status:"hidden",characters:["Tristan Queen"],locations:["Downtown"],updatedAt:"2026-10-01T21:00:00.000Z"}],
+      npcStates:[{id:"npc-1",name:"Senhorita C",state:"Aguardando novo contato",location:"Downtown",intention:"Testar a dupla",status:"active",notes:"Não revelar a identidade ainda.",updatedAt:"2026-10-01T21:00:00.000Z"}],
       timelineEvents:[]
     };
 
@@ -135,7 +187,7 @@ test("Administração avançada renderiza Taxonomias, Lote e Sala do Mestre",asy
     });
     window.TerraZApp.backend.request=async(path)=>{
       if(String(path).startsWith("/api/master")){
-        return {content:{characters:{},master:emptyMaster,graph:{nodes:[],edges:[]}}};
+        return {content:{characters:{},master:sampleMaster,graph:{nodes:[],edges:[]}}};
       }
       if(String(path).startsWith("/api/publish")){
         return {ok:true,history:[],head:"",production_sha:""};
@@ -162,6 +214,21 @@ test("Administração avançada renderiza Taxonomias, Lote e Sala do Mestre",asy
   await expect(page.locator("#masterQuickPanel")).toHaveClass(/show/);
   await expect(page.locator("#masterQuickStats > div")).toHaveCount(4);
   await expect(page.locator("#masterQuickGoals")).toBeVisible();
+  await expect(page.locator("#masterQuickGoals .master-quick-item").first()).toBeVisible();
+
+  const masterFonts=await page.evaluate(()=>({
+    heading:parseFloat(getComputedStyle(document.querySelector(".master-quick-section-head strong")).fontSize),
+    body:parseFloat(getComputedStyle(document.querySelector(".master-quick-item p")).fontSize),
+    chip:parseFloat(getComputedStyle(document.querySelector(".master-quick-chips span")).fontSize),
+    stat:parseFloat(getComputedStyle(document.querySelector(".master-quick-stats small")).fontSize),
+    toolbar:parseFloat(getComputedStyle(document.querySelector("#masterQuickSearch")).fontSize)
+  }));
+  expect(masterFonts.heading).toBeGreaterThanOrEqual(12);
+  expect(masterFonts.body).toBeGreaterThanOrEqual(11);
+  expect(masterFonts.chip).toBeGreaterThanOrEqual(8);
+  expect(masterFonts.stat).toBeGreaterThanOrEqual(9);
+  expect(masterFonts.toolbar).toBeGreaterThanOrEqual(12);
+
   await page.evaluate(()=>window.TerraZApp.masterQuick.close());
 
   await expectNoPageErrors(errors);
