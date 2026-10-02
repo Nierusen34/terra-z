@@ -1128,6 +1128,7 @@ function applyGraphScale(){
     svg.style.width="100%";
     svg.style.minWidth="0";
     svg.style.maxWidth="none";
+    svg.style.aspectRatio=graphFullscreen ? "auto" : (box.bounds.w+" / "+box.bounds.h);
   }
 
   var range=document.getElementById("graphZoomRange");
@@ -2890,10 +2891,20 @@ window.TerraZApp.graph={
     return map;
   },
   focusNode:function(id){
-    if(!nodeById(id)) return false;
-    selectedNodeId=id;selectedEdgeId="";
+    var node=nodeById(id);
+    if(!node) return false;
+    selectedNodeId=id;selectedEdgeId="";graphFocusNodeId=id;
+    graphViewCenter={x:Number(node.x)||500,y:Number(node.y)||360};
     renderGraph();renderInspector();
     return true;
+  },
+  setFocus:function(id,active){ if(!nodeById(id)) return false; setGraphFocus(id,active!==false); return true; },
+  fitView:function(){ fitGraphView(true); },
+  toggleFullscreen:function(force){ toggleGraphFullscreen(force); return graphFullscreen; },
+  toggleInspector:toggleGraphInspector,
+  getViewport:function(){
+    var box=graphViewportBox();
+    return {scale:graphScale,center:clone(graphViewCenter),viewBox:{x:box.x,y:box.y,w:box.w,h:box.h},fullscreen:graphFullscreen,focusNodeId:graphFocusNodeId};
   }
 };
 
