@@ -58,6 +58,9 @@ var graphEntityFilter="all";
 var graphSearch="";
 var visibilityCapability=null;
 var graphV3Capability=null;
+var GRAPH_SCALE_KEY="terraZ_graph_scale_v1";
+var graphScale=1.3;
+var graphPortraitPending=Object.create(null);
 
 var editorDraft=null;
 var editorMode="nodes";
@@ -261,6 +264,89 @@ function relationColor(type){
   return (RELATION[normalizeRelation(type)] || RELATION.other).color;
 }
 
+function svgId(value){
+  return String(value || "node").replace(/[^a-zA-Z0-9_-]+/g,"-");
+}
+
+function characterMediaApi(){
+  return window.TerraZApp && window.TerraZApp.characterMedia;
+}
+
+function characterPortraitUrl(node){
+  if(!node || node.kind!=="character" || !node.ref) return "";
+  var api=characterMediaApi();
+  if(!api || !api.get) return "";
+  var meta=api.get(node.ref) || {};
+  return String(meta.src || "");
+}
+
+function queueGraphPortrait(node){
+  if(!node || node.kind!=="character" || !node.ref) return;
+  if(characterPortraitUrl(node) || graphPortraitPending[node.ref]) return;
+
+  var api=characterMediaApi();
+  if(!api || !api.resolveAutomatic) return;
+
+  graphPortraitPending[node.ref]=true;
+  api.resolveAutomatic(node.ref).then(function(result){
+    delete graphPortraitPending[node.ref];
+    if(result && result.found){
+      renderGraph();
+      if(selectedNodeId===node.id || selectedEdgeId) renderInspector();
+    }
+  }).catch(function(){
+    delete graphPortraitPending[node.ref];
+  });
+}
+
+function inspectorPortrait(node,size){
+  if(!node) return "";
+  var kind=KIND[node.kind] || KIND.custom;
+  if(node.kind==="character" && node.ref){
+    var api=characterMediaApi();
+    if(api && api.renderPortraitHtml){
+      return '<div class="graph-inspector-portrait">'+api.renderPortraitHtml(node.ref,size || "large")+'</div>';
+    }
+  }
+  return '<div class="graph-inspector-portrait graph-inspector-portrait-fallback"><span>'+escapeHtml(node.icon || kind.icon)+'</span></div>';
+}
+
+function hydrateInspectorPortraits(root){
+  var api=characterMediaApi();
+  if(api && api.hydrate && root) api.hydrate(root);
+}
+
+function readGraphScale(){
+  try{
+    var raw=Number(localStorage.getItem(GRAPH_SCALE_KEY));
+    if(Number.isFinite(raw) && raw>=.75 && raw<=2) return raw;
+  }catch(error){}
+  return 1.3;
+}
+
+function applyGraphScale(){
+  var svg=document.getElementById("graphSvg");
+  if(svg){
+    svg.style.width=Math.round(graphScale*100)+"%";
+    svg.style.minWidth=Math.round(780*graphScale)+"px";
+    svg.style.maxWidth="none";
+  }
+
+  var range=document.getElementById("graphZoomRange");
+  var label=document.getElementById("graphZoomLabel");
+  if(range) range.value=String(Math.round(graphScale*100));
+  if(label) label.textContent=Math.round(graphScale*100)+"%";
+}
+
+function setGraphScale(value,persist){
+  var next=Math.max(.75,Math.min(2,Number(value) || 1.3));
+  graphScale=Math.round(next*20)/20;
+  if(persist!==false){
+    try{ localStorage.setItem(GRAPH_SCALE_KEY,String(graphScale)); }catch(error){}
+  }
+  applyGraphScale();
+}
+
 function visibleNodes(){
   if(!graphData) return [];
   var base=graphData.nodes.filter(function(node){
@@ -336,11 +422,19 @@ function curveForEdge(a,b,index){
   };
 }
 
-function renderDefs(){
+function renderDefs(nodes){
   var markers=Object.keys(RELATION).map(function(type){
     var color=RELATION[type].color;
     return '<marker id="graph-arrow-'+type+'" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="strokeWidth">'+
       '<path d="M0,0 L7,3.5 L0,7 z" fill="'+color+'"/></marker>';
+  }).join("");
+
+  var clips=(nodes || []).filter(function(node){
+    return node.kind==="character" && !!characterPortraitUrl(node);
+  }).map(function(node){
+    return '<clipPath id="graph-portrait-clip-'+svgId(node.id)+'">'+
+      '<circle cx="'+node.x+'" cy="'+node.y+'" r="'+Math.max(10,node.r-3)+'"/>'+
+    '</clipPath>';
   }).join("");
 
   return '<defs>'+
@@ -354,6 +448,7 @@ function renderDefs(){
       '<path d="M 32 0 L 0 0 0 32" fill="none" stroke="currentColor" stroke-opacity=".07" stroke-width="1"/>'+
     '</pattern>'+
     markers+
+    clips+
   '</defs>';
 }
 
@@ -364,7 +459,7 @@ function renderGraph(){
   var nodes=visibleNodes();
   var nodeIds=new Set(nodes.map(function(n){ return n.id; }));
   var edges=visibleEdges(nodeIds);
-  var html=renderDefs();
+  var html=renderDefs(nodes);
 
   html+='<rect x="0" y="0" width="1000" height="720" class="graph-grid-bg" fill="url(#graph-grid)"/>';
 
@@ -408,9 +503,27 @@ function renderGraph(){
       matched=hay.indexOf(needle)!==-1;
     }
 
+    var portrait=characterPortraitUrl(node);
+    if(node.kind==="character" && !portrait) queueGraphPortrait(node);
+
+    var nodeVisual='';
+    if(node.kind==="character"){
+      nodeVisual=
+        '<g filter="'+(selected?'url(#graph-selected)':'url(#graph-shadow)')+'">'+
+          '<circle cx="'+node.x+'" cy="'+node.y+'" r="'+node.r+'" fill="'+escapeAttr(node.color)+'" stroke="var(--graph-node-stroke,#fff)" stroke-width="2.5"/>'+
+        '</g>'+
+        (!portrait
+          ? '<text x="'+node.x+'" y="'+(node.y+3)+'" text-anchor="middle" class="graph-node-icon">'+escapeHtml(node.icon || kind.icon)+'</text>'
+          : '<image class="graph-node-portrait" href="'+escapeAttr(portrait)+'" x="'+(node.x-node.r+3)+'" y="'+(node.y-node.r+3)+'" width="'+((node.r-3)*2)+'" height="'+((node.r-3)*2)+'" preserveAspectRatio="xMidYMid slice" clip-path="url(#graph-portrait-clip-'+svgId(node.id)+')" referrerpolicy="no-referrer"/>'+
+            '<circle cx="'+node.x+'" cy="'+node.y+'" r="'+(node.r-1.5)+'" fill="none" stroke="var(--graph-node-stroke,#fff)" stroke-width="2.5"/>');
+    }else{
+      nodeVisual=
+        '<g filter="'+(selected?'url(#graph-selected)':'url(#graph-shadow)')+'">'+nodeShape(node)+'</g>'+
+        '<text x="'+node.x+'" y="'+(node.y+3)+'" text-anchor="middle" class="graph-node-icon">'+escapeHtml(node.icon || kind.icon)+'</text>';
+    }
+
     html+='<g class="graph-node-v2'+(route?' routable':'')+(selected?' selected':'')+(matched?' search-match':' search-context')+'" data-node-id="'+escapeAttr(node.id)+'" tabindex="0" role="button" aria-label="'+escapeAttr(node.label)+'">'+
-      '<g filter="'+(selected?'url(#graph-selected)':'url(#graph-shadow)')+'">'+nodeShape(node)+'</g>'+
-      '<text x="'+node.x+'" y="'+(node.y+3)+'" text-anchor="middle" class="graph-node-icon">'+escapeHtml(node.icon || kind.icon)+'</text>'+
+      nodeVisual+
       '<text x="'+node.x+'" y="'+(node.y+node.r+17)+'" text-anchor="middle" class="graph-node-label">'+escapeHtml(node.label)+'</text>'+
       '<text x="'+node.x+'" y="'+(node.y+node.r+30)+'" text-anchor="middle" class="graph-node-kind">'+escapeHtml(kind.label)+'</text>'+
       (normalizeVisibility(node.visibility)!=="public"
@@ -449,6 +562,7 @@ function renderGraph(){
     });
   });
 
+  applyGraphScale();
   updateGraphStats(nodes,edges);
   renderLegend();
   document.dispatchEvent(new CustomEvent("terra-z:graph-rendered",{detail:{nodes:nodes.length,edges:edges.length}}));
@@ -505,6 +619,7 @@ function renderInspector(){
     });
 
     root.innerHTML='<div class="graph-inspector-card">'+
+      inspectorPortrait(node,"large")+
       '<div class="graph-inspector-kicker">'+escapeHtml(kind.icon+" "+kind.label)+'</div>'+
       '<h3>'+escapeHtml(node.label)+'</h3>'+
       (node.subtitle ? '<p class="graph-inspector-subtitle">'+escapeHtml(node.subtitle)+'</p>' : '')+
@@ -529,6 +644,7 @@ function renderInspector(){
       '</div>'+
     '</div>';
 
+    hydrateInspectorPortraits(root);
     var open=document.getElementById("graphInspectorOpen");
     if(open) open.addEventListener("click",function(){ openNodeRoute(node); });
     var edit=document.getElementById("graphInspectorEdit");
@@ -551,6 +667,11 @@ function renderInspector(){
     var relation=RELATION[edge.type] || RELATION.other;
 
     root.innerHTML='<div class="graph-inspector-card relation">'+
+      '<div class="graph-relation-portraits">'+
+        '<div>'+inspectorPortrait(from,"small")+'<span>'+escapeHtml(from ? from.label : edge.from)+'</span></div>'+
+        '<div class="graph-relation-portrait-arrow">'+(edge.directed?"→":"↔")+'</div>'+
+        '<div>'+inspectorPortrait(to,"small")+'<span>'+escapeHtml(to ? to.label : edge.to)+'</span></div>'+
+      '</div>'+
       '<div class="graph-inspector-kicker" style="color:'+relation.color+'">'+escapeHtml(relation.label)+'</div>'+
       '<h3>'+escapeHtml(edge.label || relation.label)+'</h3>'+
       '<div class="graph-inspector-route">'+
@@ -564,6 +685,7 @@ function renderInspector(){
       (canEdit() ? '<div class="graph-inspector-actions"><button type="button" id="graphInspectorEditEdge">✏️ Editar relação</button></div>' : '')+
     '</div>';
 
+    hydrateInspectorPortraits(root);
     root.querySelectorAll("[data-inspector-node]").forEach(function(button){
       button.addEventListener("click",function(){
         selectedNodeId=button.getAttribute("data-inspector-node");
@@ -607,6 +729,7 @@ function updateFilterOptions(){
 }
 
 function setupGraphView(){
+  graphScale=readGraphScale();
   updateFilterOptions();
 
   var search=document.getElementById("graphSearch");
@@ -641,6 +764,17 @@ function setupGraphView(){
 
   var edit=document.getElementById("graphOpenBtn");
   if(edit) edit.addEventListener("click",function(){ openGraphEditor("nodes",""); });
+
+  var zoomOut=document.getElementById("graphZoomOut");
+  var zoomIn=document.getElementById("graphZoomIn");
+  var zoomReset=document.getElementById("graphZoomReset");
+  var zoomRange=document.getElementById("graphZoomRange");
+
+  if(zoomOut) zoomOut.addEventListener("click",function(){ setGraphScale(graphScale-.1,true); });
+  if(zoomIn) zoomIn.addEventListener("click",function(){ setGraphScale(graphScale+.1,true); });
+  if(zoomReset) zoomReset.addEventListener("click",function(){ setGraphScale(1,true); });
+  if(zoomRange) zoomRange.addEventListener("input",function(){ setGraphScale(Number(zoomRange.value)/100,true); });
+  applyGraphScale();
 
   var svg=document.getElementById("graphSvg");
   if(svg) svg.addEventListener("click",function(event){
@@ -1079,6 +1213,10 @@ document.addEventListener("terra-z:runtime-data-loaded",function(){
 document.addEventListener("terra-z:private-content-loaded",refreshGraphFromSources);
 document.addEventListener("terra-z:private-content-cleared",refreshGraphFromSources);
 document.addEventListener("terra-z:visibility-changed",function(){ renderGraph();renderInspector(); });
+document.addEventListener("terra-z:auto-portrait-resolved",function(){
+  renderGraph();
+  if(selectedNodeId || selectedEdgeId) renderInspector();
+});
 document.addEventListener("terra-z:auth-changed",function(){
   visibilityCapability=null;
   graphV3Capability=null;
