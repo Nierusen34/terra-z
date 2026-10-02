@@ -1,6 +1,6 @@
 "use strict";
 
-const VERSION="terra-z-pwa-v1.4.0-20261002";
+const VERSION="terra-z-pwa-v1.4.0-20261002b";
 const CORE_CACHE=VERSION+"-core";
 const IMAGE_CACHE=VERSION+"-images";
 const CACHE_PREFIX="terra-z-pwa-";
