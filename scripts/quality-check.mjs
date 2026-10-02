@@ -120,6 +120,40 @@ function checkIndexAssets(){
   else pass("Módulos administrativos foram removidos do carregamento inicial");
 }
 
+function checkPerformanceBudget(){
+  const html=read("index.html");
+  const scripts=[...html.matchAll(/<script\s+src="([^"]+)"/g)].map(match=>match[1]);
+  const localScripts=scripts.filter(src=>!/^https?:/i.test(src));
+
+  if(localScripts.length>40){
+    fail("Boot público excedeu o orçamento de scripts: "+localScripts.length+" > 40");
+  }else{
+    pass("Boot público dentro do orçamento: "+localScripts.length+"/40 scripts");
+  }
+
+  const heavyPngs=[
+    ...walk("images/city",file=>file.toLowerCase().endsWith(".png")&&fs.statSync(file).size>1_000_000),
+    ...walk("images/districts",file=>file.toLowerCase().endsWith(".png")&&fs.statSync(file).size>1_000_000)
+  ];
+  if(heavyPngs.length){
+    fail("Imagens PNG pesadas voltaram ao acervo: "+heavyPngs.map(rel).join(", "));
+  }else{
+    pass("Cidade/distritos não possuem PNG > 1 MB");
+  }
+
+  const imageFiles=walk("images",file=>/\.(?:png|jpe?g|webp|gif)$/i.test(file));
+  const imageBytes=imageFiles.reduce((total,file)=>total+fs.statSync(file).size,0);
+  const imageMb=imageBytes/1024/1024;
+  if(imageMb>20) warn("Acervo de imagens acima de 20 MB: "+imageMb.toFixed(2)+" MB");
+  else pass("Acervo visual otimizado: "+imageMb.toFixed(2)+" MB");
+
+  const qualityWorkflow=read(".github/workflows/quality-gate.yml");
+  const devSmoke=read(".github/workflows/dev-smoke.yml");
+  if(!qualityWorkflow.includes("- dev")) fail("Quality Gate não monitora o branch dev.");
+  if(!/branches:\s*[\s\S]*- dev/.test(devSmoke)) fail("Dev smoke não monitora o branch dev.");
+  if(!exists("docs/IMAGE_OPTIMIZATION.md")) fail("Relatório de otimização de imagens ausente.");
+}
+
 function checkCharacterData(data){
   const overrides=data.characterOverrides || {};
   const taxonomy=data.characterTaxonomy || {};
@@ -690,6 +724,7 @@ function checkSensitivePublicPatterns(){
 console.log("\nTerra Z · Quality Gate\n");
 checkSyntax();
 checkIndexAssets();
+checkPerformanceBudget();
 const data=loadTerraData();
 const characters=checkCharacterData(data);
 checkMediaLibrary(data);
