@@ -1053,30 +1053,51 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2
 </div>
 
 <div class="sub-content" id="sub-tz-relacoes">
-<div class="section-title">🔗 Grafo de Relacionamentos</div>
-<div data-edit-id="tz-0596" data-legacy-edit-id="e_595" class="info-box gold"><div class="label">📌 Como ler</div>Cada cor representa um tipo de vínculo. Use o botão <strong>✏️ Editar Grafo</strong> abaixo para alterar nomes, posições, cores e conexões. Tudo é salvo automaticamente.</div>
+<div class="section-title">🔗 Relações 2.0</div>
 
-<div class="graph-toolbar">
-<button class="primary" id="graphOpenBtn">✏️ Editar Grafo</button>
-<button id="graphResetBtn">🔄 Restaurar Padrão</button>
-<label class="graph-filter-label" for="graphRelationFilter">Relações</label>
-<select id="graphRelationFilter">
-<option value="all">Todas</option>
-<option value="family">Família</option>
-<option value="ally">Aliado / Mentor</option>
-<option value="tension">Tensão</option>
-<option value="clone">Clone / Caça</option>
-</select>
+<div class="relations-hero">
+  <div>
+    <div class="relations-kicker">REDE NARRATIVA · TERRA Z</div>
+    <h3>Personagens, equipes, lugares e acontecimentos conectados</h3>
+    <p>O grafo mostra vínculos narrativos e permite navegar pelas entidades do Terra Z. Selecione um nó ou uma relação para ver contexto, conexões diretas e atalhos.</p>
+  </div>
+  <div class="relations-stats" aria-label="Resumo do grafo">
+    <div><strong id="graphEntityCount">0</strong><span>Entidades</span></div>
+    <div><strong id="graphRelationCount">0</strong><span>Relações</span></div>
+    <div><strong id="graphVisibleCount">0</strong><span>Visíveis</span></div>
+  </div>
 </div>
 
-<div class="graph-wrap">
-<svg id="graphSvg" viewBox="0 0 1000 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Grafo de relacionamentos entre personagens"></svg>
-<div class="graph-legend">
-<span><span class="line family"></span> Família / Pais</span>
-<span><span class="line ally"></span> Aliado / Mentor</span>
-<span><span class="line tension"></span> Tensão / Distante</span>
-<span><span class="line clone"></span> Clone / Caça</span>
+<div class="relations-toolbar">
+  <div class="relations-search">
+    <input id="graphSearch" type="search" placeholder="🔎 Buscar entidade, identidade ou referência..." autocomplete="off">
+  </div>
+  <select id="graphEntityFilter" aria-label="Filtrar tipo de entidade"></select>
+  <select id="graphRelationFilter" aria-label="Filtrar tipo de relação"></select>
+  <button id="graphClearFilters" type="button">Limpar filtros</button>
+  <button class="primary" id="graphOpenBtn" type="button" disabled>✏️ Administrar relações</button>
 </div>
+
+<div class="relations-layout">
+  <div class="graph-canvas-card">
+    <div class="graph-canvas-head">
+      <div>
+        <strong>Mapa de relações</strong>
+        <span>Clique para inspecionar · duplo clique abre a entidade quando houver destino.</span>
+      </div>
+    </div>
+    <div class="graph-wrap graph-wrap-v2">
+      <svg id="graphSvg" viewBox="0 0 1000 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Rede narrativa de relações do Terra Z"></svg>
+    </div>
+    <div id="graphLegend" class="graph-legend-v2" aria-label="Legenda das relações"></div>
+  </div>
+
+  <aside id="graphInspector" class="graph-inspector" aria-live="polite"></aside>
+</div>
+
+<div class="relations-note">
+  <strong>Administração do grafo</strong>
+  <span>Ao entrar como editor, você pode criar, editar ou excluir entidades e relações. Conteúdo Mestre continua armazenado no cofre criptografado.</span>
 </div>
 </div>
 
@@ -1379,34 +1400,42 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.3.2 · Jan 2027
 <div class="pres-inner"></div>
 </div>
 
-<div id="graphEditorModal">
-<div class="graph-editor-inner">
+<div id="graphEditorModal" role="dialog" aria-modal="true" aria-labelledby="graphEditorTitle">
+<div class="graph-editor-inner graph-editor-v2">
 <div class="graph-editor-header">
-<h2>✏️ Editor de Grafo</h2>
-<button id="graphEditorClose">✕ Fechar</button>
+<div>
+<div class="graph-editor-eyebrow">RELAÇÕES 2.0 · REDE NARRATIVA</div>
+<h2 id="graphEditorTitle">✏️ Administrar Relações</h2>
 </div>
-<div class="graph-editor-body">
-<div class="graph-editor-section">
-<h3>🏷️ Nós (Personagens)</h3>
-<table class="ge-table">
-<thead><tr><th>ID</th><th>Nome</th><th>X</th><th>Y</th><th>Raio</th><th>Cor</th><th>Visibilidade</th><th></th></tr></thead>
-<tbody id="geNodesBody"></tbody>
-</table>
-<button class="ge-btn-add" id="graphAddNodeBtn">+ Adicionar Nó</button>
+<button id="graphEditorClose" type="button">✕ Fechar</button>
 </div>
-<div class="graph-editor-section">
-<h3>🔗 Conexões</h3>
-<table class="ge-table">
-<thead><tr><th>De</th><th>Para</th><th>Rótulo</th><th>Tipo</th><th>Visibilidade</th><th></th></tr></thead>
-<tbody id="geEdgesBody"></tbody>
-</table>
-<button class="ge-btn-add" id="graphAddEdgeBtn">+ Adicionar Conexão</button>
+
+<div class="graph-editor-topbar">
+  <div class="graph-editor-tabs" role="tablist">
+    <button type="button" data-ge-tab="nodes" class="active" aria-pressed="true">◎ Entidades</button>
+    <button type="button" data-ge-tab="edges" aria-pressed="false">↔ Relações</button>
+  </div>
+  <input id="graphEditorSearch" type="search" placeholder="Buscar no editor..." autocomplete="off">
+  <button id="graphEditorAdd" class="primary" type="button">＋ Nova entidade</button>
 </div>
+
+<div class="graph-editor-workspace">
+  <aside class="graph-editor-list-panel">
+    <div id="graphEditorList" class="graph-editor-list"></div>
+  </aside>
+  <section id="graphEditorDetail" class="graph-editor-detail"></section>
 </div>
-<div class="graph-editor-footer">
-<button class="danger" id="graphCancelBtn">Cancelar</button>
-<button id="graphRestoreBtn">Restaurar Anterior</button>
-<button class="primary" id="graphSaveBtn">💾 Salvar Alterações</button>
+
+<div class="graph-editor-footer graph-editor-footer-v2">
+  <div class="graph-editor-footer-left">
+    <button id="graphAutoArrangeBtn" type="button">✦ Auto-organizar</button>
+    <button id="graphRestoreBtn" type="button">↶ Backup anterior</button>
+    <button id="graphResetBtn" type="button">⟳ Carregar padrão</button>
+  </div>
+  <div class="graph-editor-footer-right">
+    <button class="danger" id="graphCancelBtn" type="button">Cancelar</button>
+    <button class="primary" id="graphSaveBtn" type="button">💾 Salvar alterações</button>
+  </div>
 </div>
 </div>
 </div>
