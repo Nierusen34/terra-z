@@ -1088,12 +1088,11 @@ function smartLayoutAssignments(graph){
   var buckets={};
   quadrants.forEach(function(q){buckets[q.id]=[];});
 
+  // Entidades canônicas mantêm seu núcleo conhecido.
+  // Entidades novas são classificadas primeiro pelas relações; a posição atual
+  // só vira fallback para não transformar um layout já bagunçado em regra.
   graph.nodes.forEach(function(node){
     var qid=defaultQuadrantId(node.id,quadrants);
-    if(!qid){
-      var current=pointQuadrant(node,quadrants);
-      qid=current ? current.id : "";
-    }
     if(qid && valid.has(qid)) assignment[node.id]=qid;
   });
 
@@ -1118,13 +1117,17 @@ function smartLayoutAssignments(graph){
   graph.nodes.forEach(function(node){
     var qid=assignment[node.id];
     if(!qid){
+      var current=pointQuadrant(node,quadrants);
+      if(current) qid=current.id;
+    }
+    if(!qid){
       qid=quadrants.slice().sort(function(a,b){
         var ac=Object.values(assignment).filter(function(x){return x===a.id;}).length;
         var bc=Object.values(assignment).filter(function(x){return x===b.id;}).length;
         return ac-bc;
       })[0].id;
-      assignment[node.id]=qid;
     }
+    assignment[node.id]=qid;
     buckets[qid].push(node);
   });
 
