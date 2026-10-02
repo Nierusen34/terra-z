@@ -5927,3 +5927,166 @@ body.pwa-offline #backupExportPublicJson{
     touch-action:none;
   }
 }
+
+
+/* ===== DC DATABASE → TERRA Z ===== */
+.dc-import-panel{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:10320;
+  background:rgba(0,0,0,.78);
+  backdrop-filter:blur(8px);
+  padding:28px 18px;
+  overflow:auto;
+}
+.dc-import-panel.show{display:flex;align-items:center;justify-content:center}
+.dc-import-card{
+  width:min(720px,100%);
+  border:1px solid var(--line);
+  background:var(--paper2);
+  box-shadow:0 22px 70px rgba(0,0,0,.5);
+}
+.dc-import-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  padding:17px 18px 14px;
+  border-bottom:3px double var(--accent);
+  background:var(--paper);
+}
+.dc-import-eyebrow{
+  font:8px/1.2 'Share Tech Mono',monospace;
+  letter-spacing:2px;
+  color:var(--accent);
+  margin-bottom:5px;
+}
+.dc-import-head h3{
+  margin:0;
+  font-family:var(--font-title);
+  font-size:21px;
+  color:var(--ink);
+}
+.dc-import-head>button{
+  width:36px;
+  height:36px;
+  border:1px solid var(--line);
+  border-radius:50%;
+  background:transparent;
+  color:var(--ink2);
+  cursor:pointer;
+}
+.dc-import-content{
+  display:grid;
+  grid-template-columns:150px minmax(0,1fr);
+  gap:16px;
+  padding:18px;
+}
+.dc-import-preview{
+  aspect-ratio:1/1;
+  border:1px solid var(--line);
+  background:var(--paper3);
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.dc-import-preview img{width:100%;height:100%;object-fit:cover;display:block}
+.dc-import-preview-placeholder{
+  font:900 34px/1 var(--font-title);
+  color:var(--ink3);
+  opacity:.38;
+}
+.dc-import-info{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+.dc-import-info>strong{
+  font:900 22px/1.15 var(--font-title);
+  color:var(--ink);
+}
+.dc-import-info>span{
+  font:8px/1.3 'Share Tech Mono',monospace;
+  color:var(--ink3);
+  word-break:break-word;
+}
+.dc-import-info p{
+  margin:4px 0 0;
+  font-size:12px;
+  line-height:1.55;
+  color:var(--ink2);
+}
+.dc-import-existing{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.dc-import-existing span{
+  padding:4px 7px;
+  border:1px solid var(--line2);
+  border-radius:999px;
+  font:7.5px/1 'Share Tech Mono',monospace;
+  color:var(--ink3);
+}
+.dc-import-existing span.exists{
+  border-color:color-mix(in srgb,var(--accent) 42%,var(--line));
+  color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 7%,transparent);
+}
+.dc-import-status{
+  min-height:28px;
+  padding:0 18px 10px;
+  font:8px/1.4 'Share Tech Mono',monospace;
+  color:var(--ink3);
+}
+.dc-import-actions{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  padding:14px 18px 18px;
+  border-top:1px solid var(--line2);
+}
+.dc-import-actions button{
+  min-height:42px;
+  border:1px solid var(--line);
+  background:var(--paper3);
+  color:var(--ink2);
+  font:700 9px/1.2 'Share Tech Mono',monospace;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.dc-import-actions button:hover:not(:disabled){
+  border-color:var(--accent);
+  color:var(--accent);
+}
+.dc-import-actions button.primary{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+}
+.dc-import-actions button:disabled{opacity:.5;cursor:not-allowed}
+#modalImportBtn{
+  border-color:color-mix(in srgb,var(--accent2) 58%,var(--line));
+  color:var(--accent2);
+}
+.search-result-item .r-actions .dc-import-result-btn{
+  border-color:color-mix(in srgb,var(--accent2) 58%,var(--line));
+  color:var(--accent2);
+}
+@media(max-width:760px){
+  .search-result-item{flex-direction:column}
+  .search-result-item .r-actions{width:100%;flex-wrap:wrap}
+  .search-result-item .r-actions button{flex:1 1 120px}
+  .dc-import-panel{padding:10px}
+  .dc-import-content{grid-template-columns:92px minmax(0,1fr);padding:14px;gap:12px}
+  .dc-import-info>strong{font-size:18px}
+  .dc-import-actions{grid-template-columns:1fr;padding:12px 14px calc(14px + env(safe-area-inset-bottom))}
+  .dc-import-actions button{min-height:46px}
+}
+@media(max-width:460px){
+  .dc-import-content{grid-template-columns:1fr}
+  .dc-import-preview{width:110px}
+}
