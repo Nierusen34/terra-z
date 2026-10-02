@@ -158,6 +158,106 @@ test("Busca Global 2.0 encontra entidades e navega por Ctrl+K",async({page})=>{
   await expectNoPageErrors(errors);
 });
 
+test("DC Wiki oferece Card, Grafo e Card + Grafo ao editor",async({page})=>{
+  const errors=watchRuntimeErrors(page);
+
+  await page.route("https://dc.fandom.com/api.php*",async route=>{
+    const url=new URL(route.request().url());
+    const action=url.searchParams.get("action");
+
+    if(action==="opensearch"){
+      return route.fulfill({
+        status:200,
+        contentType:"application/json",
+        body:JSON.stringify([
+          "Connor",
+          ["Connor Hawke (Prime Earth)"],
+          ["Connor Hawke, arqueiro do universo DC."],
+          ["https://dc.fandom.com/wiki/Connor_Hawke_(Prime_Earth)"]
+        ])
+      });
+    }
+
+    if(action==="query"){
+      return route.fulfill({
+        status:200,
+        contentType:"application/json",
+        body:JSON.stringify({
+          query:{
+            pages:[{
+              pageid:101,
+              title:"Connor Hawke (Prime Earth)",
+              thumbnail:{source:"https://static.wikia.nocookie.net/test/connor-thumb.jpg"},
+              original:{source:"https://static.wikia.nocookie.net/test/connor-full.jpg"}
+            }]
+          }
+        })
+      });
+    }
+
+    if(action==="parse"){
+      return route.fulfill({
+        status:200,
+        contentType:"application/json",
+        body:JSON.stringify({parse:{title:"Connor Hawke (Prime Earth)",text:{"*":"<p>Connor Hawke</p>"}}})
+      });
+    }
+
+    return route.fulfill({status:200,contentType:"application/json",body:"{}"});
+  });
+
+  await page.goto("/#/capa",{waitUntil:"domcontentloaded"});
+
+  await page.evaluate(async()=>{
+    const app=window.TerraZApp;
+    app.backend.isConfigured=()=>true;
+    app.backend.isAuthenticated=()=>true;
+    app.backend.health=async()=>({
+      ok:true,
+      relations_graph_v3:true,
+      relations_entity_editor:true,
+      media_library_v1:true,
+      graph_independent_media:true,
+      portrait_framing:true,
+      visibility_system:"public-spoiler-master",
+      secure_master_sections:true,
+      secure_master_relations:true
+    });
+    await app.adminLoader.load();
+    document.dispatchEvent(new CustomEvent("terra-z:auth-changed",{detail:{authenticated:true}}));
+    document.getElementById("searchInput").value="Connor";
+    window.switchSearchMode("fandom");
+  });
+
+  const result=page.locator("#searchResults .search-result-item").first();
+  await expect(result).toContainText("Connor Hawke");
+  await expect(result.locator("[data-dc-import-title]")).toBeVisible();
+
+  await result.locator("[data-dc-import-title]").click();
+  await expect(page.locator("#dcImportPanel")).toHaveClass(/show/);
+  await expect(page.locator("#dcImportName")).toHaveText("Connor Hawke");
+  await expect(page.locator("#dcImportCardBtn")).toBeVisible();
+  await expect(page.locator("#dcImportGraphBtn")).toBeVisible();
+  await expect(page.locator("#dcImportBothBtn")).toBeVisible();
+
+  await page.locator("#dcImportCardBtn").click();
+  await expect(page.locator("#characterEditorPanel")).toHaveClass(/show/);
+  await expect(page.locator("#characterEditorName")).toHaveValue("Connor Hawke");
+  await expect(page.locator("#characterEditorTitle")).toContainText("Importar personagem da DC");
+  await page.evaluate(()=>window.TerraZApp.characterEditor.close());
+
+  await page.evaluate(()=>window.TerraZApp.search.openImport("Connor Hawke (Prime Earth)"));
+  await expect(page.locator("#dcImportPanel")).toHaveClass(/show/);
+  await page.locator("#dcImportGraphBtn").click();
+
+  await expect(page.locator("#graphEditorModal")).toHaveClass(/show/);
+  await expect(page.locator("#graphEditorModal")).toHaveClass(/graph-editor-layout-mode/);
+  await expect(page.locator("#graphLayoutSvg .ge-layout-node-label").filter({hasText:"Connor Hawke"})).toHaveCount(1);
+
+  await page.evaluate(()=>window.TerraZApp.graph.closeEditor());
+  await expectNoPageErrors(errors);
+});
+
 test("Relações renderiza Armek com mídia independente e painel de inspeção",async({page})=>{
   const errors=watchRuntimeErrors(page);
 
