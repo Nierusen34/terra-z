@@ -684,6 +684,17 @@ window.TerraZData.graphOverride = {
       "strength": 4,
       "directed": false,
       "visibility": "public"
+    },
+    {
+      "id": "relacao-rex-mason-kendra-ally",
+      "from": "rex-mason",
+      "to": "kendra",
+      "type": "ally",
+      "label": "Parceiro de Missão",
+      "note": "Partiparam da mesma missão para salvar Riot quando ele era um bebê",
+      "strength": 2,
+      "directed": false,
+      "visibility": "public"
     }
   ]
 };
