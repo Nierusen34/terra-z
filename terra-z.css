@@ -6601,3 +6601,27 @@ body.graph-fullscreen-open{
     max-height:56px;
   }
 }
+
+
+/* Ajuste de espaço dos controles do viewport */
+.graph-canvas-head{
+  flex-wrap:wrap;
+}
+.graph-canvas-head>div:first-child{
+  flex:1 1 220px;
+  min-width:0;
+}
+.graph-canvas-head>.graph-zoom-controls{
+  flex:1 1 520px;
+  max-width:100%;
+  justify-content:flex-end;
+}
+@media(max-width:760px){
+  .relations-layout.graph-fullscreen .graph-canvas-head>div:first-child span{
+    display:none;
+  }
+  .relations-layout.graph-fullscreen .graph-canvas-head{
+    gap:7px;
+    padding:8px;
+  }
+}
