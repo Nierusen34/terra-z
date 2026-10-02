@@ -45,6 +45,32 @@ function safeHttpsUrl(value,max=1200){
   }
 }
 
+function clamp(value,min,max,fallback){
+  const number=Number(value);
+  if(!Number.isFinite(number)) return fallback;
+  return Math.min(max,Math.max(min,number));
+}
+
+function normalizeFramingPreset(value){
+  const source=value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  const fit=source.fit === "contain" ? "contain" : "cover";
+  return {
+    fit,
+    x:clamp(source.x,0,100,50),
+    y:clamp(source.y,0,100,50),
+    zoom:clamp(source.zoom,0.5,2.5,1)
+  };
+}
+
+function normalizePortraitFraming(value){
+  const input=value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  return {
+    card:normalizeFramingPreset(input.card),
+    sheet:normalizeFramingPreset(input.sheet),
+    graph:normalizeFramingPreset(input.graph)
+  };
+}
+
 function normalizeAutoSource(body){
   const provider=String(body.provider || "none").trim();
 
@@ -377,6 +403,79 @@ export default async function handler(req,res){
 
   try {
     const requestBody = req.body || {};
+
+    if(req.method === "POST" && requestBody.action === "configure-display"){
+      const character=String(requestBody.character || "").trim();
+      if(!character){
+        return res.status(400).json({error:"missing_character",message:"Personagem não informado."});
+      }
+
+      const head=await getHead();
+      const [mediaFile,privateData]=await Promise.all([
+        readTextFile("data/character-media.js"),
+        readPrivateCharacterData()
+      ]);
+      const mediaData=parseDataAssignment(mediaFile.content,"characterMedia");
+      privateData.characters=privateData.characters && typeof privateData.characters === "object"
+        ? privateData.characters
+        : {};
+      const privateTarget=privateCharacter(privateData,character);
+
+      if(!Object.prototype.hasOwnProperty.call(mediaData,character) && !privateTarget){
+        return res.status(404).json({error:"unknown_character",message:"Personagem não encontrado na camada de mídia."});
+      }
+
+      const framing=normalizePortraitFraming(requestBody.framing);
+
+      if(privateTarget){
+        const current=privateTarget.profile.media && typeof privateTarget.profile.media === "object"
+          ? privateTarget.profile.media
+          : privateMediaDefault(character);
+        privateTarget.profile.media={...current,framing};
+
+        const commit=await commitFiles(
+          [{
+            path:PRIVATE_CHARACTER_DATA_PATH,
+            content:renderPrivateCharacterData(privateData),
+            encoding:"utf-8"
+          }],
+          "media: ajustar enquadramento privado de " + character,
+          head
+        );
+
+        return res.status(200).json({
+          ok:true,
+          sha:commit.sha,
+          character,
+          media:privateTarget.profile.media,
+          private:true,
+          status_url:statusUrl(req,commit.sha)
+        });
+      }
+
+      const current=mediaData[character] && typeof mediaData[character] === "object"
+        ? mediaData[character]
+        : privateMediaDefault(character);
+      mediaData[character]={...current,framing};
+
+      const commit=await commitFiles(
+        [{
+          path:"data/character-media.js",
+          content:renderCharacterMedia(mediaData),
+          encoding:"utf-8"
+        }],
+        "media: ajustar enquadramento de " + character,
+        head
+      );
+
+      return res.status(200).json({
+        ok:true,
+        sha:commit.sha,
+        character,
+        media:mediaData[character],
+        status_url:statusUrl(req,commit.sha)
+      });
+    }
 
     if(req.method === "POST" && requestBody.action === "configure-source"){
       const character=String(requestBody.character || "").trim();
