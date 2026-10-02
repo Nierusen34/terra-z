@@ -8,6 +8,7 @@ const RUNTIME_FILES = {
   characterOverrides:["data/character-overrides.js","characterOverrides"],
   characterTaxonomy:["data/character-meta.js","characterTaxonomy"],
   characterMedia:["data/character-media.js","characterMedia"],
+  mediaLibrary:["data/media-library.js","mediaLibrary"],
   graphOverride:["data/graph-overrides.js","graphOverride"],
   sessions:["data/sessions.js","sessions"],
   timeline:["data/timeline.js","timeline"]
@@ -88,6 +89,8 @@ export default async function handler(req,res){
     relations_graph_v3:true,
     relations_entity_editor:true,
     portrait_framing:true,
+    media_library_v1:true,
+    graph_independent_media:true,
     secure_master_timeline:true,
     timeline_event_editor:true,
     history_restore:true,
