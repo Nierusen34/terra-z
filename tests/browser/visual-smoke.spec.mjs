@@ -255,6 +255,41 @@ test("DC Wiki oferece Card, Grafo e Card + Grafo ao editor",async({page})=>{
   await expect(page.locator("#graphLayoutSvg .ge-layout-node-label").filter({hasText:"Connor Hawke"})).toHaveCount(1);
 
   await page.evaluate(()=>window.TerraZApp.graph.closeEditor());
+
+  await page.evaluate(async()=>{
+    const app=window.TerraZApp;
+    window.__dcImportRequests=[];
+    app.backend.request=async(path,options)=>{
+      window.__dcImportRequests.push({path,body:options&&options.body});
+      if(path==="/api/character") return {ok:true,sha:"char-sha",status_url:""};
+      if(path==="/api/media") return {ok:true,sha:"media-sha",media:{},status_url:""};
+      throw new Error("Unexpected request: "+path);
+    };
+    app.runtimeData.refresh=async()=>({ok:true});
+    if(app.privateContent) app.privateContent.reload=async()=>({});
+    if(app.characters){
+      app.characters.refresh=()=>{};
+      app.characters.open=()=>{};
+    }
+    await app.search.openImport("Connor Hawke (Prime Earth)");
+  });
+  await expect(page.locator("#dcImportPanel")).toHaveClass(/show/);
+  await page.locator("#dcImportBothBtn").click();
+  await expect(page.locator("#characterEditorPanel")).toHaveClass(/show/);
+  await page.locator("#characterEditorSave").click();
+
+  await expect(page.locator("#graphEditorModal")).toHaveClass(/show/);
+  await expect(page.locator("#graphLayoutSvg .ge-layout-node-label").filter({hasText:"Connor Hawke"})).toHaveCount(1);
+
+  const importRequests=await page.evaluate(()=>window.__dcImportRequests);
+  expect(importRequests.some(row=>row.path==="/api/character")).toBe(true);
+  const mediaRequest=importRequests.find(row=>row.path==="/api/media");
+  expect(mediaRequest).toBeTruthy();
+  expect(mediaRequest.body.action).toBe("configure-source");
+  expect(mediaRequest.body.provider).toBe("dc-fandom");
+  expect(mediaRequest.body.wikiTitle).toBe("Connor Hawke (Prime Earth)");
+
+  await page.evaluate(()=>window.TerraZApp.graph.closeEditor());
   await expectNoPageErrors(errors);
 });
 
