@@ -66,7 +66,8 @@ function emptyState(){
     revelations:[],
     goals:[],
     clues:[],
-    npcStates:[]
+    npcStates:[],
+    timelineEvents:[]
   };
 }
 
@@ -82,7 +83,8 @@ function normalizeState(value){
     revelations:Array.isArray(input.revelations) ? input.revelations : [],
     goals:Array.isArray(input.goals) ? input.goals : [],
     clues:Array.isArray(input.clues) ? input.clues : [],
-    npcStates:Array.isArray(input.npcStates) ? input.npcStates : []
+    npcStates:Array.isArray(input.npcStates) ? input.npcStates : [],
+    timelineEvents:Array.isArray(input.timelineEvents) ? input.timelineEvents : []
   };
 }
 
