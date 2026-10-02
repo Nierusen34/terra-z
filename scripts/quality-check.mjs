@@ -57,6 +57,7 @@ function loadTerraData(){
     "data/character-overrides.js",
     "data/character-meta.js",
     "data/character-media.js",
+    "data/media-library.js",
     "data/relations.js",
     "data/graph-overrides.js",
     "data/locations.js",
@@ -321,6 +322,57 @@ function checkTimeline(data,characters){
   pass(eventCount+" eventos canônicos da linha do tempo validados");
 }
 
+function checkMediaLibrary(data){
+  const library=data.mediaLibrary || {};
+  const assets=Array.isArray(library.assets) ? library.assets : [];
+  const ids=new Set();
+  const categories=new Set(["portrait","graph","map","editorial","team","other"]);
+
+  if(Number(library.version||1)!==1) fail("Versão inválida da Biblioteca de Mídia.");
+
+  for(const asset of assets){
+    const id=String(asset&&asset.id||"");
+    if(!id){ fail("Ativo da Biblioteca sem ID."); continue; }
+    if(ids.has(id)) fail("ID duplicado na Biblioteca de Mídia: "+id);
+    ids.add(id);
+
+    if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) fail("ID inválido na Biblioteca de Mídia: "+id);
+    if(!String(asset.label||"").trim()) fail("Ativo sem nome na Biblioteca: "+id);
+    if(!categories.has(String(asset.category||"other"))) fail("Categoria inválida no ativo: "+id);
+
+    const source=String(asset.source||"local");
+    const src=String(asset.src||"");
+    if(source==="external"){
+      if(!/^https:\/\//i.test(src)) fail("URL externa inválida no ativo: "+id);
+    }else if(source==="local"){
+      if(src&&!/^images\/library\/[a-z0-9._-]+\.(png|jpe?g|webp)$/i.test(src)){
+        fail("Caminho local inválido no ativo: "+id+" / "+src);
+      }
+      if(src&&!exists(src)) fail("Arquivo da Biblioteca inexistente: "+src);
+    }else{
+      fail("Fonte inválida no ativo da Biblioteca: "+id+" / "+source);
+    }
+
+    const frame=asset.framing || {};
+    if(frame.fit!==undefined&&!["cover","contain"].includes(String(frame.fit))){
+      fail("Modo de enquadramento inválido no ativo: "+id);
+    }
+    for(const axis of ["x","y"]){
+      if(frame[axis]!==undefined){
+        const value=Number(frame[axis]);
+        if(!Number.isFinite(value)||value<0||value>100) fail("Posição "+axis+" inválida no ativo: "+id);
+      }
+    }
+    if(frame.zoom!==undefined){
+      const zoom=Number(frame.zoom);
+      if(!Number.isFinite(zoom)||zoom<0.5||zoom>2.5) fail("Zoom inválido no ativo: "+id);
+    }
+  }
+
+  pass(assets.length+" ativos reutilizáveis da Biblioteca de Mídia validados");
+  return ids;
+}
+
 function checkGraph(data){
   const graph=data.graphOverride&&Array.isArray(data.graphOverride.nodes)?data.graphOverride:data.defaultGraph;
   if(!graph){ warn("Nenhum grafo encontrado"); return; }
@@ -334,6 +386,10 @@ function checkGraph(data){
     "family","ally","tension","clone","member","enemy","mentor","romance",
     "business","investigation","origin","command","rivalry","other"
   ]);
+  const allowedMediaModes=new Set(["none","character","library","url"]);
+  const libraryAssets=new Set(
+    (((data.mediaLibrary||{}).assets)||[]).map(asset=>String(asset&&asset.id||"")).filter(Boolean)
+  );
 
   if(Number(graph.version||0)!==3){
     warn("Snapshot público do grafo ainda está em schema legado; runtime fará migração para v3.");
@@ -353,6 +409,21 @@ function checkGraph(data){
     const level=String(node&&node.visibility||"public");
     if(level==="master"||level==="private") fail("Nó Mestre vazou para o grafo público: "+String(node&&node.id||"sem ID"));
     if(!["public","spoiler","rumor"].includes(level)) fail("Visibilidade pública inválida no nó: "+node.id+" / "+level);
+
+    if(node.mediaMode!==undefined){
+      const mode=String(node.mediaMode||"none");
+      if(!allowedMediaModes.has(mode)) fail("Modo de mídia inválido no nó: "+node.id+" / "+mode);
+      if(mode==="library"&&!libraryAssets.has(String(node.mediaId||""))){
+        fail("Nó referencia ativo inexistente da Biblioteca: "+node.id+" / "+String(node.mediaId||""));
+      }
+      if(mode==="url"&&!/^https:\/\//i.test(String(node.mediaUrl||""))){
+        fail("Nó possui URL de mídia inválida: "+node.id);
+      }
+      const frame=node.mediaFraming||{};
+      if(frame.fit!==undefined&&!["cover","contain"].includes(String(frame.fit))){
+        fail("Enquadramento de mídia inválido no nó: "+node.id);
+      }
+    }
   }
 
   for(const [index,edge] of edges.entries()){
@@ -391,24 +462,32 @@ function checkGraph(data){
   if(!graphHealthApi.includes("portrait_framing:true")){
     fail("Backend não anuncia suporte a enquadramento de retratos.");
   }
+  if(!graphHealthApi.includes("media_library_v1:true") ||
+     !graphHealthApi.includes("graph_independent_media:true")){
+    fail("Backend não anuncia Biblioteca de Mídia e imagens independentes do grafo.");
+  }
   for(const id of [
     "graphEntityFilter","graphRelationFilter","graphInspector","graphEditorList","graphEditorDetail",
     "graphZoomOut","graphZoomRange","graphZoomLabel","graphZoomIn","graphZoomReset",
     "characterEditorMediaFraming","characterEditorFramingContext","characterEditorFramingFit",
     "characterEditorFramingZoom","characterEditorFramingX","characterEditorFramingY",
-    "characterEditorFramingPreview","characterEditorFramingSaveBtn"
+    "characterEditorFramingPreview","characterEditorFramingSaveBtn",
+    "mediaLibraryModal","mediaLibraryGrid","mediaLibraryAdd","mediaLibraryEditor",
+    "mediaAssetLabel","mediaAssetSource","mediaAssetSave"
   ]){
     if(!html.includes('id="'+id+'"')) fail("Interface de Relações 2.0 ausente: "+id);
   }
 
-  if(!graphRuntime.includes("characterPortraitUrl") ||
+  if(!graphRuntime.includes("nodeMedia") ||
+     !graphRuntime.includes("mediaLibraryApi") ||
      !graphRuntime.includes("queueGraphPortrait") ||
      !graphRuntime.includes("inspectorPortrait")){
-    fail("Grafo 2.0 não está integrado ao sistema de retratos dos personagens.");
+    fail("Grafo 2.0 não suporta mídia independente e retratos de personagem.");
   }
-  if(!graphRuntime.includes("characterFramingStyle") ||
+  if(!graphRuntime.includes("mediaModeOptions") ||
+     !graphRuntime.includes("mediaAssetOptions") ||
      !graphRuntime.includes("graph-node-portrait-frame")){
-    fail("Grafo 2.0 não está aplicando o enquadramento configurado dos retratos.");
+    fail("Editor do grafo não oferece seleção e enquadramento de mídia por entidade.");
   }
   if(!graphRuntime.includes("GRAPH_SCALE_KEY") ||
      !graphRuntime.includes("setGraphScale") ||
@@ -430,6 +509,19 @@ function checkGraph(data){
   if(!characterEditor.includes("saveMediaFraming") || !characterEditor.includes("renderFramingPreview")){
     fail("Editor de personagem não oferece prévia/salvamento do enquadramento.");
   }
+
+  const mediaLibraryRuntime=read("js/media-library.js");
+  if(!mediaApi.includes('requestBody.action === "library-upsert"') ||
+     !mediaApi.includes('requestBody.action === "library-upload"') ||
+     !mediaApi.includes('requestBody.action === "library-delete"')){
+    fail("API de mídia não oferece CRUD completo da Biblioteca.");
+  }
+  if(!mediaLibraryRuntime.includes("graphUsage") ||
+     !mediaLibraryRuntime.includes("openEditor") ||
+     !mediaLibraryRuntime.includes("assetUrl")){
+    fail("Runtime da Biblioteca de Mídia está incompleto.");
+  }
+  if(!exists("docs/MEDIA_LIBRARY.md")) fail("docs/MEDIA_LIBRARY.md ausente");
 
   pass(nodes.length+" nós e "+edges.length+" relações do Grafo 2.0 validados");
 
@@ -464,6 +556,9 @@ function checkGraph(data){
     if(/["'](?:api\/|js\/|index\.html|terra-z\.css)/.test(restoreScope)){
       fail("Escopo de restauração de conteúdo não pode incluir código da aplicação.");
     }
+  }
+  if(!publishApi.includes('"data/media-library.js"') || !publishApi.includes('"images/library/"')){
+    fail("Biblioteca de Mídia não está incluída no histórico/restauração.");
   }
   pass("Histórico/restauração e deploy inteligente usam APIs existentes sem restaurar código");
 
@@ -544,6 +639,7 @@ checkSyntax();
 checkIndexAssets();
 const data=loadTerraData();
 const characters=checkCharacterData(data);
+checkMediaLibrary(data);
 checkSessions(data,characters);
 checkTimeline(data,characters);
 checkGraph(data);
