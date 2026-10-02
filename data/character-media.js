@@ -295,8 +295,12 @@ window.TerraZData.characterMedia = {
   "Rex Mason": {
     "src": "",
     "alt": "Rex Mason",
-    "source": "local",
-    "credit": ""
+    "source": "auto",
+    "credit": "",
+    "auto": {
+      "provider": "dc-fandom",
+      "wikiTitle": "Metamorpho"
+    }
   }
 };
 
