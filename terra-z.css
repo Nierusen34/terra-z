@@ -3586,6 +3586,12 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
 }
 .graph-inspector-actions button:hover,
 .graph-inspector-route button:hover{border-color:var(--accent);color:var(--accent)}
+.graph-inspector-actions button.primary{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+}
+.graph-inspector-actions button.primary:hover{color:#fff;opacity:.9}
 .graph-inspector-heading{
   margin:16px 0 7px;
   padding-top:11px;
@@ -6089,4 +6095,337 @@ body.pwa-offline #backupExportPublicJson{
 @media(max-width:460px){
   .dc-import-content{grid-template-columns:1fr}
   .dc-import-preview{width:110px}
+}
+
+
+/* ===== UX POLISH · AÇÕES FREQUENTES ===== */
+.admin-quick-actions{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+  margin:12px 0 4px;
+  padding:9px 10px;
+  border:1px solid var(--line2);
+  background:var(--paper3);
+}
+.admin-quick-actions>span{
+  margin-right:2px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:7.5px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:var(--ink3);
+}
+.admin-quick-actions button{
+  min-height:34px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink2);
+  padding:7px 9px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:7.5px;
+  cursor:pointer;
+}
+.admin-quick-actions button:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+
+/* ===== UX POLISH · EDITOR DE PERSONAGEM ===== */
+.character-editor-jumpnav{
+  position:sticky;
+  top:-22px;
+  z-index:14;
+  display:flex;
+  gap:6px;
+  overflow-x:auto;
+  scrollbar-width:none;
+  margin:-2px 0 14px;
+  padding:9px 0;
+  background:linear-gradient(var(--paper2) 78%,transparent);
+}
+.character-editor-jumpnav::-webkit-scrollbar{display:none}
+.character-editor-jumpnav button{
+  flex:0 0 auto;
+  min-height:34px;
+  border:1px solid var(--line);
+  background:var(--paper3);
+  color:var(--ink2);
+  padding:7px 10px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:7.5px;
+  text-transform:uppercase;
+  letter-spacing:.4px;
+  cursor:pointer;
+}
+.character-editor-jumpnav button:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+.character-editor-anchor{
+  scroll-margin-top:82px;
+  transition:box-shadow .25s ease,background .25s ease;
+}
+.character-editor-anchor-focus{
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 28%,transparent);
+  background:color-mix(in srgb,var(--accent) 3%,transparent);
+}
+
+/* ===== UX POLISH · CONEXÃO RÁPIDA DO GRAFO ===== */
+.graph-connect-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:9px 12px;
+  border-bottom:1px solid color-mix(in srgb,var(--accent) 42%,var(--line2));
+  background:color-mix(in srgb,var(--accent) 8%,var(--paper3));
+}
+.graph-connect-bar[hidden]{display:none!important}
+.graph-connect-bar>div:first-child{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.graph-connect-bar strong{
+  font-family:var(--font-title);
+  font-size:10px;
+  color:var(--accent);
+}
+.graph-connect-bar span{
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;
+  color:var(--ink3);
+}
+.graph-connect-bar-actions{
+  display:flex;
+  gap:6px;
+  flex:0 0 auto;
+}
+.graph-connect-bar button{
+  min-height:32px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink2);
+  padding:6px 9px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;
+  cursor:pointer;
+}
+.graph-connect-bar button:hover{border-color:var(--accent);color:var(--accent)}
+.graph-connect-preview{
+  stroke:var(--accent);
+  stroke-width:3;
+  stroke-dasharray:8 6;
+  opacity:.85;
+  pointer-events:none;
+  filter:drop-shadow(0 0 4px color-mix(in srgb,var(--accent) 55%,transparent));
+}
+.graph-node-v2{
+  transition:opacity .2s,filter .2s;
+}
+.ge-layout-node.connecting-source .ge-layout-node-ring,
+.ge-layout-node.connecting-source .ge-layout-node-bg{
+  stroke:var(--accent);
+  stroke-width:6;
+  filter:drop-shadow(0 0 8px color-mix(in srgb,var(--accent) 55%,transparent));
+}
+.ge-layout-actions button.primary{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+}
+
+.graph-quick-relation-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:10340;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  overflow:auto;
+  background:rgba(0,0,0,.76);
+  backdrop-filter:blur(7px);
+}
+.graph-quick-relation-modal.show{display:flex}
+.graph-quick-relation-card{
+  width:min(680px,100%);
+  max-height:min(92vh,780px);
+  overflow:auto;
+  border:1px solid var(--line);
+  background:var(--paper2);
+  box-shadow:0 24px 80px rgba(0,0,0,.5);
+}
+.graph-quick-relation-head{
+  position:sticky;
+  top:0;
+  z-index:3;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  padding:16px 18px;
+  border-bottom:3px double var(--accent);
+  background:var(--paper);
+}
+.graph-quick-relation-head h3{
+  margin:3px 0 0;
+  font-family:var(--font-title);
+  font-size:20px;
+  color:var(--ink);
+}
+.graph-quick-relation-head>button{
+  width:36px;
+  height:36px;
+  border:1px solid var(--line);
+  border-radius:50%;
+  background:transparent;
+  color:var(--ink2);
+  cursor:pointer;
+}
+.graph-quick-pair{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center;
+  gap:10px;
+  padding:14px 18px;
+  border-bottom:1px solid var(--line2);
+  background:var(--paper3);
+}
+.graph-quick-pair>div:not(.graph-quick-arrow){
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.graph-quick-pair span{
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;
+  text-transform:uppercase;
+  color:var(--ink3);
+}
+.graph-quick-pair strong{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-family:var(--font-title);
+  font-size:13px;
+  color:var(--ink);
+}
+.graph-quick-arrow{color:var(--accent);font-size:18px}
+.graph-quick-form{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  padding:17px 18px 8px;
+}
+.graph-quick-form label{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  font-family:var(--font-title);
+  font-size:8px;
+  letter-spacing:.6px;
+  text-transform:uppercase;
+  color:var(--ink3);
+}
+.graph-quick-form select,
+.graph-quick-form input[type="text"],
+.graph-quick-form textarea{
+  width:100%;
+  min-height:40px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink);
+  padding:9px 10px;
+  font:inherit;
+  font-family:var(--font-body);
+  font-size:11px;
+  text-transform:none;
+  letter-spacing:0;
+}
+.graph-quick-form textarea{resize:vertical}
+.graph-quick-form .graph-quick-check{
+  flex-direction:row;
+  align-items:center;
+  min-height:40px;
+  padding:9px 10px;
+  border:1px solid var(--line);
+  background:var(--paper);
+}
+.graph-quick-form .graph-quick-check input{width:auto}
+.graph-quick-wide{grid-column:1/-1}
+.graph-quick-status{
+  min-height:26px;
+  padding:3px 18px 10px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:7.5px;
+  line-height:1.4;
+  color:var(--ink3);
+}
+.graph-quick-status[data-state="warning"]{color:#b57b18}
+.graph-quick-status[data-state="error"]{color:#b44242}
+.graph-quick-actions{
+  display:grid;
+  grid-template-columns:auto 1fr auto auto;
+  gap:8px;
+  align-items:center;
+  padding:13px 18px 18px;
+  border-top:1px solid var(--line2);
+}
+.graph-quick-actions button{
+  min-height:40px;
+  border:1px solid var(--line);
+  background:var(--paper3);
+  color:var(--ink2);
+  padding:8px 11px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.graph-quick-actions button:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.graph-quick-actions button.primary{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+}
+.graph-quick-actions button:disabled{opacity:.45;cursor:not-allowed}
+
+@media(max-width:760px){
+  .admin-quick-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  .admin-quick-actions>span{grid-column:1/-1}
+  .admin-quick-actions button{min-height:42px}
+  .character-editor-jumpnav{
+    top:-22px;
+    margin-left:-2px;
+    margin-right:-2px;
+  }
+  .character-editor-jumpnav button{min-height:42px}
+  .graph-connect-bar{
+    align-items:stretch;
+    flex-direction:column;
+  }
+  .graph-connect-bar-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  .graph-connect-bar button{min-height:40px}
+  .graph-quick-relation-modal{padding:8px}
+  .graph-quick-form{grid-template-columns:1fr;padding:14px 14px 6px}
+  .graph-quick-wide{grid-column:auto}
+  .graph-quick-pair{padding:12px 14px}
+  .graph-quick-actions{
+    grid-template-columns:1fr 1fr;
+    padding:12px 14px calc(14px + env(safe-area-inset-bottom));
+  }
+  .graph-quick-actions>span{display:none}
+  .graph-quick-actions button{min-height:46px}
+  .graph-quick-actions #graphQuickPickBtn{grid-column:1/-1}
 }
