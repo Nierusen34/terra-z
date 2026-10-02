@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Vanguard Bay">
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#351063"/><stop offset=".48" stop-color="#f01387"/><stop offset="1" stop-color="#ff7b46"/></linearGradient>
+  <linearGradient id="v" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8ffcff"/><stop offset=".5" stop-color="#13c7ff"/><stop offset="1" stop-color="#1b4bd8"/></linearGradient>
+  <linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".14" stop-color="#ff8be4"/><stop offset=".55" stop-color="#ff149d"/><stop offset="1" stop-color="#9f25e8"/></linearGradient>
+  <filter id="glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect width="512" height="512" rx="92" fill="url(#sky)"/>
+<circle cx="256" cy="185" r="105" fill="#ffc84f" opacity=".92"/>
+<g opacity=".9" fill="#36104f">
+  <path d="M0 123C56 47 101 34 153 25 112 70 94 117 80 178 60 153 33 134 0 123Z"/>
+  <path d="M512 110C454 42 407 31 357 24c43 41 64 87 79 150 20-30 44-51 76-64Z"/>
+</g>
+<g fill="#461052" opacity=".95">
+  <rect x="46" y="338" width="57" height="92"/><rect x="111" y="304" width="46" height="126"/><rect x="165" y="351" width="48" height="79"/>
+  <rect x="302" y="326" width="50" height="104"/><rect x="361" y="292" width="55" height="138"/><rect x="423" y="346" width="44" height="84"/>
+</g>
+<rect y="430" width="512" height="82" fill="#220c46"/>
+<path d="M101 137 207 390 315 137h-67l-41 117-40-117Z" fill="none" stroke="#85fbff" stroke-width="17" stroke-linejoin="round" filter="url(#glow)"/>
+<path d="M101 137 207 390 315 137h-67l-41 117-40-117Z" fill="url(#v)" opacity=".83"/>
+<text x="245" y="342" font-family="Arial Black,Arial,sans-serif" font-size="235" font-style="italic" font-weight="900" fill="url(#b)" stroke="#fff" stroke-width="4" paint-order="stroke" filter="url(#glow)">B</text>
+<path d="M0 447c103-24 180-13 256 4 87 20 168 18 256-7v68H0Z" fill="#ff149d" opacity=".24"/>
+</svg>
