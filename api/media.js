@@ -479,6 +479,13 @@ export default async function handler(req,res){
       const index=library.assets.findIndex(asset=>asset && asset.id===requestedId);
       const existing=index>=0 ? library.assets[index] : null;
 
+      if(existing && existing.readOnly===true){
+        return res.status(409).json({
+          error:"library_asset_read_only",
+          message:"Este ativo pertence ao acervo estrutural do projeto e não pode ser alterado pela Biblioteca."
+        });
+      }
+
       if(action === "library-delete"){
         if(!requestedId || !existing){
           return res.status(404).json({error:"library_asset_not_found",message:"Ativo de mídia não encontrado."});
