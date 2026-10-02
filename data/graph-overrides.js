@@ -439,6 +439,29 @@ window.TerraZData.graphOverride = {
       "color": "#8b1a1a",
       "r": 38,
       "visibility": "public"
+    },
+    {
+      "id": "metamorpho",
+      "label": "Metamorpho",
+      "subtitle": "",
+      "kind": "character",
+      "ref": "",
+      "route": "",
+      "icon": "",
+      "mediaMode": "url",
+      "mediaId": "",
+      "mediaUrl": "https://static.wikia.nocookie.net/marvel_dc/images/b/bd/Metamorpho_The_Element_Man_Vol_1_6_Textless_Variant.jpg/revision/latest?cb=20250528160818",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 82,
+        "y": 4,
+        "zoom": 2.2
+      },
+      "x": 579,
+      "y": 491,
+      "color": "#8b1a1a",
+      "r": 38,
+      "visibility": "public"
     }
   ],
   "edges": [
