@@ -107,6 +107,29 @@ function normalizeNpcStates(value){
   })).filter(item => item.name || item.state || item.notes);
 }
 
+function normalizeTimelineEvents(value){
+  const categories=new Set(["history","pre-campaign","campaign","current","future"]);
+  if(!Array.isArray(value)) return [];
+  return value.slice(0,500).map((item,index)=>{
+    const source=item && typeof item === "object" ? item : {};
+    const eventId=id(source.id,"timeline",index);
+    const sortKey=Number(source.sortKey);
+    return {
+      id:eventId,
+      category:categories.has(source.category) ? source.category : "current",
+      sortKey:Number.isFinite(sortKey) ? sortKey : 0,
+      year:plain(source.year,120),
+      title:plain(source.title,180),
+      text:plain(source.text,12000),
+      characters:list(source.characters,40,180),
+      locations:list(source.locations,40,180),
+      teams:list(source.teams,30,180),
+      visibility:"master",
+      updatedAt:iso(source.updatedAt)
+    };
+  }).filter(item => item.id && item.year && (item.title || item.text));
+}
+
 function normalizeMasterState(value){
   const input = value && typeof value === "object" && !Array.isArray(value) ? value : {};
   return {
@@ -115,7 +138,8 @@ function normalizeMasterState(value){
     revelations:normalizeRevelations(input.revelations),
     goals:normalizeGoals(input.goals),
     clues:normalizeClues(input.clues),
-    npcStates:normalizeNpcStates(input.npcStates)
+    npcStates:normalizeNpcStates(input.npcStates),
+    timelineEvents:normalizeTimelineEvents(input.timelineEvents)
   };
 }
 
