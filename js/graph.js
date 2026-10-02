@@ -69,6 +69,10 @@ var editorSearch="";
 var editorUndoStack=[];
 var editorLayoutDrag=null;
 
+var graphViewPositions=Object.create(null);
+var graphViewDrag=null;
+var graphSuppressClickUntil=0;
+
 function clone(value){ return JSON.parse(JSON.stringify(value)); }
 function backend(){ return window.TerraZApp && window.TerraZApp.backend; }
 function router(){ return window.TerraZApp && window.TerraZApp.router; }
@@ -288,6 +292,142 @@ function nodeById(id,source){
 function edgeById(id,source){
   var graph=source || graphData;
   return graph && graph.edges ? graph.edges.find(function(edge){ return edge.id===id; }) : null;
+}
+
+function graphDisplayNode(node){
+  if(!node) return null;
+  var pos=graphViewPositions[node.id];
+  if(!pos) return node;
+  return {...node,x:Number(pos.x),y:Number(pos.y)};
+}
+
+function graphDisplayNodeById(id){
+  return graphDisplayNode(nodeById(id));
+}
+
+function graphViewHasChanges(){
+  return Object.keys(graphViewPositions).length>0;
+}
+
+function updateGraphViewResetButton(){
+  var button=document.getElementById("graphViewResetBtn");
+  if(!button) return;
+  var changed=graphViewHasChanges();
+  button.disabled=!changed;
+  button.setAttribute("aria-disabled",changed?"false":"true");
+  button.title=changed
+    ? "Restaurar as posições publicadas do grafo"
+    : "As entidades já estão nas posições publicadas";
+}
+
+function resetGraphViewPositions(showMessage){
+  graphViewPositions=Object.create(null);
+  graphViewDrag=null;
+  graphSuppressClickUntil=0;
+  var wrap=document.querySelector(".graph-wrap-v2");
+  if(wrap) wrap.classList.remove("is-node-dragging");
+  renderGraph();
+  if(showMessage!==false) showToast("Posições restauradas para o layout publicado.","info",3200);
+}
+
+function svgPointFromEvent(svg,event){
+  var ctm=svg && svg.getScreenCTM ? svg.getScreenCTM() : null;
+  if(!ctm) return {x:0,y:0};
+  var point=svg.createSVGPoint();
+  point.x=Number(event.clientX)||0;
+  point.y=Number(event.clientY)||0;
+  return point.matrixTransform(ctm.inverse());
+}
+
+function updateGraphViewEdgeDom(svg,nodeId){
+  (graphData && graphData.edges || []).forEach(function(edge){
+    if(edge.from!==nodeId && edge.to!==nodeId) return;
+    var group=svg.querySelector('[data-edge-id="'+CSS.escape(edge.id)+'"]');
+    if(!group) return;
+    var a=graphDisplayNodeById(edge.from),b=graphDisplayNodeById(edge.to);
+    if(!a||!b) return;
+    var index=Number(group.getAttribute("data-edge-index"))||0;
+    var geometry=curveForEdge(a,b,index);
+    group.querySelectorAll("path").forEach(function(path){ path.setAttribute("d",geometry.d); });
+    var label=group.querySelector(".graph-edge-label");
+    if(label) label.setAttribute("transform","translate("+geometry.mx+" "+geometry.my+")");
+  });
+}
+
+function updateGraphViewNodeDom(svg,node,drag){
+  var group=svg.querySelector('[data-node-id="'+CSS.escape(node.id)+'"]');
+  if(group){
+    group.setAttribute("transform","translate("+(node.x-drag.startX)+" "+(node.y-drag.startY)+")");
+    group.classList.add("dragging");
+  }
+  updateGraphViewEdgeDom(svg,node.id);
+}
+
+function bindGraphViewDrag(svg,group){
+  var id=group.getAttribute("data-node-id")||"";
+  if(!id) return;
+
+  group.addEventListener("pointerdown",function(event){
+    if(event.button!==undefined && event.button!==0) return;
+    var start=graphDisplayNodeById(id);
+    if(!start) return;
+    event.preventDefault();
+    event.stopPropagation();
+    graphViewDrag={
+      id:id,
+      pointerId:event.pointerId,
+      startClientX:event.clientX,
+      startClientY:event.clientY,
+      startX:start.x,
+      startY:start.y,
+      moved:false
+    };
+    var wrap=svg.closest(".graph-wrap-v2");
+    if(wrap) wrap.classList.add("is-node-dragging");
+    try{ group.setPointerCapture(event.pointerId); }catch(error){}
+  });
+
+  group.addEventListener("pointermove",function(event){
+    if(!graphViewDrag || graphViewDrag.id!==id || graphViewDrag.pointerId!==event.pointerId) return;
+    event.preventDefault();
+    event.stopPropagation();
+
+    var distance=Math.hypot(
+      event.clientX-graphViewDrag.startClientX,
+      event.clientY-graphViewDrag.startClientY
+    );
+    if(distance<3 && !graphViewDrag.moved) return;
+
+    var base=nodeById(id);
+    if(!base) return;
+    var point=svgPointFromEvent(svg,event);
+    var pad=Math.max(8,Number(base.r)||38);
+    var x=Math.round(Math.max(pad,Math.min(1000-pad,point.x)));
+    var y=Math.round(Math.max(pad,Math.min(720-pad-30,point.y)));
+
+    graphViewDrag.moved=true;
+    graphViewPositions[id]={x:x,y:y};
+    updateGraphViewNodeDom(svg,graphDisplayNodeById(id),graphViewDrag);
+    updateGraphViewResetButton();
+  });
+
+  var finish=function(event){
+    if(!graphViewDrag || graphViewDrag.id!==id || graphViewDrag.pointerId!==event.pointerId) return;
+    event.preventDefault();
+    event.stopPropagation();
+    var moved=graphViewDrag.moved;
+    try{ group.releasePointerCapture(event.pointerId); }catch(error){}
+    var wrap=svg.closest(".graph-wrap-v2");
+    if(wrap) wrap.classList.remove("is-node-dragging");
+    graphViewDrag=null;
+    if(moved){
+      graphSuppressClickUntil=Date.now()+360;
+      requestAnimationFrame(function(){ renderGraph(); });
+    }
+  };
+
+  group.addEventListener("pointerup",finish);
+  group.addEventListener("pointercancel",finish);
 }
 
 function relationColor(type){
