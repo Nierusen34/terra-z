@@ -18,6 +18,7 @@ var scripts=[
   "js/bulk-editor.js",
   "js/master-quick.js",
   "js/session-mode.js",
+  "js/table-mode.js",
   "js/backup-export.js",
   "js/session-editor.js",
   "js/timeline-editor.js",
