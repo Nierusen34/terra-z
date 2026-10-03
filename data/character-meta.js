@@ -231,12 +231,13 @@ window.TerraZData.characterTaxonomy = {
     "Bruce Wayne": {
       "featured": false,
       "nuclei": [
-        "gotham",
-        "jlu"
+        "jlu",
+        "gotham"
       ],
       "type": "hero",
       "status": "active",
-      "tags": []
+      "tags": [],
+      "visibility": "public"
     },
     "Dick Grayson": {
       "featured": false,

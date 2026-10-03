@@ -472,18 +472,31 @@ window.TerraZData.characterOverrides = {
     "sections": [
       {
         "title": "📋 Ficha Básica",
-        "content": "<p><strong>Nome:</strong> Bruce Thomas Wayne<br><strong>Codinome:</strong> Batman<br><strong>Idade:</strong> 46 anos (nascido em 1981)<br><strong>Status:</strong> Ativo<br><strong>Papel:</strong> Batman de Gotham. Membro fundador da Liga da Justiça.<br><strong>Local:</strong> Gotham</p>"
+        "content": "<p><strong>Nome:</strong> Bruce Thomas Wayne<br><strong>Codinome:</strong> Batman<br><strong>Idade:</strong> 46 anos (nascido em 1981)<br><strong>Status:</strong> Ativo<br><strong>Papel:</strong> Batman de Gotham. Membro fundador da Liga da Justiça.<br><strong>Local:</strong> Gotham</p>",
+        "visibility": "public",
+        "position": 0
       },
       {
         "title": "🎯 Personalidade",
-        "content": "<p>Ainda em luto por Alfred (2022) — a chegada de Verity está ajudando a se adaptar. Reservado e não interfere nas escolhas de Jason (inclusive sobre Tristan). Contato regular com a JL.</p>"
+        "content": "<p>Ainda em luto por Alfred (2022) — a chegada de Verity está ajudando a se adaptar. Reservado e não interfere nas escolhas de Jason (inclusive sobre Tristan). Contato regular com a JL.</p>",
+        "visibility": "public",
+        "position": 1
       },
       {
         "title": "🔗 Relações",
-        "content": "<ul><li><strong>Alfred Pennyworth:</strong> Pai adotivo. Morto em 2022. Visita o túmulo periodicamente.</li><li><strong>Dick Grayson:</strong> Filho adotivo. Respeito.</li><li><strong>Jason Todd:</strong> Filho adotivo. Relação distante, mas não interfere no que ele faz.</li><li><strong>Tim Drake:</strong> Filho adotivo. Respeita a escolha de se aposentar.</li><li><strong>Damian Wayne:</strong> Filho biológico. Relação tensa, mas de amor.</li><li><strong>Barbara Gordon:</strong> Aliada e amiga. Batgirl.</li><li><strong>Verity Pennyworth:</strong> Nova mordoma. Ajudando no luto.</li></ul>"
+        "content": "<ul><li><strong>Alfred Pennyworth:</strong> Pai adotivo. Morto em 2022. Visita o túmulo periodicamente.</li><li><strong>Dick Grayson:</strong> Filho adotivo. Respeito.</li><li><strong>Jason Todd:</strong> Filho adotivo. Relação distante, mas não interfere no que ele faz.</li><li><strong>Tim Drake:</strong> Filho adotivo. Respeita a escolha de se aposentar.</li><li><strong>Damian Wayne:</strong> Filho biológico. Relação tensa, mas de amor.</li><li><strong>Barbara Gordon:</strong> Aliada e amiga. Batgirl.</li><li><strong>Verity Pennyworth:</strong> Nova mordoma. Ajudando no luto.</li></ul>",
+        "visibility": "public",
+        "position": 2
       }
     ],
-    "created": true
+    "created": true,
+    "card": {
+      "icon": "🦇",
+      "codename": "Batman",
+      "age": "46 anos (nascido em 1981)",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "Dick Grayson": {
     "eyebrow": "🦅 Asa Noturna · Líder dos Titãs",
