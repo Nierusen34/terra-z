@@ -278,7 +278,8 @@ window.TerraZData.characterTaxonomy = {
       ],
       "type": "civilian",
       "status": "active",
-      "tags": []
+      "tags": [],
+      "visibility": "public"
     },
     "Lian Harper": {
       "featured": false,

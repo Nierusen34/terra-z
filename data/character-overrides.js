@@ -481,22 +481,37 @@ window.TerraZData.characterOverrides = {
     "sections": [
       {
         "title": "📋 Ficha Básica",
-        "content": "<p><strong>Nome:</strong> Verity Pennyworth<br><strong>Idade:</strong> 26 anos<br><strong>Status:</strong> Ativa<br><strong>Papel:</strong> Nova mordoma da Mansão Wayne.<br><strong>Conexão:</strong> Sobrinha-neta de Alfred.<br><strong>Local:</strong> Gotham</p>"
+        "content": "<p><strong>Nome:</strong> Verity Pennyworth<br><strong>Idade:</strong> 26 anos<br><strong>Status:</strong> Ativa<br><strong>Papel:</strong> Nova mordoma da Mansão Wayne.<br><strong>Conexão:</strong> Sobrinha-neta de Alfred.<br><strong>Local:</strong> Gotham</p>",
+        "visibility": "public",
+        "position": 0
       },
       {
         "title": "🎯 Personalidade",
-        "content": "<p>Elegante, austera, confiante nas próprias habilidades. Mulher branca, de cabelos longos loiros.</p>"
+        "content": "<p>Elegante, austera, confiante nas próprias habilidades. Mulher branca, de cabelos longos loiros.</p>",
+        "visibility": "public",
+        "position": 1
       },
       {
         "title": "📖 História",
-        "content": "<p>Chegou a Gotham em 2026, enviada por um plano que o próprio Alfred deixou antes de morrer. Assume o lugar do tio-avô como mordoma da Mansão Wayne, ajudando Bruce a se adaptar ao luto.</p>"
+        "content": "<p>Chegou a Gotham em 2026, enviada por um plano que o próprio Alfred deixou antes de morrer. Assume o lugar do tio-avô como mordoma da Mansão Wayne, ajudando Bruce a se adaptar ao luto.</p>",
+        "visibility": "public",
+        "position": 2
       },
       {
         "title": "📝 Conhecimento",
-        "content": "<p>Sabe tudo que precisa saber sobre a vida da Bat-Família.</p>"
+        "content": "<p>Sabe tudo que precisa saber sobre a vida da Bat-Família.</p>",
+        "visibility": "public",
+        "position": 3
       }
     ],
-    "created": true
+    "created": true,
+    "card": {
+      "icon": "🎩",
+      "codename": "Nenhum",
+      "age": "26 anos",
+      "origin": "Humana",
+      "status": "Ativa"
+    }
   },
   "Lian Harper": {
     "eyebrow": "🐱 Cheshire Cat · Filha de Roy Harper",
