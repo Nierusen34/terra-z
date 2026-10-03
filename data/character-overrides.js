@@ -317,26 +317,43 @@ window.TerraZData.characterOverrides = {
     "sections": [
       {
         "title": "📋 Ficha Básica",
-        "content": "<p><strong>Nome:</strong> Dinah Laurel Lance<br><strong>Codinome:</strong> Canário Negro<br><strong>Idade:</strong> 40 anos (nascida em 1987)<br><strong>Status:</strong> Viva<br><strong>Papel:</strong> Líder das Aves de Rapina (grupo em hiato).<br><strong>Local:</strong> Gotham</p>"
+        "content": "<p><strong>Nome:</strong> Dinah Laurel Lance<br><strong>Codinome:</strong> Canário Negro<br><strong>Idade:</strong> 40 anos (nascida em 1987)<br><strong>Status:</strong> Viva<br><strong>Papel:</strong> Líder das Aves de Rapina (grupo em hiato).<br><strong>Local:</strong> Gotham</p>",
+        "visibility": "public",
+        "position": 0
       },
       {
         "title": "📖 História",
-        "content": "<p>Em 2019, após o tiro em Bárbara e a morte de Jason, foi para Gotham ajudar a amiga — e fundou as Aves de Rapina com Bárbara, Helena e Zinda. Estava em Gotham quando Oliver \"morreu\" em 2020. Retornou para o velório e descobriu que Connor já assumia o manto e cuidava de Tristan. Desde então, carrega culpa por não ter estado presente.</p><p>Em 2027, está em Gotham com Oliver. As Aves de Rapina estão em <strong>hiato</strong>. Seus poderes (Grito Canário) estão falhando por causa da distorção do Rei Ômega — a falha é conhecida por membros da Liga e pessoas próximas.</p>"
+        "content": "<p>Em 2019, após o tiro em Bárbara e a morte de Jason, foi para Gotham ajudar a amiga — e fundou as Aves de Rapina com Bárbara, Helena e Zinda. Estava em Gotham quando Oliver \"morreu\" em 2020. Retornou para o velório e descobriu que Connor já assumia o manto e cuidava de Tristan. Desde então, carrega culpa por não ter estado presente.</p><p>Em 2027, está em Gotham com Oliver. As Aves de Rapina estão em <strong>hiato</strong>. Seus poderes (Grito Canário) estão falhando por causa da distorção do Rei Ômega — a falha é conhecida por membros da Liga e pessoas próximas.</p>",
+        "visibility": "public",
+        "position": 1
       },
       {
         "title": "🎯 Personalidade",
-        "content": "<p>Resiliente, culpada por 2019/2020, mãe presente mesmo à distância. Conversa com Tristan por mensagem — não há evitação mútua. Está deixando Oliver agir do jeito dele, acreditando que a decisão de resolver o silêncio deve vir dele.</p>"
+        "content": "<p>Resiliente, culpada por 2019/2020, mãe presente mesmo à distância. Conversa com Tristan por mensagem — não há evitação mútua. Está deixando Oliver agir do jeito dele, acreditando que a decisão de resolver o silêncio deve vir dele.</p>",
+        "visibility": "public",
+        "position": 2
       },
       {
         "title": "⚔️ Habilidades",
-        "content": "<ul><li><strong>Grito Canário:</strong> falhando — distorção do Rei Ômega. Temporário ou permanente ainda não revelado.</li><li><strong>Combate corpo a corpo:</strong> mestre — ensinou Tristan.</li><li><strong>Liderança:</strong> fundadora das Aves de Rapina (em hiato).</li><li><strong>Táticas:</strong> estrategista.</li></ul>"
+        "content": "<ul><li><strong>Grito Canário:</strong> falhando — distorção do Rei Ômega. Temporário ou permanente ainda não revelado.</li><li><strong>Combate corpo a corpo:</strong> mestre — ensinou Tristan.</li><li><strong>Liderança:</strong> fundadora das Aves de Rapina (em hiato).</li><li><strong>Táticas:</strong> estrategista.</li></ul>",
+        "visibility": "public",
+        "position": 3
       },
       {
         "title": "🔗 Relações",
-        "content": "<ul><li><strong>Oliver Queen:</strong> Marido. Amor sólido. Ciente do trauma dele e do silêncio com Tristan.</li><li><strong>Tristan Queen:</strong> Filho. Conversam por mensagem. Não há evitação mútua.</li><li><strong>Connor Hawke:</strong> Gratidão — ele cuidou de Tristan em 2020.</li><li><strong>Bárbara Gordon:</strong> Melhor amiga. Aves de Rapina em hiato.</li><li><strong>Helena Bertinelli e Zinda Blake:</strong> Aliadas nas Aves de Rapina.</li></ul>"
+        "content": "<ul><li><strong>Oliver Queen:</strong> Marido. Amor sólido. Ciente do trauma dele e do silêncio com Tristan.</li><li><strong>Tristan Queen:</strong> Filho. Conversam por mensagem. Não há evitação mútua.</li><li><strong>Connor Hawke:</strong> Gratidão — ele cuidou de Tristan em 2020.</li><li><strong>Bárbara Gordon:</strong> Melhor amiga. Aves de Rapina em hiato.</li><li><strong>Helena Bertinelli e Zinda Blake:</strong> Aliadas nas Aves de Rapina.</li></ul>",
+        "visibility": "public",
+        "position": 4
       }
     ],
-    "created": true
+    "created": true,
+    "card": {
+      "icon": "🐤",
+      "codename": "Canário Negro",
+      "age": "40 anos (nascida em 1987)",
+      "origin": "Humana",
+      "status": "Viva"
+    }
   },
   "Connor Hawke": {
     "eyebrow": "🏹 Arqueiro Verde · Herói de Star City",
