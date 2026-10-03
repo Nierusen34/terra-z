@@ -176,14 +176,15 @@ window.TerraZData.characterTaxonomy = {
     "Oliver Queen": {
       "featured": false,
       "nuclei": [
+        "jlu",
         "queen",
         "gotham",
-        "lobo-cadmus",
-        "jlu"
+        "lobo-cadmus"
       ],
       "type": "hero",
       "status": "active",
-      "tags": []
+      "tags": [],
+      "visibility": "public"
     },
     "Dinah Lance": {
       "featured": false,
