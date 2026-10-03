@@ -567,7 +567,7 @@ window.TerraZData.characterOverrides = {
     "created": true,
     "card": {
       "icon": "🍺",
-      "codename": "",
+      "codename": "Nenhum",
       "age": "65 anos",
       "origin": "Humano",
       "status": "Ativo"
