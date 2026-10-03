@@ -445,18 +445,31 @@ window.TerraZData.characterOverrides = {
     "sections": [
       {
         "title": "📋 Ficha Básica",
-        "content": "<p><strong>Nome:</strong> Damian Wayne<br><strong>Codinome:</strong> Robin<br><strong>Idade:</strong> 14 anos<br><strong>Status:</strong> Ativo<br><strong>Papel:</strong> Robin atual.<br><strong>Local:</strong> Gotham</p>"
+        "content": "<p><strong>Nome:</strong> Damian Wayne<br><strong>Codinome:</strong> Robin<br><strong>Idade:</strong> 14 anos<br><strong>Status:</strong> Ativo<br><strong>Papel:</strong> Robin atual.<br><strong>Local:</strong> Gotham</p>",
+        "visibility": "public",
+        "position": 0
       },
       {
         "title": "🎯 Personalidade",
-        "content": "<p>Arrogante, impulsivo, determinado. <strong>Não aprovou o treinamento de Tristan por Jason</strong> — por isso não se aproximou muito dele. Desvinculou-se da Liga dos Assassinos.</p>"
+        "content": "<p>Arrogante, impulsivo, determinado. <strong>Não aprovou o treinamento de Tristan por Jason</strong> — por isso não se aproximou muito dele. Desvinculou-se da Liga dos Assassinos.</p>",
+        "visibility": "public",
+        "position": 1
       },
       {
         "title": "🔗 Relações",
-        "content": "<ul><li><strong>Bruce:</strong> Pai. Relação tensa, mas de respeito.</li><li><strong>Talia:</strong> Mãe. Desvinculado da Liga, mas se importam à distância.</li><li><strong>Dick:</strong> Mentoria.</li><li><strong>Jason:</strong> Rivalidade. Não aprovou o treinamento de Tristan.</li><li><strong>Tim:</strong> Competição.</li><li><strong>Tristan Queen:</strong> Conhece, mas não se aproximou — não concorda com o treinamento de Jason.</li></ul>"
+        "content": "<ul><li><strong>Bruce:</strong> Pai. Relação tensa, mas de respeito.</li><li><strong>Talia:</strong> Mãe. Desvinculado da Liga, mas se importam à distância.</li><li><strong>Dick:</strong> Mentoria.</li><li><strong>Jason:</strong> Rivalidade. Não aprovou o treinamento de Tristan.</li><li><strong>Tim:</strong> Competição.</li><li><strong>Tristan Queen:</strong> Conhece, mas não se aproximou — não concorda com o treinamento de Jason.</li></ul>",
+        "visibility": "public",
+        "position": 2
       }
     ],
-    "created": true
+    "created": true,
+    "card": {
+      "icon": "🦇",
+      "codename": "Robin",
+      "age": "14 anos",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "Tim Drake": {
     "eyebrow": "📚 Ex-Robin · Vida civil",
