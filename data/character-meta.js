@@ -269,7 +269,8 @@ window.TerraZData.characterTaxonomy = {
       ],
       "type": "civilian",
       "status": "retired",
-      "tags": []
+      "tags": [],
+      "visibility": "public"
     },
     "Verity Pennyworth": {
       "featured": false,
