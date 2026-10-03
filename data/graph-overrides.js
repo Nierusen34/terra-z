@@ -751,6 +751,17 @@ window.TerraZData.graphOverride = {
       "strength": 2,
       "directed": false,
       "visibility": "public"
+    },
+    {
+      "id": "relacao-entidade-19-kendra-ally",
+      "from": "entidade-19",
+      "to": "kendra",
+      "type": "ally",
+      "label": "Parceiro de Missão",
+      "note": "",
+      "strength": 3,
+      "directed": false,
+      "visibility": "public"
     }
   ]
 };
