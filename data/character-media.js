@@ -204,6 +204,26 @@ window.TerraZData.characterMedia = {
       "provider": "external-url",
       "imageUrl": "https://i.pinimg.com/736x/ee/f0/38/eef0385e1a2dac794f9794e528db89d5.jpg",
       "sourceLabel": "Google Imagens · Dan Mora"
+    },
+    "framing": {
+      "card": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "sheet": {
+        "fit": "cover",
+        "x": 50,
+        "y": 8,
+        "zoom": 1
+      },
+      "graph": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      }
     }
   },
   "Damian Wayne": {
