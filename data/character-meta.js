@@ -128,8 +128,8 @@ window.TerraZData.characterTaxonomy = {
       ],
       "type": "protagonist",
       "status": "missing",
-      "visibility": "public",
-      "tags": []
+      "tags": [],
+      "visibility": "public"
     },
     "Kendra Saunders": {
       "featured": false,

@@ -125,7 +125,7 @@ window.TerraZData.characterOverrides = {
     "created": true,
     "card": {
       "icon": "🟢",
-      "codename": "",
+      "codename": "Nenhum ainda",
       "age": "23 anos",
       "origin": "Marciano Branco",
       "status": "Ativo"
