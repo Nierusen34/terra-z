@@ -215,7 +215,8 @@ window.TerraZData.characterTaxonomy = {
       ],
       "type": "antihero",
       "status": "active",
-      "tags": []
+      "tags": [],
+      "visibility": "public"
     },
     "Conner Kent": {
       "featured": false,

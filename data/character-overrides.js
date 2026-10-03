@@ -403,26 +403,43 @@ window.TerraZData.characterOverrides = {
     "sections": [
       {
         "title": "📋 Ficha Básica",
-        "content": "<p><strong>Nome:</strong> Jason Peter Todd<br><strong>Codinome:</strong> Capuz Vermelho<br><strong>Idade:</strong> 23 anos (nascido em 2004)<br><strong>Status:</strong> Vivo — ressuscitado em 2021<br><strong>Papel:</strong> Treinou Tristan (2022–2025). Líder dos Jovens Titãs.<br><strong>Local:</strong> Fora de Gotham — já não estava mais lá quando se juntou aos Titãs</p>"
+        "content": "<p><strong>Nome:</strong> Jason Peter Todd<br><strong>Codinome:</strong> Capuz Vermelho<br><strong>Idade:</strong> 23 anos (nascido em 2004)<br><strong>Status:</strong> Vivo — ressuscitado em 2021<br><strong>Papel:</strong> Treinou Tristan (2022–2025). Líder dos Jovens Titãs.<br><strong>Local:</strong> Fora de Gotham — já não estava mais lá quando se juntou aos Titãs</p>",
+        "visibility": "public",
+        "position": 0
       },
       {
         "title": "📖 História",
-        "content": "<p>Segundo Robin, morto pelo Coringa em 2019 aos 15 anos. Ressuscitado em 2021 pelo <strong>Poço de Lázaro</strong> (artefato da Liga dos Assassinos). Tornou-se o anti-herói Capuz Vermelho. Em 2022, aceitou treinar Tristan Queen em Gotham. Em 2026, foi escolhido para liderar a nova geração dos Jovens Titãs (Fairplay, Cheshire Cat, Flatline, Proxy, Wildcard) — como provocação a Dick Grayson, que lidera os Titãs adultos.</p>"
+        "content": "<p>Segundo Robin, morto pelo Coringa em 2019 aos 15 anos. Ressuscitado em 2021 pelo <strong>Poço de Lázaro</strong> (artefato da Liga dos Assassinos). Tornou-se o anti-herói Capuz Vermelho. Em 2022, aceitou treinar Tristan Queen em Gotham. Em 2026, foi escolhido para liderar a nova geração dos Jovens Titãs (Fairplay, Cheshire Cat, Flatline, Proxy, Wildcard) — como provocação a Dick Grayson, que lidera os Titãs adultos.</p>",
+        "visibility": "public",
+        "position": 1
       },
       {
         "title": "🎯 Personalidade",
-        "content": "<p>Frio, endurecido pela morte e ressurreição. Rebelde — não segue as regras de Bruce. Protetor com quem considera família. Ainda tem pesadelos com a morte de 2019. Relação com os Jovens Titãs ainda em adaptação — eles precisam se acostumar uns com os outros.</p>"
+        "content": "<p>Frio, endurecido pela morte e ressurreição. Rebelde — não segue as regras de Bruce. Protetor com quem considera família. Ainda tem pesadelos com a morte de 2019. Relação com os Jovens Titãs ainda em adaptação — eles precisam se acostumar uns com os outros.</p>",
+        "visibility": "public",
+        "position": 2
       },
       {
         "title": "⚔️ Habilidades",
-        "content": "<ul><li><strong>Combate:</strong> brutal, eficiente, letal.</li><li><strong>Armas:</strong> pistolas, facas, explosivos.</li><li><strong>Estratégia:</strong> táticas de guerrilha.</li><li><strong>Liderança:</strong> relutante, mas eficaz.</li></ul>"
+        "content": "<ul><li><strong>Combate:</strong> brutal, eficiente, letal.</li><li><strong>Armas:</strong> pistolas, facas, explosivos.</li><li><strong>Estratégia:</strong> táticas de guerrilha.</li><li><strong>Liderança:</strong> relutante, mas eficaz.</li></ul>",
+        "visibility": "public",
+        "position": 3
       },
       {
         "title": "🔗 Relações",
-        "content": "<ul><li><strong>Tristan Queen:</strong> Ex-aluno. Mentor e figura fraterna oposta a Connor — o contraponto rebelde ao irmão estável.</li><li><strong>Bruce:</strong> Relação distante, mas Bruce não interfere.</li><li><strong>Dick:</strong> Irmão adotivo. Rivalidade de irmãos. Jason criou sua própria equipe para provocá-lo.</li><li><strong>Tim:</strong> Irmão adotivo. Respeito.</li><li><strong>Damian:</strong> Meio-irmão adotivo. Rivalidade.</li><li><strong>Jovens Titãs:</strong> Líder. Relação em adaptação.</li><li><strong>Lian Harper (Cheshire Cat):</strong> Membro da equipe dele.</li><li><strong>Talia al-Ghul:</strong> Pouco contato.</li></ul>"
+        "content": "<ul><li><strong>Tristan Queen:</strong> Ex-aluno. Mentor e figura fraterna oposta a Connor — o contraponto rebelde ao irmão estável.</li><li><strong>Bruce:</strong> Relação distante, mas Bruce não interfere.</li><li><strong>Dick:</strong> Irmão adotivo. Rivalidade de irmãos. Jason criou sua própria equipe para provocá-lo.</li><li><strong>Tim:</strong> Irmão adotivo. Respeito.</li><li><strong>Damian:</strong> Meio-irmão adotivo. Rivalidade.</li><li><strong>Jovens Titãs:</strong> Líder. Relação em adaptação.</li><li><strong>Lian Harper (Cheshire Cat):</strong> Membro da equipe dele.</li><li><strong>Talia al-Ghul:</strong> Pouco contato.</li></ul>",
+        "visibility": "public",
+        "position": 4
       }
     ],
-    "created": true
+    "created": true,
+    "card": {
+      "icon": "🦇",
+      "codename": "Capuz Vermelho",
+      "age": "23 anos (nascido em 2004)",
+      "origin": "Humano",
+      "status": "Vivo — ressuscitado em 2021"
+    }
   },
   "Conner Kent": {
     "eyebrow": "🦸 Superboy · Clone de Superman e Lex Luthor",
