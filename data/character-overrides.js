@@ -360,26 +360,43 @@ window.TerraZData.characterOverrides = {
     "sections": [
       {
         "title": "📋 Ficha Básica",
-        "content": "<p><strong>Nome:</strong> Connor Hawke<br><strong>Codinome:</strong> Arqueiro Verde (atual)<br><strong>Idade:</strong> 25 anos (nascido em 2002)<br><strong>Status:</strong> Solteiro<br><strong>Papel:</strong> Herói principal de Star City. Responsável pelos negócios da família Queen.<br><strong>Assumiu o manto:</strong> 2020, aos 17/18 anos</p>"
+        "content": "<p><strong>Nome:</strong> Connor Hawke<br><strong>Codinome:</strong> Arqueiro Verde (atual)<br><strong>Idade:</strong> 25 anos (nascido em 2002)<br><strong>Status:</strong> Solteiro<br><strong>Papel:</strong> Herói principal de Star City. Responsável pelos negócios da família Queen.<br><strong>Assumiu o manto:</strong> 2020, aos 17/18 anos</p>",
+        "visibility": "public",
+        "position": 0
       },
       {
         "title": "📖 História",
-        "content": "<p>Filho biológico de Oliver com Sandra Hawke — relacionamento anterior ao casamento com Dinah. Cresceu longe do pai, mas se aproximou com o tempo. Em 2020, quando Oliver \"morreu\", assumiu o manto com o apoio de Dinah (que na época estava em Gotham) e cuidou de Tristan durante o luto. Mantém o título até hoje, mesmo após o retorno do pai.</p><p>Em 2027, além de ser o Arqueiro Verde de Star City, é <strong>responsável pelos negócios da família Queen financeiramente</strong>.</p>"
+        "content": "<p>Filho biológico de Oliver com Sandra Hawke — relacionamento anterior ao casamento com Dinah. Cresceu longe do pai, mas se aproximou com o tempo. Em 2020, quando Oliver \"morreu\", assumiu o manto com o apoio de Dinah (que na época estava em Gotham) e cuidou de Tristan durante o luto. Mantém o título até hoje, mesmo após o retorno do pai.</p><p>Em 2027, além de ser o Arqueiro Verde de Star City, é <strong>responsável pelos negócios da família Queen financeiramente</strong>.</p>",
+        "visibility": "public",
+        "position": 1
       },
       {
         "title": "🎯 Personalidade",
-        "content": "<p>Calmo, equilibrado, estável — o \"pilar\" da família. Mediador (tenta resolver o silêncio entre Oliver e Tristan, sem muito sucesso). Responsável. Não se sente sobrecarregado por ser o Arqueiro Verde.</p>"
+        "content": "<p>Calmo, equilibrado, estável — o \"pilar\" da família. Mediador (tenta resolver o silêncio entre Oliver e Tristan, sem muito sucesso). Responsável. Não se sente sobrecarregado por ser o Arqueiro Verde.</p>",
+        "visibility": "public",
+        "position": 2
       },
       {
         "title": "⚔️ Habilidades",
-        "content": "<ul><li><strong>Arco e flecha:</strong> nível Oliver — talvez superior.</li><li><strong>Combate corpo a corpo:</strong> treinado.</li><li><strong>Táticas:</strong> estrategista.</li><li><strong>Gestão financeira:</strong> responsável pelos negócios Queen.</li></ul>"
+        "content": "<ul><li><strong>Arco e flecha:</strong> nível Oliver — talvez superior.</li><li><strong>Combate corpo a corpo:</strong> treinado.</li><li><strong>Táticas:</strong> estrategista.</li><li><strong>Gestão financeira:</strong> responsável pelos negócios Queen.</li></ul>",
+        "visibility": "public",
+        "position": 3
       },
       {
         "title": "🔗 Relações",
-        "content": "<ul><li><strong>Oliver Queen:</strong> Pai. Respeito, mas tensão não resolvida.</li><li><strong>Tristan Queen:</strong> Irmão mais novo. Elo de comunicação. Contato não constante (ocupado).</li><li><strong>Dinah Lance:</strong> Madrasta. Gratidão.</li><li><strong>Jason Todd:</strong> Contato por causa de Tristan.</li><li><strong>Roy Harper (Arsenal):</strong> Amigo. Roy atua às vezes com Connor e Mia.</li><li><strong>Mia Dearden (Speedy):</strong> Parceira de combate.</li><li><strong>Cyborg (Victor Stone):</strong> Amigo.</li><li><strong>Lian Harper:</strong> Amiga — filha de Roy.</li></ul>"
+        "content": "<ul><li><strong>Oliver Queen:</strong> Pai. Respeito, mas tensão não resolvida.</li><li><strong>Tristan Queen:</strong> Irmão mais novo. Elo de comunicação. Contato não constante (ocupado).</li><li><strong>Dinah Lance:</strong> Madrasta. Gratidão.</li><li><strong>Jason Todd:</strong> Contato por causa de Tristan.</li><li><strong>Roy Harper (Arsenal):</strong> Amigo. Roy atua às vezes com Connor e Mia.</li><li><strong>Mia Dearden (Speedy):</strong> Parceira de combate.</li><li><strong>Cyborg (Victor Stone):</strong> Amigo.</li><li><strong>Lian Harper:</strong> Amiga — filha de Roy.</li></ul>",
+        "visibility": "public",
+        "position": 4
       }
     ],
-    "created": true
+    "created": true,
+    "card": {
+      "icon": "🏹",
+      "codename": "Arqueiro Verde (atual)",
+      "age": "25 anos (nascido em 2002)",
+      "origin": "Humano",
+      "status": "Solteiro"
+    }
   },
   "Jason Todd": {
     "eyebrow": "🦇 Capuz Vermelho · Líder dos Jovens Titãs",

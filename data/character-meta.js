@@ -204,7 +204,8 @@ window.TerraZData.characterTaxonomy = {
       ],
       "type": "hero",
       "status": "active",
-      "tags": []
+      "tags": [],
+      "visibility": "public"
     },
     "Jason Todd": {
       "featured": false,
