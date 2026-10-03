@@ -246,7 +246,8 @@ window.TerraZData.characterTaxonomy = {
       ],
       "type": "hero",
       "status": "active",
-      "tags": []
+      "tags": [],
+      "visibility": "public"
     },
     "Barbara Gordon": {
       "featured": false,
