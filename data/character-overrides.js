@@ -503,18 +503,31 @@ window.TerraZData.characterOverrides = {
     "sections": [
       {
         "title": "📋 Ficha Básica",
-        "content": "<p><strong>Nome:</strong> Lian Harper<br><strong>Codinome:</strong> Cheshire Cat<br><strong>Pai:</strong> Roy Harper (Arsenal)<br><strong>Mãe:</strong> Jade Nguyen (Cheshire)<br><strong>Status:</strong> Ativa<br><strong>Afiliação:</strong> Jovens Titãs (equipe de Jason Todd)</p>"
+        "content": "<p><strong>Nome:</strong> Lian Harper<br><strong>Codinome:</strong> Cheshire Cat<br><strong>Pai:</strong> Roy Harper (Arsenal)<br><strong>Mãe:</strong> Jade Nguyen (Cheshire)<br><strong>Status:</strong> Ativa<br><strong>Afiliação:</strong> Jovens Titãs (equipe de Jason Todd)</p>",
+        "visibility": "public",
+        "position": 0
       },
       {
         "title": "🔗 Relações",
-        "content": "<ul><li><strong>Tristan Queen:</strong> Amiga de infância. Conversam frequentemente por mensagem. Cresceram juntos no círculo heroico (filhos de arqueiros/justiça).</li><li><strong>Jason Todd:</strong> Líder da equipe dela.</li><li><strong>Roy Harper:</strong> Pai. Arsenal (com prótese no braço).</li><li><strong>Connor Hawke:</strong> Amigo da família.</li></ul>"
+        "content": "<ul><li><strong>Tristan Queen:</strong> Amiga de infância. Conversam frequentemente por mensagem. Cresceram juntos no círculo heroico (filhos de arqueiros/justiça).</li><li><strong>Jason Todd:</strong> Líder da equipe dela.</li><li><strong>Roy Harper:</strong> Pai. Arsenal (com prótese no braço).</li><li><strong>Connor Hawke:</strong> Amigo da família.</li></ul>",
+        "visibility": "public",
+        "position": 1
       },
       {
         "title": "📝 Nota narrativa",
-        "content": "<p>A amizade com Tristan é uma das poucas pontes que ele mantém com o círculo heroico. Lian está na equipe de Jason — o que cria uma ligação entre Tristan e os Jovens Titãs.</p>"
+        "content": "<p>A amizade com Tristan é uma das poucas pontes que ele mantém com o círculo heroico. Lian está na equipe de Jason — o que cria uma ligação entre Tristan e os Jovens Titãs.</p>",
+        "visibility": "public",
+        "position": 2
       }
     ],
-    "created": true
+    "created": true,
+    "card": {
+      "icon": "🐱",
+      "codename": "Cheshire Cat",
+      "age": "17 anos",
+      "origin": "Humana",
+      "status": "Ativa"
+    }
   },
   "Roy Harper": {
     "eyebrow": "🏹 Arsenal · Pai de Lian",
