@@ -246,12 +246,13 @@ window.TerraZData.characterTaxonomy = {
     "Barbara Gordon": {
       "featured": false,
       "nuclei": [
-        "gotham",
-        "jlu"
+        "jlu",
+        "gotham"
       ],
       "type": "hero",
       "status": "active",
-      "tags": []
+      "tags": [],
+      "visibility": "public"
     },
     "Damian Wayne": {
       "featured": false,

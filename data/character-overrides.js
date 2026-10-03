@@ -423,22 +423,37 @@ window.TerraZData.characterOverrides = {
     "sections": [
       {
         "title": "📋 Ficha Básica",
-        "content": "<p><strong>Nome:</strong> Barbara Joan Gordon<br><strong>Codinome:</strong> Batgirl (voltou a andar)<br><strong>Idade:</strong> 32 anos (nascida em 1995)<br><strong>Status:</strong> Ativa<br><strong>Papel:</strong> Batgirl. Fundadora das Aves de Rapina (em hiato).<br><strong>Local:</strong> Gotham</p>"
+        "content": "<p><strong>Nome:</strong> Barbara Joan Gordon<br><strong>Codinome:</strong> Batgirl (voltou a andar)<br><strong>Idade:</strong> 32 anos (nascida em 1995)<br><strong>Status:</strong> Ativa<br><strong>Papel:</strong> Batgirl. Fundadora das Aves de Rapina (em hiato).<br><strong>Local:</strong> Gotham</p>",
+        "visibility": "public",
+        "position": 0
       },
       {
         "title": "🎯 Personalidade",
-        "content": "<p>Determinada — superou a paraplegia e voltou a andar. Inteligente, líder. Envolvida com as Aves de Rapina (em hiato).</p>"
+        "content": "<p>Determinada — superou a paraplegia e voltou a andar. Inteligente, líder. Envolvida com as Aves de Rapina (em hiato).</p>",
+        "visibility": "public",
+        "position": 1
       },
       {
         "title": "🔗 Relações",
-        "content": "<ul><li><strong>Dick Grayson:</strong> Namorado.</li><li><strong>Bruce:</strong> Mentor. Respeito.</li><li><strong>Dinah Lance:</strong> Melhor amiga. Aves de Rapina.</li><li><strong>Tristan Queen:</strong> Conhece e já conversaram algumas vezes.</li></ul>"
+        "content": "<ul><li><strong>Dick Grayson:</strong> Namorado.</li><li><strong>Bruce:</strong> Mentor. Respeito.</li><li><strong>Dinah Lance:</strong> Melhor amiga. Aves de Rapina.</li><li><strong>Tristan Queen:</strong> Conhece e já conversaram algumas vezes.</li></ul>",
+        "visibility": "public",
+        "position": 2
       },
       {
         "title": "📝 Nota",
-        "content": "<p>Voltou a andar e atua como Batgirl — não precisa de exoesqueleto ou muletas.</p>"
+        "content": "<p>Voltou a andar e atua como Batgirl — não precisa de exoesqueleto ou muletas.</p>",
+        "visibility": "public",
+        "position": 3
       }
     ],
-    "created": true
+    "created": true,
+    "card": {
+      "icon": "🦇",
+      "codename": "Batgirl (voltou a andar)",
+      "age": "32 anos (nascida em 1995)",
+      "origin": "Humana",
+      "status": "Ativa"
+    }
   },
   "Damian Wayne": {
     "eyebrow": "🦇 Robin · Filho de Bruce e Talia",
