@@ -162,26 +162,43 @@ window.TerraZData.characterOverrides = {
     "sections": [
       {
         "title": "📋 Ficha Básica",
-        "content": "<p><strong>Nome:</strong> Lobo<br><strong>Idade:</strong> 400+ anos (imortal)<br><strong>Espécie:</strong> Czarniano<br><strong>Ocupação:</strong> Mercenário cósmico. Membro temporário da Liga da Justiça.<br><strong>Local atual:</strong> Espaço (missões cósmicas)</p>"
+        "content": "<p><strong>Nome:</strong> Lobo<br><strong>Idade:</strong> 400+ anos (imortal)<br><strong>Espécie:</strong> Czarniano<br><strong>Ocupação:</strong> Mercenário cósmico. Membro temporário da Liga da Justiça.<br><strong>Local atual:</strong> Espaço (missões cósmicas)</p>",
+        "visibility": "public",
+        "position": 0
       },
       {
         "title": "📖 História",
-        "content": "<p>Nascido em Czárnia. Aos 16 anos matou metade da população do planeta; aos 17, criou uma praga que matou o restante. Foi expulso do céu e do inferno, condenado à imortalidade.</p><p>Em 2022, foi mordido pelo clone bebê Riot durante o resgate e — divertido — prometeu 50 anos antes de caçá-lo. <strong>Prazo: 2072.</strong> Após Superman se tornar o Rei Ômega e a Liga entrar na fase <strong>Liga da Justiça Sem Limites</strong> — recrutando heróis, anti-heróis e alguns vilões — Lobo se tornou um <strong>membro temporário</strong> da JLU.</p>"
+        "content": "<p>Nascido em Czárnia. Aos 16 anos matou metade da população do planeta; aos 17, criou uma praga que matou o restante. Foi expulso do céu e do inferno, condenado à imortalidade.</p><p>Em 2022, foi mordido pelo clone bebê Riot durante o resgate e — divertido — prometeu 50 anos antes de caçá-lo. <strong>Prazo: 2072.</strong> Após Superman se tornar o Rei Ômega e a Liga entrar na fase <strong>Liga da Justiça Sem Limites</strong> — recrutando heróis, anti-heróis e alguns vilões — Lobo se tornou um <strong>membro temporário</strong> da JLU.</p>",
+        "visibility": "public",
+        "position": 1
       },
       {
         "title": "🎯 Personalidade",
-        "content": "<p>Cruel, violento, sádico por diversão. Não odeia Riot — é pura diversão sádica. Tem humor ácido e código de ética próprio (cumpre a palavra dada). Nunca matou por engano — sempre escolhe as vítimas. Gosta mais de caçar do que de matar.</p>"
+        "content": "<p>Cruel, violento, sádico por diversão. Não odeia Riot — é pura diversão sádica. Tem humor ácido e código de ética próprio (cumpre a palavra dada). Nunca matou por engano — sempre escolhe as vítimas. Gosta mais de caçar do que de matar.</p>",
+        "visibility": "public",
+        "position": 2
       },
       {
         "title": "⚔️ Habilidades",
-        "content": "<ul><li><strong>Superforça:</strong> nível Superman.</li><li><strong>Super-velocidade:</strong> extremamente rápido.</li><li><strong>Regeneração:</strong> cura acelerada.</li><li><strong>Imortalidade:</strong> não pode morrer.</li><li><strong>Olfato superdesenvolvido:</strong> rastreia alvos a longas distâncias.</li></ul>"
+        "content": "<ul><li><strong>Superforça:</strong> nível Superman.</li><li><strong>Super-velocidade:</strong> extremamente rápido.</li><li><strong>Regeneração:</strong> cura acelerada.</li><li><strong>Imortalidade:</strong> não pode morrer.</li><li><strong>Olfato superdesenvolvido:</strong> rastreia alvos a longas distâncias.</li></ul>",
+        "visibility": "public",
+        "position": 3
       },
       {
         "title": "🔗 Relações",
-        "content": "<ul><li><strong>Riot:</strong> Origem genética. Promessa de caça em 2072 — por diversão sádica.</li><li><strong>Kendra:</strong> Deixou Riot com ela. Sem motivo para atacá-la.</li><li><strong>Liga da Justiça Sem Limites:</strong> Membro temporário — recrutado na fase de expansão.</li><li><strong>Superman (Rei Ômega):</strong> Contexto — a ascensão dele abriu a fase JLU.</li></ul>"
+        "content": "<ul><li><strong>Riot:</strong> Origem genética. Promessa de caça em 2072 — por diversão sádica.</li><li><strong>Kendra:</strong> Deixou Riot com ela. Sem motivo para atacá-la.</li><li><strong>Liga da Justiça Sem Limites:</strong> Membro temporário — recrutado na fase de expansão.</li><li><strong>Superman (Rei Ômega):</strong> Contexto — a ascensão dele abriu a fase JLU.</li></ul>",
+        "visibility": "public",
+        "position": 4
       }
     ],
-    "created": true
+    "created": true,
+    "card": {
+      "icon": "💀",
+      "codename": "O Maioral",
+      "age": "400+ anos (imortal)",
+      "origin": "Czarniano",
+      "status": "Ativo"
+    }
   },
   "M'gann M'orzz": {
     "eyebrow": "🟢 Miss Martian · Marciana Branca",

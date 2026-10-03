@@ -144,12 +144,13 @@ window.TerraZData.characterTaxonomy = {
     "Lobo": {
       "featured": false,
       "nuclei": [
-        "lobo-cadmus",
-        "jlu"
+        "jlu",
+        "lobo-cadmus"
       ],
       "type": "antihero",
       "status": "active",
-      "tags": []
+      "tags": [],
+      "visibility": "public"
     },
     "M'gann M'orzz": {
       "featured": false,
