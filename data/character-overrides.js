@@ -641,8 +641,8 @@ window.TerraZData.characterOverrides = {
     "card": {
       "icon": "👤",
       "codename": "Metamorpho",
-      "age": "",
-      "origin": "",
+      "age": "30",
+      "origin": "Experimento Meta Humano",
       "status": "Ativo"
     }
   }
