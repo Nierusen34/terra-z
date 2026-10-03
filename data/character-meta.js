@@ -160,8 +160,8 @@ window.TerraZData.characterTaxonomy = {
       ],
       "type": "hero",
       "status": "active",
-      "visibility": "public",
-      "tags": []
+      "tags": [],
+      "visibility": "public"
     },
     "J'onn J'onzz": {
       "featured": false,

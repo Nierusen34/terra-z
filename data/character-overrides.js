@@ -237,7 +237,7 @@ window.TerraZData.characterOverrides = {
     "created": true,
     "card": {
       "icon": "🟢",
-      "codename": "",
+      "codename": "Miss Marte",
       "age": "~39 anos",
       "origin": "Marciana Branca fugitiva",
       "status": "Ativo"
