@@ -90,7 +90,7 @@ window.TerraZData.graphOverride = {
         "zoom": 1
       },
       "x": 76,
-      "y": 294,
+      "y": 288,
       "color": "#8b1a1a",
       "r": 38,
       "visibility": "public"
@@ -113,7 +113,7 @@ window.TerraZData.graphOverride = {
         "zoom": 1
       },
       "x": 255,
-      "y": 294,
+      "y": 288,
       "color": "#c45a1c",
       "r": 38,
       "visibility": "public"
@@ -136,7 +136,7 @@ window.TerraZData.graphOverride = {
         "zoom": 1
       },
       "x": 434,
-      "y": 294,
+      "y": 288,
       "color": "#3a3028",
       "r": 38,
       "visibility": "public"
@@ -181,8 +181,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 877,
-      "y": 158,
+      "x": 924,
+      "y": 195,
       "color": "#8b1a1a",
       "r": 38,
       "visibility": "public"
@@ -204,8 +204,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 652,
-      "y": 226,
+      "x": 566,
+      "y": 195,
       "color": "#8b1a1a",
       "r": 38,
       "visibility": "public"
@@ -227,8 +227,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 556,
-      "y": 224,
+      "x": 745,
+      "y": 195,
       "color": "#8b1a1a",
       "r": 38,
       "visibility": "public"
@@ -250,8 +250,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 743,
-      "y": 228,
+      "x": 745,
+      "y": 288,
       "color": "#8b1a1a",
       "r": 38,
       "visibility": "public"
@@ -273,8 +273,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 254,
-      "y": 434,
+      "x": 255,
+      "y": 456,
       "color": "#0a8a4a",
       "r": 38,
       "visibility": "public"
@@ -319,8 +319,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 253,
-      "y": 533,
+      "x": 255,
+      "y": 545,
       "color": "#0a8a4a",
       "r": 38,
       "visibility": "public"
@@ -365,8 +365,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 333,
-      "y": 641,
+      "x": 255,
+      "y": 628,
       "color": "#0a8a4a",
       "r": 38,
       "visibility": "public"
@@ -388,8 +388,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 569,
-      "y": 462,
+      "x": 572,
+      "y": 622,
       "color": "#3a3028",
       "r": 44,
       "visibility": "public"
@@ -411,8 +411,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 572,
-      "y": 628,
+      "x": 745,
+      "y": 622,
       "color": "#3a3028",
       "r": 44,
       "visibility": "public"
@@ -434,8 +434,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 918,
-      "y": 628,
+      "x": 745,
+      "y": 462,
       "color": "#8b1a1a",
       "r": 38,
       "visibility": "public"
@@ -457,9 +457,32 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 916,
-      "y": 519,
+      "x": 918,
+      "y": 628,
       "color": "#8b1a1a",
+      "r": 38,
+      "visibility": "public"
+    },
+    {
+      "id": "entidade-19",
+      "label": "Michael Carter",
+      "subtitle": "Gladiador Dourado",
+      "kind": "character",
+      "ref": "Michael Carter",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 893,
+      "y": 458,
+      "color": "#3a3028",
       "r": 38,
       "visibility": "public"
     }
@@ -704,6 +727,28 @@ window.TerraZData.graphOverride = {
       "label": "Parceiro de Missão",
       "note": "Também participou da missão do bebê Riot",
       "strength": 3,
+      "directed": false,
+      "visibility": "public"
+    },
+    {
+      "id": "relacao-jason-tristan-mentor",
+      "from": "jason",
+      "to": "tristan",
+      "type": "mentor",
+      "label": "Mentor",
+      "note": "",
+      "strength": 5,
+      "directed": false,
+      "visibility": "public"
+    },
+    {
+      "id": "relacao-rex-mason-oliver-ally",
+      "from": "rex-mason",
+      "to": "oliver",
+      "type": "ally",
+      "label": "Parceiro de Missão",
+      "note": "",
+      "strength": 2,
       "directed": false,
       "visibility": "public"
     }
