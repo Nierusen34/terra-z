@@ -599,7 +599,7 @@ window.TerraZData.characterOverrides = {
       "icon": "⏳",
       "codename": "Gladiador Dourado",
       "age": "33",
-      "origin": "",
+      "origin": "Humano do Século XXV",
       "status": "Ativo"
     }
   },
