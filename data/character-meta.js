@@ -316,7 +316,8 @@ window.TerraZData.characterTaxonomy = {
       ],
       "type": "npc",
       "status": "active",
-      "tags": []
+      "tags": [],
+      "visibility": "public"
     },
     "Rex Mason": {
       "featured": false,
