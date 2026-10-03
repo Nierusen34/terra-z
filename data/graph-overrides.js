@@ -695,6 +695,17 @@ window.TerraZData.graphOverride = {
       "strength": 2,
       "directed": false,
       "visibility": "public"
+    },
+    {
+      "id": "relacao-kendra-oliver-ally",
+      "from": "kendra",
+      "to": "oliver",
+      "type": "ally",
+      "label": "Parceiro de Missão",
+      "note": "Também participou da missão do bebê Riot",
+      "strength": 3,
+      "directed": false,
+      "visibility": "public"
     }
   ]
 };
