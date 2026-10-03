@@ -389,7 +389,7 @@ window.TerraZData.graphOverride = {
         "zoom": 1
       },
       "x": 572,
-      "y": 622,
+      "y": 545,
       "color": "#3a3028",
       "r": 44,
       "visibility": "public"
@@ -412,7 +412,7 @@ window.TerraZData.graphOverride = {
         "zoom": 1
       },
       "x": 745,
-      "y": 622,
+      "y": 545,
       "color": "#3a3028",
       "r": 44,
       "visibility": "public"
@@ -457,7 +457,7 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 918,
+      "x": 745,
       "y": 628,
       "color": "#8b1a1a",
       "r": 38,
@@ -480,8 +480,8 @@ window.TerraZData.graphOverride = {
         "y": 24,
         "zoom": 1
       },
-      "x": 893,
-      "y": 458,
+      "x": 918,
+      "y": 545,
       "color": "#3a3028",
       "r": 38,
       "visibility": "public"
