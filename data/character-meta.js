@@ -306,7 +306,8 @@ window.TerraZData.characterTaxonomy = {
       ],
       "type": "npc",
       "status": "active",
-      "tags": []
+      "tags": [],
+      "visibility": "public"
     },
     "Michael Carter": {
       "featured": false,

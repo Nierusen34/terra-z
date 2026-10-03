@@ -535,29 +535,42 @@ window.TerraZData.characterOverrides = {
     "sections": [
       {
         "title": "📋 Ficha Básica",
-        "content": "<p><strong>Nome:</strong><b>George Gandenzio Toombs</b><br><strong>Idade: 65 anos</strong><br><strong>Local: Downtown</strong></p>"
+        "content": "<p><strong>Nome:</strong><b>George Gandenzio Toombs</b><br><strong>Idade: 65 anos</strong><br><strong>Local: Downtown</strong></p>",
+        "visibility": "public",
+        "position": 0
       },
       {
         "title": "📖 História",
-        "content": "<p>Dono do Bar One Bourbon, One Scotch, One Beer.</p>"
+        "content": "<p>Dono do Bar One Bourbon, One Scotch, One Beer.</p>",
+        "visibility": "public",
+        "position": 1
       },
       {
         "title": "🎯 Personalidade",
-        "content": "<p>É um senhor de idade com bastante atitude e que não tem medo de se posicionar.&nbsp;</p>"
+        "content": "<p>É um senhor de idade com bastante atitude e que não tem medo de se posicionar.&nbsp;</p>",
+        "visibility": "public",
+        "position": 2
       },
       {
         "title": "⚔️ Habilidades",
-        "content": "<ul><li>Adicione uma habilidade.</li></ul>"
+        "content": "<ul><li>Adicione uma habilidade.</li></ul>",
+        "visibility": "public",
+        "position": 3
       },
       {
         "title": "🔗 Relações",
-        "content": "<ul><li>Adicione uma relação importante.</li></ul>"
+        "content": "<ul><li>Adicione uma relação importante.</li></ul>",
+        "visibility": "public",
+        "position": 4
       }
     ],
     "created": true,
     "card": {
       "icon": "🍺",
-      "summary": ""
+      "codename": "",
+      "age": "65 anos",
+      "origin": "Humano",
+      "status": "Ativo"
     }
   },
   "Michael Carter": {
