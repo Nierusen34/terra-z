@@ -521,14 +521,25 @@ window.TerraZData.characterOverrides = {
     "sections": [
       {
         "title": "📋 Ficha Básica",
-        "content": "<p><strong>Nome:</strong> Roy Harper<br><strong>Codinome:</strong> Arsenal<br><strong>Idade:</strong> ~35 anos<br><strong>Status:</strong> Ativo<br><strong>Filha:</strong> Lian Harper (Cheshire Cat)<br><strong>Característica especial:</strong> Perdeu um dos braços e usa uma <strong>prótese</strong>. Continua sendo um arqueiro excelente.</p>"
+        "content": "<p><strong>Nome:</strong> Roy Harper<br><strong>Codinome:</strong> Arsenal<br><strong>Idade:</strong> ~35 anos<br><strong>Status:</strong> Ativo<br><strong>Filha:</strong> Lian Harper (Cheshire Cat)<br><strong>Característica especial:</strong> Perdeu um dos braços e usa uma <strong>prótese</strong>. Continua sendo um arqueiro excelente.</p>",
+        "visibility": "public",
+        "position": 0
       },
       {
         "title": "🔗 Relações",
-        "content": "<ul><li><strong>Connor Hawke:</strong> Amigo. Atuam juntos ocasionalmente.</li><li><strong>Mia Dearden (Speedy):</strong> Atuam juntos ocasionalmente.</li><li><strong>Lian Harper:</strong> Filha.</li><li><strong>Titãs (Dick Grayson):</strong> Atua com eles às vezes.</li></ul>"
+        "content": "<ul><li><strong>Connor Hawke:</strong> Amigo. Atuam juntos ocasionalmente.</li><li><strong>Mia Dearden (Speedy):</strong> Atuam juntos ocasionalmente.</li><li><strong>Lian Harper:</strong> Filha.</li><li><strong>Titãs (Dick Grayson):</strong> Atua com eles às vezes.</li></ul>",
+        "visibility": "public",
+        "position": 1
       }
     ],
-    "created": true
+    "created": true,
+    "card": {
+      "icon": "🏹",
+      "codename": "Arsenal",
+      "age": "~35 anos",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "George Gandenzio Toombs": {
     "eyebrow": "",

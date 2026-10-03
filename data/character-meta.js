@@ -297,7 +297,8 @@ window.TerraZData.characterTaxonomy = {
       ],
       "type": "hero",
       "status": "active",
-      "tags": []
+      "tags": [],
+      "visibility": "public"
     },
     "George Gandenzio Toombs": {
       "featured": false,
