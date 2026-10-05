@@ -3,7 +3,10 @@
  */
 
 // Global because importScripts is global.
-var Module = {};\n\n// Terra Z: runtime WASM pinned to @browsermt/bergamot-translator 0.4.9.\nconst TERRA_Z_BERGAMOT_CDN = "https://cdn.jsdelivr.net/npm/@browsermt/bergamot-translator@0.4.9/worker/";
+var Module = {};
+
+// Terra Z: runtime WASM pinned to @browsermt/bergamot-translator 0.4.9.
+const TERRA_Z_BERGAMOT_CDN = "https://cdn.jsdelivr.net/npm/@browsermt/bergamot-translator@0.4.9/worker/";
 
 /**
  * node.js compatibility: Fake GlobalWorkerScope that emulates being inside a
