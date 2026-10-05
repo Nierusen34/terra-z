@@ -16,7 +16,85 @@ var searchDebounce = null;
 var fandomCache = {};
 var fandomHistory = [];
 var currentFandomTitle = null;
-var searchMode = 'local';
+var searchMode = 'fandom';
+
+var fandomSearchAliases = Object.freeze({
+  'estelar':'Starfire',
+  'asa noturna':'Nightwing',
+  'arqueiro verde':'Green Arrow',
+  'arqueiro vermelho':'Red Arrow',
+  'ricardito':'Speedy',
+  'canario negro':'Black Canary',
+  'cacador de marte':'Martian Manhunter',
+  'miss marte':'Miss Martian',
+  'mutano':'Beast Boy',
+  'ciborgue':'Cyborg',
+  'ravena':'Raven',
+  'moca maravilha':'Wonder Girl',
+  'capuz vermelho':'Red Hood',
+  'lanterna verde':'Green Lantern',
+  'mulher maravilha':'Wonder Woman',
+  'super homem':'Superman',
+  'homem morcego':'Batman',
+  'mulher gaviao':'Hawkgirl',
+  'gaviao negro':'Hawkman',
+  'besouro azul':'Blue Beetle',
+  'gladiador dourado':'Booster Gold',
+  'super choque':'Static',
+  'raio negro':'Black Lightning',
+  'exterminador':'Deathstroke',
+  'arlequina':'Harley Quinn',
+  'mulher gato':'Catwoman',
+  'hera venenosa':'Poison Ivy',
+  'coringa':'Joker',
+  'charada':'Riddler',
+  'duas caras':'Two-Face',
+  'espantalho':'Scarecrow',
+  'senhor frio':'Mister Freeze',
+  'sr frio':'Mister Freeze',
+  'adao negro':'Black Adam',
+  'capitao bumerangue':'Captain Boomerang',
+  'flash reverso':'Reverse-Flash',
+  'senhor destino':'Doctor Fate',
+  'doutor destino':'Doctor Fate',
+  'doutor luz':'Doctor Light',
+  'capitao atomo':'Captain Atom',
+  'atomo':'Atom',
+  'homem elastico':'Elongated Man',
+  'homem borracha':'Plastic Man',
+  'homem animal':'Animal Man',
+  'monstro do pantano':'Swamp Thing',
+  'questao':'Question',
+  'espectro':'Spectre',
+  'patrulha do destino':'Doom Patrol',
+  'liga da justica':'Justice League',
+  'jovens titas':'Teen Titans',
+  'sociedade da justica':'Justice Society of America',
+  'aves de rapina':'Birds of Prey',
+  'esquadrao suicida':'Suicide Squad',
+  'legiao dos super herois':'Legion of Super-Heroes',
+  'novos deuses':'New Gods'
+});
+
+function normalizeFandomSearchKey(value){
+  return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+}
+
+function resolveFandomQuery(query){
+  var original = String(query || '').trim();
+  var alias = fandomSearchAliases[normalizeFandomSearchKey(original)] || '';
+  return {
+    original:original,
+    query:alias || original,
+    usedAlias:!!alias
+  };
+}
+
+function fandomCacheKey(query){
+  var resolved = resolveFandomQuery(query);
+  return normalizeFandomSearchKey(resolved.original) + '|' + normalizeFandomSearchKey(resolved.query);
+}
 var fandomOriginalHtml = '';
 var fandomTranslatedHtmlCache = {};
 var fandomTextTranslationCache = {};
@@ -177,12 +255,21 @@ function searchLocalDocument(query){
 }
 
 function searchFandom(query){
-  if(fandomCache[query]){ renderFandomResults(fandomCache[query], query); return; }
-  var url = 'https://dc.fandom.com/api.php?action=opensearch&search=' + encodeURIComponent(query) + '&limit=12&namespace=0&format=json&origin=*';
+  var resolved = resolveFandomQuery(query);
+  var key = fandomCacheKey(query);
+  if(fandomCache[key]){ renderFandomResults(fandomCache[key], query); return; }
+
+  var url = 'https://dc.fandom.com/api.php?action=opensearch&search=' + encodeURIComponent(resolved.query) + '&limit=12&namespace=0&format=json&origin=*';
   fetch(url).then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
-      var result = { titles: data[1] || [], descriptions: data[2] || [], urls: data[3] || [] };
-      fandomCache[query] = result;
+      var result = {
+        titles:data[1] || [],
+        descriptions:data[2] || [],
+        urls:data[3] || [],
+        searchedAs:resolved.query,
+        usedAlias:resolved.usedAlias
+      };
+      fandomCache[key] = result;
       renderFandomResults(result, query);
     })
     .catch(function(err){
@@ -196,7 +283,8 @@ function searchFandom(query){
 function renderFandomResults(data, query){
   var titles = data.titles || [];
   var descriptions = data.descriptions || [];
-  document.getElementById('searchInfo').textContent = titles.length + ' resultado(s) para "' + query + '"';
+  var aliasInfo = data.usedAlias && data.searchedAs ? ' · DC Wiki: "' + data.searchedAs + '"' : '';
+  document.getElementById('searchInfo').textContent = titles.length + ' resultado(s) para "' + query + '"' + aliasInfo;
   if(titles.length === 0){
     document.getElementById('searchResults').innerHTML = '<div class="search-empty">Nenhum resultado encontrado na DC Wiki.</div>';
     return;
@@ -528,23 +616,65 @@ function splitOuterWhitespace(value){
   };
 }
 
+async function translateFandomOnline(text){
+  var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=pt&dt=t&q=' + encodeURIComponent(text);
+  var response = await fetch(url, {
+    method:'GET',
+    mode:'cors',
+    credentials:'omit',
+    cache:'no-store'
+  });
+  if(!response.ok) throw new Error('HTTP ' + response.status);
+
+  var data = await response.json();
+  if(!Array.isArray(data) || !Array.isArray(data[0])) throw new Error('Resposta de tradução inválida.');
+
+  var translated = data[0].map(function(part){
+    return Array.isArray(part) && part[0] ? part[0] : '';
+  }).join('');
+
+  return translated || text;
+}
+
 async function getFandomTranslator(){
   if(fandomTranslatorPromise) return fandomTranslatorPromise;
 
-  if(!('Translator' in self)){
-    throw new Error('A tradução integrada não está disponível neste navegador.');
-  }
+  fandomTranslatorPromise = (async function(){
+    if('Translator' in self && self.Translator && typeof self.Translator.create === 'function'){
+      try{
+        if(typeof self.Translator.availability === 'function'){
+          var availability = await self.Translator.availability({
+            sourceLanguage:'en',
+            targetLanguage:'pt'
+          });
+          if(availability === 'unavailable') throw new Error('Par de idiomas indisponível.');
+        }
 
-  fandomTranslatorPromise = Translator.create({
-    sourceLanguage:'en',
-    targetLanguage:'pt',
-    monitor:function(monitor){
-      monitor.addEventListener('downloadprogress',function(event){
-        var percent = Math.max(0,Math.min(100,Math.round((event.loaded || 0) * 100)));
-        updateFandomTranslateButton('translating', percent);
-      });
+        var nativeTranslator = await self.Translator.create({
+          sourceLanguage:'en',
+          targetLanguage:'pt',
+          monitor:function(monitor){
+            monitor.addEventListener('downloadprogress',function(event){
+              var percent = Math.max(0,Math.min(100,Math.round((event.loaded || 0) * 100)));
+              updateFandomTranslateButton('translating', percent);
+            });
+          }
+        });
+
+        return {
+          kind:'native',
+          translate:function(text){ return nativeTranslator.translate(text); }
+        };
+      }catch(error){
+        console.warn('Terra Z: tradução local indisponível; usando fallback online.', error);
+      }
     }
-  }).catch(function(error){
+
+    return {
+      kind:'online',
+      translate:translateFandomOnline
+    };
+  })().catch(function(error){
     fandomTranslatorPromise = null;
     throw error;
   });
@@ -885,8 +1015,9 @@ document.addEventListener('terra-z:auth-changed',function(){
   var btn=document.getElementById('modalImportBtn');
   if(btn) btn.hidden=!canDcImport();
   var query=searchInput ? searchInput.value.trim() : '';
-  if(searchMode==='fandom' && query.length>=2 && fandomCache[query]){
-    renderFandomResults(fandomCache[query],query);
+  var key=fandomCacheKey(query);
+  if(searchMode==='fandom' && query.length>=2 && fandomCache[key]){
+    renderFandomResults(fandomCache[key],query);
   }
 });
 
