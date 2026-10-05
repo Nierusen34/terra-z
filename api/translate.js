@@ -1,10 +1,9 @@
 import { applyCors } from "./_lib/cors.js";
 
-const MAX_ITEMS = 180;
+const MAX_ITEMS = 50;
 const MAX_ITEM_CHARS = 7000;
-const MAX_TOTAL_CHARS = 70000;
-const GROUP_CHAR_LIMIT = 3200;
-const SPLIT_TOKEN = "[[[TERRA_Z_SPLIT_5E7F]]]";
+const MAX_TOTAL_CHARS = 6500;
+const GATEWAY_MODEL = "openai/gpt-5.4-nano";
 
 function cleanTexts(value){
   const list = Array.isArray(value) ? value : [];
@@ -29,98 +28,16 @@ function cleanTexts(value){
   });
 
   if(total > MAX_TOTAL_CHARS){
-    const error = new Error("O artigo é grande demais para uma única tradução.");
+    const error = new Error("Lote de tradução grande demais.");
     error.status = 413;
-    error.code = "translation_too_large";
+    error.code = "translation_batch_too_large";
     throw error;
   }
 
   return texts;
 }
 
-function groupsFor(texts){
-  const groups = [];
-  let current = [];
-  let size = 0;
-
-  texts.forEach((text,index) => {
-    const extra = text.length + (current.length ? SPLIT_TOKEN.length + 4 : 0);
-    if(current.length && size + extra > GROUP_CHAR_LIMIT){
-      groups.push(current);
-      current = [];
-      size = 0;
-    }
-    current.push({text,index});
-    size += extra;
-  });
-
-  if(current.length) groups.push(current);
-  return groups;
-}
-
-function parseUnofficialPayload(data, fallback){
-  if(!Array.isArray(data) || !Array.isArray(data[0])) return fallback;
-  const translated = data[0]
-    .map(part => Array.isArray(part) && part[0] ? part[0] : "")
-    .join("");
-  return translated || fallback;
-}
-
-async function translateUnofficial(text){
-  const url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=pt&dt=t&q=" +
-    encodeURIComponent(text);
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 9000);
-
-  try {
-    const response = await fetch(url,{
-      method:"GET",
-      headers:{
-        "Accept":"application/json,text/plain,*/*",
-        "User-Agent":"Mozilla/5.0 Terra-Z-Translation/1.0"
-      },
-      signal:controller.signal
-    });
-
-    if(!response.ok){
-      const error = new Error("Serviço de tradução respondeu HTTP " + response.status + ".");
-      error.status = 502;
-      throw error;
-    }
-
-    const data = await response.json();
-    return parseUnofficialPayload(data,text);
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-async function translateWithUnofficialApi(texts){
-  const output = new Array(texts.length);
-  const groups = groupsFor(texts);
-
-  for(const group of groups){
-    const joined = group.map(item => item.text).join("\n\n" + SPLIT_TOKEN + "\n\n");
-    const translated = await translateUnofficial(joined);
-    const parts = translated.split(SPLIT_TOKEN);
-
-    if(parts.length === group.length){
-      group.forEach((item,idx) => {
-        output[item.index] = String(parts[idx] || item.text).trim();
-      });
-      continue;
-    }
-
-    for(const item of group){
-      output[item.index] = await translateUnofficial(item.text);
-    }
-  }
-
-  return output.map((value,index) => value || texts[index]);
-}
-
-async function translateWithOfficialApi(texts, apiKey){
+async function translateWithOfficialGoogle(texts, apiKey){
   const response = await fetch(
     "https://translation.googleapis.com/language/translate/v2?key=" + encodeURIComponent(apiKey),
     {
@@ -137,10 +54,9 @@ async function translateWithOfficialApi(texts, apiKey){
 
   const data = await response.json().catch(() => ({}));
   if(!response.ok){
-    const error = new Error(
-      data?.error?.message || "Falha no serviço oficial de tradução."
-    );
-    error.status = 502;
+    const error = new Error(data?.error?.message || "Falha no serviço oficial de tradução.");
+    error.status = response.status === 429 ? 503 : 502;
+    error.code = "google_translate_failed";
     throw error;
   }
 
@@ -148,12 +64,118 @@ async function translateWithOfficialApi(texts, apiKey){
   if(translations.length !== texts.length){
     const error = new Error("O serviço de tradução retornou uma resposta incompleta.");
     error.status = 502;
+    error.code = "google_translate_incomplete";
     throw error;
   }
 
-  return translations.map((item,index) =>
-    String(item?.translatedText || texts[index])
-  );
+  return translations.map((item,index) => String(item?.translatedText || texts[index]));
+}
+
+function gatewayToken(){
+  return String(
+    process.env.AI_GATEWAY_API_KEY ||
+    process.env.VERCEL_OIDC_TOKEN ||
+    ""
+  ).trim();
+}
+
+async function translateWithGateway(texts){
+  const token = gatewayToken();
+  if(!token){
+    const error = new Error("O tradutor móvel ainda não está disponível nesta implantação.");
+    error.status = 503;
+    error.code = "translation_gateway_unavailable";
+    throw error;
+  }
+
+  const schema = {
+    type:"object",
+    properties:{
+      translations:{
+        type:"array",
+        items:{type:"string"},
+        minItems:texts.length,
+        maxItems:texts.length
+      }
+    },
+    required:["translations"],
+    additionalProperties:false
+  };
+
+  const response = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions",{
+    method:"POST",
+    headers:{
+      "Authorization":"Bearer " + token,
+      "Content-Type":"application/json",
+      "Accept":"application/json"
+    },
+    body:JSON.stringify({
+      model:GATEWAY_MODEL,
+      stream:false,
+      messages:[
+        {
+          role:"system",
+          content:[
+            "Você é o tradutor integrado do projeto Terra Z.",
+            "Traduza do inglês para português brasileiro natural e fiel.",
+            "Preserve nomes próprios, nomes de personagens, codinomes, números e siglas quando não houver tradução consagrada.",
+            "Não resuma, não explique, não censure e não acrescente informações.",
+            "Mantenha exatamente a mesma quantidade de itens e a mesma ordem."
+          ].join(" ")
+        },
+        {
+          role:"user",
+          content:JSON.stringify({texts})
+        }
+      ],
+      response_format:{
+        type:"json_schema",
+        json_schema:{
+          name:"terra_z_translation_batch",
+          strict:true,
+          schema
+        }
+      }
+    })
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if(!response.ok){
+    const upstreamStatus = Number(response.status || 0);
+    const detail = String(data?.error?.message || "").trim();
+
+    const error = new Error(
+      upstreamStatus === 402
+        ? "Os créditos mensais do tradutor foram esgotados."
+        : upstreamStatus === 429
+          ? "O tradutor está temporariamente ocupado. Tente novamente em instantes."
+          : detail || "Falha no serviço de tradução."
+    );
+    error.status = upstreamStatus === 429 ? 503 : (upstreamStatus === 402 ? 503 : 502);
+    error.code = "translation_gateway_failed";
+    throw error;
+  }
+
+  const content = data?.choices?.[0]?.message?.content;
+  let parsed;
+  try{
+    parsed = typeof content === "string" ? JSON.parse(content) : content;
+  }catch{
+    const error = new Error("O tradutor retornou uma resposta inválida.");
+    error.status = 502;
+    error.code = "translation_gateway_invalid";
+    throw error;
+  }
+
+  const translations = parsed?.translations;
+  if(!Array.isArray(translations) || translations.length !== texts.length){
+    const error = new Error("O tradutor retornou um lote incompleto.");
+    error.status = 502;
+    error.code = "translation_gateway_incomplete";
+    throw error;
+  }
+
+  return translations.map((value,index) => String(value || texts[index]));
 }
 
 export default async function handler(req,res){
@@ -166,21 +188,22 @@ export default async function handler(req,res){
 
   res.setHeader("Cache-Control","no-store, max-age=0");
 
-  try {
+  try{
     const body = req.body && typeof req.body === "object" ? req.body : {};
     const texts = cleanTexts(body.texts || (body.text != null ? [body.text] : []));
 
-    const apiKey = String(process.env.GOOGLE_TRANSLATE_API_KEY || "").trim();
-    const translations = apiKey
-      ? await translateWithOfficialApi(texts,apiKey)
-      : await translateWithUnofficialApi(texts);
+    const googleKey = String(process.env.GOOGLE_TRANSLATE_API_KEY || "").trim();
+    const translations = googleKey
+      ? await translateWithOfficialGoogle(texts,googleKey)
+      : await translateWithGateway(texts);
 
     return res.status(200).json({
       ok:true,
       translations,
-      provider:apiKey ? "google-cloud" : "google-web-fallback"
+      provider:googleKey ? "google-cloud" : "vercel-ai-gateway",
+      model:googleKey ? null : GATEWAY_MODEL
     });
-  } catch(error){
+  }catch(error){
     console.error("Terra Z translation:",error);
     return res.status(error.status || 502).json({
       error:error.code || "translation_failed",
