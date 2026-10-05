@@ -753,13 +753,30 @@ async function translateFandomArticle(){
     });
 
     if(translator.translateMany && pending.length){
-      var batchSize = 120;
+      var batches = [];
+      var currentBatch = [];
+      var currentChars = 0;
+      var maxBatchChars = 5200;
+      var maxBatchItems = 36;
+
+      pending.forEach(function(sourceText){
+        var nextChars = currentChars + sourceText.length;
+        if(currentBatch.length && (nextChars > maxBatchChars || currentBatch.length >= maxBatchItems)){
+          batches.push(currentBatch);
+          currentBatch = [];
+          currentChars = 0;
+        }
+        currentBatch.push(sourceText);
+        currentChars += sourceText.length;
+      });
+      if(currentBatch.length) batches.push(currentBatch);
+
       var completed = unique.length - pending.length;
 
-      for(var start=0;start<pending.length;start+=batchSize){
+      for(var batchIndex=0;batchIndex<batches.length;batchIndex++){
         if(runId !== fandomTranslationRunId || title !== currentFandomTitle) return;
 
-        var batch = pending.slice(start,start+batchSize);
+        var batch = batches[batchIndex];
         var translatedBatch = await translator.translateMany(batch);
 
         batch.forEach(function(sourceText,index){
