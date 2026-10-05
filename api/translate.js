@@ -1,9 +1,9 @@
 import { applyCors } from "./_lib/cors.js";
 
-const MAX_ITEMS = 50;
-const MAX_ITEM_CHARS = 7000;
-const MAX_TOTAL_CHARS = 6500;
-const GATEWAY_MODEL = "openai/gpt-5.4-nano";
+const MAX_ITEMS = 900;
+const MAX_ITEM_CHARS = 45000;
+const MAX_TOTAL_CHARS = 45000;
+const DEFAULT_ENDPOINT = "https://api.cognitive.microsofttranslator.com";
 
 function cleanTexts(value){
   const list = Array.isArray(value) ? value : [];
@@ -37,145 +37,99 @@ function cleanTexts(value){
   return texts;
 }
 
-async function translateWithOfficialGoogle(texts, apiKey){
-  const response = await fetch(
-    "https://translation.googleapis.com/language/translate/v2?key=" + encodeURIComponent(apiKey),
-    {
-      method:"POST",
-      headers:{"Content-Type":"application/json","Accept":"application/json"},
-      body:JSON.stringify({
-        q:texts,
-        source:"en",
-        target:"pt",
-        format:"text"
-      })
-    }
-  );
+function azureConfig(){
+  const key = String(process.env.AZURE_TRANSLATOR_KEY || "").trim();
+  const region = String(process.env.AZURE_TRANSLATOR_REGION || "").trim();
+  const endpoint = String(process.env.AZURE_TRANSLATOR_ENDPOINT || DEFAULT_ENDPOINT)
+    .trim()
+    .replace(/\/+$/,"");
 
-  const data = await response.json().catch(() => ({}));
-  if(!response.ok){
-    const error = new Error(data?.error?.message || "Falha no serviço oficial de tradução.");
-    error.status = response.status === 429 ? 503 : 502;
-    error.code = "google_translate_failed";
+  if(!key){
+    const error = new Error("O Azure Translator ainda não foi configurado no Terra Z.");
+    error.status = 503;
+    error.code = "azure_translator_not_configured";
     throw error;
   }
 
-  const translations = data?.data?.translations || [];
-  if(translations.length !== texts.length){
-    const error = new Error("O serviço de tradução retornou uma resposta incompleta.");
-    error.status = 502;
-    error.code = "google_translate_incomplete";
-    throw error;
-  }
-
-  return translations.map((item,index) => String(item?.translatedText || texts[index]));
+  return {key,region,endpoint};
 }
 
-function gatewayToken(){
-  return String(
-    process.env.AI_GATEWAY_API_KEY ||
-    process.env.VERCEL_OIDC_TOKEN ||
+function azureErrorMessage(status, payload){
+  const upstream = String(
+    payload?.error?.message ||
+    payload?.message ||
     ""
   ).trim();
+
+  if(status === 401 || status === 403){
+    return "A chave ou a região do Azure Translator não foi aceita.";
+  }
+
+  if(status === 429){
+    return "A cota gratuita do Azure Translator foi atingida ou consumida rápido demais. Tente novamente mais tarde.";
+  }
+
+  return upstream || "Falha no Azure Translator.";
 }
 
-async function translateWithGateway(texts){
-  const token = gatewayToken();
-  if(!token){
-    const error = new Error("O tradutor móvel ainda não está disponível nesta implantação.");
-    error.status = 503;
-    error.code = "translation_gateway_unavailable";
-    throw error;
-  }
+async function translateWithAzure(texts){
+  const {key,region,endpoint} = azureConfig();
+  const url = endpoint + "/translate?api-version=3.0&from=en&to=pt";
 
-  const schema = {
-    type:"object",
-    properties:{
-      translations:{
-        type:"array",
-        items:{type:"string"},
-        minItems:texts.length,
-        maxItems:texts.length
-      }
-    },
-    required:["translations"],
-    additionalProperties:false
+  const headers = {
+    "Ocp-Apim-Subscription-Key":key,
+    "Content-Type":"application/json",
+    "Accept":"application/json"
   };
 
-  const response = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions",{
-    method:"POST",
-    headers:{
-      "Authorization":"Bearer " + token,
-      "Content-Type":"application/json",
-      "Accept":"application/json"
-    },
-    body:JSON.stringify({
-      model:GATEWAY_MODEL,
-      stream:false,
-      messages:[
-        {
-          role:"system",
-          content:[
-            "Você é o tradutor integrado do projeto Terra Z.",
-            "Traduza do inglês para português brasileiro natural e fiel.",
-            "Preserve nomes próprios, nomes de personagens, codinomes, números e siglas quando não houver tradução consagrada.",
-            "Não resuma, não explique, não censure e não acrescente informações.",
-            "Mantenha exatamente a mesma quantidade de itens e a mesma ordem."
-          ].join(" ")
-        },
-        {
-          role:"user",
-          content:JSON.stringify({texts})
-        }
-      ],
-      response_format:{
-        type:"json_schema",
-        json_schema:{
-          name:"terra_z_translation_batch",
-          strict:true,
-          schema
-        }
-      }
-    })
-  });
-
-  const data = await response.json().catch(() => ({}));
-  if(!response.ok){
-    const upstreamStatus = Number(response.status || 0);
-    const detail = String(data?.error?.message || "").trim();
-
-    const error = new Error(
-      upstreamStatus === 402
-        ? "Os créditos mensais do tradutor foram esgotados."
-        : upstreamStatus === 429
-          ? "O tradutor está temporariamente ocupado. Tente novamente em instantes."
-          : detail || "Falha no serviço de tradução."
-    );
-    error.status = upstreamStatus === 429 ? 503 : (upstreamStatus === 402 ? 503 : 502);
-    error.code = "translation_gateway_failed";
-    throw error;
+  if(region && region.toLowerCase() !== "global"){
+    headers["Ocp-Apim-Subscription-Region"] = region;
   }
 
-  const content = data?.choices?.[0]?.message?.content;
-  let parsed;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12000);
+
   try{
-    parsed = typeof content === "string" ? JSON.parse(content) : content;
-  }catch{
-    const error = new Error("O tradutor retornou uma resposta inválida.");
-    error.status = 502;
-    error.code = "translation_gateway_invalid";
-    throw error;
-  }
+    const response = await fetch(url,{
+      method:"POST",
+      headers,
+      body:JSON.stringify(texts.map(text => ({text}))),
+      signal:controller.signal
+    });
 
-  const translations = parsed?.translations;
-  if(!Array.isArray(translations) || translations.length !== texts.length){
-    const error = new Error("O tradutor retornou um lote incompleto.");
-    error.status = 502;
-    error.code = "translation_gateway_incomplete";
-    throw error;
-  }
+    const data = await response.json().catch(() => ({}));
 
-  return translations.map((value,index) => String(value || texts[index]));
+    if(!response.ok){
+      const error = new Error(azureErrorMessage(response.status,data));
+      error.status = response.status === 429 ? 503 : 502;
+      error.code = response.status === 429
+        ? "azure_translator_quota"
+        : "azure_translator_failed";
+      throw error;
+    }
+
+    if(!Array.isArray(data) || data.length !== texts.length){
+      const error = new Error("O Azure Translator retornou uma resposta incompleta.");
+      error.status = 502;
+      error.code = "azure_translator_incomplete";
+      throw error;
+    }
+
+    return data.map((item,index) => {
+      const translated = item?.translations?.[0]?.text;
+      return String(translated || texts[index]);
+    });
+  }catch(error){
+    if(error?.name === "AbortError"){
+      const timeout = new Error("O Azure Translator demorou demais para responder.");
+      timeout.status = 504;
+      timeout.code = "azure_translator_timeout";
+      throw timeout;
+    }
+    throw error;
+  }finally{
+    clearTimeout(timer);
+  }
 }
 
 export default async function handler(req,res){
@@ -191,17 +145,13 @@ export default async function handler(req,res){
   try{
     const body = req.body && typeof req.body === "object" ? req.body : {};
     const texts = cleanTexts(body.texts || (body.text != null ? [body.text] : []));
-
-    const googleKey = String(process.env.GOOGLE_TRANSLATE_API_KEY || "").trim();
-    const translations = googleKey
-      ? await translateWithOfficialGoogle(texts,googleKey)
-      : await translateWithGateway(texts);
+    const translations = await translateWithAzure(texts);
 
     return res.status(200).json({
       ok:true,
       translations,
-      provider:googleKey ? "google-cloud" : "vercel-ai-gateway",
-      model:googleKey ? null : GATEWAY_MODEL
+      provider:"azure-translator",
+      target:"pt-BR"
     });
   }catch(error){
     console.error("Terra Z translation:",error);
