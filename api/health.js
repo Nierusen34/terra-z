@@ -111,7 +111,7 @@ export default async function handler(req,res){
     media_library_v1:true,
     graph_independent_media:true,
     api_consolidation_v1:true,
-    serverless_functions:8,
+    serverless_functions:9,
     development_branch:"dev",
     admin_lazy_loading:true,
     admin_foundation_v1:true,
