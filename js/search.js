@@ -756,8 +756,8 @@ async function translateFandomArticle(){
       var batches = [];
       var currentBatch = [];
       var currentChars = 0;
-      var maxBatchChars = 5200;
-      var maxBatchItems = 36;
+      var maxBatchChars = 40000;
+      var maxBatchItems = 800;
 
       pending.forEach(function(sourceText){
         var nextChars = currentChars + sourceText.length;
