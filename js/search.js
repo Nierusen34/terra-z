@@ -561,6 +561,13 @@ function updateFandomTranslateButton(state, progress){
     return;
   }
 
+  if(state === 'preparing'){
+    btn.disabled = true;
+    btn.classList.add('translating');
+    btn.textContent = '⬇️ Preparando tradutor local…';
+    return;
+  }
+
   if(state === 'translating'){
     btn.disabled = true;
     btn.classList.add('translating');
@@ -616,29 +623,68 @@ function splitOuterWhitespace(value){
   };
 }
 
-async function translateFandomOnlineBatch(texts){
-  var backend = window.TerraZApp && window.TerraZApp.backend;
-  if(!backend || !backend.request){
-    throw new Error('Backend de tradução indisponível.');
-  }
+var bergamotEnginePromise = null;
 
-  var result = await backend.request('/api/translate',{
-    method:'POST',
-    body:{texts:texts}
-  },false);
-
-  var translated = result && Array.isArray(result.translations) ? result.translations : [];
-  if(translated.length !== texts.length){
-    throw new Error('O backend retornou uma tradução incompleta.');
-  }
-
-  return translated.map(function(value,index){
-    return String(value || texts[index]);
-  });
+function bergamotModuleUrl(){
+  return new URL('vendor/bergamot/translator.js', document.baseURI).href;
 }
 
-async function translateFandomOnline(text){
-  var result = await translateFandomOnlineBatch([text]);
+async function getBergamotEngine(){
+  if(bergamotEnginePromise) return bergamotEnginePromise;
+
+  if(!('WebAssembly' in self) || !('Worker' in self)){
+    throw new Error('Este navegador não oferece WebAssembly/Web Worker para tradução local.');
+  }
+
+  bergamotEnginePromise = import(bergamotModuleUrl()).then(function(module){
+    if(!module || typeof module.BatchTranslator !== 'function'){
+      throw new Error('Módulo de tradução local inválido.');
+    }
+
+    return new module.BatchTranslator({
+      workers:1,
+      batchSize:4,
+      cacheSize:4096,
+      downloadTimeout:180000,
+      pivotLanguage:null,
+      useNativeIntGemm:false
+    });
+  }).catch(function(error){
+    bergamotEnginePromise = null;
+    throw error;
+  });
+
+  return bergamotEnginePromise;
+}
+
+async function translateFandomBergamotBatch(texts){
+  var engine = await getBergamotEngine();
+  var output = [];
+
+  for(var start=0;start<texts.length;start+=16){
+    var slice = texts.slice(start,start+16);
+    var translated = await Promise.all(slice.map(function(text){
+      return engine.translate({
+        from:'en',
+        to:'pt',
+        text:String(text || ''),
+        html:false,
+        priority:0
+      });
+    }));
+
+    translated.forEach(function(result,index){
+      var source = slice[index];
+      var value = result && result.target ? result.target.text : '';
+      output.push(String(value || source));
+    });
+  }
+
+  return output;
+}
+
+async function translateFandomBergamot(text){
+  var result = await translateFandomBergamotBatch([text]);
   return result[0] || text;
 }
 
@@ -672,14 +718,14 @@ async function getFandomTranslator(){
           translate:function(text){ return nativeTranslator.translate(text); }
         };
       }catch(error){
-        console.warn('Terra Z: tradução local indisponível; usando fallback online.', error);
+        console.warn('Terra Z: Translator nativo indisponível; usando Bergamot local.', error);
       }
     }
 
     return {
-      kind:'online',
-      translate:translateFandomOnline,
-      translateMany:translateFandomOnlineBatch
+      kind:'bergamot',
+      translate:translateFandomBergamot,
+      translateMany:translateFandomBergamotBatch
     };
   })().catch(function(error){
     fandomTranslatorPromise = null;
@@ -727,6 +773,16 @@ async function translateFandomArticle(){
     var translator = await getFandomTranslator();
     if(runId !== fandomTranslationRunId || title !== currentFandomTitle) return;
 
+    if(translator.kind === 'bergamot'){
+      updateFandomTranslateButton('preparing');
+      try{
+        if(localStorage.getItem('terra-z-bergamot-first-use') !== '1'){
+          showToast('Primeiro uso: baixando o modelo local EN→PT. Depois ele fica em cache no aparelho.','info',6000);
+          localStorage.setItem('terra-z-bergamot-first-use','1');
+        }
+      }catch(error){}
+    }
+
     var holder = document.createElement('div');
     holder.innerHTML = fandomOriginalHtml;
 
@@ -756,8 +812,8 @@ async function translateFandomArticle(){
       var batches = [];
       var currentBatch = [];
       var currentChars = 0;
-      var maxBatchChars = 40000;
-      var maxBatchItems = 800;
+      var maxBatchChars = 12000;
+      var maxBatchItems = 24;
 
       pending.forEach(function(sourceText){
         var nextChars = currentChars + sourceText.length;
