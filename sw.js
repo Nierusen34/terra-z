@@ -1,8 +1,9 @@
 "use strict";
 
-const VERSION="terra-z-pwa-v1.4.0-20261005c";
+const VERSION="terra-z-pwa-v1.4.0-20261005d";
 const CORE_CACHE=VERSION+"-core";
 const IMAGE_CACHE=VERSION+"-images";
+const TRANSLATION_CACHE=VERSION+"-translation";
 const CACHE_PREFIX="terra-z-pwa-";
 
 const CORE_ASSETS=[
@@ -51,7 +52,9 @@ const CORE_ASSETS=[
   "./js/sessions.js",
   "./js/timeline-manager.js",
   "./js/world-links.js",
-  "./js/pwa.js"
+  "./js/pwa.js",
+  "./vendor/bergamot/translator.js",
+  "./vendor/bergamot/worker/translator-worker.js"
 ];
 
 function scoped(path){
@@ -110,6 +113,25 @@ async function imageCacheFirst(request){
   return response;
 }
 
+function translationAsset(url){
+  const host=String(url.hostname || "").toLowerCase();
+  return host==="bergamot.s3.amazonaws.com" ||
+    host==="cdn.jsdelivr.net" ||
+    host==="storage.googleapis.com";
+}
+
+async function translationCacheFirst(request){
+  const cache=await caches.open(TRANSLATION_CACHE);
+  const hit=await cache.match(request);
+  if(hit) return hit;
+
+  const response=await fetch(request);
+  if(response && (response.ok || response.type==="opaque")){
+    try{await cache.put(request,response.clone());}catch(error){}
+  }
+  return response;
+}
+
 self.addEventListener("install",event=>{
   event.waitUntil(
     caches.open(CORE_CACHE).then(cache=>cache.addAll(CORE_ASSETS.map(scoped)))
@@ -120,7 +142,7 @@ self.addEventListener("activate",event=>{
   event.waitUntil((async()=>{
     const names=await caches.keys();
     await Promise.all(
-      names.filter(name=>name.startsWith(CACHE_PREFIX)&&name!==CORE_CACHE&&name!==IMAGE_CACHE)
+      names.filter(name=>name.startsWith(CACHE_PREFIX)&&name!==CORE_CACHE&&name!==IMAGE_CACHE&&name!==TRANSLATION_CACHE)
         .map(name=>caches.delete(name))
     );
     await self.clients.claim();
@@ -142,7 +164,12 @@ self.addEventListener("fetch",event=>{
     return;
   }
 
-  if(url.origin!==self.location.origin) return;
+  if(url.origin!==self.location.origin){
+    if(translationAsset(url)){
+      event.respondWith(translationCacheFirst(request));
+    }
+    return;
+  }
 
   if(request.destination==="image"){
     event.respondWith(imageCacheFirst(request));
