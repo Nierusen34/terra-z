@@ -616,24 +616,30 @@ function splitOuterWhitespace(value){
   };
 }
 
-async function translateFandomOnline(text){
-  var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=pt&dt=t&q=' + encodeURIComponent(text);
-  var response = await fetch(url, {
-    method:'GET',
-    mode:'cors',
-    credentials:'omit',
-    cache:'no-store'
+async function translateFandomOnlineBatch(texts){
+  var backend = window.TerraZApp && window.TerraZApp.backend;
+  if(!backend || !backend.request){
+    throw new Error('Backend de tradução indisponível.');
+  }
+
+  var result = await backend.request('/api/translate',{
+    method:'POST',
+    body:{texts:texts}
+  },false);
+
+  var translated = result && Array.isArray(result.translations) ? result.translations : [];
+  if(translated.length !== texts.length){
+    throw new Error('O backend retornou uma tradução incompleta.');
+  }
+
+  return translated.map(function(value,index){
+    return String(value || texts[index]);
   });
-  if(!response.ok) throw new Error('HTTP ' + response.status);
+}
 
-  var data = await response.json();
-  if(!Array.isArray(data) || !Array.isArray(data[0])) throw new Error('Resposta de tradução inválida.');
-
-  var translated = data[0].map(function(part){
-    return Array.isArray(part) && part[0] ? part[0] : '';
-  }).join('');
-
-  return translated || text;
+async function translateFandomOnline(text){
+  var result = await translateFandomOnlineBatch([text]);
+  return result[0] || text;
 }
 
 async function getFandomTranslator(){
@@ -672,7 +678,8 @@ async function getFandomTranslator(){
 
     return {
       kind:'online',
-      translate:translateFandomOnline
+      translate:translateFandomOnline,
+      translateMany:translateFandomOnlineBatch
     };
   })().catch(function(error){
     fandomTranslatorPromise = null;
@@ -736,20 +743,53 @@ async function translateFandomArticle(){
     });
 
     var translatedMap = {};
-    for(var i=0;i<unique.length;i++){
-      if(runId !== fandomTranslationRunId || title !== currentFandomTitle) return;
-
-      var sourceText = unique[i];
-      var translated = fandomTextTranslationCache[sourceText];
-
-      if(!translated){
-        translated = await translator.translate(sourceText);
-        translated = String(translated || sourceText);
-        fandomTextTranslationCache[sourceText] = translated;
+    var pending = unique.filter(function(sourceText){
+      var cached = fandomTextTranslationCache[sourceText];
+      if(cached){
+        translatedMap[sourceText] = cached;
+        return false;
       }
+      return true;
+    });
 
-      translatedMap[sourceText] = translated;
-      updateFandomTranslateButton('translating', unique.length ? Math.round(((i+1)/unique.length)*100) : 100);
+    if(translator.translateMany && pending.length){
+      var batchSize = 120;
+      var completed = unique.length - pending.length;
+
+      for(var start=0;start<pending.length;start+=batchSize){
+        if(runId !== fandomTranslationRunId || title !== currentFandomTitle) return;
+
+        var batch = pending.slice(start,start+batchSize);
+        var translatedBatch = await translator.translateMany(batch);
+
+        batch.forEach(function(sourceText,index){
+          var translated = String(translatedBatch[index] || sourceText);
+          fandomTextTranslationCache[sourceText] = translated;
+          translatedMap[sourceText] = translated;
+        });
+
+        completed += batch.length;
+        updateFandomTranslateButton(
+          'translating',
+          unique.length ? Math.round((completed/unique.length)*100) : 100
+        );
+      }
+    } else {
+      for(var i=0;i<unique.length;i++){
+        if(runId !== fandomTranslationRunId || title !== currentFandomTitle) return;
+
+        var sourceText = unique[i];
+        var translated = translatedMap[sourceText] || fandomTextTranslationCache[sourceText];
+
+        if(!translated){
+          translated = await translator.translate(sourceText);
+          translated = String(translated || sourceText);
+          fandomTextTranslationCache[sourceText] = translated;
+        }
+
+        translatedMap[sourceText] = translated;
+        updateFandomTranslateButton('translating', unique.length ? Math.round(((i+1)/unique.length)*100) : 100);
+      }
     }
 
     if(runId !== fandomTranslationRunId || title !== currentFandomTitle) return;
