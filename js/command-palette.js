@@ -113,6 +113,19 @@ function publicIndex(){
     });
   });
 
+  var organizations=Array.isArray(data().organizations)?data().organizations:[];
+  organizations.forEach(function(item){
+    push(rows,{
+      id:"organization:"+(item.id||item.name),
+      type:item.categoryLabel||"Organização",
+      icon:item.icon||"🏢",
+      label:item.name,
+      subtitle:item.base||"Vanguard Bay",
+      keywords:[item.aliases,item.description,item.activities,item.relatedCharacters,item.relatedLocations,item.subunits,item.rivals],
+      route:r&&r.organizationRoute?r.organizationRoute(item.id||item.name):"/organizacoes/"+slug(item.id||item.name)
+    });
+  });
+
   var sessions=a.sessions&&a.sessions.getAll?a.sessions.getAll():(Array.isArray(data().sessions)?data().sessions:[]);
   sessions.forEach(function(item){
     push(rows,{
