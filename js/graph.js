@@ -1807,33 +1807,82 @@ function setupQuickRelation(){
   });
 }
 
-function updateVanguardLayerUi(){
-  var button=document.getElementById("graphVanguardLayer");
-  if(!button) return;
-  button.classList.toggle("active",graphVanguardLayerEnabled);
-  button.setAttribute("aria-pressed",graphVanguardLayerEnabled ? "true" : "false");
-  button.textContent=graphVanguardLayerEnabled ? "🏙️ Vanguard Bay ✓" : "🏙️ Vanguard Bay";
-  button.title=graphVanguardLayerEnabled
-    ? "Ocultar a camada local de Vanguard Bay"
-    : "Mostrar personagens, facções e locais de Vanguard Bay";
+function activeNucleus(){
+  return graphActiveNucleus==="all" ? null : graphNucleus(graphActiveNucleus,graphData);
 }
 
-function setVanguardLayer(enabled,options){
-  options=options || {};
-  graphVanguardLayerEnabled=enabled===true;
-  if(!graphVanguardLayerEnabled){
-    var selected=nodeById(selectedNodeId,graphData);
-    var selectedEdge=edgeById(selectedEdgeId,graphData);
-    if(!selected) selectedNodeId="";
-    if(!selectedEdge) selectedEdgeId="";
-    if(graphFocusNodeId && !nodeById(graphFocusNodeId,graphData)) graphFocusNodeId="";
+function renderNucleusOptions(){
+  var root=document.getElementById("graphNucleusOptions");
+  if(!root) return;
+  var nuclei=graphData && Array.isArray(graphData.nuclei) ? graphData.nuclei : [];
+  var html='<button type="button" class="graph-nucleus-option'+(graphActiveNucleus==="all"?" active":"")+'" data-graph-nucleus="all">'+
+    '<span class="graph-nucleus-dot all">◎</span><span><strong>Todos os núcleos</strong><small>Rede completa</small></span>'+
+  '</button>';
+  nuclei.forEach(function(item){
+    var count=(graphData.nodes||[]).filter(function(node){
+      return Array.isArray(node.nuclei)&&node.nuclei.includes(item.id);
+    }).length;
+    html+='<button type="button" class="graph-nucleus-option'+(graphActiveNucleus===item.id?" active":"")+'" data-graph-nucleus="'+escapeAttr(item.id)+'">'+
+      '<span class="graph-nucleus-dot" style="background:'+escapeAttr(item.color)+'"></span>'+
+      '<span><strong>'+escapeHtml(item.label)+'</strong><small>'+count+(count===1?" entidade":" entidades")+'</small></span>'+
+    '</button>';
+  });
+  root.innerHTML=html;
+}
+
+function updateNucleusPickerUi(){
+  if(graphActiveNucleus!=="all" && !graphNucleus(graphActiveNucleus,graphData)) graphActiveNucleus="all";
+  var button=document.getElementById("graphNucleusMenuBtn");
+  var menu=document.getElementById("graphNucleusMenu");
+  var current=activeNucleus();
+  if(button){
+    button.textContent="◎ Núcleo: "+(current?current.label:"Todos")+" ▾";
+    button.setAttribute("aria-expanded",graphNucleusMenuOpen?"true":"false");
+    button.classList.toggle("active",graphActiveNucleus!=="all");
   }
+  if(menu) menu.hidden=!graphNucleusMenuOpen;
+  renderNucleusOptions();
+
+  document.querySelectorAll('input[name="graphNucleusMode"]').forEach(function(input){
+    input.checked=input.value===graphNucleusViewMode;
+    input.disabled=graphActiveNucleus==="all";
+  });
+}
+
+function toggleNucleusMenu(force){
+  graphNucleusMenuOpen=typeof force==="boolean" ? force : !graphNucleusMenuOpen;
+  updateNucleusPickerUi();
+}
+
+function setGraphNucleus(id,options){
+  options=options||{};
+  var next=String(id||"all");
+  if(next!=="all" && !graphNucleus(next,graphData)) next="all";
+  graphActiveNucleus=next;
+  graphNucleusMenuOpen=false;
+  selectedNodeId="";
+  selectedEdgeId="";
+  graphFocusNodeId="";
   graphViewCenter={x:null,y:null};
-  updateVanguardLayerUi();
+  updateNucleusPickerUi();
   renderGraph();
   renderInspector();
-  if(options.fit===true) setTimeout(function(){ fitGraphView(false); },20);
-  return graphVanguardLayerEnabled;
+  if(options.fit!==false) setTimeout(function(){fitGraphView(false);},20);
+  return graphActiveNucleus;
+}
+
+function setGraphNucleusMode(mode,options){
+  graphNucleusViewMode=mode==="connections" ? "connections" : "only";
+  updateNucleusPickerUi();
+  if(graphActiveNucleus!=="all"){
+    selectedNodeId="";
+    selectedEdgeId="";
+    graphFocusNodeId="";
+    graphViewCenter={x:null,y:null};
+    renderGraph();renderInspector();
+    if(!options||options.fit!==false) setTimeout(function(){fitGraphView(false);},20);
+  }
+  return graphNucleusViewMode;
 }
 
 function setupGraphView(){
@@ -1860,11 +1909,32 @@ function setupGraphView(){
     renderGraph();renderInspector();
   });
 
-  var layerButton=document.getElementById("graphVanguardLayer");
-  if(layerButton) layerButton.addEventListener("click",function(){
-    setVanguardLayer(!graphVanguardLayerEnabled,{fit:true});
+  var nucleusButton=document.getElementById("graphNucleusMenuBtn");
+  if(nucleusButton) nucleusButton.addEventListener("click",function(event){
+    event.stopPropagation();
+    toggleNucleusMenu();
   });
-  updateVanguardLayerUi();
+
+  var nucleusOptions=document.getElementById("graphNucleusOptions");
+  if(nucleusOptions) nucleusOptions.addEventListener("click",function(event){
+    var button=event.target.closest("[data-graph-nucleus]");
+    if(!button) return;
+    setGraphNucleus(button.getAttribute("data-graph-nucleus")||"all",{fit:true});
+  });
+
+  document.querySelectorAll('input[name="graphNucleusMode"]').forEach(function(input){
+    input.addEventListener("change",function(){
+      if(input.checked) setGraphNucleusMode(input.value,{fit:true});
+    });
+  });
+
+  document.addEventListener("click",function(event){
+    if(!graphNucleusMenuOpen) return;
+    var picker=document.getElementById("graphNucleusPicker");
+    if(picker && !picker.contains(event.target)) toggleNucleusMenu(false);
+  });
+
+  updateNucleusPickerUi();
 
   var clear=document.getElementById("graphClearFilters");
   if(clear) clear.addEventListener("click",function(){
@@ -1926,7 +1996,13 @@ function setupGraphView(){
   }
 
   document.addEventListener("keydown",function(event){
-    if(event.key!=="Escape" || !graphFullscreen) return;
+    if(event.key!=="Escape") return;
+    if(graphNucleusMenuOpen){
+      event.preventDefault();
+      toggleNucleusMenu(false);
+      return;
+    }
+    if(!graphFullscreen) return;
     var quickModal=document.getElementById("graphQuickRelationModal");
     if((quickModal && quickModal.classList.contains("show")) || quickRelationState.picking) return;
     event.preventDefault();
