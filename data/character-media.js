@@ -467,7 +467,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "General Markov": {
-    "src": "",
+    "src": "images/characters/general-markov.jpg",
     "alt": "General Markov",
     "source": "local",
     "credit": ""
