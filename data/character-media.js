@@ -503,7 +503,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Osias \"Osi\" Rivers": {
-    "src": "",
+    "src": "images/characters/osias-osi-rivers.jpg",
     "alt": "Osias \"Osi\" Rivers",
     "source": "local",
     "credit": ""
