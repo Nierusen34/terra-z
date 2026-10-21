@@ -6903,3 +6903,185 @@ body.graph-fullscreen-open{
   .district-poi-details>summary{align-items:flex-start;flex-wrap:wrap}
   .district-poi-details>summary small{width:100%;padding-left:1px}
 }
+
+
+/* ===== TRELLO 2C · ORGANIZAÇÕES ===== */
+.organization-overview{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:8px;
+  margin:16px 0 24px;
+}
+.organization-overview-card{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  grid-template-rows:auto auto;
+  column-gap:8px;
+  align-items:center;
+  padding:11px 12px;
+  border:1px solid var(--line);
+  background:var(--paper2);
+}
+.organization-overview-card>span{grid-row:1 / span 2;font-size:20px}
+.organization-overview-card>strong{font-family:var(--font-title);font-size:20px;line-height:1;color:var(--accent)}
+.organization-overview-card>small{
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;
+  text-transform:uppercase;
+  letter-spacing:.8px;
+  color:var(--ink3);
+}
+.organization-group{margin:26px 0 34px}
+.organization-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:13px;
+}
+.organization-card{
+  position:relative;
+  min-width:0;
+  padding:15px;
+  border:1px solid var(--line);
+  background:var(--paper2);
+  border-radius:var(--radius);
+}
+.organization-card::before{
+  content:'';
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:3px;
+  background:var(--accent2);
+}
+.organization-card:hover{border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+.organization-card-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding-bottom:10px;
+  border-bottom:1px solid var(--line2);
+}
+.organization-icon{
+  width:38px;height:38px;
+  display:flex;align-items:center;justify-content:center;
+  flex:0 0 auto;
+  border:1px solid var(--line);
+  background:var(--paper);
+  font-size:19px;
+}
+.organization-card-head span{
+  display:block;
+  margin-bottom:2px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:var(--ink3);
+}
+.organization-card-head h4{
+  margin:0;
+  font-family:var(--font-title);
+  font-size:14px;
+  color:var(--accent);
+  line-height:1.15;
+}
+.organization-meta{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:10px 0;
+}
+.organization-meta>div{
+  padding:7px 8px;
+  background:var(--paper3);
+  border:1px solid var(--line2);
+}
+.organization-meta span,
+.organization-subunits>span,
+.organization-links>span{
+  display:block;
+  margin-bottom:3px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:6.5px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:var(--ink3);
+}
+.organization-meta strong{
+  display:block;
+  font-size:10px;
+  line-height:1.35;
+  color:var(--ink2);
+}
+.organization-card>p{
+  margin:10px 0;
+  font-size:11.5px;
+  line-height:1.55;
+  color:var(--ink2);
+}
+.organization-activities{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  margin:9px 0 11px;
+}
+.organization-activities>span{
+  padding:4px 7px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;
+  color:var(--ink2);
+}
+.organization-subunits{
+  margin:8px 0;
+  padding:7px 9px;
+  border-left:2px solid var(--accent2);
+  background:color-mix(in srgb,var(--accent2) 5%,var(--paper));
+}
+.organization-subunits strong{
+  font-size:10px;
+  line-height:1.4;
+  color:var(--ink2);
+}
+.organization-links{margin-top:9px}
+.organization-links>div{display:flex;flex-wrap:wrap;gap:5px}
+.organization-link-chip{
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink2);
+  padding:4px 7px;
+  cursor:pointer;
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;
+}
+.organization-link-chip:hover{border-color:var(--accent);color:var(--accent)}
+.organization-spoiler{
+  margin-top:10px;
+  padding:8px 9px;
+  border-left:3px solid var(--accent);
+  background:color-mix(in srgb,var(--accent) 6%,var(--paper3));
+  font-size:10.5px;
+  line-height:1.5;
+  color:var(--ink2);
+}
+.organization-spoiler>span{
+  display:block;
+  margin-bottom:3px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;
+  color:var(--accent);
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+.organization-card.deep-link-focus{
+  outline:2px solid var(--accent2);
+  outline-offset:3px;
+}
+@media(max-width:980px){
+  .organization-overview{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:760px){
+  .organization-grid{grid-template-columns:1fr}
+  .organization-overview{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .organization-meta{grid-template-columns:1fr}
+}
