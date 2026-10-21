@@ -73,6 +73,7 @@ function commitKind(message){
   if(text.startsWith("characters:")) return "character";
   if(text.startsWith("sessions:") || text.startsWith("session:")) return "session";
   if(text.startsWith("relations:")) return "graph";
+  if(text.startsWith("organizations:")) return "content";
   if(text.startsWith("timeline:")) return "content";
   if(text.startsWith("content:")) return "content";
   if(text.startsWith("security:")) return "security";
