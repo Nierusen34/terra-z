@@ -369,6 +369,7 @@ async function supportsGraphV3(){
       health &&
       health.relations_graph_v3===true &&
       health.relations_entity_editor===true &&
+      health.graph_nuclei_v1===true &&
       health.media_library_v1===true &&
       health.graph_independent_media===true
     );
