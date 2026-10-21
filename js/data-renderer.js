@@ -13,6 +13,23 @@ function editAttrs(meta){
   return ' data-edit-id="' + escapeAttr(meta.id) + '" data-legacy-edit-id="' + escapeAttr(meta.legacyId) + '"';
 }
 
+function locationVisibility(value){
+  return value === 'spoiler' ? 'spoiler' : 'public';
+}
+
+function renderPoiCard(point){
+  point = point || {};
+  var visibility = locationVisibility(point.visibility);
+  var html = '<article class="district-poi-card" data-location-name="' + escapeAttr(point.name || '') + '" data-visibility="' + visibility + '">';
+  html += '<div class="district-poi-head"><span>' + escapeHtml(point.kind || 'Local') + '</span><strong>' + escapeHtml(point.name || 'Local') + '</strong></div>';
+  html += '<p>' + escapeHtml(point.description || '') + '</p>';
+  if(point.spoiler){
+    html += '<div class="district-poi-spoiler" data-visibility="spoiler"><span>⚠ Informação restrita</span>' + escapeHtml(point.spoiler) + '</div>';
+  }
+  html += '</article>';
+  return html;
+}
+
 function renderDistrictData(){
   var root = document.getElementById('districtsData');
   if(!root || root.children.length > 0) return;
@@ -27,14 +44,44 @@ function renderDistrictData(){
   districts.forEach(function(d){
     var locationText = Array.isArray(d.locations) ? d.locations.join(', ') : '';
     if(locationText && !/[.!?]$/.test(locationText)) locationText += '.';
-    if(d.note) locationText += (locationText ? ' ' : '') + d.note;
 
     html += '<figure class="photo" data-district="' + escapeAttr(d.id) + '">';
     html += '<img data-district-image data-src="' + escapeAttr(d.image.src) + '" alt="' + escapeAttr(d.image.alt) + '" loading="lazy" decoding="async" fetchpriority="low">';
     html += '<figcaption' + editAttrs(d.edit.caption) + '>' + escapeHtml(d.image.caption) + '</figcaption></figure>';
-    html += '<div class="card"><h4' + editAttrs(d.edit.title) + '>' + escapeHtml(d.icon + ' ' + d.name) + '</h4>';
-    html += '<p' + editAttrs(d.edit.details) + '><strong>Tipo:</strong> ' + escapeHtml(d.type) + '<br><strong>Locais:</strong> ' + escapeHtml(locationText) + '</p></div>';
+    html += '<div class="card district-summary-card"><h4' + editAttrs(d.edit.title) + '>' + escapeHtml(d.icon + ' ' + d.name) + '</h4>';
+    html += '<p' + editAttrs(d.edit.details) + '><strong>Tipo:</strong> ' + escapeHtml(d.type);
+    if(d.summary) html += '<br><span class="district-summary-copy">' + escapeHtml(d.summary) + '</span>';
+    html += '<br><strong>Locais:</strong> ' + escapeHtml(locationText);
+    if(d.note) html += '<br><em>' + escapeHtml(d.note) + '</em>';
+    html += '</p></div>';
+
+    var points = Array.isArray(d.pointsOfInterest) ? d.pointsOfInterest : [];
+    if(points.length){
+      html += '<details class="district-poi-details" data-district-pois="' + escapeAttr(d.id) + '">';
+      html += '<summary><span>📍 Pontos de Interesse</span><small>' + points.length + (points.length === 1 ? ' local detalhado' : ' locais detalhados') + '</small></summary>';
+      html += '<div class="district-poi-grid">';
+      points.forEach(function(point){ html += renderPoiCard(point); });
+      html += '</div></details>';
+    }
   });
+
+  var strategic = window.TerraZData && window.TerraZData.strategicSites;
+  if(Array.isArray(strategic) && strategic.length){
+    html += '<section class="strategic-sites" id="strategicSites">';
+    html += '<div class="subsection-title">🧭 Instalações e Áreas Estratégicas</div>';
+    html += '<p class="strategic-sites-intro">Locais importantes de Vanguard Bay que não pertencem diretamente a um único distrito.</p>';
+    html += '<div class="district-poi-grid strategic-sites-grid">';
+    strategic.forEach(function(site){
+      var visibility = locationVisibility(site.visibility);
+      html += '<article class="district-poi-card strategic-site-card" data-location-name="' + escapeAttr(site.name || '') + '" data-location-id="' + escapeAttr(site.id || '') + '" data-visibility="' + visibility + '">';
+      html += '<div class="district-poi-head"><span>' + escapeHtml((site.icon || '📍') + ' ' + (site.kind || 'Local')) + '</span><strong>' + escapeHtml(site.name || 'Local') + '</strong></div>';
+      if(site.area) html += '<div class="district-poi-area">' + escapeHtml(site.area) + '</div>';
+      html += '<p>' + escapeHtml(site.description || '') + '</p>';
+      if(site.spoiler) html += '<div class="district-poi-spoiler" data-visibility="spoiler"><span>⚠ Informação restrita</span>' + escapeHtml(site.spoiler) + '</div>';
+      html += '</article>';
+    });
+    html += '</div></section>';
+  }
 
   root.innerHTML = html;
   root.querySelectorAll('img[data-district-image]').forEach(function(img){
@@ -43,6 +90,8 @@ function renderDistrictData(){
       if(figure) figure.classList.add('missing');
     });
   });
+
+  if(window.TerraZApp && window.TerraZApp.visibility) window.TerraZApp.visibility.apply({closeSensitive:false});
 }
 
 function renderAnnualEventsData(){
