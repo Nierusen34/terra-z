@@ -6789,3 +6789,117 @@ body.graph-fullscreen-open{
     font-size:7px;
   }
 }
+
+
+/* ===== TRELLO 2B · PONTOS DE INTERESSE ===== */
+.district-summary-card{margin-bottom:10px}
+.district-summary-copy{display:inline-block;margin:6px 0 2px;color:var(--ink2)}
+.district-poi-details{
+  margin:0 0 28px;
+  border:1px solid var(--line);
+  background:color-mix(in srgb,var(--paper2) 92%,transparent);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+.district-poi-details>summary{
+  list-style:none;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:13px 15px;
+  border-left:4px solid var(--accent2);
+  font-family:var(--font-title);
+  text-transform:uppercase;
+  letter-spacing:.8px;
+  color:var(--ink);
+  user-select:none;
+}
+.district-poi-details>summary::-webkit-details-marker{display:none}
+.district-poi-details>summary::after{
+  content:'＋';
+  color:var(--accent);
+  font-family:'Share Tech Mono',monospace;
+  font-size:15px;
+  margin-left:auto;
+}
+.district-poi-details[open]>summary::after{content:'−'}
+.district-poi-details>summary small{
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;
+  font-weight:400;
+  color:var(--ink3);
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+.district-poi-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  padding:12px;
+  border-top:1px solid var(--line2);
+}
+.district-poi-card{
+  min-width:0;
+  padding:13px 14px;
+  background:var(--paper);
+  border:1px solid var(--line2);
+  border-radius:calc(var(--radius) - 2px);
+}
+.district-poi-card:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.district-poi-head{display:flex;flex-direction:column;gap:4px;margin-bottom:7px}
+.district-poi-head>span{
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;
+  letter-spacing:1.2px;
+  color:var(--accent2);
+  text-transform:uppercase;
+}
+.district-poi-head>strong{
+  font-family:var(--font-title);
+  font-size:12px;
+  color:var(--accent);
+  line-height:1.2;
+}
+.district-poi-card p{
+  margin:0;
+  font-size:11.5px;
+  line-height:1.55;
+  color:var(--ink2);
+}
+.district-poi-area{
+  margin:-2px 0 7px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:7.5px;
+  color:var(--ink3);
+  text-transform:uppercase;
+  letter-spacing:.7px;
+}
+.district-poi-spoiler{
+  margin-top:9px;
+  padding:8px 9px;
+  border-left:3px solid var(--accent);
+  background:color-mix(in srgb,var(--accent) 6%,var(--paper3));
+  font-size:10.5px;
+  line-height:1.5;
+  color:var(--ink2);
+}
+.district-poi-spoiler>span{
+  display:block;
+  margin-bottom:3px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;
+  color:var(--accent);
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+.strategic-sites{margin:34px 0 10px}
+.strategic-sites-intro{margin:-4px 0 13px;color:var(--ink3);font-size:12px}
+.strategic-sites-grid{padding:0;border-top:0;grid-template-columns:repeat(3,minmax(0,1fr))}
+.strategic-site-card{border-top:3px solid var(--accent2)}
+@media(max-width:760px){
+  .district-poi-grid,.strategic-sites-grid{grid-template-columns:1fr}
+  .district-poi-details>summary{align-items:flex-start;flex-wrap:wrap}
+  .district-poi-details>summary small{width:100%;padding-left:1px}
+}
