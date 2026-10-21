@@ -341,7 +341,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Marcos Jimenez": {
-    "src": "",
+    "src": "images/characters/marcos-jimenez.jpg",
     "alt": "Marcos Jimenez",
     "source": "local",
     "credit": ""
