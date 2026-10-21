@@ -8,7 +8,7 @@ window.TerraZData.annualEvents = [
   {
     "name": "Dia de Ouro",
     "month": "Janeiro",
-    "description": "Homenagem ao Zenit.",
+    "description": "Homenagem ao Zenit; todos vestem amarelo.",
     "edit": {
       "name": {
         "id": "tz-0123",
@@ -27,7 +27,7 @@ window.TerraZData.annualEvents = [
   {
     "name": "Carnaval de Coral Gate",
     "month": "Março",
-    "description": "Festival de rua.",
+    "description": "Festival de rua com música, dança e carros alegóricos.",
     "edit": {
       "name": {
         "id": "tz-0126",
@@ -46,7 +46,7 @@ window.TerraZData.annualEvents = [
   {
     "name": "Maratona de Vanguard Bay",
     "month": "Abril",
-    "description": "Percurso pelas pontes.",
+    "description": "Percurso pelas pontes e pela Avenida Oceânica.",
     "edit": {
       "name": {
         "id": "tz-0129",
@@ -65,7 +65,7 @@ window.TerraZData.annualEvents = [
   {
     "name": "Disputa das Regatas",
     "month": "Junho",
-    "description": "Competição de barcos a vela.",
+    "description": "Competição de barcos a vela na baía, acompanhada pelas crianças na Praia da Concha.",
     "edit": {
       "name": {
         "id": "tz-0132",
@@ -84,7 +84,7 @@ window.TerraZData.annualEvents = [
   {
     "name": "Festival das Luzes Náuticas",
     "month": "Dezembro",
-    "description": "Desfile de barcos.",
+    "description": "Desfile de barcos decorados e queima de fogos no Ano Novo.",
     "edit": {
       "name": {
         "id": "tz-0135",
