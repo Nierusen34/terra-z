@@ -485,7 +485,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Julia Reyes": {
-    "src": "",
+    "src": "images/characters/julia-reyes.jpg",
     "alt": "Julia Reyes",
     "source": "local",
     "credit": ""
