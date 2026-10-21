@@ -545,8 +545,32 @@ function openTimelineEvent(id,options){ return go(timelineEventRoute(id),options
 function routeForLocation(name){
   var normalized=looseSlug(name);
   if(normalized === 'vanguard-bay' || normalized === 'vanguard') return '/cidade/visao-geral';
+
   var district=findDistrictBySlug(name);
   if(district) return districtRoute(district.id || district.name);
+
+  var districts=window.TerraZData && Array.isArray(window.TerraZData.districts)
+    ? window.TerraZData.districts
+    : [];
+  for(var i=0;i<districts.length;i++){
+    var row=districts[i] || {};
+    var names=(Array.isArray(row.locations)?row.locations:[]).concat(
+      Array.isArray(row.pointsOfInterest)
+        ? row.pointsOfInterest.map(function(point){ return point && point.name; }).filter(Boolean)
+        : []
+    );
+    if(names.some(function(value){ return looseSlug(value) === normalized; })){
+      return districtRoute(row.id || row.name);
+    }
+  }
+
+  var strategic=window.TerraZData && Array.isArray(window.TerraZData.strategicSites)
+    ? window.TerraZData.strategicSites
+    : [];
+  if(strategic.some(function(site){
+    return site && (looseSlug(site.name) === normalized || looseSlug(site.id) === normalized);
+  })) return '/cidade/distritos';
+
   var city=findCityBySlug(name);
   if(city) return cityRoute(city.city);
   return '';
