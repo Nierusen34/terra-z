@@ -359,7 +359,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Silas": {
-    "src": "",
+    "src": "images/characters/silas.jpg",
     "alt": "Silas",
     "source": "local",
     "credit": ""
