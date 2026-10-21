@@ -389,7 +389,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Dra. Zara Kovač": {
-    "src": "",
+    "src": "images/characters/dra-zara-kovac.jpg",
     "alt": "Dra. Zara Kovač",
     "source": "local",
     "credit": ""
