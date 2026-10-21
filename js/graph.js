@@ -618,6 +618,11 @@ async function saveQuickRelation(){
 
 function selectQuickTarget(id){
   if(!quickRelationState.picking || !quickRelationState.sourceId) return false;
+  var targetNode=nodeById(id);
+  if(targetNode && targetNode.layer==="vanguard"){
+    showToast("A camada Vanguard Bay é canônica e somente leitura. Edite essas relações na integração, não pelo atalho rápido.","info",4200);
+    return true;
+  }
   if(id===quickRelationState.sourceId){
     showToast("Escolha outra entidade para formar a conexão.","info",3000);
     return true;
@@ -2953,6 +2958,18 @@ function focusCharacterInGraph(name,options){
       slugify(row.subtitle)===key
     );
   });
+
+  if(!node){
+    setVanguardLayer(true,{fit:false});
+    var view=viewGraph();
+    node=(view && view.nodes || []).find(function(row){
+      return row.kind==="character" && (
+        slugify(row.ref)===key ||
+        slugify(row.label)===key ||
+        slugify(row.subtitle)===key
+      );
+    });
+  }
   if(!node) return false;
 
   var r=router();
@@ -2965,7 +2982,7 @@ function focusCharacterInGraph(name,options){
     renderGraph();renderInspector();
     var target=document.querySelector(".graph-canvas-card");
     if(target) target.scrollIntoView({behavior:"smooth",block:"start"});
-    if(options.connect===true && canEdit()) beginQuickPick(node.id,{draft:false});
+    if(options.connect===true && canEdit() && node.layer!=="vanguard") beginQuickPick(node.id,{draft:false});
   },60);
   return true;
 }
