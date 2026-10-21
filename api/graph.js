@@ -137,8 +137,10 @@ function normalizeGraph(input){
     r:number(n && n.r,18,120,38),
     visibility:visibility(n && n.visibility),
     nuclei:(()=> {
-      const listed=stringList(n && n.nuclei,20,80).filter(id=>nucleusIds.has(id));
-      return listed.length ? listed : inferNuclei(n);
+      if(Array.isArray(n && n.nuclei)){
+        return stringList(n.nuclei,20,80).filter(id=>nucleusIds.has(id));
+      }
+      return inferNuclei(n);
     })()
   })) : [];
 
