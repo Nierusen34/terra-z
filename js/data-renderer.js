@@ -259,6 +259,22 @@ function bindOrganizationLinks(root){
       if(app.router && app.router.go) app.router.go('/universo/relacoes');
     });
   });
+
+  root.querySelectorAll('[data-org-edit-id]').forEach(function(button){
+    button.addEventListener('click',function(){
+      var id=button.getAttribute('data-org-edit-id') || '';
+      var app=window.TerraZApp || {};
+      if(app.organizationEditor && app.organizationEditor.open){
+        app.organizationEditor.open(id);
+        return;
+      }
+      if(app.adminLoader && app.adminLoader.load){
+        app.adminLoader.load().then(function(){
+          if(window.TerraZApp.organizationEditor) window.TerraZApp.organizationEditor.open(id);
+        });
+      }
+    });
+  });
 }
 
 function renderOrganizationsData(){
@@ -321,9 +337,12 @@ function renderOrganizationsData(){
         html+='<div class="organization-spoiler" data-visibility="spoiler"><span>⚠ Informação restrita</span>'+escapeHtml(item.spoiler)+'</div>';
       }
 
+      html+='<div class="organization-card-actions">';
       if(organizationInGraph(item.id)){
-        html+='<div class="organization-card-actions"><button type="button" class="organization-graph-link" data-org-graph-id="'+escapeAttr(item.id)+'">◎ Ver no grafo</button></div>';
+        html+='<button type="button" class="organization-graph-link" data-org-graph-id="'+escapeAttr(item.id)+'">◎ Ver no grafo</button>';
       }
+      html+='<button type="button" class="organization-edit-link" data-org-edit-id="'+escapeAttr(item.id)+'" hidden>✏️ Editar</button>';
+      html+='</div>';
 
       html+='</article>';
     });
@@ -333,8 +352,20 @@ function renderOrganizationsData(){
 
   root.innerHTML=html;
   bindOrganizationLinks(root);
+  syncOrganizationEditControls();
   if(window.TerraZApp && window.TerraZApp.visibility) window.TerraZApp.visibility.apply({closeSensitive:false});
 }
+
+function syncOrganizationEditControls(){
+  var backend=window.TerraZApp && window.TerraZApp.backend;
+  var allowed=!!(backend && backend.isConfigured && backend.isConfigured() && backend.isAuthenticated && backend.isAuthenticated());
+  document.querySelectorAll('[data-org-edit-id]').forEach(function(button){
+    button.hidden=!allowed;
+  });
+}
+
+document.addEventListener('terra-z:auth-changed',syncOrganizationEditControls);
+document.addEventListener('terra-z:admin-modules-loaded',syncOrganizationEditControls);
 
 function renderCanonicalData(){
   renderDistrictData();
