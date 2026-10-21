@@ -1926,6 +1926,21 @@ function renderNucleusOptions(){
 
 function updateNucleusPickerUi(){
   if(graphActiveNucleus!=="all" && !graphNucleus(graphActiveNucleus,graphData)) graphActiveNucleus="all";
+  var mobileSelect=document.getElementById("graphNucleusMobileSelect");
+  var mobileMode=document.getElementById("graphNucleusMobileMode");
+  if(mobileSelect){
+    var nuclei=graphData && Array.isArray(graphData.nuclei) ? graphData.nuclei : [];
+    var mobileHtml='<option value="all">Todos os núcleos</option>';
+    nuclei.forEach(function(item){
+      mobileHtml+='<option value="'+escapeAttr(item.id)+'">'+escapeHtml(item.label)+'</option>';
+    });
+    mobileSelect.innerHTML=mobileHtml;
+    mobileSelect.value=graphActiveNucleus;
+  }
+  if(mobileMode){
+    mobileMode.value=graphNucleusViewMode;
+    mobileMode.disabled=graphActiveNucleus==="all";
+  }
   var button=document.getElementById("graphNucleusMenuBtn");
   var menu=document.getElementById("graphNucleusMenu");
   var current=activeNucleus();
@@ -2078,6 +2093,16 @@ function setupGraphView(){
     input.addEventListener("change",function(){
       if(input.checked) setGraphNucleusMode(input.value,{fit:true});
     });
+  });
+
+  var mobileNucleus=document.getElementById("graphNucleusMobileSelect");
+  if(mobileNucleus) mobileNucleus.addEventListener("change",function(){
+    setGraphNucleus(mobileNucleus.value||"all",{fit:true});
+  });
+
+  var mobileNucleusMode=document.getElementById("graphNucleusMobileMode");
+  if(mobileNucleusMode) mobileNucleusMode.addEventListener("change",function(){
+    setGraphNucleusMode(mobileNucleusMode.value,{fit:true});
   });
 
   document.addEventListener("click",function(event){
