@@ -3985,7 +3985,11 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
 
 
 .graph-nucleus-mobile-controls{
-  display:none;
+  display:grid;
+}
+.graph-nucleus-mobile-controls[hidden],
+.graph-nucleus-picker[hidden]{
+  display:none!important;
 }
 .graph-nucleus-mobile-controls label{
   min-width:0;
@@ -4008,20 +4012,8 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
   font-family:var(--font-body);
   font-size:11px;
 }
-@media (max-width:900px) and (display-mode:standalone){
-  .graph-nucleus-picker{display:none!important}
-  .graph-nucleus-mobile-controls{
-    display:grid;
-    grid-template-columns:minmax(0,1fr);
-    gap:8px;
-    grid-column:1/-1!important;
-    width:100%;
-  }
-}
 @media (max-width:900px){
-  html.pwa-standalone .graph-nucleus-picker{display:none!important}
-  html.pwa-standalone .graph-nucleus-mobile-controls{
-    display:grid;
+  .graph-nucleus-mobile-controls{
     grid-template-columns:minmax(0,1fr);
     gap:8px;
     grid-column:1/-1!important;
