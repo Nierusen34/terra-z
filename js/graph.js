@@ -2687,6 +2687,13 @@ function renderEditorDetail(){
     var update=function(){
       var field=input.getAttribute("data-ge-nucleus-field");
       item[field]=input.value;
+
+      var quadrant=(editorDraft.quadrants||[]).find(function(q){return q&&q.id===item.id;});
+      if(quadrant){
+        if(field==="label") quadrant.title=String(item.label||item.id).toUpperCase();
+        if(field==="color") quadrant.color=item.color;
+      }
+
       renderEditorList();
     };
     input.addEventListener("input",update);
