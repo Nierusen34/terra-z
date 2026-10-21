@@ -2051,11 +2051,22 @@ function renderEditorTabs(){
   var modal=document.getElementById("graphEditorModal");
   if(modal) modal.classList.toggle("graph-editor-layout-mode",editorMode==="layout");
   var add=document.getElementById("graphEditorAdd");
-  if(add) add.textContent=editorMode==="edges" ? "＋ Nova relação" : "＋ Nova entidade";
+  if(add){
+    add.hidden=false;
+    add.textContent=editorMode==="edges"
+      ? "＋ Nova relação"
+      : (editorMode==="nuclei" ? "＋ Novo núcleo" : "＋ Nova entidade");
+  }
+}
+
+function editorNucleusById(id){
+  return editorDraft && Array.isArray(editorDraft.nuclei)
+    ? editorDraft.nuclei.find(function(item){return item && item.id===id;}) || null
+    : null;
 }
 
 function editorItemTitle(item){
-  if(editorMode==="nodes") return item.label || item.id;
+  if(editorMode==="nodes" || editorMode==="nuclei") return item.label || item.id;
   var from=nodeById(item.from,editorDraft),to=nodeById(item.to,editorDraft);
   return (from ? from.label : item.from)+" "+(item.directed?"→":"↔")+" "+(to ? to.label : item.to);
 }
@@ -2063,7 +2074,18 @@ function editorItemTitle(item){
 function editorItemSubtitle(item){
   if(editorMode==="nodes"){
     var kind=KIND[item.kind] || KIND.custom;
-    return kind.icon+" "+kind.label+(item.subtitle ? " · "+item.subtitle : "");
+    var nucleusLabels=(item.nuclei||[]).map(function(id){
+      var nucleus=editorNucleusById(id);
+      return nucleus ? nucleus.label : id;
+    });
+    return kind.icon+" "+kind.label+(item.subtitle ? " · "+item.subtitle : "")+
+      (nucleusLabels.length ? " · "+nucleusLabels.join(" / ") : " · Sem núcleo");
+  }
+  if(editorMode==="nuclei"){
+    var count=(editorDraft.nodes||[]).filter(function(node){
+      return Array.isArray(node.nuclei)&&node.nuclei.includes(item.id);
+    }).length;
+    return count+(count===1?" entidade":" entidades")+" · ID "+item.id;
   }
   var relation=RELATION[item.type] || RELATION.other;
   return relation.label+(item.label ? " · "+item.label : "");
@@ -2071,7 +2093,9 @@ function editorItemSubtitle(item){
 
 function editorItems(){
   var graph=editorGraph();
-  var items=editorMode==="edges" ? graph.edges : graph.nodes;
+  var items=editorMode==="edges"
+    ? graph.edges
+    : (editorMode==="nuclei" ? (graph.nuclei||[]) : graph.nodes);
   var needle=editorSearch.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
   if(!needle) return items;
   return items.filter(function(item){
@@ -2128,6 +2152,22 @@ function nodeOptions(value){
   return (editorDraft.nodes || []).map(function(node){
     return '<option value="'+escapeAttr(node.id)+'"'+(value===node.id?' selected':'')+'>'+escapeHtml(node.label)+'</option>';
   }).join("");
+}
+
+function nucleusChecklist(selected){
+  selected=Array.isArray(selected)?selected:[];
+  var nuclei=editorDraft && Array.isArray(editorDraft.nuclei) ? editorDraft.nuclei : [];
+  if(!nuclei.length){
+    return '<div class="ge-nucleus-empty">Nenhum núcleo cadastrado. Crie um na aba Núcleos.</div>';
+  }
+  return '<div class="ge-nucleus-checklist">'+nuclei.map(function(item){
+    var checked=selected.includes(item.id);
+    return '<label class="ge-nucleus-choice">'+
+      '<input type="checkbox" data-ge-nucleus="'+escapeAttr(item.id)+'"'+(checked?' checked':'')+'>'+
+      '<span class="ge-nucleus-choice-dot" style="background:'+escapeAttr(item.color)+'"></span>'+
+      '<span>'+escapeHtml(item.label)+'</span>'+
+    '</label>';
+  }).join("")+'</div>';
 }
 
 function mediaAssetOptions(value){
