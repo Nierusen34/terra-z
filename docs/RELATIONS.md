@@ -29,9 +29,10 @@ Cada nó usa o schema v3:
 - `icon`;
 - `x`, `y`, `r`;
 - `color`;
-- `visibility`.
+- `visibility`;
+- `nuclei` — lista de IDs dos núcleos aos quais a entidade pertence.
 
-O ID não é alterado pelo editor para preservar relações existentes.
+Uma entidade pode pertencer a mais de um núcleo ou ficar temporariamente sem núcleo. O ID não é alterado pelo editor para preservar relações existentes.
 
 ## Relações
 
@@ -55,6 +56,8 @@ A página principal oferece:
 - busca de entidades;
 - filtro por tipo de entidade;
 - filtro por tipo de relação;
+- seletor único de núcleo;
+- modos **Somente núcleo** e **Núcleo + conexões**;
 - legenda clicável;
 - painel lateral de inspeção;
 - conexões diretas;
@@ -163,15 +166,34 @@ O roteamento escolhe uma faixa periférica do canvas com menor custo visual e re
 
 Relações internas ao mesmo núcleo mantêm o desenho compacto anterior.
 
+### Núcleos dinâmicos
+
+Os núcleos deixaram de depender dos quadrantes desenhados no canvas. O grafo agora mantém um registro próprio em `graph.nuclei`, e cada entidade guarda sua participação em `node.nuclei`.
+
+O seletor **◎ Núcleo** é montado automaticamente a partir desse registro. Isso significa que novos núcleos criados no editor passam a aparecer na interface sem novos botões ou alterações de código.
+
+Com um núcleo selecionado:
+
+- **Somente núcleo** mostra apenas as entidades pertencentes a ele e os vínculos internos;
+- **Núcleo + conexões** inclui também entidades externas conectadas diretamente ao núcleo;
+- **Todos os núcleos** restaura a rede completa.
+
+Os quadrantes continuam existindo como recurso de composição visual do layout global, mas não são mais a fonte de verdade para definir pertencimento. A auto-organização pode reconstruir zonas visuais com base nos núcleos cadastrados.
+
+Vanguard Bay usa exatamente o mesmo sistema de Família Queen, Família Wayne, Núcleo Marciano e Prazo de Lobo; não existe mais uma camada especial exclusiva para Vanguard Bay.
+
 ## Editor
 
-O editor autenticado possui três abas:
+O editor autenticado possui quatro abas:
 
 1. **Entidades**
 2. **Relações**
-3. **Layout visual**
+3. **Núcleos**
+4. **Layout visual**
 
-É possível criar, editar e excluir itens. A exclusão de uma entidade também remove do rascunho as relações que apontam para ela.
+Na aba **Núcleos** é possível criar, renomear, recolorir e excluir núcleos. Excluir um núcleo não apaga suas entidades ou relações; apenas remove aquela classificação dos nós associados.
+
+Na aba **Entidades**, cada item pode ser associado a um ou mais núcleos por caixas de seleção. É possível criar, editar e excluir itens. A exclusão de uma entidade também remove do rascunho as relações que apontam para ela.
 
 ### Layout visual
 
@@ -191,7 +213,7 @@ As linhas ligadas ao nó acompanham o movimento em tempo real.
 
 A auto-organização não agrupa mais entidades simplesmente pelo tipo. Personagens deixaram de ser colocados todos no mesmo círculo.
 
-O algoritmo usa os núcleos/quadrantes do mapa e as relações entre as entidades. Para os núcleos conhecidos, a posição canônica do grafo padrão ajuda a preservar a associação correta mesmo quando um layout publicado ficou desorganizado. Dentro de cada núcleo, entidades mais conectadas funcionam como pontos centrais e os demais nós são distribuídos em camadas com espaçamento seguro.
+O algoritmo usa primeiro os núcleos cadastrados e depois as relações entre as entidades. Cada entidade é posicionada pelo seu núcleo principal; entidades sem núcleo recebem uma zona própria. As zonas visuais são geradas dinamicamente conforme a quantidade de núcleos em uso. Dentro de cada núcleo, entidades mais conectadas funcionam como pontos centrais e os demais nós são distribuídos em camadas com espaçamento seguro.
 
 ### Layout anterior
 
@@ -226,6 +248,6 @@ O comportamento Público / Spoiler / Mestre continua valendo.
 
 ## Compatibilidade
 
-`js/graph.js` migra em memória o schema antigo e também lê o antigo `terraZ_graph_v2` do localStorage quando não existe estado v3 publicado.
+`js/graph.js` migra em memória o schema antigo e também lê o antigo `terraZ_graph_v2` do localStorage quando não existe estado v3 publicado. Grafos antigos sem `nuclei` recebem uma migração inicial baseada apenas nos quadrantes existentes; depois de salvos, o pertencimento passa a ser explícito.
 
-A API continua usando `/api/graph`; nenhuma nova função serverless foi criada.
+A API continua usando `/api/graph`; nenhuma nova função serverless foi criada. O backend anuncia a capacidade `graph_nuclei_v1` antes de permitir alterações pelo editor, evitando que um backend antigo remova associações de núcleo ao salvar.
