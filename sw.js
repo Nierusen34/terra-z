@@ -1,6 +1,6 @@
 "use strict";
 
-const VERSION="terra-z-pwa-v1.4.0-20261021h";
+const VERSION="terra-z-pwa-v1.4.0-20261021i";
 const CORE_CACHE=VERSION+"-core";
 const IMAGE_CACHE=VERSION+"-images";
 const TRANSLATION_CACHE=VERSION+"-translation";
@@ -28,6 +28,7 @@ const CORE_ASSETS=[
   "./data/timeline.js",
   "./data/cities.js",
   "./data/teams.js",
+  "./data/organizations.js",
   "./data/sessions.js",
   "./data/visibility.js",
   "./data/content-overrides.js",
