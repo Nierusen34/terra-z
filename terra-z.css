@@ -7515,7 +7515,9 @@ body.graph-fullscreen-open{
   display:grid;
   grid-template-columns:260px minmax(0,1fr);
   min-height:0;
+  height:calc(94vh - 78px);
   max-height:calc(94vh - 78px);
+  overflow:hidden;
 }
 .organization-editor-sidebar{
   min-height:0;
@@ -7594,8 +7596,10 @@ body.graph-fullscreen-open{
   flex-direction:column;
 }
 .organization-editor-scroll{
+  flex:1 1 auto;
   min-height:0;
   overflow:auto;
+  overscroll-behavior:contain;
   padding:16px 18px 0;
 }
 .organization-editor-grid{
@@ -7713,6 +7717,7 @@ body.graph-fullscreen-open{
   .organization-editor-card{max-height:97vh}
   .organization-editor-layout{
     grid-template-columns:1fr;
+    height:calc(97vh - 72px);
     max-height:calc(97vh - 72px);
   }
   .organization-editor-sidebar{
