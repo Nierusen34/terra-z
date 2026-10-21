@@ -163,10 +163,10 @@ function normalizeGraph(graph){
     var legacy=legacyCharacterMap[node.id] || "";
     var kind=normalizeKind(node.kind || (legacy ? "character" : "custom"));
     var ref=String(node.ref || legacy || "");
-    var nuclei=Array.isArray(node.nuclei)
+    var hadNuclei=Array.isArray(node.nuclei);
+    var nuclei=hadNuclei
       ? [...new Set(node.nuclei.map(function(id){return String(id||"").trim();}).filter(function(id){return nucleusIds.has(id);}))].slice(0,20)
-      : [];
-    if(!nuclei.length) nuclei=inferredNuclei(node);
+      : inferredNuclei(node);
     return {
       id:String(node.id || ("node-"+(index+1))),
       label:String(node.label || node.id || "ENTIDADE"),
