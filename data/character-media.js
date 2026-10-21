@@ -401,7 +401,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Roxana \"Roxy\" Sharpe": {
-    "src": "",
+    "src": "images/characters/roxana-roxy-sharpe.jpg",
     "alt": "Roxana \"Roxy\" Sharpe",
     "source": "local",
     "credit": ""
