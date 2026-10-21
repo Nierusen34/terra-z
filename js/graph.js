@@ -2594,11 +2594,14 @@ function renderEditorDetail(){
   if(editorMode==="layout"){ renderLayoutEditor(root); return; }
 
   if(!editorSelectedId){
-    root.innerHTML='<div class="ge-detail-empty"><strong>Escolha um item</strong><p>Selecione uma entidade ou relação na lista, ou crie uma nova.</p></div>';
+    var emptyLabel=editorMode==="nuclei" ? "núcleo" : (editorMode==="edges" ? "relação" : "entidade");
+    root.innerHTML='<div class="ge-detail-empty"><strong>Escolha um '+emptyLabel+'</strong><p>Selecione um item na lista, ou crie um novo.</p></div>';
     return;
   }
 
-  var item=editorMode==="edges" ? edgeById(editorSelectedId,editorDraft) : nodeById(editorSelectedId,editorDraft);
+  var item=editorMode==="edges"
+    ? edgeById(editorSelectedId,editorDraft)
+    : (editorMode==="nuclei" ? editorNucleusById(editorSelectedId) : nodeById(editorSelectedId,editorDraft));
   if(!item){ editorSelectedId=""; return renderEditorDetail(); }
 
   if(editorMode==="nodes"){
@@ -2610,6 +2613,7 @@ function renderEditorDetail(){
         '<label>Referência interna<input data-ge-field="ref" type="text" maxlength="180" value="'+escapeAttr(item.ref)+'" placeholder="Nome canônico ou ID"></label>'+
         '<label>Rota manual<input data-ge-field="route" type="text" maxlength="260" value="'+escapeAttr(item.route)+'" placeholder="/cidade/visao-geral"></label>'+
         '<label>Ícone<input data-ge-field="icon" type="text" maxlength="12" value="'+escapeAttr(item.icon)+'" placeholder="'+escapeAttr((KIND[item.kind]||KIND.custom).icon)+'"></label>'+
+        '<div class="ge-wide ge-nucleus-box"><div class="ge-nucleus-box-head"><strong>Núcleos</strong><span>Uma entidade pode pertencer a mais de um núcleo.</span></div>'+nucleusChecklist(item.nuclei)+'</div>'+
         '<div class="ge-wide ge-media-box">'+
           '<div class="ge-media-box-head"><strong>Imagem da entidade</strong><button type="button" id="geOpenMediaLibrary">🖼️ Biblioteca</button></div>'+
           '<div class="ge-media-preview-row">'+graphEditorMediaPreview(item)+'</div>'+
@@ -2644,6 +2648,17 @@ function renderEditorDetail(){
         '<label>Posição X<input data-ge-field="x" data-ge-number type="number" step="1" value="'+item.x+'"></label>'+
         '<label>Posição Y<input data-ge-field="y" data-ge-number type="number" step="1" value="'+item.y+'"></label>'+
         '<div class="ge-wide ge-help">O ID permanente é <code>'+escapeHtml(item.id)+'</code>. Para personagem/equipe/local/evento, a referência interna permite abrir diretamente a área correspondente do Terra Z.</div>'+
+      '</div>';
+  }else if(editorMode==="nuclei"){
+    var count=(editorDraft.nodes||[]).filter(function(node){
+      return Array.isArray(node.nuclei)&&node.nuclei.includes(item.id);
+    }).length;
+    root.innerHTML='<div class="ge-detail-head"><div><span>NÚCLEO</span><h3>'+escapeHtml(item.label)+'</h3></div><button type="button" class="danger" id="geDeleteCurrent">🗑️ Excluir</button></div>'+
+      '<div class="ge-form-grid">'+
+        '<label class="ge-wide">Nome do núcleo<input data-ge-nucleus-field="label" type="text" maxlength="120" value="'+escapeAttr(item.label)+'"></label>'+
+        '<label>Cor<input data-ge-nucleus-field="color" type="color" value="'+escapeAttr(item.color)+'"></label>'+
+        '<div class="ge-nucleus-stat"><span>Entidades</span><strong>'+count+'</strong></div>'+
+        '<div class="ge-wide ge-help">ID permanente: <code>'+escapeHtml(item.id)+'</code>. Excluir o núcleo não apaga personagens ou relações; apenas remove esta classificação das entidades.</div>'+
       '</div>';
   }else{
     root.innerHTML='<div class="ge-detail-head"><div><span>RELAÇÃO</span><h3>'+escapeHtml(editorItemTitle(item))+'</h3></div><button type="button" class="danger" id="geDeleteCurrent">🗑️ Excluir</button></div>'+
@@ -2683,6 +2698,27 @@ function renderEditorDetail(){
     };
     input.addEventListener("input",handler);
     input.addEventListener("change",handler);
+  });
+
+  root.querySelectorAll("[data-ge-nucleus-field]").forEach(function(input){
+    var update=function(){
+      var field=input.getAttribute("data-ge-nucleus-field");
+      item[field]=input.value;
+      renderEditorList();
+    };
+    input.addEventListener("input",update);
+    input.addEventListener("change",update);
+  });
+
+  root.querySelectorAll("[data-ge-nucleus]").forEach(function(input){
+    input.addEventListener("change",function(){
+      var id=input.getAttribute("data-ge-nucleus")||"";
+      var selected=new Set(Array.isArray(item.nuclei)?item.nuclei:[]);
+      if(input.checked) selected.add(id);
+      else selected.delete(id);
+      item.nuclei=Array.from(selected);
+      renderEditorList();
+    });
   });
 
   root.querySelectorAll("[data-ge-frame]").forEach(function(input){
