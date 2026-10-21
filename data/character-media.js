@@ -497,7 +497,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Boris Borkov": {
-    "src": "",
+    "src": "images/characters/boris-borkov.jpg",
     "alt": "Boris Borkov",
     "source": "local",
     "credit": ""
