@@ -221,11 +221,14 @@ function renderOrganizationLinks(label,items,kind){
   return html;
 }
 
-function organizationInVanguardGraph(id){
-  var layer=window.TerraZData && window.TerraZData.vanguardGraphLayer;
-  if(!layer || !Array.isArray(layer.nodes)) return false;
+function organizationInGraph(id){
+  var data=window.TerraZData || {};
+  var graph=data.graphOverride && Array.isArray(data.graphOverride.nodes)
+    ? data.graphOverride
+    : data.defaultGraph;
+  if(!graph || !Array.isArray(graph.nodes)) return false;
   var wanted=String(id || '');
-  return layer.nodes.some(function(node){
+  return graph.nodes.some(function(node){
     return node && (node.ref===wanted || node.id===wanted);
   });
 }
@@ -318,7 +321,7 @@ function renderOrganizationsData(){
         html+='<div class="organization-spoiler" data-visibility="spoiler"><span>⚠ Informação restrita</span>'+escapeHtml(item.spoiler)+'</div>';
       }
 
-      if(organizationInVanguardGraph(item.id)){
+      if(organizationInGraph(item.id)){
         html+='<div class="organization-card-actions"><button type="button" class="organization-graph-link" data-org-graph-id="'+escapeAttr(item.id)+'">◎ Ver no grafo</button></div>';
       }
 
