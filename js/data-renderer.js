@@ -221,6 +221,15 @@ function renderOrganizationLinks(label,items,kind){
   return html;
 }
 
+function organizationInVanguardGraph(id){
+  var layer=window.TerraZData && window.TerraZData.vanguardGraphLayer;
+  if(!layer || !Array.isArray(layer.nodes)) return false;
+  var wanted=String(id || '');
+  return layer.nodes.some(function(node){
+    return node && (node.ref===wanted || node.id===wanted);
+  });
+}
+
 function bindOrganizationLinks(root){
   if(!root) return;
   root.querySelectorAll('[data-org-link-kind][data-org-link-value]').forEach(function(button){
@@ -236,6 +245,15 @@ function bindOrganizationLinks(root){
       if(kind==='location' && app.router && app.router.openLocation){
         app.router.openLocation(value);
       }
+    });
+  });
+
+  root.querySelectorAll('[data-org-graph-id]').forEach(function(button){
+    button.addEventListener('click',function(){
+      var id=button.getAttribute('data-org-graph-id') || '';
+      var app=window.TerraZApp || {};
+      if(app.graph && app.graph.focusEntity && app.graph.focusEntity('organization',id)) return;
+      if(app.router && app.router.go) app.router.go('/universo/relacoes');
     });
   });
 }
@@ -298,6 +316,10 @@ function renderOrganizationsData(){
 
       if(item.spoiler){
         html+='<div class="organization-spoiler" data-visibility="spoiler"><span>⚠ Informação restrita</span>'+escapeHtml(item.spoiler)+'</div>';
+      }
+
+      if(organizationInVanguardGraph(item.id)){
+        html+='<div class="organization-card-actions"><button type="button" class="organization-graph-link" data-org-graph-id="'+escapeAttr(item.id)+'">◎ Ver no grafo</button></div>';
       }
 
       html+='</article>';
