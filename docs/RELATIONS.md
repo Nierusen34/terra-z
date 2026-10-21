@@ -178,6 +178,8 @@ Com um núcleo selecionado:
 - **Núcleo + conexões** inclui também entidades externas conectadas diretamente ao núcleo;
 - **Todos os núcleos** restaura a rede completa.
 
+O viewport é recalculado a partir do conteúdo real do núcleo ativo. A câmera não reutiliza mais a antiga área fixa 1000×720 como âncora: cada núcleo é centralizado pela própria geometria, o quadro é expandido para a proporção real disponível na tela e o modo **Núcleo + conexões** mantém o núcleo principal como centro mesmo quando entidades externas aparecem. A altura visual do mapa permanece estável entre trocas de núcleo para evitar saltos de layout.
+
 Os quadrantes continuam existindo como recurso de composição visual do layout global, mas não são mais a fonte de verdade para definir pertencimento. A auto-organização pode reconstruir zonas visuais com base nos núcleos cadastrados.
 
 Vanguard Bay usa exatamente o mesmo sistema de Família Queen, Família Wayne, Núcleo Marciano e Prazo de Lobo; não existe mais uma camada especial exclusiva para Vanguard Bay.
