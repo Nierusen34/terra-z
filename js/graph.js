@@ -2868,6 +2868,13 @@ function importNodePosition(){
   });
   if(!quadrants.length) return {x:500,y:360};
 
+  if(graphActiveNucleus!=="all"){
+    var activeQuadrant=quadrants.find(function(q){return q.id===graphActiveNucleus;});
+    if(activeQuadrant){
+      quadrants=[activeQuadrant];
+    }
+  }
+
   var ranked=quadrants.map(function(q){
     var inside=(editorDraft.nodes || []).filter(function(node){
       return node.x>=q.x && node.x<=q.x+q.w && node.y>=q.y && node.y<=q.y+q.h;
@@ -3158,7 +3165,9 @@ function refreshGraphFromSources(){
   graphViewDrag=null;
   graphViewCenter={x:null,y:null};
   graphFocusNodeId="";
+  if(graphActiveNucleus!=="all" && !graphNucleus(graphActiveNucleus,graphData)) graphActiveNucleus="all";
   saveLocalGraph();
+  updateNucleusPickerUi();
   renderGraph();renderInspector();
 }
 
@@ -3298,8 +3307,9 @@ window.TerraZApp.graph={
     return map;
   },
   focusNode:function(id){
-    var node=nodeById(id);
+    var node=(graphData && graphData.nodes || []).find(function(row){return row.id===id;});
     if(!node) return false;
+    revealNodeNucleus(node,{fit:false});
     selectedNodeId=id;selectedEdgeId="";graphFocusNodeId=id;
     graphViewCenter={x:Number(node.x)||500,y:Number(node.y)||360};
     renderGraph();renderInspector();
