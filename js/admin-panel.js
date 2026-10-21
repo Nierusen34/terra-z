@@ -461,7 +461,7 @@ function handleAction(action){
   if(action === 'organizations'){
     requireEditorAction(function(){
       close();
-      if(app.organizationEditor && app.organizationEditor.openCreate) app.organizationEditor.openCreate();
+      if(app.organizationEditor && app.organizationEditor.openManager) app.organizationEditor.openManager();
     });
     return;
   }
