@@ -27,7 +27,7 @@ window.TerraZData.contentOverrides = {
   "tz-0535": "Dick, Ravena, Mutano, Cyborg, M'gann",
   "tz-0539": "Membros originais",
   "tz-0406": "Vanguard Bay – O Dique",
-  "tz-0409": "Aparência 20 (cron. 5)",
+  "tz-0409": "Aparência 35 (cron. 5)",
   "tz-0411": "Vanguard Bay – O Dique / Fenda",
   "tz-0416": "Vanguard Bay – Emaranhado",
   "tz-0436": "Gotham",
@@ -46,20 +46,7 @@ window.TerraZData.contentOverrides = {
   "tz-0478": "<strong>Codinome: </strong>Hawkgirl<br><strong>Idade: </strong>~32 anos<br><strong>Origem: </strong>Humana que herdou a alma de Shiera Hall<br><strong>Status: </strong>Ativo",
   "tz-0480": "<strong>Codinome: </strong>—<br><strong>Idade: </strong>~39 anos<br><strong>Origem: </strong>Marciana Branca fugitiva<br><strong>Status: </strong>Ativo",
   "tz-0484": "<strong>Codinome: </strong>—<br><strong>Idade: </strong>400+ anos (imortal)<br><strong>Origem: </strong>Czarniano<br><strong>Status: </strong>Ativo",
-  "tz-0486": "<strong>Codinome: </strong>Caçador de Marte<br><strong>Idade: </strong>~227 anos<br><strong>Origem: </strong>Marciano Verde (último)<br><strong>Status: </strong>Ativo",
-  "tz-0048": "Paço Municipal Silas Vanguard (Downtown). Prefeita: Reyes.",
-  "tz-0054": "<strong>Tipo:</strong> Centro Corporativo<br><strong>Locais:</strong> Shaw Spire, Vanguard-Stagg, Banco Central, Farol, The Ledger, O Comutador, A Pira.",
-  "tz-0057": "<strong>Tipo:</strong> Bairro Latino<br><strong>Locais:</strong> Parque, Aquário, La Ventanita, El Malecón, Botânica, Clínica, Rumba Room.",
-  "tz-0060": "<strong>Tipo:</strong> Centro Cívico<br><strong>Locais:</strong> Paço Municipal, V-BPD, VBPI, Distrito Teatral, Museu, Pequena Markóvia.",
-  "tz-0063": "<strong>Tipo:</strong> Operário / Docas<br><strong>Locais:</strong> Docas Sul, Mercado, Bar Urso Polar, Catedral, 7º DP.",
-  "tz-0066": "<strong>Tipo:</strong> Elite / Luxo<br><strong>Locais:</strong> Avenida Oceânica, Alameda Neon, Starlight, Galerie, UVB.",
-  "tz-0069": "<strong>Tipo:</strong> Pântano<br><strong>Locais:</strong> Rio Serpente, Bosques. Convergência do Verde e do Cinza.",
-  "tz-0072": "<strong>Tipo:</strong> Área Industrial<br><strong>Locais:</strong> Instabilidade dimensional (anos 70).",
-  "tz-0125": "Homenagem ao Zenit.",
-  "tz-0128": "Festival de rua.",
-  "tz-0131": "Percurso pelas pontes.",
-  "tz-0134": "Competição de barcos a vela.",
-  "tz-0137": "Desfile de barcos."
+  "tz-0486": "<strong>Codinome: </strong>Caçador de Marte<br><strong>Idade: </strong>~227 anos<br><strong>Origem: </strong>Marciano Verde (último)<br><strong>Status: </strong>Ativo"
 };
 
 })();
