@@ -26,6 +26,7 @@ const RESTORABLE_CONTENT_PATHS = [
   "data/character-media.js",
   "data/media-library.js",
   "data/graph-overrides.js",
+  "data/organizations.js",
   "data/sessions.js",
   "data/timeline.js",
   "data/private-character-data.enc.json",
@@ -43,6 +44,7 @@ const BACKUP_CONTENT_PATHS = [
   "data/locations.js",
   "data/cities.js",
   "data/teams.js",
+  "data/organizations.js",
   "data/events.js",
   "data/relations.js",
   "data/visibility.js"
