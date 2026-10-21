@@ -365,6 +365,46 @@ function privateMediaDefault(name){
   return {src:"",alt:name,source:"local",credit:""};
 }
 
+function resolveCharacterMediaTarget(mediaData,privateData,character,requestedTarget){
+  const hasPublic=Object.prototype.hasOwnProperty.call(mediaData || {},character);
+  const privateTarget=privateCharacter(privateData,character);
+  const hasPrivate=!!privateTarget;
+  const requested=requestedTarget === "private" || requestedTarget === "public"
+    ? requestedTarget
+    : "auto";
+
+  if(requested === "public"){
+    if(!hasPublic){
+      const error=new Error("A ficha pública deste personagem não possui uma camada de mídia.");
+      error.status=404;
+      error.code="public_character_media_not_found";
+      throw error;
+    }
+    return {kind:"public",privateTarget:null};
+  }
+
+  if(requested === "private"){
+    if(!hasPrivate){
+      const error=new Error("A ficha privada deste personagem não foi encontrada.");
+      error.status=404;
+      error.code="private_character_media_not_found";
+      throw error;
+    }
+    return {kind:"private",privateTarget};
+  }
+
+  // Em colisões de mesmo nome (ex.: Camila Vargas), a ficha pública é a
+  // identidade canônica visível e deve receber uploads iniciados pela ficha
+  // normal. Perfis exclusivamente privados continuam usando o cofre.
+  if(hasPublic) return {kind:"public",privateTarget:null};
+  if(hasPrivate) return {kind:"private",privateTarget};
+
+  const error=new Error("Personagem não encontrado na camada de mídia.");
+  error.status=404;
+  error.code="unknown_character";
+  throw error;
+}
+
 const LIBRARY_CATEGORIES=new Set(["portrait","graph","map","editorial","team","other"]);
 
 function normalizeLibraryAsset(input,existing,id){
@@ -594,15 +634,17 @@ export default async function handler(req,res){
       privateData.characters=privateData.characters && typeof privateData.characters === "object"
         ? privateData.characters
         : {};
-      const privateTarget=privateCharacter(privateData,character);
-
-      if(!Object.prototype.hasOwnProperty.call(mediaData,character) && !privateTarget){
-        return res.status(404).json({error:"unknown_character",message:"Personagem não encontrado na camada de mídia."});
-      }
+      const mediaTarget=resolveCharacterMediaTarget(
+        mediaData,
+        privateData,
+        character,
+        requestBody.target
+      );
+      const privateTarget=mediaTarget.privateTarget;
 
       const framing=normalizePortraitFraming(requestBody.framing);
 
-      if(privateTarget){
+      if(mediaTarget.kind === "private"){
         const current=privateTarget.profile.media && typeof privateTarget.profile.media === "object"
           ? privateTarget.profile.media
           : privateMediaDefault(character);
@@ -667,15 +709,17 @@ export default async function handler(req,res){
       privateData.characters=privateData.characters && typeof privateData.characters === "object"
         ? privateData.characters
         : {};
-      const privateTarget=privateCharacter(privateData,character);
-
-      if(!Object.prototype.hasOwnProperty.call(mediaData,character) && !privateTarget){
-        return res.status(404).json({error:"unknown_character",message:"Personagem não encontrado na camada de mídia."});
-      }
+      const mediaTarget=resolveCharacterMediaTarget(
+        mediaData,
+        privateData,
+        character,
+        requestBody.target
+      );
+      const privateTarget=mediaTarget.privateTarget;
 
       const auto=normalizeAutoSource(requestBody);
 
-      if(privateTarget){
+      if(mediaTarget.kind === "private"){
         const current=privateTarget.profile.media && typeof privateTarget.profile.media === "object"
           ? privateTarget.profile.media
           : privateMediaDefault(character);
@@ -757,13 +801,15 @@ export default async function handler(req,res){
       privateData.characters=privateData.characters && typeof privateData.characters === "object"
         ? privateData.characters
         : {};
-      const privateTarget=privateCharacter(privateData,character);
+      const mediaTarget=resolveCharacterMediaTarget(
+        mediaData,
+        privateData,
+        character,
+        body.target
+      );
+      const privateTarget=mediaTarget.privateTarget;
 
-      if(!Object.prototype.hasOwnProperty.call(mediaData,character) && !privateTarget){
-        return res.status(404).json({error:"unknown_character",message:"Personagem não encontrado na camada de mídia."});
-      }
-
-      if(privateTarget){
+      if(mediaTarget.kind === "private"){
         const current=privateTarget.profile.media && typeof privateTarget.profile.media === "object"
           ? privateTarget.profile.media
           : privateMediaDefault(character);
@@ -876,13 +922,15 @@ export default async function handler(req,res){
     privateData.characters=privateData.characters && typeof privateData.characters === "object"
       ? privateData.characters
       : {};
-    const privateTarget=privateCharacter(privateData,character);
+    const mediaTarget=resolveCharacterMediaTarget(
+      mediaData,
+      privateData,
+      character,
+      body.target
+    );
+    const privateTarget=mediaTarget.privateTarget;
 
-    if(!Object.prototype.hasOwnProperty.call(mediaData,character) && !privateTarget){
-      return res.status(404).json({error:"unknown_character",message:"Personagem não encontrado na camada de mídia."});
-    }
-
-    if(privateTarget){
+    if(mediaTarget.kind === "private"){
       privateTarget.profile.media={
         ...(privateTarget.profile.media && typeof privateTarget.profile.media === "object"
           ? privateTarget.profile.media
