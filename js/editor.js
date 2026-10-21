@@ -12,6 +12,9 @@ var showConfirm = core.showConfirm;
 var editMode = false;
 var publishedBaseline = {};
 var EDITS_KEY = 'terraZ_v1_edits';
+var EDITS_LEGACY_BACKUP_KEY = 'terraZ_v1_edits_legacy_backup';
+var EDITS_DRAFT_FORMAT = 'terra-z-edit-draft';
+var EDITS_DRAFT_VERSION = 2;
 var EDITS_BACKUP_FORMAT = 'terra-z-edits';
 var EDITS_BACKUP_VERSION = 2;
 var SEL = 'h1,h2,h3,h4,h5,h6,p,td,th,li,.timeline-year,.timeline-text,.card p,.info-box,.stat-num,.stat-label,.mast-subtitle,.home-hero .lead,.pull-quote,.event-item .title,.event-item .desc,.photo figcaption,.fc-value,.fc-desc';
@@ -101,6 +104,30 @@ function getPublishedBaseline(ids){
   return out;
 }
 
+function draftPayload(changes){
+  changes = changes || getPendingChanges();
+  var ids = Object.keys(changes);
+  return {
+    format:EDITS_DRAFT_FORMAT,
+    version:EDITS_DRAFT_VERSION,
+    createdAt:new Date().toISOString(),
+    base:getPublishedBaseline(ids),
+    changes:changes
+  };
+}
+
+function writePendingDraft(){
+  var changes = getPendingChanges();
+  try {
+    if(Object.keys(changes).length){
+      localStorage.setItem(EDITS_KEY, JSON.stringify(draftPayload(changes)));
+    }else{
+      localStorage.removeItem(EDITS_KEY);
+    }
+  } catch(e){ console.error(e); }
+  return changes;
+}
+
 function notifyEditsChanged(){
   document.dispatchEvent(new CustomEvent('terra-z:edits-changed', {
     detail: { count:Object.keys(getPendingChanges()).length }
@@ -109,63 +136,94 @@ function notifyEditsChanged(){
 
 function markPublished(changes){
   changes = changes || {};
-  var current = captureCurrentEdits();
-
   Object.keys(changes).forEach(function(id){ publishedBaseline[id] = changes[id]; });
-
-  var remaining = Object.keys(current).filter(function(id){
-    return publishedBaseline[id] !== current[id];
-  });
-
-  try {
-    if(remaining.length) localStorage.setItem(EDITS_KEY, JSON.stringify(current));
-    else localStorage.removeItem(EDITS_KEY);
-  } catch(e){ console.error(e); }
-
+  var remaining = writePendingDraft();
   notifyEditsChanged();
-  return remaining.length;
+  return Object.keys(remaining).length;
 }
 
 function saveEdits(silent){
-  var data = captureCurrentEdits();
   try {
-    localStorage.setItem(EDITS_KEY, JSON.stringify(data));
-    if(!silent) showToast('Rascunho salvo neste navegador', 'success');
+    var changes = writePendingDraft();
+    if(!silent){
+      showToast(
+        Object.keys(changes).length ? 'Rascunho salvo neste navegador' : 'Nenhuma alteração pendente',
+        Object.keys(changes).length ? 'success' : 'info'
+      );
+    }
     notifyEditsChanged();
   } catch(e){ showToast('Erro ao salvar: ' + e.message, 'error'); }
 }
 
 function loadEdits(){
-  var s = localStorage.getItem(EDITS_KEY);
-  if(!s) return;
+  var raw = localStorage.getItem(EDITS_KEY);
+  if(!raw) return;
+
   try {
-    var data = JSON.parse(s);
-    var migratedLegacy = false;
+    var stored = JSON.parse(raw);
     initEditables();
 
-    getAll().forEach(function(el){
-      var stableId = el.dataset.editId;
-      var legacyId = el.dataset.legacyEditId;
+    if(stored && stored.format===EDITS_DRAFT_FORMAT && stored.version===EDITS_DRAFT_VERSION){
+      var changes = stored.changes && typeof stored.changes==='object' ? stored.changes : {};
+      var base = stored.base && typeof stored.base==='object' ? stored.base : {};
+      var applied=0,conflicts=0;
 
-      if(data[stableId] !== undefined){
-        el.innerHTML = data[stableId];
-        return;
+      getAll().forEach(function(el){
+        var id=el.dataset.editId;
+        if(changes[id]===undefined) return;
+
+        // O rascunho só é reaplicado quando o conteúdo publicado ainda é o mesmo
+        // que existia quando a edição local foi salva. Isso impede que snapshots
+        // antigos ressuscitem conteúdo já atualizado no GitHub.
+        if(base[id] !== undefined && publishedBaseline[id] !== base[id]){
+          conflicts++;
+          return;
+        }
+
+        el.innerHTML=changes[id];
+        applied++;
+      });
+
+      if(conflicts){
+        localStorage.setItem(EDITS_LEGACY_BACKUP_KEY, raw);
+        localStorage.removeItem(EDITS_KEY);
+        showToast(
+          conflicts+' edição'+(conflicts===1?' local antiga foi preservada':' edições locais antigas foram preservadas')+
+          ' como backup e não sobrescreveu conteúdo mais novo.',
+          'warning',
+          6000
+        );
+      }else if(applied){
+        // Regrava somente diferenças reais contra a baseline publicada atual.
+        writePendingDraft();
       }
 
-      if(legacyId && data[legacyId] !== undefined){
-        el.innerHTML = data[legacyId];
-        migratedLegacy = true;
-      }
-    });
-
-    if(migratedLegacy){
-      var migratedData = {};
-      getAll().forEach(function(el){ migratedData[el.dataset.editId] = el.innerHTML; });
-      localStorage.setItem(EDITS_KEY, JSON.stringify(migratedData));
-      showToast('Edições antigas migradas para o novo formato', 'info', 3500);
+      notifyEditsChanged();
+      return;
     }
-    notifyEditsChanged();
-  } catch(e){ console.error(e); }
+
+    // Formato legado: era um snapshot completo da página, sem baseline por campo.
+    // Reaplicá-lo automaticamente pode reverter conteúdo publicado meses depois.
+    if(stored && typeof stored==='object' && !Array.isArray(stored)){
+      localStorage.setItem(EDITS_LEGACY_BACKUP_KEY, raw);
+      localStorage.removeItem(EDITS_KEY);
+      showToast(
+        'Um rascunho antigo foi preservado como backup, mas não foi reaplicado automaticamente para evitar substituir conteúdo mais novo.',
+        'info',
+        6000
+      );
+      notifyEditsChanged();
+      return;
+    }
+
+    localStorage.removeItem(EDITS_KEY);
+  } catch(e){
+    console.error(e);
+    try{
+      localStorage.setItem(EDITS_LEGACY_BACKUP_KEY, raw);
+      localStorage.removeItem(EDITS_KEY);
+    }catch(storageError){}
+  }
 }
 
 function exportHtml(){
@@ -305,11 +363,10 @@ function parseEditsBackup(raw){
 
 function exportEdits(){
   saveEdits(true);
-  var s = localStorage.getItem(EDITS_KEY);
-  if(!s){ showToast('Nada para exportar', 'warning'); return; }
+  var edits = getPendingChanges();
+  if(!Object.keys(edits).length){ showToast('Nada para exportar', 'warning'); return; }
 
   try {
-    var edits = JSON.parse(s);
     if(!isValidEditsMap(edits)) throw new Error('As edições salvas estão em formato inválido.');
 
     var payload = {
@@ -353,7 +410,7 @@ function importEdits(){
     r.onload = function(ev){
       try {
         var edits = parseEditsBackup(ev.target.result);
-        localStorage.setItem(EDITS_KEY, JSON.stringify(edits));
+        localStorage.setItem(EDITS_KEY, JSON.stringify(draftPayload(edits)));
         showToast('Backup validado e importado! Recarregando...', 'success');
         setTimeout(function(){ location.reload(); }, 1200);
       } catch(err){
