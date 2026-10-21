@@ -3901,7 +3901,7 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
   .relations-toolbar #graphOpenBtn{grid-column:1/-1}
   .graph-editor-workspace{grid-template-columns:240px minmax(0,1fr)}
   .graph-editor-topbar{grid-template-columns:1fr}
-  .graph-editor-tabs{display:grid;grid-template-columns:repeat(3,1fr)}
+  .graph-editor-tabs{display:grid;grid-template-columns:repeat(4,1fr)}
 }
 @media(max-width:620px){
   .relations-hero>div:first-child{padding:15px}
@@ -3928,6 +3928,18 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
   .relations-hero h3{font-size:17px}
   .relations-toolbar{grid-template-columns:1fr}
   .relations-toolbar>*{grid-column:1!important}
+  .graph-nucleus-picker{position:static}
+  .graph-nucleus-menu{
+    position:fixed;
+    left:12px;
+    right:12px;
+    bottom:12px;
+    top:auto;
+    width:auto;
+    max-height:min(70vh,520px);
+    overflow:auto;
+  }
+  .ge-nucleus-checklist{grid-template-columns:1fr}
   .relations-note{align-items:flex-start;flex-direction:column}
   #graphEditorModal{padding:0}
   .graph-editor-v2{
@@ -7088,11 +7100,202 @@ body.graph-fullscreen-open{
 
 
 /* ===== TRELLO 2D · RELAÇÕES E POLIMENTO ===== */
-#graphVanguardLayer.active,
-#graphVanguardLayer[aria-pressed="true"]{
+.graph-nucleus-picker{
+  position:relative;
+  min-width:0;
+}
+#graphNucleusMenuBtn{
+  width:100%;
+  white-space:nowrap;
+}
+#graphNucleusMenuBtn.active{
   border-color:var(--accent2);
   color:var(--accent2);
-  background:color-mix(in srgb,var(--accent2) 10%,var(--paper3));
+  background:color-mix(in srgb,var(--accent2) 9%,var(--paper3));
+}
+.graph-nucleus-menu{
+  position:absolute;
+  z-index:80;
+  top:calc(100% + 6px);
+  right:0;
+  width:min(340px,calc(100vw - 28px));
+  border:1px solid var(--line);
+  background:var(--paper);
+  box-shadow:0 18px 40px rgba(0,0,0,.18);
+}
+.graph-nucleus-menu[hidden]{display:none}
+.graph-nucleus-menu-head{
+  padding:11px 12px 9px;
+  border-bottom:1px solid var(--line2);
+}
+.graph-nucleus-menu-head strong{
+  display:block;
+  font-family:var(--font-title);
+  font-size:11px;
+  color:var(--ink);
+}
+.graph-nucleus-menu-head span{
+  display:block;
+  margin-top:3px;
+  font-size:8px;
+  line-height:1.45;
+  color:var(--ink3);
+}
+.graph-nucleus-options{
+  max-height:310px;
+  overflow:auto;
+  padding:7px;
+}
+.graph-nucleus-option{
+  width:100%;
+  display:grid;
+  grid-template-columns:20px minmax(0,1fr);
+  align-items:center;
+  gap:8px;
+  min-height:0!important;
+  padding:8px 9px!important;
+  border:1px solid transparent!important;
+  background:transparent!important;
+  text-align:left;
+  text-transform:none!important;
+}
+.graph-nucleus-option:hover,
+.graph-nucleus-option.active{
+  border-color:var(--line)!important;
+  background:var(--paper3)!important;
+  transform:none!important;
+}
+.graph-nucleus-option.active{color:var(--accent)!important}
+.graph-nucleus-option>span:last-child{min-width:0}
+.graph-nucleus-option strong{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-family:var(--font-body);
+  font-size:9px;
+  color:var(--ink);
+}
+.graph-nucleus-option small{
+  display:block;
+  margin-top:2px;
+  font-size:6.5px;
+  color:var(--ink3);
+}
+.graph-nucleus-dot{
+  width:12px;height:12px;
+  border-radius:50%;
+  border:1px solid color-mix(in srgb,var(--ink) 18%,transparent);
+  justify-self:center;
+}
+.graph-nucleus-dot.all{
+  width:auto;height:auto;border:0;
+  color:var(--accent);
+  font-size:14px;
+}
+.graph-nucleus-mode{
+  padding:10px 12px 11px;
+  border-top:1px solid var(--line2);
+  background:var(--paper3);
+}
+.graph-nucleus-mode>span{
+  display:block;
+  margin-bottom:6px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:6.5px;
+  letter-spacing:.9px;
+  text-transform:uppercase;
+  color:var(--ink3);
+}
+.graph-nucleus-mode label{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin:5px 0;
+  font-size:8px;
+  color:var(--ink2);
+  cursor:pointer;
+}
+.graph-nucleus-mode input{accent-color:var(--accent)}
+.graph-nucleus-mode input:disabled+*{opacity:.5}
+
+.ge-nucleus-box{
+  padding:11px;
+  border:1px solid var(--line);
+  background:var(--paper);
+}
+.ge-nucleus-box-head{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:8px;
+}
+.ge-nucleus-box-head strong{
+  font-family:var(--font-title);
+  font-size:10px;
+  color:var(--ink);
+}
+.ge-nucleus-box-head span{
+  font-size:7px;
+  color:var(--ink3);
+}
+.ge-nucleus-checklist{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+}
+.ge-nucleus-choice{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  gap:7px!important;
+  min-height:34px;
+  padding:6px 8px;
+  border:1px solid var(--line2);
+  background:var(--paper3);
+  text-transform:none!important;
+  cursor:pointer;
+}
+.ge-nucleus-choice input{width:auto!important;accent-color:var(--accent)}
+.ge-nucleus-choice-dot{
+  width:10px;height:10px;
+  flex:0 0 auto;
+  border-radius:50%;
+}
+.ge-nucleus-choice span:last-child{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-family:var(--font-body);
+  font-size:8px;
+  color:var(--ink2);
+}
+.ge-nucleus-empty{
+  padding:10px;
+  border:1px dashed var(--line);
+  font-size:8px;
+  color:var(--ink3);
+}
+.ge-nucleus-stat{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:9px 10px;
+  border:1px solid var(--line);
+  background:var(--paper3);
+}
+.ge-nucleus-stat span{
+  font-family:'Share Tech Mono',monospace;
+  font-size:6.5px;
+  text-transform:uppercase;
+  color:var(--ink3);
+}
+.ge-nucleus-stat strong{
+  margin-top:2px;
+  font-family:var(--font-title);
+  font-size:17px;
+  color:var(--accent);
 }
 .organization-card-actions{
   display:flex;
