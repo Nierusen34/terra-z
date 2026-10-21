@@ -107,6 +107,7 @@ export default async function handler(req,res){
     secure_master_relations:true,
     relations_graph_v3:true,
     relations_entity_editor:true,
+    graph_nuclei_v1:true,
     portrait_framing:true,
     media_library_v1:true,
     graph_independent_media:true,
