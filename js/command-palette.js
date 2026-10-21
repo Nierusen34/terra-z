@@ -115,6 +115,8 @@ function publicIndex(){
 
   var organizations=Array.isArray(data().organizations)?data().organizations:[];
   organizations.forEach(function(item){
+    var visibility=a.visibility;
+    if(item.visibility && visibility && visibility.isLevelAllowed && !visibility.isLevelAllowed(item.visibility)) return;
     push(rows,{
       id:"organization:"+(item.id||item.name),
       type:item.categoryLabel||"Organização",
