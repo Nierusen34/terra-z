@@ -407,7 +407,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Antoine Devereaux": {
-    "src": "",
+    "src": "images/characters/antoine-devereaux.jpg",
     "alt": "Antoine Devereaux",
     "source": "local",
     "credit": ""
