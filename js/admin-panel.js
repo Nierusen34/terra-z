@@ -458,6 +458,14 @@ function handleAction(action){
     return;
   }
 
+  if(action === 'organizations'){
+    requireEditorAction(function(){
+      close();
+      if(app.organizationEditor && app.organizationEditor.openCreate) app.organizationEditor.openCreate();
+    });
+    return;
+  }
+
   if(action === 'graph'){
     requireEditorAction(function(){
       close();
