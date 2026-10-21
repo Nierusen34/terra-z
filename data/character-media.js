@@ -431,7 +431,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Hector Ramos": {
-    "src": "",
+    "src": "images/characters/hector-ramos.jpg",
     "alt": "Hector Ramos",
     "source": "local",
     "credit": ""
