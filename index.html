@@ -1448,8 +1448,8 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0
   <div class="graph-canvas-card">
     <div class="graph-canvas-head">
       <div>
-        <strong>Mapa de relações</strong>
-        <span>Arraste o fundo para navegar · roda/pinça ajusta o zoom · arraste bolinhas para reorganizar só na sua tela.</span>
+        <strong id="graphCanvasTitle">Mapa de relações</strong>
+        <span id="graphCanvasHint">Arraste o fundo para navegar · roda/pinça ajusta o zoom · arraste bolinhas para reorganizar só na sua tela.</span>
       </div>
       <div class="graph-zoom-controls" aria-label="Navegação do grafo">
         <div class="graph-zoom-primary">
@@ -1478,7 +1478,8 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0
       </div>
     </div>
     <div class="graph-wrap graph-wrap-v2">
-      <svg id="graphSvg" viewBox="0 0 1000 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Rede narrativa de relações do Terra Z"></svg>
+      <div id="graphNucleusBadge" class="graph-nucleus-badge" hidden></div>
+      <svg id="graphSvg" viewBox="0 0 1000 720" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Rede narrativa de relações do Terra Z"></svg>
     </div>
     <div id="graphLegend" class="graph-legend-v2" aria-label="Legenda das relações"></div>
   </div>
