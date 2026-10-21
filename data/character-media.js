@@ -413,7 +413,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Matheus Silva": {
-    "src": "",
+    "src": "images/characters/matheus-silva.jpg",
     "alt": "Matheus Silva",
     "source": "local",
     "credit": ""
