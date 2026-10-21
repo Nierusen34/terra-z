@@ -353,7 +353,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Dr. Ahron Nax": {
-    "src": "",
+    "src": "images/characters/dr-ahron-nax.jpg",
     "alt": "Dr. Ahron Nax",
     "source": "local",
     "credit": ""
