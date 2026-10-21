@@ -7587,8 +7587,16 @@ body.graph-fullscreen-open{
 }
 .organization-editor-main{
   min-width:0;
+  min-height:0;
+  overflow:hidden;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+}
+.organization-editor-scroll{
+  min-height:0;
   overflow:auto;
-  padding:16px 18px 18px;
+  padding:16px 18px 0;
 }
 .organization-editor-grid{
   display:grid;
@@ -7653,8 +7661,9 @@ body.graph-fullscreen-open{
   color:var(--ink2);
 }
 .organization-editor-status{
+  flex:0 0 auto;
   min-height:32px;
-  margin-top:10px;
+  margin:10px 18px 0;
   padding:8px 10px;
   border:1px solid var(--line2);
   background:var(--paper3);
@@ -7668,14 +7677,13 @@ body.graph-fullscreen-open{
 .organization-editor-status[data-state="warning"]{border-left:4px solid #c58a28}
 .organization-editor-status[data-state="error"]{border-left:4px solid #b33}
 .organization-editor-actions{
-  position:sticky;
-  bottom:-18px;
+  flex:0 0 auto;
   z-index:8;
   display:grid;
   grid-template-columns:auto 1fr auto auto;
   gap:8px;
   align-items:center;
-  margin:14px -18px -18px;
+  margin-top:10px;
   padding:12px 18px 14px;
   border-top:1px solid var(--line2);
   background:var(--paper2);
@@ -7719,16 +7727,15 @@ body.graph-fullscreen-open{
 }
 @media(max-width:620px){
   .organization-editor-head{padding:14px}
-  .organization-editor-main{padding:12px}
+  .organization-editor-main{padding:0}
+  .organization-editor-scroll{padding:12px 12px 0}
+  .organization-editor-status{margin-left:12px;margin-right:12px}
   .organization-editor-grid{grid-template-columns:1fr}
   .organization-editor-wide{grid-column:auto}
   .organization-editor-list{grid-template-columns:1fr}
   .organization-editor-actions{
-    bottom:-12px;
     grid-template-columns:1fr 1fr;
-    margin-left:-12px;
-    margin-right:-12px;
-    margin-bottom:-12px;
+    margin:10px 0 0;
     padding-left:12px;
     padding-right:12px;
     padding-bottom:12px;
