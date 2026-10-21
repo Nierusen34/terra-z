@@ -179,6 +179,33 @@ function checkPerformanceBudget(){
   pass("Playwright configurado sem acervo permanente de screenshots");
 }
 
+function checkCanonRegressionGuards(){
+  const overrides=read("data/content-overrides.js");
+  const editor=read("js/editor.js");
+
+  const stale=[
+    ['Aparência 20 (cron. 5)','idade aparente antiga do R10T'],
+    ['Prefeita: Reyes.','nome antigo/incompleto da prefeita'],
+    ['Rumba Room','nome antigo do Rumba & Samba Room'],
+    ['Alden Mitchel','grafia antiga de Alden Mitchell'],
+    ['Gardenzio','grafia antiga de George Gandenzio Toombs'],
+    ['Smallvile','grafia incorreta de Smallville']
+  ];
+
+  for(const [needle,label] of stale){
+    if(overrides.includes(needle)) fail("Regressão canônica em content-overrides.js: "+label+" ("+needle+")");
+  }
+
+  if(!editor.includes("EDITS_DRAFT_FORMAT") ||
+     !editor.includes("writePendingDraft") ||
+     !editor.includes("publishedBaseline[id] !== base[id]") ||
+     !editor.includes("EDITS_LEGACY_BACKUP_KEY")){
+    fail("Editor não possui proteção contra rascunho local obsoleto.");
+  }else{
+    pass("Editor protege conteúdo publicado contra rascunhos locais obsoletos");
+  }
+}
+
 function checkCharacterData(data){
   const overrides=data.characterOverrides || {};
   const taxonomy=data.characterTaxonomy || {};
@@ -1252,6 +1279,7 @@ function checkOrganizations(data){
 }
 
 const data=loadTerraData();
+checkCanonRegressionGuards();
 const characters=checkCharacterData(data);
 checkMediaLibrary(data);
 checkSessions(data,characters);
