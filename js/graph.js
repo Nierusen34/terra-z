@@ -56,6 +56,7 @@ var selectedEdgeId="";
 var graphRelationFilter="all";
 var graphEntityFilter="all";
 var graphSearch="";
+var graphVanguardLayerEnabled=false;
 var visibilityCapability=null;
 var graphV3Capability=null;
 var GRAPH_SCALE_KEY="terraZ_graph_scale_v1";
@@ -152,7 +153,8 @@ function normalizeGraph(graph){
       y:Number.isFinite(Number(node.y)) ? Number(node.y) : 360,
       color:/^#[0-9a-f]{6}$/i.test(String(node.color || "")) ? String(node.color) : KIND[kind].color,
       r:Number.isFinite(Number(node.r)) ? Math.max(18,Math.min(120,Number(node.r))) : 38,
-      visibility:normalizeVisibility(node.visibility)
+      visibility:normalizeVisibility(node.visibility),
+      layer:String(node.layer || "")
     };
   });
 
@@ -166,11 +168,38 @@ function normalizeGraph(graph){
       note:String(edge.note || ""),
       strength:Number.isFinite(Number(edge.strength)) ? Math.max(1,Math.min(5,Number(edge.strength))) : 3,
       directed:edge.directed===true,
-      visibility:normalizeVisibility(edge.visibility)
+      visibility:normalizeVisibility(edge.visibility),
+      layer:String(edge.layer || "")
     };
   });
 
   return graph;
+}
+
+function viewGraph(){
+  var base=graphData || {version:3,quadrants:[],nodes:[],edges:[]};
+  if(!graphVanguardLayerEnabled) return base;
+
+  var raw=window.TerraZData && window.TerraZData.vanguardGraphLayer;
+  if(!raw || !Array.isArray(raw.nodes)) return base;
+  var layer=normalizeGraph(raw);
+
+  var nodeIds=new Set((base.nodes || []).map(function(node){ return node.id; }));
+  var edgeIds=new Set((base.edges || []).map(function(edge){ return edge.id; }));
+  var quadrantIds=new Set((base.quadrants || []).map(function(q){ return q && q.id; }));
+
+  return {
+    version:3,
+    quadrants:(base.quadrants || []).concat((layer.quadrants || []).filter(function(q){
+      return q && !quadrantIds.has(q.id);
+    })),
+    nodes:(base.nodes || []).concat((layer.nodes || []).filter(function(node){
+      return node && !nodeIds.has(node.id);
+    })),
+    edges:(base.edges || []).concat((layer.edges || []).filter(function(edge){
+      return edge && !edgeIds.has(edge.id);
+    }))
+  };
 }
 
 function privateGraph(){
@@ -296,18 +325,19 @@ function routeForNode(node){
 
   if(node.kind==="character") return ref ? "/personagens/"+slugify(ref) : "";
   if(node.kind==="team") return ref ? "/equipes/"+slugify(ref) : "";
+  if((node.kind==="organization" || node.kind==="faction") && r && r.organizationRoute) return r.organizationRoute(ref);
   if(node.kind==="event") return ref ? "/linha-do-tempo/"+slugify(ref) : "";
   if(node.kind==="location" && r && r.routeForLocation) return r.routeForLocation(ref);
   return "";
 }
 
 function nodeById(id,source){
-  var graph=source || graphData;
+  var graph=source || viewGraph();
   return graph && graph.nodes ? graph.nodes.find(function(node){ return node.id===id; }) : null;
 }
 
 function edgeById(id,source){
-  var graph=source || graphData;
+  var graph=source || viewGraph();
   return graph && graph.edges ? graph.edges.find(function(edge){ return edge.id===id; }) : null;
 }
 
@@ -598,7 +628,7 @@ function selectQuickTarget(id){
 }
 
 function graphCanvasBounds(source){
-  var graph=source || graphData || {nodes:[],quadrants:[]};
+  var graph=source || viewGraph() || {nodes:[],quadrants:[]};
   var minX=0,minY=0,maxX=1000,maxY=720;
   (graph.quadrants || []).forEach(function(q){
     minX=Math.min(minX,Number(q.x)||0);
@@ -624,7 +654,7 @@ function graphCanvasBounds(source){
 
 function graphQuadrantForNode(node,source){
   if(!node) return null;
-  var graph=source || graphData || {quadrants:[]};
+  var graph=source || viewGraph() || {quadrants:[]};
   var current=(graph.quadrants || []).find(function(q){
     return node.x>=q.x && node.x<=q.x+q.w && node.y>=q.y && node.y<=q.y+q.h;
   });
@@ -641,7 +671,8 @@ function graphQuadrantForNode(node,source){
 
 function graphConnectedIds(nodeId){
   var connected=new Set([nodeId]);
-  (graphData && graphData.edges || []).forEach(function(edge){
+  var view=viewGraph();
+  (view && view.edges || []).forEach(function(edge){
     if(!allowed(edge.visibility)) return;
     if(edge.from===nodeId) connected.add(edge.to);
     if(edge.to===nodeId) connected.add(edge.from);
@@ -909,7 +940,8 @@ function svgPointFromEvent(svg,event){
 }
 
 function updateGraphViewEdgeDom(svg,nodeId){
-  (graphData && graphData.edges || []).forEach(function(edge){
+  var view=viewGraph();
+  (view && view.edges || []).forEach(function(edge){
     if(edge.from!==nodeId && edge.to!==nodeId) return;
     var group=svg.querySelector('[data-edge-id="'+CSS.escape(edge.id)+'"]');
     if(!group) return;
@@ -1180,8 +1212,9 @@ function setGraphScale(value,persist){
 }
 
 function visibleNodes(){
-  if(!graphData) return [];
-  var base=graphData.nodes.filter(function(node){
+  var view=viewGraph();
+  if(!view) return [];
+  var base=view.nodes.filter(function(node){
     if(!allowed(node.visibility)) return false;
     if(graphEntityFilter!=="all" && node.kind!==graphEntityFilter) return false;
     return true;
@@ -1200,7 +1233,7 @@ function visibleNodes(){
   if(!matched.size) return [];
 
   var expanded=new Set(matched);
-  graphData.edges.forEach(function(edge){
+  view.edges.forEach(function(edge){
     if(matched.has(edge.from)) expanded.add(edge.to);
     if(matched.has(edge.to)) expanded.add(edge.from);
   });
@@ -1208,8 +1241,9 @@ function visibleNodes(){
 }
 
 function visibleEdges(nodeIds){
-  if(!graphData) return [];
-  return graphData.edges.filter(function(edge){
+  var view=viewGraph();
+  if(!view) return [];
+  return view.edges.filter(function(edge){
     if(!allowed(edge.visibility)) return false;
     if(graphRelationFilter!=="all" && edge.type!==graphRelationFilter) return false;
     if(!nodeIds.has(edge.from) || !nodeIds.has(edge.to)) return false;
@@ -1330,6 +1364,7 @@ function renderGraph(){
   var svg=document.getElementById("graphSvg");
   if(!svg || !graphData) return;
 
+  var view=viewGraph();
   var nodes=visibleNodes().map(graphDisplayNode);
   var nodeIds=new Set(nodes.map(function(n){ return n.id; }));
   var edges=visibleEdges(nodeIds);
@@ -1339,7 +1374,7 @@ function renderGraph(){
 
   html+='<rect x="'+bounds.x+'" y="'+bounds.y+'" width="'+bounds.w+'" height="'+bounds.h+'" class="graph-grid-bg" fill="url(#graph-grid)"/>';
 
-  (graphData.quadrants || []).forEach(function(q){
+  (view && view.quadrants || []).forEach(function(q){
     html+='<g class="graph-zone">'+
       '<rect x="'+q.x+'" y="'+q.y+'" width="'+q.w+'" height="'+q.h+'" rx="18" fill="'+escapeAttr(q.bg)+'" stroke="'+escapeAttr(q.color)+'" stroke-opacity=".36" stroke-dasharray="4 5"/>'+
       '<text x="'+(q.x+18)+'" y="'+(q.y+26)+'" fill="'+escapeAttr(q.color)+'" class="graph-zone-title">'+escapeHtml(q.title)+'</text>'+
@@ -1493,15 +1528,17 @@ function updateGraphStats(nodes,edges){
   var entity=document.getElementById("graphEntityCount");
   var relation=document.getElementById("graphRelationCount");
   var visible=document.getElementById("graphVisibleCount");
-  if(entity) entity.textContent=String(graphData ? graphData.nodes.length : 0);
-  if(relation) relation.textContent=String(graphData ? graphData.edges.length : 0);
+  var view=viewGraph();
+  if(entity) entity.textContent=String(view ? view.nodes.length : 0);
+  if(relation) relation.textContent=String(view ? view.edges.length : 0);
   if(visible) visible.textContent=String((nodes || []).length);
 }
 
 function renderLegend(){
   var root=document.getElementById("graphLegend");
   if(!root) return;
-  var used=new Set((graphData && graphData.edges || []).map(function(edge){ return edge.type; }));
+  var view=viewGraph();
+  var used=new Set((view && view.edges || []).map(function(edge){ return edge.type; }));
   root.innerHTML=Object.keys(RELATION).filter(function(type){ return used.has(type); }).map(function(type){
     return '<button type="button" data-graph-legend="'+escapeAttr(type)+'" aria-pressed="'+(graphRelationFilter===type?'true':'false')+'">'+
       '<span style="background:'+RELATION[type].color+'"></span>'+escapeHtml(RELATION[type].label)+'</button>';
@@ -1537,7 +1574,9 @@ function renderInspector(){
     if(!node){ selectedNodeId=""; root.innerHTML=inspectorEmpty(); return; }
     var kind=KIND[node.kind] || KIND.custom;
     var route=routeForNode(node);
-    var relations=(graphData.edges || []).filter(function(edge){
+    var supplemental=node.layer==="vanguard";
+    var view=viewGraph();
+    var relations=(view && view.edges || []).filter(function(edge){
       return (edge.from===node.id || edge.to===node.id) && allowed(edge.visibility);
     });
 
@@ -1553,7 +1592,7 @@ function renderInspector(){
       '<div class="graph-inspector-actions">'+
         (route ? '<button type="button" id="graphInspectorOpen">Abrir entidade →</button>' : '')+
         '<button type="button" id="graphInspectorFocus">'+(graphFocusNodeId===node.id?'◎ Rede completa':'🎯 Focar conexões')+'</button>'+
-        (canEdit() ? '<button type="button" id="graphInspectorConnect" class="primary">🔗 Conectar</button><button type="button" id="graphInspectorEdit">⚙️ Editar</button>' : '')+
+        (canEdit() && !supplemental ? '<button type="button" id="graphInspectorConnect" class="primary">🔗 Conectar</button><button type="button" id="graphInspectorEdit">⚙️ Editar</button>' : '')+
       '</div>'+
       '<div class="graph-inspector-relations">'+
         '<div class="graph-inspector-heading">Conexões diretas</div>'+
@@ -1594,6 +1633,7 @@ function renderInspector(){
   if(selectedEdgeId){
     var edge=edgeById(selectedEdgeId);
     if(!edge){ selectedEdgeId=""; root.innerHTML=inspectorEmpty(); return; }
+    var supplementalEdge=edge.layer==="vanguard";
     var from=nodeById(edge.from),to=nodeById(edge.to);
     var relation=RELATION[edge.type] || RELATION.other;
 
@@ -1613,7 +1653,7 @@ function renderInspector(){
       '<div class="graph-strength"><span>Intensidade</span><strong>'+("●".repeat(edge.strength))+'<i>'+("○".repeat(5-edge.strength))+'</i></strong></div>'+
       (edge.note ? '<p class="graph-inspector-note">'+escapeHtml(edge.note)+'</p>' : '')+
       '<div class="graph-inspector-meta"><span>'+escapeHtml(edge.visibility==="master"?"🔒 Mestre":(edge.visibility==="spoiler"?"⚠️ Spoiler":"🌐 Público"))+'</span></div>'+
-      (canEdit() ? '<div class="graph-inspector-actions"><button type="button" id="graphInspectorEditEdge">✏️ Editar relação</button></div>' : '')+
+      (canEdit() && !supplementalEdge ? '<div class="graph-inspector-actions"><button type="button" id="graphInspectorEditEdge">✏️ Editar relação</button></div>' : '')+
     '</div>';
 
     hydrateInspectorPortraits(root);
@@ -1703,6 +1743,35 @@ function setupQuickRelation(){
   });
 }
 
+function updateVanguardLayerUi(){
+  var button=document.getElementById("graphVanguardLayer");
+  if(!button) return;
+  button.classList.toggle("active",graphVanguardLayerEnabled);
+  button.setAttribute("aria-pressed",graphVanguardLayerEnabled ? "true" : "false");
+  button.textContent=graphVanguardLayerEnabled ? "🏙️ Vanguard Bay ✓" : "🏙️ Vanguard Bay";
+  button.title=graphVanguardLayerEnabled
+    ? "Ocultar a camada local de Vanguard Bay"
+    : "Mostrar personagens, facções e locais de Vanguard Bay";
+}
+
+function setVanguardLayer(enabled,options){
+  options=options || {};
+  graphVanguardLayerEnabled=enabled===true;
+  if(!graphVanguardLayerEnabled){
+    var selected=nodeById(selectedNodeId,graphData);
+    var selectedEdge=edgeById(selectedEdgeId,graphData);
+    if(!selected) selectedNodeId="";
+    if(!selectedEdge) selectedEdgeId="";
+    if(graphFocusNodeId && !nodeById(graphFocusNodeId,graphData)) graphFocusNodeId="";
+  }
+  graphViewCenter={x:null,y:null};
+  updateVanguardLayerUi();
+  renderGraph();
+  renderInspector();
+  if(options.fit===true) setTimeout(function(){ fitGraphView(false); },20);
+  return graphVanguardLayerEnabled;
+}
+
 function setupGraphView(){
   graphScale=readGraphScale();
   updateFilterOptions();
@@ -1726,6 +1795,12 @@ function setupGraphView(){
     graphRelationFilter=relation.value || "all";
     renderGraph();renderInspector();
   });
+
+  var layerButton=document.getElementById("graphVanguardLayer");
+  if(layerButton) layerButton.addEventListener("click",function(){
+    setVanguardLayer(!graphVanguardLayerEnabled,{fit:true});
+  });
+  updateVanguardLayerUi();
 
   var clear=document.getElementById("graphClearFilters");
   if(clear) clear.addEventListener("click",function(){
@@ -2895,6 +2970,31 @@ function focusCharacterInGraph(name,options){
   return true;
 }
 
+function focusEntityInGraph(kind,value){
+  var wanted=slugify(value);
+  if(!wanted) return false;
+  if(!graphVanguardLayerEnabled) setVanguardLayer(true,{fit:false});
+  var view=viewGraph();
+  var node=(view && view.nodes || []).find(function(row){
+    if(kind && row.kind!==kind && !(kind==="organization" && row.kind==="faction")) return false;
+    return slugify(row.id)===wanted || slugify(row.ref)===wanted || slugify(row.label)===wanted || slugify(row.subtitle)===wanted;
+  });
+  if(!node) return false;
+
+  var r=router();
+  if(r && r.go) r.go("/universo/relacoes");
+  selectedNodeId=node.id;
+  selectedEdgeId="";
+  graphFocusNodeId=node.id;
+  graphViewCenter={x:Number(node.x)||500,y:Number(node.y)||360};
+  setTimeout(function(){
+    renderGraph();renderInspector();
+    var target=document.querySelector(".graph-canvas-card");
+    if(target) target.scrollIntoView({behavior:"smooth",block:"start"});
+  },60);
+  return true;
+}
+
 window.TerraZApp.graph={
   render:renderGraph,
   openEditor:openGraphEditor,
@@ -2904,6 +3004,9 @@ window.TerraZApp.graph={
   beginConnect:function(id,options){ return beginQuickPick(id,options || {}); },
   openQuickRelation:function(sourceId,targetId,options){ return openQuickRelation(sourceId,targetId,options || {}); },
   focusCharacter:focusCharacterInGraph,
+  focusEntity:focusEntityInGraph,
+  setVanguardLayer:function(enabled,options){ return setVanguardLayer(enabled,options || {}); },
+  isVanguardLayerEnabled:function(){ return graphVanguardLayerEnabled; },
   importCharacter:function(name,options){
     options=options || {};
     return importDcNode({
