@@ -7,52 +7,6 @@ window.TerraZData = window.TerraZData || {};
 // Arquivo próprio para permitir edição estruturada pelo painel administrativo.
 window.TerraZData.organizations = [
   {
-    "id": "os-espectros",
-    "name": "Os Espectros",
-    "icon": "👻",
-    "category": "criminal",
-    "categoryLabel": "Facção Criminosa",
-    "base": "Coral Gate",
-    "leader": "Matheus Silva · O Fantasma",
-    "description": "Organização de Coral Gate envolvida com contrabando e proteção do bairro.",
-    "activities": [
-      "Contrabando",
-      "Proteção territorial"
-    ],
-    "rivals": [
-      "Los Martillo"
-    ],
-    "relatedCharacters": [
-      "Matheus Silva"
-    ],
-    "relatedLocations": [
-      "Rumba & Samba Room",
-      "Coral Gate"
-    ],
-    "visibility": "public"
-  },
-  {
-    "id": "los-martillo",
-    "name": "Los Martillo",
-    "icon": "🔨",
-    "category": "criminal",
-    "categoryLabel": "Facção Criminosa",
-    "base": "Coral Gate",
-    "leader": "Não especificado no material",
-    "description": "Gangue jovem de Coral Gate ligada ao tráfico da droga conhecida como Gelo.",
-    "activities": [
-      "Tráfico de Gelo"
-    ],
-    "rivals": [
-      "Os Espectros"
-    ],
-    "relatedCharacters": [],
-    "relatedLocations": [
-      "Coral Gate"
-    ],
-    "visibility": "public"
-  },
-  {
     "id": "bratva-volkov",
     "name": "Bratva Volkov",
     "icon": "🐻",
@@ -98,13 +52,34 @@ window.TerraZData.organizations = [
     "visibility": "public"
   },
   {
+    "id": "los-martillo",
+    "name": "Los Martillo",
+    "icon": "🔨",
+    "category": "criminal",
+    "categoryLabel": "Facção Criminosa",
+    "base": "Coral Gate",
+    "leader": "Não especificado no material",
+    "description": "Gangue jovem de Coral Gate ligada ao tráfico da droga conhecida como Gelo.",
+    "activities": [
+      "Tráfico de Gelo"
+    ],
+    "rivals": [
+      "Os Espectros"
+    ],
+    "relatedCharacters": [],
+    "relatedLocations": [
+      "Coral Gate"
+    ],
+    "visibility": "public"
+  },
+  {
     "id": "no-face",
     "name": "No-Face",
     "icon": "💻",
     "category": "criminal",
     "categoryLabel": "Grupo Hacker",
     "base": "A Muralha · O Comutador",
-    "leader": "Não especificado no material",
+    "leader": "Payload",
     "description": "Grupo de hackers que usa O Comutador e atua na compra e venda de informações sigilosas.",
     "activities": [
       "Invasão digital",
@@ -116,6 +91,31 @@ window.TerraZData.organizations = [
     "relatedLocations": [
       "O Comutador",
       "A Muralha"
+    ],
+    "visibility": "public"
+  },
+  {
+    "id": "os-espectros",
+    "name": "Os Espectros",
+    "icon": "👻",
+    "category": "criminal",
+    "categoryLabel": "Facção Criminosa",
+    "base": "Coral Gate",
+    "leader": "Matheus Silva · O Fantasma",
+    "description": "Organização de Coral Gate envolvida com contrabando e proteção do bairro.",
+    "activities": [
+      "Contrabando",
+      "Proteção territorial"
+    ],
+    "rivals": [
+      "Los Martillo"
+    ],
+    "relatedCharacters": [
+      "Matheus Silva"
+    ],
+    "relatedLocations": [
+      "Rumba & Samba Room",
+      "Coral Gate"
     ],
     "visibility": "public"
   },
@@ -172,32 +172,6 @@ window.TerraZData.organizations = [
     "visibility": "public"
   },
   {
-    "id": "uvb",
-    "name": "Universidade de Vanguard Bay (UVB)",
-    "icon": "🎓",
-    "category": "academic",
-    "categoryLabel": "Ensino Superior",
-    "base": "Ilha Solara",
-    "leader": "Não especificado no material",
-    "description": "Universidade tradicional e cara, com forte cultura de fraternidades e destaque em Direito e Oceanografia.",
-    "activities": [
-      "Direito",
-      "Oceanografia",
-      "Pesquisa acadêmica"
-    ],
-    "relatedCharacters": [
-      "Dr. Ahron Nax"
-    ],
-    "relatedLocations": [
-      "Universidade de Vanguard Bay (UVB)"
-    ],
-    "subunits": [
-      "Ordem do Zenit"
-    ],
-    "spoiler": "O material registra colaboração da área de Oceanografia com Atlantes.",
-    "visibility": "public"
-  },
-  {
     "id": "vbpi",
     "name": "Instituto Politécnico de Vanguard Bay (VBPI)",
     "icon": "🧪",
@@ -224,24 +198,29 @@ window.TerraZData.organizations = [
     "visibility": "public"
   },
   {
-    "id": "farol-de-vanguard",
-    "name": "Farol de Vanguard",
-    "icon": "📰",
-    "category": "media",
-    "categoryLabel": "Mídia",
-    "base": "A Muralha",
+    "id": "uvb",
+    "name": "Universidade de Vanguard Bay (UVB)",
+    "icon": "🎓",
+    "category": "academic",
+    "categoryLabel": "Ensino Superior",
+    "base": "Ilha Solara",
     "leader": "Não especificado no material",
-    "description": "Jornal tradicional de Vanguard Bay.",
+    "description": "Universidade tradicional e cara, com forte cultura de fraternidades e destaque em Direito e Oceanografia.",
     "activities": [
-      "Jornalismo",
-      "Reportagem investigativa"
+      "Direito",
+      "Oceanografia",
+      "Pesquisa acadêmica"
     ],
     "relatedCharacters": [
-      "Osias \"Osi\" Rivers"
+      "Dr. Ahron Nax"
     ],
     "relatedLocations": [
-      "Farol de Vanguard"
+      "Universidade de Vanguard Bay (UVB)"
     ],
+    "subunits": [
+      "Ordem do Zenit"
+    ],
+    "spoiler": "O material registra colaboração da área de Oceanografia com Atlantes.",
     "visibility": "public"
   },
   {
@@ -262,6 +241,27 @@ window.TerraZData.organizations = [
     ],
     "relatedLocations": [
       "A Sentinela Dourada"
+    ],
+    "visibility": "public"
+  },
+  {
+    "id": "farol-de-vanguard",
+    "name": "Farol de Vanguard",
+    "icon": "📰",
+    "category": "media",
+    "categoryLabel": "Mídia",
+    "base": "A Muralha",
+    "leader": "Não especificado no material",
+    "description": "Jornal tradicional de Vanguard Bay.",
+    "activities": [
+      "Jornalismo",
+      "Reportagem investigativa"
+    ],
+    "relatedCharacters": [
+      "Osias \"Osi\" Rivers"
+    ],
+    "relatedLocations": [
+      "Farol de Vanguard"
     ],
     "visibility": "public"
   },
