@@ -515,7 +515,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Brigitte Oliveira": {
-    "src": "",
+    "src": "images/characters/brigitte-oliveira.jpg",
     "alt": "Brigitte Oliveira",
     "source": "local",
     "credit": ""
