@@ -347,7 +347,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Dr. Kenji Tanaka": {
-    "src": "",
+    "src": "images/characters/dr-kenji-tanaka.jpg",
     "alt": "Dr. Kenji Tanaka",
     "source": "local",
     "credit": ""
