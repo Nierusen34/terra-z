@@ -85,6 +85,8 @@ function status(message,state){
 }
 function fill(item){
   item=item||emptyOrganization();
+  var categoryLabelInput=el("organizationEditorCategoryLabel");
+  if(categoryLabelInput) delete categoryLabelInput.dataset.userEdited;
   el("organizationEditorId").value=item.id||"";
   el("organizationEditorName").value=item.name||"";
   el("organizationEditorIcon").value=item.icon||"◆";
@@ -166,6 +168,20 @@ function open(id){
   el("organizationEditorModal").classList.add("show");
   document.body.style.overflow="hidden";
 }
+function openManager(){
+  var b=backend();
+  if(!b||!b.isAuthenticated||!b.isAuthenticated()){
+    showToast("Entre como editor para gerenciar organizações.","warning",4500);
+    return;
+  }
+  var rows=organizations();
+  if(rows.length){
+    open(rows[0].id);
+  }else{
+    openCreate();
+  }
+}
+
 function openCreate(){
   var b=backend();
   if(!b||!b.isAuthenticated||!b.isAuthenticated()){
@@ -275,5 +291,5 @@ function setup(){
   });
 }
 setup();
-window.TerraZApp.organizationEditor={open:open,openCreate:openCreate,close:close,save:save};
+window.TerraZApp.organizationEditor={open:open,openManager:openManager,openCreate:openCreate,close:close,save:save};
 })();
