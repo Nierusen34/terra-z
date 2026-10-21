@@ -395,7 +395,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Dra. Anya Petrova": {
-    "src": "",
+    "src": "images/characters/dra-anya-petrova.jpg",
     "alt": "Dra. Anya Petrova",
     "source": "local",
     "credit": ""
