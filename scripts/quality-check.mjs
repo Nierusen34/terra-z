@@ -1143,6 +1143,61 @@ checkSyntax();
 checkIndexAssets();
 checkPerformanceBudget();
 
+function checkVanguardGraphLayer(data){
+  const layer=data.vanguardGraphLayer;
+  if(!layer || !Array.isArray(layer.nodes) || !Array.isArray(layer.edges)){
+    fail("Camada opcional de Vanguard Bay ausente ou inválida");
+    return;
+  }
+
+  const ids=new Set();
+  const edgeIds=new Set();
+  const allowedKinds=new Set(["character","faction","organization","location"]);
+  const characters=new Set(Object.keys(data.characterOverrides||{}));
+  const organizations=new Set((Array.isArray(data.organizations)?data.organizations:[]).map(item=>String(item&&item.id||"")).filter(Boolean));
+  const locations=new Set();
+
+  for(const district of Array.isArray(data.districts)?data.districts:[]){
+    for(const name of Array.isArray(district&&district.locations)?district.locations:[]) locations.add(String(name));
+    for(const point of Array.isArray(district&&district.pointsOfInterest)?district.pointsOfInterest:[]){
+      if(point&&point.name) locations.add(String(point.name));
+    }
+  }
+  for(const site of Array.isArray(data.strategicSites)?data.strategicSites:[]){
+    if(site&&site.name) locations.add(String(site.name));
+  }
+
+  for(const node of layer.nodes){
+    if(!node||!node.id){ fail("Nó sem ID na camada Vanguard Bay"); continue; }
+    if(ids.has(node.id)) fail("ID duplicado na camada Vanguard Bay: "+node.id);
+    ids.add(node.id);
+    if(!allowedKinds.has(String(node.kind||""))) fail("Tipo inválido na camada Vanguard Bay: "+node.id+" / "+String(node.kind||""));
+    if(String(node.layer||"")!=="vanguard") fail("Nó sem marcação de camada Vanguard Bay: "+node.id);
+
+    if(node.kind==="character" && node.ref && !characters.has(node.ref)){
+      fail("Camada Vanguard Bay referencia personagem inexistente: "+node.ref);
+    }
+    if((node.kind==="organization"||node.kind==="faction") && node.ref && !organizations.has(node.ref)){
+      fail("Camada Vanguard Bay referencia organização inexistente: "+node.ref);
+    }
+    if(node.kind==="location" && node.ref && !locations.has(node.ref)){
+      fail("Camada Vanguard Bay referencia local inexistente: "+node.ref);
+    }
+  }
+
+  for(const edge of layer.edges){
+    if(!edge||!edge.id){ fail("Relação sem ID na camada Vanguard Bay"); continue; }
+    if(edgeIds.has(edge.id)) fail("ID de relação duplicado na camada Vanguard Bay: "+edge.id);
+    edgeIds.add(edge.id);
+    if(!ids.has(edge.from)||!ids.has(edge.to)){
+      fail("Relação Vanguard Bay aponta para nó inexistente: "+edge.id);
+    }
+    if(String(edge.layer||"")!=="vanguard") fail("Relação sem marcação de camada Vanguard Bay: "+edge.id);
+  }
+
+  pass(layer.nodes.length+" nós e "+layer.edges.length+" relações da camada Vanguard Bay validados");
+}
+
 function checkOrganizations(data){
   const rows=Array.isArray(data.organizations)?data.organizations:[];
   if(!rows.length){
@@ -1191,6 +1246,7 @@ checkMediaLibrary(data);
 checkSessions(data,characters);
 checkTimeline(data,characters);
 checkGraph(data);
+checkVanguardGraphLayer(data);
 checkOrganizations(data);
 checkModuleRegistry();
 checkAdvancedAdmin(data);
