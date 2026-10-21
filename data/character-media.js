@@ -491,7 +491,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Sofia Navarro": {
-    "src": "",
+    "src": "images/characters/sofia-navarro.jpg",
     "alt": "Sofia Navarro",
     "source": "local",
     "credit": ""
