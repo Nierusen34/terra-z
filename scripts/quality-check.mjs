@@ -112,7 +112,7 @@ function checkIndexAssets(){
   const directlyLoadedAdmin=[
     "js/admin-panel.js","js/editor.js","js/private-content.js","js/master-workspace.js",
     "js/publishing.js","js/master-migration.js","js/media-manager.js","js/media-library.js",
-    "js/portrait-browser.js","js/character-editor.js","js/taxonomy-manager.js",
+    "js/portrait-browser.js","js/character-editor.js","js/organization-editor.js","js/taxonomy-manager.js",
     "js/session-editor.js","js/timeline-editor.js","js/integrity-checker.js",
     "js/history-manager.js","js/visibility-manager.js"
   ].filter(src=>html.includes('src="'+src+'"'));
@@ -1257,6 +1257,68 @@ function checkDynamicGraphNuclei(data){
 }
 
 
+function checkOrganizationEditor(data){
+  const html=read("index.html");
+  const loader=read("js/admin-loader.js");
+  const panel=read("js/admin-panel.js");
+  const runtime=read("js/organization-editor.js");
+  const api=read("api/organization.js");
+  const health=read("api/health.js");
+  const publish=read("api/publish.js");
+  const teams=read("data/teams.js");
+  const organizations=read("data/organizations.js");
+  const sw=read("sw.js");
+
+  if(!html.includes('src="data/organizations.js"')){
+    fail("data/organizations.js não está carregado no boot público.");
+  }
+  if(teams.includes("window.TerraZData.organizations")){
+    fail("Organizações continuam misturadas em data/teams.js.");
+  }
+  if(!organizations.includes("window.TerraZData.organizations")){
+    fail("Arquivo dedicado de organizações não exporta TerraZData.organizations.");
+  }
+
+  for(const id of [
+    "organizationEditorModal","organizationEditorList","organizationEditorName",
+    "organizationEditorCategory","organizationEditorDescription","organizationEditorVisibility",
+    "organizationEditorCharacters","organizationEditorLocations","organizationEditorSpoiler",
+    "organizationEditorSave","organizationEditorDelete"
+  ]){
+    if(!html.includes('id="'+id+'"')) fail("Editor de Organizações sem elemento: "+id);
+  }
+
+  if(!loader.includes('"js/organization-editor.js"')){
+    fail("Editor de Organizações não está registrado no lazy loader.");
+  }
+  if(!panel.includes("action === 'organizations'")){
+    fail("Painel administrativo não abre o Editor de Organizações.");
+  }
+  if(!runtime.includes('b.request("/api/organization"') ||
+     !runtime.includes("openCreate") ||
+     !runtime.includes("refreshPublic")){
+    fail("Runtime do Editor de Organizações está incompleto.");
+  }
+  if(!api.includes('readTextFile("data/organizations.js")') ||
+     !api.includes("normalizeOrganization") ||
+     !api.includes("organization_in_graph")){
+    fail("API de Organizações não oferece CRUD estruturado/proteção do grafo.");
+  }
+  if(!health.includes("organization_editor_v1:true") ||
+     !health.includes("serverless_functions:9") ||
+     !health.includes('organizations:["data/organizations.js","organizations"]')){
+    fail("Backend não anuncia ou não atualiza organizações em runtime.");
+  }
+  if(!publish.includes('"data/organizations.js"')){
+    fail("Organizações não fazem parte do histórico/restauração de conteúdo.");
+  }
+  if(!sw.includes('"./data/organizations.js"')){
+    fail("PWA não inclui data/organizations.js no cache base.");
+  }
+
+  pass("Editor de Organizações validado com CRUD, proteção do grafo e persistência");
+}
+
 function checkOrganizations(data){
   const rows=Array.isArray(data.organizations)?data.organizations:[];
   if(!rows.length){
@@ -1308,6 +1370,7 @@ checkTimeline(data,characters);
 checkGraph(data);
 checkDynamicGraphNuclei(data);
 checkOrganizations(data);
+checkOrganizationEditor(data);
 checkModuleRegistry();
 checkAdvancedAdmin(data);
 checkPhase14();
