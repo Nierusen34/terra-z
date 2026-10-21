@@ -56,7 +56,9 @@ var selectedEdgeId="";
 var graphRelationFilter="all";
 var graphEntityFilter="all";
 var graphSearch="";
-var graphVanguardLayerEnabled=false;
+var graphActiveNucleus="all";
+var graphNucleusViewMode="only";
+var graphNucleusMenuOpen=false;
 var visibilityCapability=null;
 var graphV3Capability=null;
 var GRAPH_SCALE_KEY="terraZ_graph_scale_v1";
@@ -123,13 +125,48 @@ function edgeId(edge,index){
 }
 
 function normalizeGraph(graph){
-  graph=clone(graph || {version:3,quadrants:[],nodes:[],edges:[]});
+  graph=clone(graph || {version:3,nuclei:[],quadrants:[],nodes:[],edges:[]});
   graph.version=3;
   graph.quadrants=Array.isArray(graph.quadrants) ? graph.quadrants : [];
+
+  var rawNuclei=Array.isArray(graph.nuclei) && graph.nuclei.length
+    ? graph.nuclei
+    : graph.quadrants.map(function(q){
+        return {id:q.id,label:q.title || q.id,color:q.color || "#6f6862"};
+      });
+  var seenNuclei=new Set();
+  graph.nuclei=rawNuclei.map(function(item,index){
+    item=item||{};
+    return {
+      id:String(item.id || ("nucleus-"+(index+1))).trim(),
+      label:String(item.label || item.title || item.id || ("Núcleo "+(index+1))).trim(),
+      color:/^#[0-9a-f]{6}$/i.test(String(item.color||"")) ? String(item.color) : "#6f6862"
+    };
+  }).filter(function(item){
+    if(!item.id || seenNuclei.has(item.id)) return false;
+    seenNuclei.add(item.id);
+    return true;
+  });
+
+  var nucleusIds=new Set(graph.nuclei.map(function(item){return item.id;}));
+  function inferredNuclei(node){
+    var x=Number(node && node.x),y=Number(node && node.y);
+    if(!Number.isFinite(x)||!Number.isFinite(y)) return [];
+    var q=graph.quadrants.find(function(row){
+      return x>=Number(row.x)&&x<=Number(row.x)+Number(row.w)&&
+        y>=Number(row.y)&&y<=Number(row.y)+Number(row.h);
+    });
+    return q && nucleusIds.has(q.id) ? [q.id] : [];
+  }
+
   graph.nodes=(Array.isArray(graph.nodes) ? graph.nodes : []).map(function(node,index){
     var legacy=legacyCharacterMap[node.id] || "";
     var kind=normalizeKind(node.kind || (legacy ? "character" : "custom"));
     var ref=String(node.ref || legacy || "");
+    var nuclei=Array.isArray(node.nuclei)
+      ? [...new Set(node.nuclei.map(function(id){return String(id||"").trim();}).filter(function(id){return nucleusIds.has(id);}))].slice(0,20)
+      : [];
+    if(!nuclei.length) nuclei=inferredNuclei(node);
     return {
       id:String(node.id || ("node-"+(index+1))),
       label:String(node.label || node.id || "ENTIDADE"),
@@ -154,7 +191,7 @@ function normalizeGraph(graph){
       color:/^#[0-9a-f]{6}$/i.test(String(node.color || "")) ? String(node.color) : KIND[kind].color,
       r:Number.isFinite(Number(node.r)) ? Math.max(18,Math.min(120,Number(node.r))) : 38,
       visibility:normalizeVisibility(node.visibility),
-      layer:String(node.layer || "")
+      nuclei:nuclei
     };
   });
 
@@ -168,37 +205,51 @@ function normalizeGraph(graph){
       note:String(edge.note || ""),
       strength:Number.isFinite(Number(edge.strength)) ? Math.max(1,Math.min(5,Number(edge.strength))) : 3,
       directed:edge.directed===true,
-      visibility:normalizeVisibility(edge.visibility),
-      layer:String(edge.layer || "")
+      visibility:normalizeVisibility(edge.visibility)
     };
   });
 
   return graph;
 }
 
+function graphNucleus(id,source){
+  var graph=source || graphData;
+  return graph && Array.isArray(graph.nuclei)
+    ? graph.nuclei.find(function(item){return item && item.id===id;}) || null
+    : null;
+}
+
 function viewGraph(){
-  var base=graphData || {version:3,quadrants:[],nodes:[],edges:[]};
-  if(!graphVanguardLayerEnabled) return base;
+  var base=graphData || {version:3,nuclei:[],quadrants:[],nodes:[],edges:[]};
+  if(graphActiveNucleus==="all" || !graphNucleus(graphActiveNucleus,base)) return base;
 
-  var raw=window.TerraZData && window.TerraZData.vanguardGraphLayer;
-  if(!raw || !Array.isArray(raw.nodes)) return base;
-  var layer=normalizeGraph(raw);
+  var primaryIds=new Set((base.nodes||[]).filter(function(node){
+    return Array.isArray(node.nuclei) && node.nuclei.includes(graphActiveNucleus);
+  }).map(function(node){return node.id;}));
 
-  var nodeIds=new Set((base.nodes || []).map(function(node){ return node.id; }));
-  var edgeIds=new Set((base.edges || []).map(function(edge){ return edge.id; }));
-  var quadrantIds=new Set((base.quadrants || []).map(function(q){ return q && q.id; }));
+  var includedIds=new Set(primaryIds);
+  if(graphNucleusViewMode==="connections"){
+    (base.edges||[]).forEach(function(edge){
+      if(primaryIds.has(edge.from)) includedIds.add(edge.to);
+      if(primaryIds.has(edge.to)) includedIds.add(edge.from);
+    });
+  }
+
+  var nodes=(base.nodes||[]).filter(function(node){return includedIds.has(node.id);});
+  var edges=(base.edges||[]).filter(function(edge){
+    if(!includedIds.has(edge.from)||!includedIds.has(edge.to)) return false;
+    if(graphNucleusViewMode==="connections"){
+      return primaryIds.has(edge.from)||primaryIds.has(edge.to);
+    }
+    return primaryIds.has(edge.from)&&primaryIds.has(edge.to);
+  });
 
   return {
     version:3,
-    quadrants:(base.quadrants || []).concat((layer.quadrants || []).filter(function(q){
-      return q && !quadrantIds.has(q.id);
-    })),
-    nodes:(base.nodes || []).concat((layer.nodes || []).filter(function(node){
-      return node && !nodeIds.has(node.id);
-    })),
-    edges:(base.edges || []).concat((layer.edges || []).filter(function(edge){
-      return edge && !edgeIds.has(edge.id);
-    }))
+    nuclei:base.nuclei || [],
+    quadrants:[],
+    nodes:nodes,
+    edges:edges
   };
 }
 
@@ -209,7 +260,14 @@ function privateGraph(){
 
 function mergePrivateGraph(base){
   var graph=normalizeGraph(base);
-  var secure=normalizeGraph({version:3,quadrants:[],nodes:privateGraph().nodes || [],edges:privateGraph().edges || []});
+  var privateData=privateGraph();
+  var secure=normalizeGraph({
+    version:3,
+    nuclei:graph.nuclei,
+    quadrants:graph.quadrants,
+    nodes:privateData.nodes || [],
+    edges:privateData.edges || []
+  });
   var ids=new Set(graph.nodes.map(function(node){ return node.id; }));
 
   secure.nodes.forEach(function(node){
@@ -231,6 +289,7 @@ function publicGraphSnapshot(graph){
   var masterIds=new Set(graph.nodes.filter(function(n){ return n.visibility==="master"; }).map(function(n){ return n.id; }));
   return {
     version:3,
+    nuclei:clone(graph.nuclei),
     quadrants:clone(graph.quadrants),
     nodes:graph.nodes.filter(function(n){ return n.visibility!=="master"; }),
     edges:graph.edges.filter(function(e){
