@@ -3937,13 +3937,16 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
   .graph-nucleus-picker{position:static}
   .graph-nucleus-menu{
     position:fixed;
+    z-index:10310;
     left:12px;
     right:12px;
-    bottom:12px;
+    bottom:calc(12px + env(safe-area-inset-bottom,0px));
     top:auto;
     width:auto;
-    max-height:min(70vh,520px);
+    max-height:min(70dvh,520px);
     overflow:auto;
+    overscroll-behavior:contain;
+    touch-action:pan-y;
   }
   .ge-nucleus-checklist{grid-template-columns:1fr}
   .relations-note{align-items:flex-start;flex-direction:column}
@@ -7113,6 +7116,8 @@ body.graph-fullscreen-open{
 #graphNucleusMenuBtn{
   width:100%;
   white-space:nowrap;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
 }
 #graphNucleusMenuBtn.active{
   border-color:var(--accent2);
@@ -7155,6 +7160,8 @@ body.graph-fullscreen-open{
 .graph-nucleus-option{
   width:100%;
   display:grid;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
   grid-template-columns:20px minmax(0,1fr);
   align-items:center;
   gap:8px;
