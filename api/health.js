@@ -10,6 +10,7 @@ const RUNTIME_FILES = {
   characterMedia:["data/character-media.js","characterMedia"],
   mediaLibrary:["data/media-library.js","mediaLibrary"],
   graphOverride:["data/graph-overrides.js","graphOverride"],
+  organizations:["data/organizations.js","organizations"],
   sessions:["data/sessions.js","sessions"],
   timeline:["data/timeline.js","timeline"]
 };
@@ -111,8 +112,9 @@ export default async function handler(req,res){
     portrait_framing:true,
     media_library_v1:true,
     graph_independent_media:true,
+    organization_editor_v1:true,
     api_consolidation_v1:true,
-    serverless_functions:8,
+    serverless_functions:9,
     development_branch:"dev",
     admin_lazy_loading:true,
     admin_foundation_v1:true,
