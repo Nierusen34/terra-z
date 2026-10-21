@@ -140,6 +140,20 @@ export default async function handler(req,res){
       }
 
       const removed=organizations[index];
+      const referencedBy=organizations.find(item=>{
+        if(!item || item.id===suppliedId) return false;
+        const refs=[].concat(item.rivals||[],item.subunits||[]);
+        return refs.some(value=>
+          String(value||"").toLocaleLowerCase("pt-BR")===String(removed.name||"").toLocaleLowerCase("pt-BR")
+        );
+      });
+      if(referencedBy){
+        return res.status(409).json({
+          error:"organization_referenced",
+          message:'Esta organização ainda é citada por "'+String(referencedBy.name||"outra organização")+'". Remova essa referência antes de excluí-la.'
+        });
+      }
+
       organizations.splice(index,1);
       const commit=await commitFiles(
         [{path:"data/organizations.js",content:renderOrganizations(organizations),encoding:"utf-8"}],
