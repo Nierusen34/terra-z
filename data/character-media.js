@@ -329,7 +329,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Alden Mitchell": {
-    "src": "",
+    "src": "images/characters/alden-mitchell.jpg",
     "alt": "Alden Mitchell",
     "source": "local",
     "credit": ""
