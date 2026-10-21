@@ -2222,75 +2222,59 @@ function undoEditorDraft(){
   showToast("Última alteração de layout desfeita.","info",3000);
 }
 
-function pointQuadrant(node,quadrants){
-  return (quadrants || []).find(function(q){
-    return node.x>=q.x && node.x<=q.x+q.w && node.y>=q.y && node.y<=q.y+q.h;
-  }) || null;
-}
-
-function defaultQuadrantId(nodeId,quadrants){
-  var base=(defaultGraph.nodes || []).find(function(node){ return node.id===nodeId; });
-  if(!base) return "";
-  var q=pointQuadrant(base,quadrants);
-  return q ? q.id : "";
-}
-
 function smartLayoutAssignments(graph){
-  var quadrants=(graph.quadrants || []).filter(function(q){
-    return Number.isFinite(Number(q.x))&&Number.isFinite(Number(q.y))&&Number(q.w)>0&&Number(q.h)>0;
-  });
-  if(!quadrants.length){
-    quadrants=[{id:"__all",title:"REDE",x:20,y:20,w:960,h:680,color:"#777",bg:"transparent"}];
-  }
-
-  var valid=new Set(quadrants.map(function(q){return q.id;}));
-  var assignment={};
+  var registered=Array.isArray(graph.nuclei)?graph.nuclei:[];
+  var valid=new Set(registered.map(function(item){return item.id;}));
+  var groups=[];
   var buckets={};
-  quadrants.forEach(function(q){buckets[q.id]=[];});
 
-  // Entidades canônicas mantêm seu núcleo conhecido.
-  // Entidades novas são classificadas primeiro pelas relações; a posição atual
-  // só vira fallback para não transformar um layout já bagunçado em regra.
-  graph.nodes.forEach(function(node){
-    var qid=defaultQuadrantId(node.id,quadrants);
-    if(qid && valid.has(qid)) assignment[node.id]=qid;
+  registered.forEach(function(item){
+    var hasNodes=(graph.nodes||[]).some(function(node){
+      return Array.isArray(node.nuclei)&&node.nuclei.includes(item.id);
+    });
+    if(!hasNodes) return;
+    groups.push({id:item.id,label:item.label,color:item.color||"#6f6862"});
+    buckets[item.id]=[];
   });
 
-  for(var pass=0;pass<6;pass++){
-    var changed=false;
-    graph.nodes.forEach(function(node){
-      if(assignment[node.id]) return;
-      var score={};
-      graph.edges.forEach(function(edge){
-        var other="";
-        if(edge.from===node.id) other=edge.to;
-        else if(edge.to===node.id) other=edge.from;
-        if(!other || !assignment[other]) return;
-        score[assignment[other]]=(score[assignment[other]]||0)+Math.max(1,Number(edge.strength)||1);
-      });
-      var best=Object.keys(score).sort(function(a,b){return score[b]-score[a];})[0];
-      if(best){assignment[node.id]=best;changed=true;}
-    });
-    if(!changed) break;
+  var hasUnassigned=(graph.nodes||[]).some(function(node){
+    return !(node.nuclei||[]).some(function(id){return valid.has(id);});
+  });
+  if(hasUnassigned){
+    groups.push({id:"__other",label:"SEM NÚCLEO",color:"#6f6862"});
+    buckets.__other=[];
   }
 
-  graph.nodes.forEach(function(node){
-    var qid=assignment[node.id];
-    if(!qid){
-      var current=pointQuadrant(node,quadrants);
-      if(current) qid=current.id;
-    }
-    if(!qid){
-      qid=quadrants.slice().sort(function(a,b){
-        var ac=Object.values(assignment).filter(function(x){return x===a.id;}).length;
-        var bc=Object.values(assignment).filter(function(x){return x===b.id;}).length;
-        return ac-bc;
-      })[0].id;
-    }
+  if(!groups.length){
+    groups=[{id:"__all",label:"REDE",color:"#6f6862"}];
+    buckets.__all=[];
+  }
+
+  var cols=Math.min(3,Math.max(1,Math.ceil(Math.sqrt(groups.length))));
+  var cellW=470,cellH=330,gapX=20,gapY=20;
+  var quadrants=groups.map(function(group,index){
+    var col=index%cols,row=Math.floor(index/cols);
+    return {
+      id:group.id,
+      title:String(group.label||group.id).toUpperCase(),
+      x:20+col*(cellW+gapX),
+      y:20+row*(cellH+gapY),
+      w:cellW,
+      h:cellH,
+      color:group.color,
+      bg:"rgba(0,0,0,.025)"
+    };
+  });
+
+  var assignment={};
+  (graph.nodes||[]).forEach(function(node){
+    var qid=(node.nuclei||[]).find(function(id){return valid.has(id)&&buckets[id];}) || (hasUnassigned?"__other":"__all");
     assignment[node.id]=qid;
+    if(!buckets[qid]) buckets[qid]=[];
     buckets[qid].push(node);
   });
 
+  graph.quadrants=quadrants;
   return {quadrants:quadrants,buckets:buckets,assignment:assignment};
 }
 
