@@ -1199,6 +1199,18 @@ function checkVercel(){
   }
 }
 
+function checkMediaCollisionRouting(){
+  const mediaApi=read("api/media.js");
+  if(!mediaApi.includes("resolveCharacterMediaTarget") ||
+     !mediaApi.includes('if(hasPublic) return {kind:"public"') ||
+     !mediaApi.includes('requestedTarget === "private"') ||
+     !mediaApi.includes('requestedTarget === "public"')){
+    fail("API de mídia não protege colisões entre ficha pública e privada com o mesmo nome.");
+  }else{
+    pass("API de mídia prioriza a ficha pública em colisões de mesmo nome e preserva alvo privado explícito");
+  }
+}
+
 function checkSensitivePublicPatterns(){
   const publicFiles=[
     "data/character-overrides.js",
@@ -1303,6 +1315,7 @@ checkPwa();
 checkPhase15();
 checkEncryptedFiles();
 checkVercel();
+checkMediaCollisionRouting();
 checkSensitivePublicPatterns();
 
 console.log("\nResumo");
