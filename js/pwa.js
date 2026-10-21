@@ -129,6 +129,7 @@ async function register(){
   }
 }
 function setup(){
+  document.documentElement.classList.toggle("pwa-standalone",standalone());
   installButton();
   statusPill();
   updateBanner();
