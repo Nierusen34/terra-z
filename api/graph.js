@@ -58,6 +58,11 @@ function visibility(value){
 
 function bool(value){ return value===true || value==="true" || value===1 || value==="1"; }
 
+function stringList(value,maxItems=20,maxLength=80){
+  const input=Array.isArray(value) ? value : [];
+  return [...new Set(input.map(item=>text(item,maxLength)).filter(Boolean))].slice(0,maxItems);
+}
+
 const NODE_KINDS=new Set([
   "character","team","faction","organization","location","event","custom"
 ]);
@@ -88,6 +93,30 @@ function normalizeGraph(input){
     bg:rgba(q && q.bg)
   })) : [];
 
+  const rawNuclei=Array.isArray(input.nuclei) && input.nuclei.length
+    ? input.nuclei.slice(0,60)
+    : quadrants.map(q=>({id:q.id,label:q.title,color:q.color}));
+
+  const nuclei=[];
+  const nucleusIds=new Set();
+  rawNuclei.forEach((item,index)=>{
+    const id=text(item && item.id,80) || "nucleus-"+(index+1);
+    if(nucleusIds.has(id)) return;
+    nucleusIds.add(id);
+    nuclei.push({
+      id,
+      label:text(item && (item.label || item.title),120) || id,
+      color:color(item && item.color,"#6f6862")
+    });
+  });
+
+  function inferNuclei(node){
+    const x=Number(node && node.x),y=Number(node && node.y);
+    if(!Number.isFinite(x)||!Number.isFinite(y)) return [];
+    const match=quadrants.find(q=>x>=q.x&&x<=q.x+q.w&&y>=q.y&&y<=q.y+q.h);
+    return match && nucleusIds.has(match.id) ? [match.id] : [];
+  }
+
   const nodes=Array.isArray(input.nodes) ? input.nodes.slice(0,180).map((n,i)=>({
     id:text(n && n.id,80) || "node-"+(i+1),
     label:text(n && n.label,100),
@@ -106,7 +135,11 @@ function normalizeGraph(input){
     y:number(n && n.y,-5000,5000,400),
     color:color(n && n.color),
     r:number(n && n.r,18,120,38),
-    visibility:visibility(n && n.visibility)
+    visibility:visibility(n && n.visibility),
+    nuclei:(()=> {
+      const listed=stringList(n && n.nuclei,20,80).filter(id=>nucleusIds.has(id));
+      return listed.length ? listed : inferNuclei(n);
+    })()
   })) : [];
 
   for(const node of nodes){
@@ -166,6 +199,7 @@ function normalizeGraph(input){
 
   return {
     version:3,
+    nuclei,
     quadrants,
     nodes,
     edges
@@ -194,6 +228,7 @@ export default async function handler(req,res){
 
     const publicGraph={
       version:3,
+      nuclei:graph.nuclei,
       quadrants:graph.quadrants,
       nodes:graph.nodes.filter(node=>node.visibility!=="master"),
       edges:graph.edges.filter(edge=>
@@ -205,6 +240,7 @@ export default async function handler(req,res){
 
     const privateGraph={
       version:3,
+      nuclei:graph.nuclei,
       nodes:graph.nodes.filter(node=>node.visibility==="master"),
       edges:graph.edges.filter(edge=>
         edge.visibility==="master" ||
