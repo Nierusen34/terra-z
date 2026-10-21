@@ -461,7 +461,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Dante Rodrigues": {
-    "src": "",
+    "src": "images/characters/dante-rodrigues.jpg",
     "alt": "Dante Rodrigues",
     "source": "local",
     "credit": ""
