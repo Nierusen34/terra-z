@@ -1512,7 +1512,14 @@ function renderGraph(){
       else focusClass=" focus-muted";
     }
 
-    html+='<g class="graph-node-v2'+(route?' routable':'')+(selected?' selected':'')+(matched?' search-match':' search-context')+focusClass+'" data-node-id="'+escapeAttr(node.id)+'" tabindex="0" role="button" aria-label="'+escapeAttr(node.label)+'">'+
+    var nucleusContextClass="";
+    if(graphActiveNucleus!=="all" && graphNucleusViewMode==="connections"){
+      nucleusContextClass=(Array.isArray(node.nuclei)&&node.nuclei.includes(graphActiveNucleus))
+        ? " nucleus-primary"
+        : " nucleus-external";
+    }
+
+    html+='<g class="graph-node-v2'+(route?' routable':'')+(selected?' selected':'')+(matched?' search-match':' search-context')+focusClass+nucleusContextClass+'" data-node-id="'+escapeAttr(node.id)+'" tabindex="0" role="button" aria-label="'+escapeAttr(node.label)+'">'+
       nodeVisual+
       '<circle class="graph-node-drag-hit" cx="'+node.x+'" cy="'+node.y+'" r="'+Math.max(46,node.r+14)+'" fill="transparent" style="touch-action:none"/>'+
       '<text x="'+node.x+'" y="'+(node.y+node.r+17)+'" text-anchor="middle" class="graph-node-label">'+escapeHtml(node.label)+'</text>'+
