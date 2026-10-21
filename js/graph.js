@@ -1633,7 +1633,6 @@ function renderInspector(){
     if(!node){ selectedNodeId=""; root.innerHTML=inspectorEmpty(); return; }
     var kind=KIND[node.kind] || KIND.custom;
     var route=routeForNode(node);
-    var supplemental=node.layer==="vanguard";
     var view=viewGraph();
     var relations=(view && view.edges || []).filter(function(edge){
       return (edge.from===node.id || edge.to===node.id) && allowed(edge.visibility);
@@ -1651,7 +1650,7 @@ function renderInspector(){
       '<div class="graph-inspector-actions">'+
         (route ? '<button type="button" id="graphInspectorOpen">Abrir entidade →</button>' : '')+
         '<button type="button" id="graphInspectorFocus">'+(graphFocusNodeId===node.id?'◎ Rede completa':'🎯 Focar conexões')+'</button>'+
-        (canEdit() && !supplemental ? '<button type="button" id="graphInspectorConnect" class="primary">🔗 Conectar</button><button type="button" id="graphInspectorEdit">⚙️ Editar</button>' : '')+
+        (canEdit() ? '<button type="button" id="graphInspectorConnect" class="primary">🔗 Conectar</button><button type="button" id="graphInspectorEdit">⚙️ Editar</button>' : '')+
       '</div>'+
       '<div class="graph-inspector-relations">'+
         '<div class="graph-inspector-heading">Conexões diretas</div>'+
@@ -1692,7 +1691,6 @@ function renderInspector(){
   if(selectedEdgeId){
     var edge=edgeById(selectedEdgeId);
     if(!edge){ selectedEdgeId=""; root.innerHTML=inspectorEmpty(); return; }
-    var supplementalEdge=edge.layer==="vanguard";
     var from=nodeById(edge.from),to=nodeById(edge.to);
     var relation=RELATION[edge.type] || RELATION.other;
 
@@ -1712,7 +1710,7 @@ function renderInspector(){
       '<div class="graph-strength"><span>Intensidade</span><strong>'+("●".repeat(edge.strength))+'<i>'+("○".repeat(5-edge.strength))+'</i></strong></div>'+
       (edge.note ? '<p class="graph-inspector-note">'+escapeHtml(edge.note)+'</p>' : '')+
       '<div class="graph-inspector-meta"><span>'+escapeHtml(edge.visibility==="master"?"🔒 Mestre":(edge.visibility==="spoiler"?"⚠️ Spoiler":"🌐 Público"))+'</span></div>'+
-      (canEdit() && !supplementalEdge ? '<div class="graph-inspector-actions"><button type="button" id="graphInspectorEditEdge">✏️ Editar relação</button></div>' : '')+
+      (canEdit() ? '<div class="graph-inspector-actions"><button type="button" id="graphInspectorEditEdge">✏️ Editar relação</button></div>' : '')+
     '</div>';
 
     hydrateInspectorPortraits(root);
@@ -3214,6 +3212,16 @@ try{
   console.error("Terra Z Graph 2.0:",error);
 }
 
+function revealNodeNucleus(node,options){
+  options=options||{};
+  if(!node) return;
+  var memberships=Array.isArray(node.nuclei)?node.nuclei:[];
+  if(graphActiveNucleus!=="all" && memberships.includes(graphActiveNucleus)) return;
+  if(memberships.length){
+    setGraphNucleus(memberships[0],{fit:options.fit===true});
+  }
+}
+
 function focusCharacterInGraph(name,options){
   options=options || {};
   var key=slugify(name);
@@ -3224,20 +3232,9 @@ function focusCharacterInGraph(name,options){
       slugify(row.subtitle)===key
     );
   });
-
-  if(!node){
-    setVanguardLayer(true,{fit:false});
-    var view=viewGraph();
-    node=(view && view.nodes || []).find(function(row){
-      return row.kind==="character" && (
-        slugify(row.ref)===key ||
-        slugify(row.label)===key ||
-        slugify(row.subtitle)===key
-      );
-    });
-  }
   if(!node) return false;
 
+  revealNodeNucleus(node,{fit:false});
   var r=router();
   if(r && r.go) r.go("/universo/relacoes");
   selectedNodeId=node.id;
@@ -3248,7 +3245,7 @@ function focusCharacterInGraph(name,options){
     renderGraph();renderInspector();
     var target=document.querySelector(".graph-canvas-card");
     if(target) target.scrollIntoView({behavior:"smooth",block:"start"});
-    if(options.connect===true && canEdit() && node.layer!=="vanguard") beginQuickPick(node.id,{draft:false});
+    if(options.connect===true && canEdit()) beginQuickPick(node.id,{draft:false});
   },60);
   return true;
 }
@@ -3256,14 +3253,16 @@ function focusCharacterInGraph(name,options){
 function focusEntityInGraph(kind,value){
   var wanted=slugify(value);
   if(!wanted) return false;
-  if(!graphVanguardLayerEnabled) setVanguardLayer(true,{fit:false});
-  var view=viewGraph();
-  var node=(view && view.nodes || []).find(function(row){
+  var node=(graphData && graphData.nodes || []).find(function(row){
     if(kind && row.kind!==kind && !(kind==="organization" && row.kind==="faction")) return false;
-    return slugify(row.id)===wanted || slugify(row.ref)===wanted || slugify(row.label)===wanted || slugify(row.subtitle)===wanted;
+    return slugify(row.id)===wanted ||
+      slugify(row.ref)===wanted ||
+      slugify(row.label)===wanted ||
+      slugify(row.subtitle)===wanted;
   });
   if(!node) return false;
 
+  revealNodeNucleus(node,{fit:false});
   var r=router();
   if(r && r.go) r.go("/universo/relacoes");
   selectedNodeId=node.id;
@@ -3288,8 +3287,11 @@ window.TerraZApp.graph={
   openQuickRelation:function(sourceId,targetId,options){ return openQuickRelation(sourceId,targetId,options || {}); },
   focusCharacter:focusCharacterInGraph,
   focusEntity:focusEntityInGraph,
-  setVanguardLayer:function(enabled,options){ return setVanguardLayer(enabled,options || {}); },
-  isVanguardLayerEnabled:function(){ return graphVanguardLayerEnabled; },
+  setNucleus:function(id,options){ return setGraphNucleus(id,options || {}); },
+  setNucleusMode:function(mode,options){ return setGraphNucleusMode(mode,options || {}); },
+  getNucleus:function(){ return graphActiveNucleus; },
+  getNucleusMode:function(){ return graphNucleusViewMode; },
+  listNuclei:function(){ return clone((graphData && graphData.nuclei) || []); },
   importCharacter:function(name,options){
     options=options || {};
     return importDcNode({
@@ -3303,7 +3305,7 @@ window.TerraZApp.graph={
   resetView:function(){ resetGraphViewPositions(true); },
   getViewPositions:function(){ return clone(graphViewPositions); },
   reset:function(){ openGraphEditor("nodes",""); resetDraft(); },
-  getData:function(){ return graphData ? clone(graphData) : {version:3,quadrants:[],nodes:[],edges:[]}; },
+  getData:function(){ return graphData ? clone(graphData) : {version:3,nuclei:[],quadrants:[],nodes:[],edges:[]}; },
   getCharacterMap:function(){
     var map={};
     (graphData && graphData.nodes || []).forEach(function(node){
