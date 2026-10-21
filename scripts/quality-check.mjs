@@ -65,6 +65,7 @@ function loadTerraData(){
     "data/timeline.js",
     "data/cities.js",
     "data/teams.js",
+    "data/organizations.js",
     "data/sessions.js",
     "data/visibility.js",
     "data/content-overrides.js"
@@ -1216,6 +1217,7 @@ function checkSensitivePublicPatterns(){
     "data/character-overrides.js",
     "data/character-meta.js",
     "data/character-media.js",
+    "data/organizations.js",
     "data/sessions.js"
   ].filter(exists);
 
