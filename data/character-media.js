@@ -449,7 +449,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Pops Carter": {
-    "src": "",
+    "src": "images/characters/pops-carter.jpg",
     "alt": "Pops Carter",
     "source": "local",
     "credit": ""
