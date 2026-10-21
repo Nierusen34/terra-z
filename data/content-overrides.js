@@ -27,7 +27,7 @@ window.TerraZData.contentOverrides = {
   "tz-0535": "Dick, Ravena, Mutano, Cyborg, M'gann",
   "tz-0539": "Membros originais",
   "tz-0406": "Vanguard Bay – O Dique",
-  "tz-0409": "Aparência 20 (cron. 5)",
+  "tz-0409": "Aparência 35 (cron. 5)",
   "tz-0411": "Vanguard Bay – O Dique / Fenda",
   "tz-0416": "Vanguard Bay – Emaranhado",
   "tz-0436": "Gotham",
