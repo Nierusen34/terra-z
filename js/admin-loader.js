@@ -14,6 +14,7 @@ var scripts=[
   "js/portrait-browser.js",
   "js/master-workspace.js",
   "js/character-editor.js",
+  "js/organization-editor.js",
   "js/taxonomy-manager.js",
   "js/bulk-editor.js",
   "js/master-quick.js",
