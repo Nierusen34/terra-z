@@ -323,7 +323,7 @@ window.TerraZData.characterMedia = {
     }
   },
   "Leland Shaw": {
-    "src": "",
+    "src": "images/characters/leland-shaw.jpg",
     "alt": "Leland Shaw",
     "source": "local",
     "credit": ""
@@ -520,7 +520,6 @@ window.TerraZData.characterMedia = {
     "source": "local",
     "credit": ""
   }
-
 };
 
 })();
