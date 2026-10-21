@@ -443,7 +443,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Dra. Ana Cruz": {
-    "src": "",
+    "src": "images/characters/dra-ana-cruz.jpg",
     "alt": "Dra. Ana Cruz",
     "source": "local",
     "credit": ""
