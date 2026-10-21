@@ -31,6 +31,7 @@ var SECTION_ROUTES = [
   {route:'/universo/personagens',tab:'tab-terraz',sub:'sub-tz-personagens',title:'Universo · Personagens'},
   {route:'/universo/linha-do-tempo',tab:'tab-terraz',sub:'sub-tz-timeline',title:'Universo · Linha do Tempo'},
   {route:'/universo/equipes',tab:'tab-terraz',sub:'sub-tz-equipes',title:'Universo · Equipes'},
+  {route:'/universo/organizacoes',tab:'tab-terraz',sub:'sub-tz-organizacoes',title:'Universo · Organizações'},
   {route:'/universo/relacoes',tab:'tab-terraz',sub:'sub-tz-relacoes',title:'Universo · Relações'},
   {route:'/universo/sessoes',tab:'tab-terraz',sub:'sub-tz-sessoes',title:'Universo · Sessões'}
 ];
@@ -120,6 +121,17 @@ function findTeamBySlug(slug){
   return teams.find(function(item){ return item && slugify(item.name) === slugify(slug); }) || null;
 }
 
+function findOrganizationBySlug(slug){
+  var organizations=window.TerraZData && window.TerraZData.organizations;
+  if(!Array.isArray(organizations)) return null;
+  var wanted=slugify(slug);
+  return organizations.find(function(item){
+    if(!item) return false;
+    if(slugify(item.id)===wanted || slugify(item.name)===wanted) return true;
+    return Array.isArray(item.aliases) && item.aliases.some(function(alias){ return slugify(alias)===wanted; });
+  }) || null;
+}
+
 function findCityBySlug(slug){
   var cities=window.TerraZData && window.TerraZData.externalCities;
   if(!Array.isArray(cities)) return null;
@@ -196,6 +208,9 @@ function parseRoute(route){
   if(first === 'equipes' && parts[1]){
     return {kind:'team',route:'/equipes/'+slugify(parts[1]),slug:slugify(parts[1]),title:'Equipe'};
   }
+  if(first === 'organizacoes' && parts[1]){
+    return {kind:'organization',route:'/organizacoes/'+slugify(parts[1]),slug:slugify(parts[1]),title:'Organização'};
+  }
   if(first === 'cidades' && parts[1]){
     return {kind:'city',route:'/cidades/'+slugify(parts[1]),slug:slugify(parts[1]),title:'Cidade'};
   }
@@ -214,6 +229,9 @@ function parseRoute(route){
   }
   if(first === 'universo' && parts[1] === 'equipes' && parts[2]){
     return {kind:'team',route:'/equipes/'+slugify(parts[2]),slug:slugify(parts[2]),title:'Equipe'};
+  }
+  if(first === 'universo' && parts[1] === 'organizacoes' && parts[2]){
+    return {kind:'organization',route:'/organizacoes/'+slugify(parts[2]),slug:slugify(parts[2]),title:'Organização'};
   }
   if(first === 'transporte' && parts[1] === 'cidades' && parts[2]){
     return {kind:'city',route:'/cidades/'+slugify(parts[2]),slug:slugify(parts[2]),title:'Cidade'};
@@ -389,6 +407,23 @@ function applyRoute(route,options){
       return parsed;
     }
 
+    if(parsed.kind === 'organization'){
+      navigateSection('tab-terraz','sub-tz-organizacoes');
+      var organization=findOrganizationBySlug(parsed.slug);
+      if(organization){
+        var organizationRoute='/organizacoes/'+slugify(organization.id || organization.name);
+        if(organizationRoute !== parsed.route && options.canonicalize !== false) writeRoute(organizationRoute,{replace:true});
+        focusTarget(organizationRoute);
+        updateTitle(organization.name);
+        remember(organizationRoute);
+      }else{
+        updateTitle('Organizações · Terra Z');
+        warnOnce('organization:'+parsed.slug,'Organização não encontrada neste link.');
+        remember(parsed.route);
+      }
+      return parsed;
+    }
+
     if(parsed.kind === 'city'){
       navigateSection('tab-transport','sub-cidades-externas');
       var city=findCityBySlug(parsed.slug);
@@ -525,6 +560,10 @@ function sessionRoute(id){
 function teamRoute(name){
   return '/equipes/'+slugify(name);
 }
+function organizationRoute(value){
+  var organization=findOrganizationBySlug(value);
+  return '/organizacoes/'+slugify(organization ? (organization.id || organization.name) : value);
+}
 function cityRoute(name){
   return '/cidades/'+slugify(name);
 }
@@ -538,6 +577,7 @@ function timelineEventRoute(id){
 
 function openSession(id,options){ return go(sessionRoute(id),options); }
 function openTeam(name,options){ return go(teamRoute(name),options); }
+function openOrganization(value,options){ return go(organizationRoute(value),options); }
 function openCity(name,options){ return go(cityRoute(name),options); }
 function openDistrict(value,options){ return go(districtRoute(value),options); }
 function openTimelineEvent(id,options){ return go(timelineEventRoute(id),options); }
@@ -731,8 +771,25 @@ function decorateSessions(){
   });
 }
 
+function decorateOrganizations(){
+  var organizations=window.TerraZData && window.TerraZData.organizations;
+  if(!Array.isArray(organizations)) return;
+
+  organizations.forEach(function(item){
+    if(!item) return;
+    var card=document.querySelector('[data-organization-id="'+String(item.id || '').replace(/"/g,'')+'"]');
+    if(!card) return;
+    var route=organizationRoute(item.id || item.name);
+    card.setAttribute('data-deep-route',route);
+    card.classList.add('deep-link-card');
+    addCopyButton(card,route,item.name || 'organização');
+    bindOpenTarget(card,route);
+  });
+}
+
 function decorateTargets(){
   decorateDistricts();
+  decorateOrganizations();
 
   var cities=window.TerraZData && window.TerraZData.externalCities;
   decorateTable('externalCitiesBody',cities,'city',cityRoute);
@@ -798,6 +855,7 @@ window.TerraZApp.router = {
   clearCharacter:clearCharacter,
   openSession:openSession,
   openTeam:openTeam,
+  openOrganization:openOrganization,
   openCity:openCity,
   openDistrict:openDistrict,
   openTimelineEvent:openTimelineEvent,
@@ -806,6 +864,7 @@ window.TerraZApp.router = {
   routeForSection:routeForSection,
   sessionRoute:sessionRoute,
   teamRoute:teamRoute,
+  organizationRoute:organizationRoute,
   cityRoute:cityRoute,
   districtRoute:districtRoute,
   timelineEventRoute:timelineEventRoute,
