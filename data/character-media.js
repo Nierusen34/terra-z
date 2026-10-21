@@ -479,7 +479,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Juíza Mariana Sandoval": {
-    "src": "",
+    "src": "images/characters/juiza-mariana-sandoval.jpg",
     "alt": "Juíza Mariana Sandoval",
     "source": "local",
     "credit": ""
