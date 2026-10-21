@@ -371,7 +371,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Camila Vargas": {
-    "src": "",
+    "src": "images/characters/camila-vargas.jpg",
     "alt": "Camila Vargas",
     "source": "local",
     "credit": ""
