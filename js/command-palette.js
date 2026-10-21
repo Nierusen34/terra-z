@@ -60,15 +60,38 @@ function publicIndex(){
   districts.forEach(function(item){
     push(rows,{
       id:"district:"+item.id,type:"Distrito",icon:item.icon||"📍",label:item.name,
-      subtitle:item.type||"Vanguard Bay",keywords:[item.locations,item.note],
+      subtitle:item.type||"Vanguard Bay",keywords:[item.aliases,item.locations,item.summary,item.note,item.pointsOfInterest],
       route:r&&r.districtRoute?r.districtRoute(item.id||item.name):"/distritos/"+slug(item.id||item.name)
     });
-    (item.locations||[]).forEach(function(name){
-      push(rows,{
-        id:"location:"+item.id+":"+name,type:"Local",icon:"📌",label:name,
-        subtitle:item.name,keywords:[item.type,item.note],
-        route:(r&&r.routeForLocation&&r.routeForLocation(name))||"/distritos/"+slug(item.id||item.name)
+
+    var points=Array.isArray(item.pointsOfInterest)?item.pointsOfInterest:[];
+    if(points.length){
+      points.forEach(function(point){
+        if(!point||!point.name)return;
+        push(rows,{
+          id:"location:"+item.id+":"+point.name,type:"Local",icon:"📌",label:point.name,
+          subtitle:item.name+(point.kind?" · "+point.kind:""),
+          keywords:[point.description,point.spoiler,item.type,item.summary,item.aliases],
+          route:(r&&r.routeForLocation&&r.routeForLocation(point.name))||"/distritos/"+slug(item.id||item.name)
+        });
       });
+    }else{
+      (item.locations||[]).forEach(function(name){
+        push(rows,{
+          id:"location:"+item.id+":"+name,type:"Local",icon:"📌",label:name,
+          subtitle:item.name,keywords:[item.type,item.note],
+          route:(r&&r.routeForLocation&&r.routeForLocation(name))||"/distritos/"+slug(item.id||item.name)
+        });
+      });
+    }
+  });
+
+  var strategicSites=Array.isArray(data().strategicSites)?data().strategicSites:[];
+  strategicSites.forEach(function(site){
+    push(rows,{
+      id:"strategic-site:"+(site.id||site.name),type:"Local Estratégico",icon:site.icon||"🧭",label:site.name,
+      subtitle:site.area||"Vanguard Bay",keywords:[site.kind,site.description,site.spoiler],
+      route:(r&&r.routeForLocation&&r.routeForLocation(site.name))||"/cidade/distritos"
     });
   });
 
