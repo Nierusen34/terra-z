@@ -321,7 +321,206 @@ window.TerraZData.characterMedia = {
       "provider": "dc-fandom",
       "wikiTitle": "Metamorpho"
     }
+  },
+  "Leland Shaw": {
+    "src": "",
+    "alt": "Leland Shaw",
+    "source": "local",
+    "credit": ""
+  },
+  "Alden Mitchell": {
+    "src": "",
+    "alt": "Alden Mitchell",
+    "source": "local",
+    "credit": ""
+  },
+  "Geneviève Lachance": {
+    "src": "",
+    "alt": "Geneviève Lachance",
+    "source": "local",
+    "credit": ""
+  },
+  "Marcos Jimenez": {
+    "src": "",
+    "alt": "Marcos Jimenez",
+    "source": "local",
+    "credit": ""
+  },
+  "Dr. Kenji Tanaka": {
+    "src": "",
+    "alt": "Dr. Kenji Tanaka",
+    "source": "local",
+    "credit": ""
+  },
+  "Dr. Ahron Nax": {
+    "src": "",
+    "alt": "Dr. Ahron Nax",
+    "source": "local",
+    "credit": ""
+  },
+  "Silas": {
+    "src": "",
+    "alt": "Silas",
+    "source": "local",
+    "credit": ""
+  },
+  "Lila Marlowe": {
+    "src": "",
+    "alt": "Lila Marlowe",
+    "source": "local",
+    "credit": ""
+  },
+  "Camila Vargas": {
+    "src": "",
+    "alt": "Camila Vargas",
+    "source": "local",
+    "credit": ""
+  },
+  "Alia Hazari": {
+    "src": "",
+    "alt": "Alia Hazari",
+    "source": "local",
+    "credit": ""
+  },
+  "Donovan Mason": {
+    "src": "",
+    "alt": "Donovan Mason",
+    "source": "local",
+    "credit": ""
+  },
+  "Dra. Zara Kovač": {
+    "src": "",
+    "alt": "Dra. Zara Kovač",
+    "source": "local",
+    "credit": ""
+  },
+  "Dra. Anya Petrova": {
+    "src": "",
+    "alt": "Dra. Anya Petrova",
+    "source": "local",
+    "credit": ""
+  },
+  "Roxana \"Roxy\" Sharpe": {
+    "src": "",
+    "alt": "Roxana \"Roxy\" Sharpe",
+    "source": "local",
+    "credit": ""
+  },
+  "Antoine Devereaux": {
+    "src": "",
+    "alt": "Antoine Devereaux",
+    "source": "local",
+    "credit": ""
+  },
+  "Matheus Silva": {
+    "src": "",
+    "alt": "Matheus Silva",
+    "source": "local",
+    "credit": ""
+  },
+  "Oficial Leo Martinez": {
+    "src": "",
+    "alt": "Oficial Leo Martinez",
+    "source": "local",
+    "credit": ""
+  },
+  "Mama Montoya": {
+    "src": "",
+    "alt": "Mama Montoya",
+    "source": "local",
+    "credit": ""
+  },
+  "Hector Ramos": {
+    "src": "",
+    "alt": "Hector Ramos",
+    "source": "local",
+    "credit": ""
+  },
+  "Lina Ramos": {
+    "src": "",
+    "alt": "Lina Ramos",
+    "source": "local",
+    "credit": ""
+  },
+  "Dra. Ana Cruz": {
+    "src": "",
+    "alt": "Dra. Ana Cruz",
+    "source": "local",
+    "credit": ""
+  },
+  "Pops Carter": {
+    "src": "",
+    "alt": "Pops Carter",
+    "source": "local",
+    "credit": ""
+  },
+  "Lucia Ortega": {
+    "src": "",
+    "alt": "Lucia Ortega",
+    "source": "local",
+    "credit": ""
+  },
+  "Dante Rodrigues": {
+    "src": "",
+    "alt": "Dante Rodrigues",
+    "source": "local",
+    "credit": ""
+  },
+  "General Markov": {
+    "src": "",
+    "alt": "General Markov",
+    "source": "local",
+    "credit": ""
+  },
+  "Flinch Archer": {
+    "src": "",
+    "alt": "Flinch Archer",
+    "source": "local",
+    "credit": ""
+  },
+  "Juíza Mariana Sandoval": {
+    "src": "",
+    "alt": "Juíza Mariana Sandoval",
+    "source": "local",
+    "credit": ""
+  },
+  "Julia Reyes": {
+    "src": "",
+    "alt": "Julia Reyes",
+    "source": "local",
+    "credit": ""
+  },
+  "Sofia Navarro": {
+    "src": "",
+    "alt": "Sofia Navarro",
+    "source": "local",
+    "credit": ""
+  },
+  "Boris Borkov": {
+    "src": "",
+    "alt": "Boris Borkov",
+    "source": "local",
+    "credit": ""
+  },
+  "Osias \"Osi\" Rivers": {
+    "src": "",
+    "alt": "Osias \"Osi\" Rivers",
+    "source": "local",
+    "credit": ""
+  },
+  "Dra. Helen Finch": {
+    "src": "",
+    "alt": "Dra. Helen Finch",
+    "source": "local",
+    "credit": ""
+  },
+  "Brigitte Oliveira": {
+    "src": "",
+    "alt": "Brigitte Oliveira",
+    "source": "local",
+    "credit": ""
   }
+
 };
 
 })();
