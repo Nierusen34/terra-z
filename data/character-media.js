@@ -383,7 +383,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Donovan Mason": {
-    "src": "",
+    "src": "images/characters/donovan-mason.jpg",
     "alt": "Donovan Mason",
     "source": "local",
     "credit": ""
