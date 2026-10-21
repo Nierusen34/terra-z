@@ -455,8 +455,25 @@ function checkGraph(data){
   const graph=data.graphOverride&&Array.isArray(data.graphOverride.nodes)?data.graphOverride:data.defaultGraph;
   if(!graph){ warn("Nenhum grafo encontrado"); return; }
 
+  const nuclei=Array.isArray(graph.nuclei)?graph.nuclei:[];
   const nodes=Array.isArray(graph.nodes)?graph.nodes:[];
   const edges=Array.isArray(graph.edges)?graph.edges:[];
+  const nucleusIds=new Set();
+  const nucleusLabels=new Set();
+  for(const nucleus of nuclei){
+    const id=String(nucleus&&nucleus.id||"").trim();
+    const label=String(nucleus&&nucleus.label||"").trim();
+    if(!id||!label) fail("Núcleo do grafo sem ID ou nome");
+    if(nucleusIds.has(id)) fail("ID de núcleo duplicado no grafo: "+id);
+    if(nucleusLabels.has(label.toLocaleLowerCase("pt-BR"))) fail("Nome de núcleo duplicado no grafo: "+label);
+    nucleusIds.add(id);
+    nucleusLabels.add(label.toLocaleLowerCase("pt-BR"));
+    if(nucleus&&nucleus.color&&!/^#[0-9a-f]{6}$/i.test(String(nucleus.color))){
+      fail("Cor inválida no núcleo do grafo: "+id);
+    }
+  }
+  if(!nuclei.length) fail("Grafo sem núcleos dinâmicos cadastrados");
+
   const ids=new Set();
   const edgeIds=new Set();
   const allowedKinds=new Set(["character","team","faction","organization","location","event","custom"]);
@@ -482,6 +499,15 @@ function checkGraph(data){
     if(node.kind && !allowedKinds.has(node.kind)) fail("Tipo de entidade inválido no grafo: "+node.id+" / "+node.kind);
     if(!Number.isFinite(Number(node.x))||!Number.isFinite(Number(node.y))){
       fail("Coordenadas inválidas no grafo: "+node.id);
+    }
+    if(!Array.isArray(node.nuclei)){
+      fail("Entidade sem lista de núcleos no grafo: "+node.id);
+    }else{
+      for(const nucleusId of node.nuclei){
+        if(!nucleusIds.has(String(nucleusId))){
+          fail("Entidade aponta para núcleo inexistente: "+node.id+" / "+String(nucleusId));
+        }
+      }
     }
 
     const level=String(node&&node.visibility||"public");
@@ -539,6 +565,9 @@ function checkGraph(data){
   if(!graphHealthApi.includes("relations_graph_v3:true") || !graphHealthApi.includes("relations_entity_editor:true")){
     fail("Backend não anuncia capacidades do Grafo 2.0.");
   }
+  if(!graphHealthApi.includes("graph_nuclei_v1:true")){
+    fail("Backend não anuncia suporte a núcleos dinâmicos do grafo.");
+  }
   if(!graphHealthApi.includes("portrait_framing:true")){
     fail("Backend não anuncia suporte a enquadramento de retratos.");
   }
@@ -547,7 +576,7 @@ function checkGraph(data){
     fail("Backend não anuncia Biblioteca de Mídia e imagens independentes do grafo.");
   }
   for(const id of [
-    "graphEntityFilter","graphRelationFilter","graphInspector","graphEditorList","graphEditorDetail",
+    "graphEntityFilter","graphRelationFilter","graphNucleusMenuBtn","graphNucleusMenu","graphNucleusOptions","graphInspector","graphEditorList","graphEditorDetail",
     "graphZoomOut","graphZoomRange","graphZoomLabel","graphZoomIn","graphFitBtn","graphFocusBtn",
     "graphViewResetBtn","graphInspectorToggleBtn","graphFullscreenBtn",
     "graphAutoArrangeBtn","graphUndoBtn","graphRestoreBtn",
@@ -596,7 +625,11 @@ function checkGraph(data){
     fail("Composição compacta mobile/PWA do grafo não foi identificada.");
   }
   if(!html.includes('data-ge-tab="layout"') ||
+     !html.includes('data-ge-tab="nuclei"') ||
      !graphRuntime.includes("renderLayoutEditor") ||
+     !graphRuntime.includes("setGraphNucleus") ||
+     !graphRuntime.includes("setGraphNucleusMode") ||
+     !graphRuntime.includes("nucleusChecklist") ||
      !graphRuntime.includes('addEventListener("pointerdown"') ||
      !graphRuntime.includes("smartArrangeGraph")){
     fail("Editor visual arrastável do grafo não está completo.");
@@ -1143,60 +1176,29 @@ checkSyntax();
 checkIndexAssets();
 checkPerformanceBudget();
 
-function checkVanguardGraphLayer(data){
-  const layer=data.vanguardGraphLayer;
-  if(!layer || !Array.isArray(layer.nodes) || !Array.isArray(layer.edges)){
-    fail("Camada opcional de Vanguard Bay ausente ou inválida");
-    return;
+function checkDynamicGraphNuclei(data){
+  const graph=data.graphOverride&&Array.isArray(data.graphOverride.nodes)?data.graphOverride:data.defaultGraph;
+  if(!graph){ fail("Grafo ausente na validação de núcleos"); return; }
+
+  const nuclei=Array.isArray(graph.nuclei)?graph.nuclei:[];
+  const ids=new Set(nuclei.map(item=>String(item&&item.id||"")).filter(Boolean));
+  if(!ids.has("queen")) fail("Núcleo Família Queen ausente");
+  if(!ids.has("wayne")) fail("Núcleo Família Wayne ausente");
+  if(!ids.has("marciano")) fail("Núcleo Marciano ausente");
+  if(!ids.has("lobo")) fail("Núcleo Prazo de Lobo ausente");
+  if(!ids.has("vanguard-bay")) fail("Núcleo Vanguard Bay ausente");
+
+  if(data.vanguardGraphLayer){
+    fail("Vanguard Bay ainda está preso à camada especial antiga; deve usar o sistema dinâmico de núcleos.");
   }
 
-  const ids=new Set();
-  const edgeIds=new Set();
-  const allowedKinds=new Set(["character","faction","organization","location"]);
-  const characters=new Set(Object.keys(data.characterOverrides||{}));
-  const organizations=new Set((Array.isArray(data.organizations)?data.organizations:[]).map(item=>String(item&&item.id||"")).filter(Boolean));
-  const locations=new Set();
+  const nodes=Array.isArray(graph.nodes)?graph.nodes:[];
+  const vanguardNodes=nodes.filter(node=>Array.isArray(node&&node.nuclei)&&node.nuclei.includes("vanguard-bay"));
+  if(!vanguardNodes.length) fail("Núcleo Vanguard Bay não possui entidades");
 
-  for(const district of Array.isArray(data.districts)?data.districts:[]){
-    for(const name of Array.isArray(district&&district.locations)?district.locations:[]) locations.add(String(name));
-    for(const point of Array.isArray(district&&district.pointsOfInterest)?district.pointsOfInterest:[]){
-      if(point&&point.name) locations.add(String(point.name));
-    }
-  }
-  for(const site of Array.isArray(data.strategicSites)?data.strategicSites:[]){
-    if(site&&site.name) locations.add(String(site.name));
-  }
-
-  for(const node of layer.nodes){
-    if(!node||!node.id){ fail("Nó sem ID na camada Vanguard Bay"); continue; }
-    if(ids.has(node.id)) fail("ID duplicado na camada Vanguard Bay: "+node.id);
-    ids.add(node.id);
-    if(!allowedKinds.has(String(node.kind||""))) fail("Tipo inválido na camada Vanguard Bay: "+node.id+" / "+String(node.kind||""));
-    if(String(node.layer||"")!=="vanguard") fail("Nó sem marcação de camada Vanguard Bay: "+node.id);
-
-    if(node.kind==="character" && node.ref && !characters.has(node.ref)){
-      fail("Camada Vanguard Bay referencia personagem inexistente: "+node.ref);
-    }
-    if((node.kind==="organization"||node.kind==="faction") && node.ref && !organizations.has(node.ref)){
-      fail("Camada Vanguard Bay referencia organização inexistente: "+node.ref);
-    }
-    if(node.kind==="location" && node.ref && !locations.has(node.ref)){
-      fail("Camada Vanguard Bay referencia local inexistente: "+node.ref);
-    }
-  }
-
-  for(const edge of layer.edges){
-    if(!edge||!edge.id){ fail("Relação sem ID na camada Vanguard Bay"); continue; }
-    if(edgeIds.has(edge.id)) fail("ID de relação duplicado na camada Vanguard Bay: "+edge.id);
-    edgeIds.add(edge.id);
-    if(!ids.has(edge.from)||!ids.has(edge.to)){
-      fail("Relação Vanguard Bay aponta para nó inexistente: "+edge.id);
-    }
-    if(String(edge.layer||"")!=="vanguard") fail("Relação sem marcação de camada Vanguard Bay: "+edge.id);
-  }
-
-  pass(layer.nodes.length+" nós e "+layer.edges.length+" relações da camada Vanguard Bay validados");
+  pass(nuclei.length+" núcleos dinâmicos validados; Vanguard Bay unificado ao grafo principal");
 }
+
 
 function checkOrganizations(data){
   const rows=Array.isArray(data.organizations)?data.organizations:[];
@@ -1246,7 +1248,7 @@ checkMediaLibrary(data);
 checkSessions(data,characters);
 checkTimeline(data,characters);
 checkGraph(data);
-checkVanguardGraphLayer(data);
+checkDynamicGraphNuclei(data);
 checkOrganizations(data);
 checkModuleRegistry();
 checkAdvancedAdmin(data);
