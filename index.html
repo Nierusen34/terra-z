@@ -1425,7 +1425,21 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0
   </div>
   <select id="graphEntityFilter" aria-label="Filtrar tipo de entidade"></select>
   <select id="graphRelationFilter" aria-label="Filtrar tipo de relação"></select>
-  <button id="graphVanguardLayer" type="button" aria-pressed="false" title="Mostrar personagens, facções e locais de Vanguard Bay">🏙️ Vanguard Bay</button>
+  <div class="graph-nucleus-picker" id="graphNucleusPicker">
+    <button id="graphNucleusMenuBtn" type="button" aria-expanded="false" aria-controls="graphNucleusMenu">◎ Núcleo: Todos ▾</button>
+    <div id="graphNucleusMenu" class="graph-nucleus-menu" hidden>
+      <div class="graph-nucleus-menu-head">
+        <strong>Núcleo exibido</strong>
+        <span>Escolha um núcleo por vez para manter o mapa limpo.</span>
+      </div>
+      <div id="graphNucleusOptions" class="graph-nucleus-options"></div>
+      <div class="graph-nucleus-mode">
+        <span>Exibição</span>
+        <label><input type="radio" name="graphNucleusMode" value="only" checked> Somente núcleo</label>
+        <label><input type="radio" name="graphNucleusMode" value="connections"> Núcleo + conexões</label>
+      </div>
+    </div>
+  </div>
   <button id="graphClearFilters" type="button">Limpar filtros</button>
   <button class="primary" id="graphOpenBtn" type="button" disabled>⚙️ Organização avançada</button>
 </div>
@@ -1999,6 +2013,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0 · Jan 2027
   <div class="graph-editor-tabs" role="tablist">
     <button type="button" data-ge-tab="nodes" class="active" aria-pressed="true">◎ Entidades</button>
     <button type="button" data-ge-tab="edges" aria-pressed="false">↔ Relações</button>
+    <button type="button" data-ge-tab="nuclei" aria-pressed="false">◉ Núcleos</button>
     <button type="button" data-ge-tab="layout" aria-pressed="false">✥ Layout visual</button>
   </div>
   <input id="graphEditorSearch" type="search" placeholder="Buscar no editor..." autocomplete="off">
