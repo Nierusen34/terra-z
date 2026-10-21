@@ -473,7 +473,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Flinch Archer": {
-    "src": "",
+    "src": "images/characters/flinch-archer.jpg",
     "alt": "Flinch Archer",
     "source": "local",
     "credit": ""
