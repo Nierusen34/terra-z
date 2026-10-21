@@ -687,28 +687,120 @@ function selectQuickTarget(id){
   return true;
 }
 
+function graphViewportAspect(){
+  var svg=document.getElementById("graphSvg");
+  if(svg && svg.getBoundingClientRect){
+    var rect=svg.getBoundingClientRect();
+    if(rect.width>120 && rect.height>120){
+      return Math.max(.78,Math.min(2.4,rect.width/rect.height));
+    }
+  }
+  return graphCompactViewport() ? 1 : 1.55;
+}
+
 function graphCanvasBounds(source){
   var graph=source || viewGraph() || {nodes:[],quadrants:[]};
-  var minX=0,minY=0,maxX=1000,maxY=720;
+  var runtime=!source;
+  var nodes=(graph.nodes || []).filter(function(node){
+    return !runtime || allowed(node.visibility);
+  }).map(function(node){
+    return runtime ? graphDisplayNode(node) : node;
+  });
+
+  var minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+
+  function includeBox(x1,y1,x2,y2){
+    if(![x1,y1,x2,y2].every(function(value){return Number.isFinite(Number(value));})) return;
+    minX=Math.min(minX,Number(x1));
+    minY=Math.min(minY,Number(y1));
+    maxX=Math.max(maxX,Number(x2));
+    maxY=Math.max(maxY,Number(y2));
+  }
+
   (graph.quadrants || []).forEach(function(q){
-    minX=Math.min(minX,Number(q.x)||0);
-    minY=Math.min(minY,Number(q.y)||0);
-    maxX=Math.max(maxX,(Number(q.x)||0)+(Number(q.w)||0));
-    maxY=Math.max(maxY,(Number(q.y)||0)+(Number(q.h)||0));
+    includeBox(
+      Number(q.x)||0,
+      Number(q.y)||0,
+      (Number(q.x)||0)+(Number(q.w)||0),
+      (Number(q.y)||0)+(Number(q.h)||0)
+    );
   });
-  (graph.nodes || []).forEach(function(node){
-    var r=Math.max(38,Number(node.r)||38)+34;
-    minX=Math.min(minX,(Number(node.x)||0)-r);
-    minY=Math.min(minY,(Number(node.y)||0)-r);
-    maxX=Math.max(maxX,(Number(node.x)||0)+r);
-    maxY=Math.max(maxY,(Number(node.y)||0)+r+26);
+
+  function nodeVisualBox(node){
+    var r=Math.max(30,Number(node.r)||38);
+    var labelHalf=Math.min(132,Math.max(38,String(node.label||"").length*4.7));
+    var halfW=Math.max(r+22,labelHalf+12);
+    var top=r+22;
+    var bottom=r+48;
+    return {
+      x1:Number(node.x)-halfW,
+      y1:Number(node.y)-top,
+      x2:Number(node.x)+halfW,
+      y2:Number(node.y)+bottom
+    };
+  }
+
+  nodes.forEach(function(node){
+    var box=nodeVisualBox(node);
+    includeBox(box.x1,box.y1,box.x2,box.y2);
   });
-  var pad=42;
+
+  if(!Number.isFinite(minX)||!Number.isFinite(minY)||!Number.isFinite(maxX)||!Number.isFinite(maxY)){
+    return {x:-42,y:-42,w:1084,h:804};
+  }
+
+  var active=runtime && graphActiveNucleus!=="all";
+  var compact=runtime && graphCompactViewport();
+  var pad=active ? (compact?46:58) : 42;
+  var cx=(minX+maxX)/2;
+  var cy=(minY+maxY)/2;
+
+  // Em visualização por núcleo, o centro deve continuar sendo o próprio núcleo.
+  // Entidades externas do modo "Núcleo + conexões" ampliam o quadro de forma
+  // simétrica, sem puxar a câmera para um lado.
+  if(active){
+    var primary=nodes.filter(function(node){
+      return Array.isArray(node.nuclei)&&node.nuclei.includes(graphActiveNucleus);
+    });
+    if(primary.length){
+      var pMinX=Infinity,pMinY=Infinity,pMaxX=-Infinity,pMaxY=-Infinity;
+      primary.forEach(function(node){
+        var box=nodeVisualBox(node);
+        pMinX=Math.min(pMinX,box.x1);pMinY=Math.min(pMinY,box.y1);
+        pMaxX=Math.max(pMaxX,box.x2);pMaxY=Math.max(pMaxY,box.y2);
+      });
+      cx=(pMinX+pMaxX)/2;
+      cy=(pMinY+pMaxY)/2;
+      var halfW=Math.max(cx-minX,maxX-cx)+pad;
+      var halfH=Math.max(cy-minY,maxY-cy)+pad;
+      minX=cx-halfW;maxX=cx+halfW;
+      minY=cy-halfH;maxY=cy+halfH;
+    }else{
+      minX-=pad;minY-=pad;maxX+=pad;maxY+=pad;
+    }
+  }else{
+    minX-=pad;minY-=pad;maxX+=pad;maxY+=pad;
+  }
+
+  var width=Math.max(1,maxX-minX);
+  var height=Math.max(1,maxY-minY);
+  var minWidth=active ? (compact?420:560) : 1000;
+  var minHeight=active ? (compact?420:440) : 720;
+
+  width=Math.max(width,minWidth);
+  height=Math.max(height,minHeight);
+
+  if(runtime){
+    var aspect=graphViewportAspect();
+    if(width/height<aspect) width=height*aspect;
+    else height=width/aspect;
+  }
+
   return {
-    x:Math.floor(minX-pad),
-    y:Math.floor(minY-pad),
-    w:Math.ceil((maxX-minX)+(pad*2)),
-    h:Math.ceil((maxY-minY)+(pad*2))
+    x:Math.floor(cx-width/2),
+    y:Math.floor(cy-height/2),
+    w:Math.ceil(width),
+    h:Math.ceil(height)
   };
 }
 
@@ -1251,9 +1343,10 @@ function applyGraphScale(){
     var box=graphViewportBox();
     svg.setAttribute("viewBox",[box.x,box.y,box.w,box.h].map(function(n){return Math.round(n*100)/100;}).join(" "));
     svg.style.width="100%";
+    svg.style.height="100%";
     svg.style.minWidth="0";
     svg.style.maxWidth="none";
-    svg.style.aspectRatio=graphFullscreen ? "auto" : (box.bounds.w+" / "+box.bounds.h);
+    svg.style.aspectRatio="auto";
   }
 
   var range=document.getElementById("graphZoomRange");
