@@ -377,7 +377,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Alia Hazari": {
-    "src": "",
+    "src": "images/characters/alia-hazari.jpg",
     "alt": "Alia Hazari",
     "source": "local",
     "credit": ""
