@@ -509,7 +509,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Dra. Helen Finch": {
-    "src": "",
+    "src": "images/characters/dra-helen-finch.jpg",
     "alt": "Dra. Helen Finch",
     "source": "local",
     "credit": ""
