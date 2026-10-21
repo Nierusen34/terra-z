@@ -425,7 +425,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Mama Montoya": {
-    "src": "",
+    "src": "images/characters/mama-montoya.jpg",
     "alt": "Mama Montoya",
     "source": "local",
     "credit": ""
