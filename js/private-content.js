@@ -80,7 +80,17 @@ function applyPrivateProfiles(options){
       media:clone(window.TerraZData.characterMedia[name])
     };
 
-    if(profile){
+    var hasPublicOverride=appliedSnapshots[name].overrideHad &&
+      appliedSnapshots[name].override &&
+      typeof appliedSnapshots[name].override === 'object';
+    var hasPublicMeta=appliedSnapshots[name].metaHad &&
+      appliedSnapshots[name].meta &&
+      typeof appliedSnapshots[name].meta === 'object';
+    var publicCharacterCollision=!!(profile && hasPublicOverride && hasPublicMeta);
+
+    if(profile && !publicCharacterCollision){
+      // Personagem realmente privado: não existe uma ficha pública canônica com
+      // o mesmo nome, então o perfil autenticado continua sendo Mestre.
       window.TerraZData.characterOverrides[name]={
         eyebrow:String(profile.eyebrow || ''),
         sections:Array.isArray(profile.sections) ? clone(profile.sections) : [],
@@ -105,6 +115,9 @@ function applyPrivateProfiles(options){
 
       window.TerraZData.characterMedia[name]=profileMedia;
     }else{
+      // A ficha pública é canônica. Um profile antigo no cofre com o mesmo nome
+      // não pode transformar o personagem inteiro em Mestre (caso Camila Vargas).
+      // Conteúdo privado legado continua disponível apenas como seções Mestre.
       var publicOverride=window.TerraZData.characterOverrides[name];
       if(publicOverride && typeof publicOverride === 'object'){
         var publicSections=Array.isArray(publicOverride.sections)
@@ -113,14 +126,47 @@ function applyPrivateProfiles(options){
             })
           : [];
 
-        var combined=publicSections.concat(masterSections).map(function(section,index){
+        var privateRows=[];
+        if(publicCharacterCollision && Array.isArray(profile.sections)){
+          privateRows=privateRows.concat(clone(profile.sections));
+        }
+        privateRows=privateRows.concat(masterSections);
+
+        var seenSections=new Set();
+        publicSections.forEach(function(section){
+          var item=section && typeof section === 'object' ? section : {};
+          seenSections.add(String(item.title || '') + '\n' + String(item.content || ''));
+        });
+
+        var privateSections=[];
+        privateRows.forEach(function(section){
+          var item=section && typeof section === 'object' ? clone(section) : {};
+          var signature=String(item.title || '') + '\n' + String(item.content || '');
+          if(seenSections.has(signature)) return;
+          seenSections.add(signature);
+
+          var title=String(item.title || 'Conteúdo Mestre');
+          var titleCollision=publicSections.some(function(publicSection){
+            return String(publicSection && publicSection.title || '') === title;
+          });
+          if(titleCollision && !/^🔒\s/.test(title)) title='🔒 Mestre · ' + title;
+
+          privateSections.push({
+            ...item,
+            title:title,
+            visibility:'master',
+            position:publicSections.length + privateSections.length
+          });
+        });
+
+        var combined=publicSections.map(function(section,index){
           var item=section && typeof section === 'object' ? section : {};
           return {
             ...item,
-            visibility:item.visibility === 'master' ? 'master' : (item.visibility === 'spoiler' ? 'spoiler' : 'public'),
+            visibility:item.visibility === 'spoiler' ? 'spoiler' : 'public',
             position:Number.isFinite(Number(item.position)) ? Number(item.position) : index
           };
-        }).sort(function(a,b){ return a.position-b.position; });
+        }).concat(privateSections);
 
         window.TerraZData.characterOverrides[name]={...publicOverride,sections:combined};
       }
