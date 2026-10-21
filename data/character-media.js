@@ -437,7 +437,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Lina Ramos": {
-    "src": "",
+    "src": "images/characters/lina-ramos.jpg",
     "alt": "Lina Ramos",
     "source": "local",
     "credit": ""
