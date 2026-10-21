@@ -52,7 +52,7 @@ window.TerraZData.districts = [
       "El Malecón",
       "Botânica",
       "Clínica",
-      "Rumba Room"
+      "Rumba & Samba Room"
     ],
     "note": null,
     "image": {
