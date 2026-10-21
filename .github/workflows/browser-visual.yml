@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install Playwright test runner
         run: npm install --no-save --ignore-scripts @playwright/test@1.55.0
