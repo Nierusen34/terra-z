@@ -196,6 +196,15 @@ function checkCanonRegressionGuards(){
     if(overrides.includes(needle)) fail("Regressão canônica em content-overrides.js: "+label+" ("+needle+")");
   }
 
+  const html=read("index.html");
+  const staticIds=new Set([...html.matchAll(/data-edit-id="([^"]+)"/g)].map(match=>match[1]));
+  const runtimeText=walk("data",file=>file.endsWith(".js")).map(file=>fs.readFileSync(file,"utf8")).join("\n");
+  const runtimeIds=new Set([...runtimeText.matchAll(/["']id["']\s*:\s*["'](tz-\d{4})["']/g)].map(match=>match[1]));
+  const overrideIds=[...overrides.matchAll(/"(tz-\d{4})"\s*:/g)].map(match=>match[1]);
+  const orphan=overrideIds.filter(id=>!staticIds.has(id)&&!runtimeIds.has(id));
+  if(orphan.length) fail("content-overrides.js possui IDs sem destino ativo: "+orphan.join(", "));
+  else pass("Overrides textuais apontam apenas para campos editáveis ativos");
+
   if(!editor.includes("EDITS_DRAFT_FORMAT") ||
      !editor.includes("writePendingDraft") ||
      !editor.includes("publishedBaseline[id] !== base[id]") ||
