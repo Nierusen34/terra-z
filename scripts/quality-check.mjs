@@ -1142,12 +1142,56 @@ console.log("\nTerra Z · Quality Gate\n");
 checkSyntax();
 checkIndexAssets();
 checkPerformanceBudget();
+
+function checkOrganizations(data){
+  const rows=Array.isArray(data.organizations)?data.organizations:[];
+  if(!rows.length){
+    fail("Nenhuma organização de Vanguard Bay carregada");
+    return;
+  }
+
+  const allowedCategories=new Set(["criminal","corporate","academic","media","agency"]);
+  const allowedVisibility=new Set(["public","spoiler"]);
+  const ids=new Set();
+  const names=new Set();
+  const characters=new Set(Object.keys(data.characterOverrides||{}));
+
+  for(const item of rows){
+    if(!item||!String(item.id||"").trim()){
+      fail("Organização sem ID");
+      continue;
+    }
+    const id=String(item.id);
+    const name=String(item.name||"").trim();
+    if(ids.has(id)) fail("ID de organização duplicado: "+id);
+    ids.add(id);
+    if(!name) fail("Organização sem nome: "+id);
+    if(names.has(name)) fail("Nome de organização duplicado: "+name);
+    names.add(name);
+
+    if(!allowedCategories.has(String(item.category||""))){
+      fail("Categoria inválida em organização: "+name+" / "+String(item.category||""));
+    }
+    if(!allowedVisibility.has(String(item.visibility||"public"))){
+      fail("Visibilidade inválida em organização: "+name+" / "+String(item.visibility||""));
+    }
+    if(!String(item.description||"").trim()) warn("Organização sem descrição: "+name);
+
+    for(const character of Array.isArray(item.relatedCharacters)?item.relatedCharacters:[]){
+      if(!characters.has(character)) warn("Organização referencia personagem não cadastrado: "+name+" / "+character);
+    }
+  }
+
+  pass(rows.length+" organizações/instituições de Vanguard Bay validadas");
+}
+
 const data=loadTerraData();
 const characters=checkCharacterData(data);
 checkMediaLibrary(data);
 checkSessions(data,characters);
 checkTimeline(data,characters);
 checkGraph(data);
+checkOrganizations(data);
 checkModuleRegistry();
 checkAdvancedAdmin(data);
 checkPhase14();
