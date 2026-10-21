@@ -1929,17 +1929,48 @@ function updateNucleusPickerUi(){
   var button=document.getElementById("graphNucleusMenuBtn");
   var menu=document.getElementById("graphNucleusMenu");
   var current=activeNucleus();
+  var active=!!current;
+  var view=viewGraph();
+  var visibleCount=(view&&view.nodes||[]).filter(function(node){return allowed(node.visibility);}).length;
+  var modeLabel=graphNucleusViewMode==="connections" ? "Núcleo + conexões" : "Somente núcleo";
+
   if(button){
     button.textContent="◎ Núcleo: "+(current?current.label:"Todos")+" ▾";
     button.setAttribute("aria-expanded",graphNucleusMenuOpen?"true":"false");
-    button.classList.toggle("active",graphActiveNucleus!=="all");
+    button.classList.toggle("active",active);
   }
   if(menu) menu.hidden=!graphNucleusMenuOpen;
+
+  var layout=document.getElementById("graphRelationsLayout");
+  if(layout){
+    layout.classList.toggle("graph-nucleus-active",active);
+    if(active) layout.style.setProperty("--graph-nucleus-color",current.color||"var(--accent)");
+    else layout.style.removeProperty("--graph-nucleus-color");
+  }
+
+  var title=document.getElementById("graphCanvasTitle");
+  var hint=document.getElementById("graphCanvasHint");
+  if(title) title.textContent=active ? current.label : "Mapa de relações";
+  if(hint){
+    hint.textContent=active
+      ? modeLabel+" · "+visibleCount+(visibleCount===1?" entidade":" entidades")+" · enquadramento automático centralizado"
+      : "Arraste o fundo para navegar · roda/pinça ajusta o zoom · arraste bolinhas para reorganizar só na sua tela.";
+  }
+
+  var badge=document.getElementById("graphNucleusBadge");
+  if(badge){
+    badge.hidden=!active;
+    badge.innerHTML=active
+      ? '<span class="graph-nucleus-badge-dot" style="background:'+escapeAttr(current.color||"#6f6862")+'"></span>'+
+        '<span><strong>'+escapeHtml(current.label)+'</strong><small>'+escapeHtml(modeLabel)+'</small></span>'
+      : "";
+  }
+
   renderNucleusOptions();
 
   document.querySelectorAll('input[name="graphNucleusMode"]').forEach(function(input){
     input.checked=input.value===graphNucleusViewMode;
-    input.disabled=graphActiveNucleus==="all";
+    input.disabled=!active;
   });
 }
 
@@ -2101,6 +2132,20 @@ function setupGraphView(){
     if((quickModal && quickModal.classList.contains("show")) || quickRelationState.picking) return;
     event.preventDefault();
     toggleGraphFullscreen(false);
+  });
+
+  var resizeFrame=0;
+  window.addEventListener("resize",function(){
+    if(resizeFrame) cancelAnimationFrame(resizeFrame);
+    resizeFrame=requestAnimationFrame(function(){
+      resizeFrame=0;
+      if(graphActiveNucleus!=="all"){
+        graphViewCenter={x:null,y:null};
+        fitGraphView(false);
+      }else{
+        applyGraphScale();
+      }
+    });
   });
 
   refreshGraphAccess();
