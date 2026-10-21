@@ -58,19 +58,19 @@ window.TerraZData.organizations = [
     "category": "criminal",
     "categoryLabel": "Facção Criminosa",
     "base": "Coral Gate",
-    "leader": "Não especificado no material",
+    "leader": "Desconhecido",
     "description": "Gangue jovem de Coral Gate ligada ao tráfico da droga conhecida como Gelo.",
     "activities": [
       "Tráfico de Gelo"
-    ],
-    "rivals": [
-      "Os Espectros"
     ],
     "relatedCharacters": [],
     "relatedLocations": [
       "Coral Gate"
     ],
-    "visibility": "public"
+    "visibility": "public",
+    "rivals": [
+      "Os Espectros"
+    ]
   },
   {
     "id": "no-face",
