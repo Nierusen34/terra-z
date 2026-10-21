@@ -419,7 +419,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Oficial Leo Martinez": {
-    "src": "",
+    "src": "images/characters/oficial-leo-martinez.jpg",
     "alt": "Oficial Leo Martinez",
     "source": "local",
     "credit": ""
