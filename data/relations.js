@@ -6,61 +6,75 @@ window.TerraZData = window.TerraZData || {};
 // Grafo narrativo padrão. O editor pode expandi-lo com personagens, equipes,
 // facções, organizações, locais, eventos e entidades personalizadas.
 window.TerraZData.defaultGraph = {
-  version:3,
-  quadrants:[
-    {id:"queen",title:"FAMÍLIA QUEEN",x:20,y:20,w:470,h:340,color:"#c45a1c",bg:"rgba(196,90,28,.05)"},
-    {id:"wayne",title:"FAMÍLIA WAYNE",x:510,y:20,w:470,h:340,color:"#0064a8",bg:"rgba(0,100,168,.05)"},
-    {id:"marciano",title:"NÚCLEO MARCIANO",x:20,y:380,w:470,h:320,color:"#0a8a4a",bg:"rgba(10,138,74,.05)"},
-    {id:"lobo",title:"PRAZO DE LOBO",x:510,y:380,w:470,h:320,color:"#7a4aff",bg:"rgba(122,74,255,.05)"}
+  "version": 3,
+  "nuclei": [
+    {
+      "id": "queen",
+      "label": "Família Queen",
+      "color": "#c45a1c"
+    },
+    {
+      "id": "wayne",
+      "label": "Família Wayne",
+      "color": "#0064a8"
+    },
+    {
+      "id": "marciano",
+      "label": "Núcleo Marciano",
+      "color": "#0a8a4a"
+    },
+    {
+      "id": "lobo",
+      "label": "Prazo de Lobo",
+      "color": "#7a4aff"
+    },
+    {
+      "id": "vanguard-bay",
+      "label": "Vanguard Bay",
+      "color": "#9b6f2c"
+    }
   ],
-  nodes:[
-    {id:"oliver",label:"OLIVER",subtitle:"Oliver Queen",kind:"character",ref:"Oliver Queen",x:140,y:130,color:"#c45a1c",r:38,visibility:"public"},
-    {id:"dinah",label:"DINAH",subtitle:"Dinah Lance",kind:"character",ref:"Dinah Lance",x:140,y:240,color:"#8b1a1a",r:38,visibility:"public"},
-    {id:"tristan",label:"TRISTAN",subtitle:"Tristan Queen",kind:"character",ref:"Tristan Queen",x:300,y:240,color:"#c45a1c",r:38,visibility:"public"},
-    {id:"connor",label:"CONNOR",subtitle:"Connor Hawke",kind:"character",ref:"Connor Hawke",x:400,y:130,color:"#3a3028",r:38,visibility:"public"},
-    {id:"bruce",label:"BRUCE",subtitle:"Bruce Wayne",kind:"character",ref:"Bruce Wayne",x:700,y:130,color:"#1a1512",r:38,visibility:"public"},
-    {id:"damian",label:"DAMIAN",subtitle:"Damian Wayne",kind:"character",ref:"Damian Wayne",x:800,y:130,color:"#8b1a1a",r:38,visibility:"public"},
-    {id:"jason",label:"JASON",subtitle:"Jason Todd",kind:"character",ref:"Jason Todd",x:600,y:240,color:"#8b1a1a",r:38,visibility:"public"},
-    {id:"dick",label:"DICK",subtitle:"Dick Grayson",kind:"character",ref:"Dick Grayson",x:700,y:240,color:"#8b1a1a",r:38,visibility:"public"},
-    {id:"tim",label:"TIM",subtitle:"Tim Drake",kind:"character",ref:"Tim Drake",x:800,y:240,color:"#8b1a1a",r:38,visibility:"public"},
-    {id:"mgann",label:"M'GANN",subtitle:"M'gann M'orzz",kind:"character",ref:"M'gann M'orzz",x:120,y:470,color:"#0a8a4a",r:38,visibility:"public"},
-    {id:"conner2",label:"CONNER",subtitle:"Conner Kent",kind:"character",ref:"Conner Kent",x:400,y:470,color:"#0064a8",r:38,visibility:"public"},
-    {id:"mark",label:"M'ARK",subtitle:"M'ark",kind:"character",ref:"M'ark",x:260,y:580,color:"#0a8a4a",r:38,visibility:"public"},
-    {id:"armek",label:"ARMEK",subtitle:"Armek",kind:"custom",ref:"",mediaMode:"library",mediaId:"armek",mediaFraming:{fit:"cover",x:54,y:0,zoom:2},x:120,y:650,color:"#3a3028",r:38,visibility:"public"},
-    {id:"jonn",label:"J'ONN",subtitle:"J'onn J'onzz",kind:"character",ref:"J'onn J'onzz",x:400,y:650,color:"#0a8a4a",r:38,visibility:"public"},
-    {id:"lobo",label:"LOBO",subtitle:"Lobo",kind:"character",ref:"Lobo",x:660,y:490,color:"#3a3028",r:44,visibility:"public"},
-    {id:"riot",label:"RIOT",subtitle:"Riot",kind:"character",ref:"Riot",x:660,y:620,color:"#3a3028",r:44,visibility:"public"},
-    {id:"kendra",label:"KENDRA",subtitle:"Kendra Saunders",kind:"character",ref:"Kendra Saunders",x:800,y:620,color:"#8b1a1a",r:38,visibility:"public"}
-  ],
-  edges:[
-    {id:"oliver-dinah",from:"oliver",to:"dinah",type:"romance",label:"casal",strength:5,directed:false,visibility:"public"},
-    {id:"oliver-tristan",from:"oliver",to:"tristan",type:"family",label:"pai",strength:5,directed:true,visibility:"public"},
-    {id:"dinah-tristan",from:"dinah",to:"tristan",type:"family",label:"mãe",strength:5,directed:true,visibility:"public"},
-    {id:"oliver-connor",from:"oliver",to:"connor",type:"family",label:"pai",strength:5,directed:true,visibility:"public"},
-    {id:"tristan-connor",from:"tristan",to:"connor",type:"family",label:"irmãos",strength:5,directed:false,visibility:"public"},
-    {id:"bruce-damian",from:"bruce",to:"damian",type:"family",label:"biológico",strength:5,directed:true,visibility:"public"},
-    {id:"bruce-jason",from:"bruce",to:"jason",type:"family",label:"adotivo",strength:4,directed:true,visibility:"public"},
-    {id:"bruce-dick",from:"bruce",to:"dick",type:"family",label:"adotivo",strength:4,directed:true,visibility:"public"},
-    {id:"bruce-tim",from:"bruce",to:"tim",type:"family",label:"adotivo",strength:4,directed:true,visibility:"public"},
-    {id:"mgann-armek",from:"mgann",to:"armek",type:"tension",label:"vítima",strength:5,directed:false,visibility:"public"},
-    {id:"armek-mark",from:"armek",to:"mark",type:"family",label:"pai",strength:5,directed:true,visibility:"public"},
-    {id:"mgann-mark",from:"mgann",to:"mark",type:"family",label:"mãe",strength:5,directed:true,visibility:"public"},
-    {id:"mgann-conner2",from:"mgann",to:"conner2",type:"romance",label:"casal",strength:5,directed:false,visibility:"public"},
-    {id:"mgann-jonn",from:"mgann",to:"jonn",type:"mentor",label:"mentor",strength:4,directed:true,visibility:"public"},
-    {id:"jonn-armek",from:"jonn",to:"armek",type:"enemy",label:"inimigos",strength:5,directed:false,visibility:"public"},
-    {id:"conner2-mark",from:"conner2",to:"mark",type:"ally",label:"paterno",strength:4,directed:true,visibility:"public"},
-    {id:"jonn-mark",from:"jonn",to:"mark",type:"mentor",label:"mentor",strength:4,directed:true,visibility:"public"},
-    {id:"lobo-riot",from:"lobo",to:"riot",type:"origin",label:"origem genética",strength:5,directed:true,visibility:"public"},
-    {id:"kendra-riot",from:"kendra",to:"riot",type:"family",label:"mãe adotiva",strength:5,directed:true,visibility:"public"},
-    {id:"kendra-lobo",from:"kendra",to:"lobo",type:"tension",label:"aliados / inimigos",strength:4,directed:false,visibility:"public"}
-  ]
-};
-
-// Camada opcional de relações locais de Vanguard Bay.
-// Fica desligada por padrão no grafo para preservar a legibilidade da rede principal.
-window.TerraZData.vanguardGraphLayer = {
-  "version": 1,
   "quadrants": [
+    {
+      "id": "queen",
+      "title": "FAMÍLIA QUEEN",
+      "x": 20,
+      "y": 20,
+      "w": 470,
+      "h": 340,
+      "color": "#c45a1c",
+      "bg": "rgba(196,90,28,.05)"
+    },
+    {
+      "id": "wayne",
+      "title": "FAMÍLIA WAYNE",
+      "x": 510,
+      "y": 20,
+      "w": 470,
+      "h": 340,
+      "color": "#0064a8",
+      "bg": "rgba(0,100,168,.05)"
+    },
+    {
+      "id": "marciano",
+      "title": "NÚCLEO MARCIANO",
+      "x": 20,
+      "y": 380,
+      "w": 470,
+      "h": 320,
+      "color": "#0a8a4a",
+      "bg": "rgba(10,138,74,.05)"
+    },
+    {
+      "id": "lobo",
+      "title": "PRAZO DE LOBO",
+      "x": 510,
+      "y": 380,
+      "w": 470,
+      "h": 320,
+      "color": "#7a4aff",
+      "bg": "rgba(122,74,255,.05)"
+    },
     {
       "id": "vanguard-bay",
       "title": "VANGUARD BAY · PODER LOCAL",
@@ -69,11 +83,504 @@ window.TerraZData.vanguardGraphLayer = {
       "w": 760,
       "h": 680,
       "color": "#9b6f2c",
-      "bg": "rgba(155,111,44,.05)",
-      "layer": "vanguard"
+      "bg": "rgba(155,111,44,.05)"
     }
   ],
   "nodes": [
+    {
+      "id": "oliver",
+      "label": "OLIVER",
+      "subtitle": "Oliver Queen",
+      "kind": "character",
+      "ref": "Oliver Queen",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 255,
+      "y": 96,
+      "color": "#c45a1c",
+      "r": 38,
+      "visibility": "public",
+      "nuclei": [
+        "queen"
+      ]
+    },
+    {
+      "id": "dinah",
+      "label": "DINAH",
+      "subtitle": "Dinah Lance",
+      "kind": "character",
+      "ref": "Dinah Lance",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 76,
+      "y": 288,
+      "color": "#8b1a1a",
+      "r": 38,
+      "visibility": "public",
+      "nuclei": [
+        "queen"
+      ]
+    },
+    {
+      "id": "tristan",
+      "label": "TRISTAN",
+      "subtitle": "Tristan Queen",
+      "kind": "character",
+      "ref": "Tristan Queen",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 255,
+      "y": 288,
+      "color": "#c45a1c",
+      "r": 38,
+      "visibility": "public",
+      "nuclei": [
+        "queen"
+      ]
+    },
+    {
+      "id": "connor",
+      "label": "CONNOR",
+      "subtitle": "Connor Hawke",
+      "kind": "character",
+      "ref": "Connor Hawke",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 434,
+      "y": 288,
+      "color": "#3a3028",
+      "r": 38,
+      "visibility": "public",
+      "nuclei": [
+        "queen"
+      ]
+    },
+    {
+      "id": "bruce",
+      "label": "BRUCE",
+      "subtitle": "Bruce Wayne",
+      "kind": "character",
+      "ref": "Bruce Wayne",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 745,
+      "y": 96,
+      "color": "#1a1512",
+      "r": 38,
+      "visibility": "public",
+      "nuclei": [
+        "wayne"
+      ]
+    },
+    {
+      "id": "damian",
+      "label": "DAMIAN",
+      "subtitle": "Damian Wayne",
+      "kind": "character",
+      "ref": "Damian Wayne",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 924,
+      "y": 195,
+      "color": "#8b1a1a",
+      "r": 38,
+      "visibility": "public",
+      "nuclei": [
+        "wayne"
+      ]
+    },
+    {
+      "id": "jason",
+      "label": "JASON",
+      "subtitle": "Jason Todd",
+      "kind": "character",
+      "ref": "Jason Todd",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 566,
+      "y": 195,
+      "color": "#8b1a1a",
+      "r": 38,
+      "visibility": "public",
+      "nuclei": [
+        "wayne"
+      ]
+    },
+    {
+      "id": "dick",
+      "label": "DICK",
+      "subtitle": "Dick Grayson",
+      "kind": "character",
+      "ref": "Dick Grayson",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 745,
+      "y": 195,
+      "color": "#8b1a1a",
+      "r": 38,
+      "visibility": "public",
+      "nuclei": [
+        "wayne"
+      ]
+    },
+    {
+      "id": "tim",
+      "label": "TIM",
+      "subtitle": "Tim Drake",
+      "kind": "character",
+      "ref": "Tim Drake",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 745,
+      "y": 288,
+      "color": "#8b1a1a",
+      "r": 38,
+      "visibility": "public",
+      "nuclei": [
+        "wayne"
+      ]
+    },
+    {
+      "id": "mgann",
+      "label": "M'GANN",
+      "subtitle": "M'gann M'orzz",
+      "kind": "character",
+      "ref": "M'gann M'orzz",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 255,
+      "y": 456,
+      "color": "#0a8a4a",
+      "r": 38,
+      "visibility": "public",
+      "nuclei": [
+        "marciano"
+      ]
+    },
+    {
+      "id": "conner2",
+      "label": "CONNER",
+      "subtitle": "Conner Kent",
+      "kind": "character",
+      "ref": "Conner Kent",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 434,
+      "y": 545,
+      "color": "#0064a8",
+      "r": 38,
+      "visibility": "public",
+      "nuclei": [
+        "marciano"
+      ]
+    },
+    {
+      "id": "mark",
+      "label": "M'ARK",
+      "subtitle": "M'ark",
+      "kind": "character",
+      "ref": "M'ark",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 255,
+      "y": 545,
+      "color": "#0a8a4a",
+      "r": 38,
+      "visibility": "public",
+      "nuclei": [
+        "marciano"
+      ]
+    },
+    {
+      "id": "armek",
+      "label": "ARMEK",
+      "subtitle": "Armek",
+      "kind": "custom",
+      "ref": "",
+      "route": "",
+      "icon": "",
+      "mediaMode": "library",
+      "mediaId": "armek",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 54,
+        "y": 0,
+        "zoom": 2
+      },
+      "x": 76,
+      "y": 545,
+      "color": "#3a3028",
+      "r": 38,
+      "visibility": "public",
+      "nuclei": [
+        "marciano"
+      ]
+    },
+    {
+      "id": "jonn",
+      "label": "J'ONN",
+      "subtitle": "J'onn J'onzz",
+      "kind": "character",
+      "ref": "J'onn J'onzz",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 255,
+      "y": 628,
+      "color": "#0a8a4a",
+      "r": 38,
+      "visibility": "public",
+      "nuclei": [
+        "marciano"
+      ]
+    },
+    {
+      "id": "lobo",
+      "label": "LOBO",
+      "subtitle": "Lobo",
+      "kind": "character",
+      "ref": "Lobo",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 572,
+      "y": 545,
+      "color": "#3a3028",
+      "r": 44,
+      "visibility": "public",
+      "nuclei": [
+        "lobo"
+      ]
+    },
+    {
+      "id": "riot",
+      "label": "RIOT",
+      "subtitle": "Riot",
+      "kind": "character",
+      "ref": "Riot",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 745,
+      "y": 545,
+      "color": "#3a3028",
+      "r": 44,
+      "visibility": "public",
+      "nuclei": [
+        "lobo"
+      ]
+    },
+    {
+      "id": "kendra",
+      "label": "KENDRA",
+      "subtitle": "Kendra Saunders",
+      "kind": "character",
+      "ref": "Kendra Saunders",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 745,
+      "y": 462,
+      "color": "#8b1a1a",
+      "r": 38,
+      "visibility": "public",
+      "nuclei": [
+        "lobo"
+      ]
+    },
+    {
+      "id": "rex-mason",
+      "label": "Rex Mason",
+      "subtitle": "Metamorpho",
+      "kind": "character",
+      "ref": "Rex Mason",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 745,
+      "y": 628,
+      "color": "#8b1a1a",
+      "r": 38,
+      "visibility": "public",
+      "nuclei": [
+        "lobo"
+      ]
+    },
+    {
+      "id": "entidade-19",
+      "label": "Michael Carter",
+      "subtitle": "Gladiador Dourado",
+      "kind": "character",
+      "ref": "Michael Carter",
+      "route": "",
+      "icon": "",
+      "mediaMode": "character",
+      "mediaId": "",
+      "mediaUrl": "",
+      "mediaFraming": {
+        "fit": "cover",
+        "x": 50,
+        "y": 24,
+        "zoom": 1
+      },
+      "x": 918,
+      "y": 545,
+      "color": "#3a3028",
+      "r": 38,
+      "visibility": "public",
+      "nuclei": [
+        "lobo"
+      ]
+    },
     {
       "id": "vb-leland",
       "label": "LELAND SHAW",
@@ -85,7 +592,9 @@ window.TerraZData.vanguardGraphLayer = {
       "color": "#8b1a1a",
       "r": 34,
       "visibility": "public",
-      "layer": "vanguard"
+      "nuclei": [
+        "vanguard-bay"
+      ]
     },
     {
       "id": "vb-camila",
@@ -98,7 +607,9 @@ window.TerraZData.vanguardGraphLayer = {
       "color": "#8b1a1a",
       "r": 34,
       "visibility": "public",
-      "layer": "vanguard"
+      "nuclei": [
+        "vanguard-bay"
+      ]
     },
     {
       "id": "vb-donovan",
@@ -111,7 +622,9 @@ window.TerraZData.vanguardGraphLayer = {
       "color": "#8b1a1a",
       "r": 34,
       "visibility": "public",
-      "layer": "vanguard"
+      "nuclei": [
+        "vanguard-bay"
+      ]
     },
     {
       "id": "vb-matheus",
@@ -124,7 +637,9 @@ window.TerraZData.vanguardGraphLayer = {
       "color": "#8b1a1a",
       "r": 34,
       "visibility": "public",
-      "layer": "vanguard"
+      "nuclei": [
+        "vanguard-bay"
+      ]
     },
     {
       "id": "vb-boris",
@@ -137,7 +652,9 @@ window.TerraZData.vanguardGraphLayer = {
       "color": "#8b1a1a",
       "r": 34,
       "visibility": "public",
-      "layer": "vanguard"
+      "nuclei": [
+        "vanguard-bay"
+      ]
     },
     {
       "id": "vb-general",
@@ -150,7 +667,9 @@ window.TerraZData.vanguardGraphLayer = {
       "color": "#8b1a1a",
       "r": 34,
       "visibility": "public",
-      "layer": "vanguard"
+      "nuclei": [
+        "vanguard-bay"
+      ]
     },
     {
       "id": "vb-shaw",
@@ -164,7 +683,9 @@ window.TerraZData.vanguardGraphLayer = {
       "color": "#a47719",
       "r": 36,
       "visibility": "public",
-      "layer": "vanguard"
+      "nuclei": [
+        "vanguard-bay"
+      ]
     },
     {
       "id": "vb-stagg",
@@ -178,7 +699,9 @@ window.TerraZData.vanguardGraphLayer = {
       "color": "#a47719",
       "r": 36,
       "visibility": "public",
-      "layer": "vanguard"
+      "nuclei": [
+        "vanguard-bay"
+      ]
     },
     {
       "id": "vb-espectros",
@@ -192,7 +715,9 @@ window.TerraZData.vanguardGraphLayer = {
       "color": "#76578d",
       "r": 36,
       "visibility": "public",
-      "layer": "vanguard"
+      "nuclei": [
+        "vanguard-bay"
+      ]
     },
     {
       "id": "vb-martillo",
@@ -206,7 +731,9 @@ window.TerraZData.vanguardGraphLayer = {
       "color": "#76578d",
       "r": 34,
       "visibility": "public",
-      "layer": "vanguard"
+      "nuclei": [
+        "vanguard-bay"
+      ]
     },
     {
       "id": "vb-bratva",
@@ -220,7 +747,9 @@ window.TerraZData.vanguardGraphLayer = {
       "color": "#76578d",
       "r": 36,
       "visibility": "public",
-      "layer": "vanguard"
+      "nuclei": [
+        "vanguard-bay"
+      ]
     },
     {
       "id": "vb-irmandade",
@@ -234,7 +763,9 @@ window.TerraZData.vanguardGraphLayer = {
       "color": "#76578d",
       "r": 36,
       "visibility": "public",
-      "layer": "vanguard"
+      "nuclei": [
+        "vanguard-bay"
+      ]
     },
     {
       "id": "vb-noface",
@@ -248,7 +779,9 @@ window.TerraZData.vanguardGraphLayer = {
       "color": "#76578d",
       "r": 32,
       "visibility": "public",
-      "layer": "vanguard"
+      "nuclei": [
+        "vanguard-bay"
+      ]
     },
     {
       "id": "vb-shaw-spire",
@@ -261,7 +794,9 @@ window.TerraZData.vanguardGraphLayer = {
       "color": "#3f7f53",
       "r": 31,
       "visibility": "public",
-      "layer": "vanguard"
+      "nuclei": [
+        "vanguard-bay"
+      ]
     },
     {
       "id": "vb-stagg-pinnacle",
@@ -274,7 +809,9 @@ window.TerraZData.vanguardGraphLayer = {
       "color": "#3f7f53",
       "r": 31,
       "visibility": "public",
-      "layer": "vanguard"
+      "nuclei": [
+        "vanguard-bay"
+      ]
     },
     {
       "id": "vb-rumba",
@@ -287,7 +824,9 @@ window.TerraZData.vanguardGraphLayer = {
       "color": "#3f7f53",
       "r": 31,
       "visibility": "public",
-      "layer": "vanguard"
+      "nuclei": [
+        "vanguard-bay"
+      ]
     },
     {
       "id": "vb-urso-polar",
@@ -300,7 +839,9 @@ window.TerraZData.vanguardGraphLayer = {
       "color": "#3f7f53",
       "r": 31,
       "visibility": "public",
-      "layer": "vanguard"
+      "nuclei": [
+        "vanguard-bay"
+      ]
     },
     {
       "id": "vb-centro-markoviano",
@@ -313,7 +854,9 @@ window.TerraZData.vanguardGraphLayer = {
       "color": "#3f7f53",
       "r": 31,
       "visibility": "public",
-      "layer": "vanguard"
+      "nuclei": [
+        "vanguard-bay"
+      ]
     },
     {
       "id": "vb-comutador",
@@ -326,10 +869,287 @@ window.TerraZData.vanguardGraphLayer = {
       "color": "#3f7f53",
       "r": 31,
       "visibility": "public",
-      "layer": "vanguard"
+      "nuclei": [
+        "vanguard-bay"
+      ]
     }
   ],
   "edges": [
+    {
+      "id": "oliver-dinah",
+      "from": "oliver",
+      "to": "dinah",
+      "type": "romance",
+      "label": "casal",
+      "note": "",
+      "strength": 5,
+      "directed": false,
+      "visibility": "public"
+    },
+    {
+      "id": "oliver-tristan",
+      "from": "oliver",
+      "to": "tristan",
+      "type": "family",
+      "label": "pai",
+      "note": "",
+      "strength": 5,
+      "directed": true,
+      "visibility": "public"
+    },
+    {
+      "id": "dinah-tristan",
+      "from": "dinah",
+      "to": "tristan",
+      "type": "family",
+      "label": "mãe",
+      "note": "",
+      "strength": 5,
+      "directed": true,
+      "visibility": "public"
+    },
+    {
+      "id": "oliver-connor",
+      "from": "oliver",
+      "to": "connor",
+      "type": "family",
+      "label": "pai",
+      "note": "",
+      "strength": 5,
+      "directed": true,
+      "visibility": "public"
+    },
+    {
+      "id": "tristan-connor",
+      "from": "tristan",
+      "to": "connor",
+      "type": "family",
+      "label": "irmãos",
+      "note": "",
+      "strength": 5,
+      "directed": false,
+      "visibility": "public"
+    },
+    {
+      "id": "bruce-damian",
+      "from": "bruce",
+      "to": "damian",
+      "type": "family",
+      "label": "biológico",
+      "note": "",
+      "strength": 5,
+      "directed": true,
+      "visibility": "public"
+    },
+    {
+      "id": "bruce-jason",
+      "from": "bruce",
+      "to": "jason",
+      "type": "family",
+      "label": "adotivo",
+      "note": "",
+      "strength": 4,
+      "directed": true,
+      "visibility": "public"
+    },
+    {
+      "id": "bruce-dick",
+      "from": "bruce",
+      "to": "dick",
+      "type": "family",
+      "label": "adotivo",
+      "note": "",
+      "strength": 4,
+      "directed": true,
+      "visibility": "public"
+    },
+    {
+      "id": "bruce-tim",
+      "from": "bruce",
+      "to": "tim",
+      "type": "family",
+      "label": "adotivo",
+      "note": "",
+      "strength": 4,
+      "directed": true,
+      "visibility": "public"
+    },
+    {
+      "id": "mgann-armek",
+      "from": "mgann",
+      "to": "armek",
+      "type": "tension",
+      "label": "vítima",
+      "note": "",
+      "strength": 5,
+      "directed": false,
+      "visibility": "public"
+    },
+    {
+      "id": "armek-mark",
+      "from": "armek",
+      "to": "mark",
+      "type": "family",
+      "label": "pai",
+      "note": "",
+      "strength": 5,
+      "directed": true,
+      "visibility": "public"
+    },
+    {
+      "id": "mgann-mark",
+      "from": "mgann",
+      "to": "mark",
+      "type": "family",
+      "label": "mãe",
+      "note": "",
+      "strength": 5,
+      "directed": true,
+      "visibility": "public"
+    },
+    {
+      "id": "mgann-conner2",
+      "from": "mgann",
+      "to": "conner2",
+      "type": "romance",
+      "label": "casal",
+      "note": "",
+      "strength": 5,
+      "directed": false,
+      "visibility": "public"
+    },
+    {
+      "id": "mgann-jonn",
+      "from": "mgann",
+      "to": "jonn",
+      "type": "mentor",
+      "label": "mentor",
+      "note": "",
+      "strength": 4,
+      "directed": true,
+      "visibility": "public"
+    },
+    {
+      "id": "jonn-armek",
+      "from": "jonn",
+      "to": "armek",
+      "type": "enemy",
+      "label": "inimigos",
+      "note": "",
+      "strength": 5,
+      "directed": false,
+      "visibility": "public"
+    },
+    {
+      "id": "conner2-mark",
+      "from": "conner2",
+      "to": "mark",
+      "type": "ally",
+      "label": "paterno",
+      "note": "",
+      "strength": 4,
+      "directed": true,
+      "visibility": "public"
+    },
+    {
+      "id": "jonn-mark",
+      "from": "jonn",
+      "to": "mark",
+      "type": "mentor",
+      "label": "mentor",
+      "note": "",
+      "strength": 4,
+      "directed": true,
+      "visibility": "public"
+    },
+    {
+      "id": "lobo-riot",
+      "from": "lobo",
+      "to": "riot",
+      "type": "origin",
+      "label": "origem genética",
+      "note": "",
+      "strength": 5,
+      "directed": true,
+      "visibility": "public"
+    },
+    {
+      "id": "kendra-riot",
+      "from": "kendra",
+      "to": "riot",
+      "type": "family",
+      "label": "mãe adotiva",
+      "note": "",
+      "strength": 5,
+      "directed": true,
+      "visibility": "public"
+    },
+    {
+      "id": "kendra-lobo",
+      "from": "kendra",
+      "to": "lobo",
+      "type": "tension",
+      "label": "aliados / inimigos",
+      "note": "",
+      "strength": 4,
+      "directed": false,
+      "visibility": "public"
+    },
+    {
+      "id": "relacao-rex-mason-kendra-ally",
+      "from": "rex-mason",
+      "to": "kendra",
+      "type": "ally",
+      "label": "Parceiro de Missão",
+      "note": "Partiparam da mesma missão para salvar Riot quando ele era um bebê",
+      "strength": 2,
+      "directed": false,
+      "visibility": "public"
+    },
+    {
+      "id": "relacao-kendra-oliver-ally",
+      "from": "kendra",
+      "to": "oliver",
+      "type": "ally",
+      "label": "Parceiro de Missão",
+      "note": "Também participou da missão do bebê Riot",
+      "strength": 3,
+      "directed": false,
+      "visibility": "public"
+    },
+    {
+      "id": "relacao-jason-tristan-mentor",
+      "from": "jason",
+      "to": "tristan",
+      "type": "mentor",
+      "label": "Mentor",
+      "note": "",
+      "strength": 5,
+      "directed": false,
+      "visibility": "public"
+    },
+    {
+      "id": "relacao-rex-mason-oliver-ally",
+      "from": "rex-mason",
+      "to": "oliver",
+      "type": "ally",
+      "label": "Parceiro de Missão",
+      "note": "",
+      "strength": 2,
+      "directed": false,
+      "visibility": "public"
+    },
+    {
+      "id": "relacao-entidade-19-kendra-ally",
+      "from": "entidade-19",
+      "to": "kendra",
+      "type": "ally",
+      "label": "Parceiro de Missão",
+      "note": "",
+      "strength": 3,
+      "directed": false,
+      "visibility": "public"
+    },
     {
       "id": "vb-leland-shaw",
       "from": "vb-leland",
@@ -338,8 +1158,7 @@ window.TerraZData.vanguardGraphLayer = {
       "label": "CEO",
       "strength": 5,
       "directed": true,
-      "visibility": "public",
-      "layer": "vanguard"
+      "visibility": "public"
     },
     {
       "id": "vb-camila-shaw",
@@ -349,8 +1168,7 @@ window.TerraZData.vanguardGraphLayer = {
       "label": "braço direito",
       "strength": 4,
       "directed": true,
-      "visibility": "public",
-      "layer": "vanguard"
+      "visibility": "public"
     },
     {
       "id": "vb-shaw-spire-edge",
@@ -360,8 +1178,7 @@ window.TerraZData.vanguardGraphLayer = {
       "label": "sede",
       "strength": 4,
       "directed": true,
-      "visibility": "public",
-      "layer": "vanguard"
+      "visibility": "public"
     },
     {
       "id": "vb-donovan-stagg",
@@ -371,8 +1188,7 @@ window.TerraZData.vanguardGraphLayer = {
       "label": "diretor",
       "strength": 5,
       "directed": true,
-      "visibility": "public",
-      "layer": "vanguard"
+      "visibility": "public"
     },
     {
       "id": "vb-stagg-pinnacle-edge",
@@ -382,8 +1198,7 @@ window.TerraZData.vanguardGraphLayer = {
       "label": "sede",
       "strength": 4,
       "directed": true,
-      "visibility": "public",
-      "layer": "vanguard"
+      "visibility": "public"
     },
     {
       "id": "vb-donovan-leland",
@@ -393,8 +1208,7 @@ window.TerraZData.vanguardGraphLayer = {
       "label": "desprezo / rivalidade",
       "strength": 4,
       "directed": false,
-      "visibility": "public",
-      "layer": "vanguard"
+      "visibility": "public"
     },
     {
       "id": "vb-matheus-espectros",
@@ -404,8 +1218,7 @@ window.TerraZData.vanguardGraphLayer = {
       "label": "líder",
       "strength": 5,
       "directed": true,
-      "visibility": "public",
-      "layer": "vanguard"
+      "visibility": "public"
     },
     {
       "id": "vb-espectros-rumba",
@@ -415,8 +1228,7 @@ window.TerraZData.vanguardGraphLayer = {
       "label": "base",
       "strength": 4,
       "directed": true,
-      "visibility": "public",
-      "layer": "vanguard"
+      "visibility": "public"
     },
     {
       "id": "vb-espectros-martillo",
@@ -426,8 +1238,7 @@ window.TerraZData.vanguardGraphLayer = {
       "label": "conflito territorial",
       "strength": 4,
       "directed": false,
-      "visibility": "public",
-      "layer": "vanguard"
+      "visibility": "public"
     },
     {
       "id": "vb-boris-bratva",
@@ -437,8 +1248,7 @@ window.TerraZData.vanguardGraphLayer = {
       "label": "líder",
       "strength": 5,
       "directed": true,
-      "visibility": "public",
-      "layer": "vanguard"
+      "visibility": "public"
     },
     {
       "id": "vb-bratva-urso",
@@ -448,8 +1258,7 @@ window.TerraZData.vanguardGraphLayer = {
       "label": "quartel-general",
       "strength": 4,
       "directed": true,
-      "visibility": "public",
-      "layer": "vanguard"
+      "visibility": "public"
     },
     {
       "id": "vb-general-irmandade",
@@ -459,8 +1268,7 @@ window.TerraZData.vanguardGraphLayer = {
       "label": "líder",
       "strength": 5,
       "directed": true,
-      "visibility": "public",
-      "layer": "vanguard"
+      "visibility": "public"
     },
     {
       "id": "vb-irmandade-centro",
@@ -470,8 +1278,7 @@ window.TerraZData.vanguardGraphLayer = {
       "label": "base / fachada",
       "strength": 4,
       "directed": true,
-      "visibility": "public",
-      "layer": "vanguard"
+      "visibility": "public"
     },
     {
       "id": "vb-noface-comutador",
@@ -481,8 +1288,7 @@ window.TerraZData.vanguardGraphLayer = {
       "label": "ponto de encontro",
       "strength": 4,
       "directed": true,
-      "visibility": "public",
-      "layer": "vanguard"
+      "visibility": "public"
     }
   ]
 };
