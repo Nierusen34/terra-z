@@ -1924,7 +1924,24 @@ function renderNucleusOptions(){
   root.innerHTML=html;
 }
 
+function useNativeMobileNucleusControls(){
+  var mobile=window.matchMedia && window.matchMedia("(max-width: 900px)").matches;
+  var standalone=(window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+    window.navigator.standalone===true ||
+    document.documentElement.classList.contains("pwa-standalone");
+  return !!(mobile && standalone);
+}
+
+function syncNucleusControlSurface(){
+  var nativeControls=document.getElementById("graphNucleusMobileControls");
+  var picker=document.getElementById("graphNucleusPicker");
+  var nativeMode=useNativeMobileNucleusControls();
+  if(nativeControls) nativeControls.hidden=!nativeMode;
+  if(picker) picker.hidden=nativeMode;
+}
+
 function updateNucleusPickerUi(){
+  syncNucleusControlSurface();
   if(graphActiveNucleus!=="all" && !graphNucleus(graphActiveNucleus,graphData)) graphActiveNucleus="all";
   var mobileSelect=document.getElementById("graphNucleusMobileSelect");
   var mobileMode=document.getElementById("graphNucleusMobileMode");
@@ -2112,6 +2129,12 @@ function setupGraphView(){
   });
 
   updateNucleusPickerUi();
+
+  if(window.matchMedia){
+    var mobileNucleusMedia=window.matchMedia("(max-width: 900px)");
+    if(mobileNucleusMedia.addEventListener) mobileNucleusMedia.addEventListener("change",syncNucleusControlSurface);
+    else if(mobileNucleusMedia.addListener) mobileNucleusMedia.addListener(syncNucleusControlSurface);
+  }
 
   var clear=document.getElementById("graphClearFilters");
   if(clear) clear.addEventListener("click",function(){
