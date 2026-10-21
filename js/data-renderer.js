@@ -200,12 +200,124 @@ function renderTeamsData(){
   }
 }
 
+function organizationCategoryMeta(category){
+  var map={
+    criminal:{label:'Facções criminosas',icon:'☠️'},
+    corporate:{label:'Empresas',icon:'🏢'},
+    academic:{label:'Instituições acadêmicas',icon:'🎓'},
+    media:{label:'Mídia',icon:'📰'},
+    agency:{label:'Agências',icon:'🛡️'}
+  };
+  return map[category] || {label:'Outras organizações',icon:'◆'};
+}
+
+function renderOrganizationLinks(label,items,kind){
+  if(!Array.isArray(items) || !items.length) return '';
+  var html='<div class="organization-links"><span>'+escapeHtml(label)+'</span><div>';
+  items.forEach(function(item){
+    html+='<button type="button" class="organization-link-chip" data-org-link-kind="'+escapeAttr(kind)+'" data-org-link-value="'+escapeAttr(item)+'">'+escapeHtml(item)+'</button>';
+  });
+  html+='</div></div>';
+  return html;
+}
+
+function bindOrganizationLinks(root){
+  if(!root) return;
+  root.querySelectorAll('[data-org-link-kind][data-org-link-value]').forEach(function(button){
+    button.addEventListener('click',function(){
+      var kind=button.getAttribute('data-org-link-kind');
+      var value=button.getAttribute('data-org-link-value') || '';
+      var app=window.TerraZApp || {};
+      if(kind==='character' && app.router && app.router.setCharacter){
+        app.router.setCharacter(value);
+        if(app.router.go) app.router.go('/personagens/'+app.router.slugify(value));
+        return;
+      }
+      if(kind==='location' && app.router && app.router.openLocation){
+        app.router.openLocation(value);
+      }
+    });
+  });
+}
+
+function renderOrganizationsData(){
+  var root=document.getElementById('organizationsData');
+  if(!root || root.children.length>0) return;
+
+  var organizations=window.TerraZData && window.TerraZData.organizations;
+  if(!Array.isArray(organizations)){
+    console.error('Terra Z: organizações não foram carregadas.');
+    return;
+  }
+
+  var order=['criminal','corporate','academic','media','agency'];
+  var html='<div class="organization-overview">';
+  order.forEach(function(category){
+    var count=organizations.filter(function(item){return item && item.category===category;}).length;
+    if(!count) return;
+    var meta=organizationCategoryMeta(category);
+    html+='<div class="organization-overview-card"><span>'+escapeHtml(meta.icon)+'</span><strong>'+count+'</strong><small>'+escapeHtml(meta.label)+'</small></div>';
+  });
+  html+='</div>';
+
+  order.forEach(function(category){
+    var items=organizations.filter(function(item){return item && item.category===category;});
+    if(!items.length) return;
+    var meta=organizationCategoryMeta(category);
+
+    html+='<section class="organization-group" data-organization-category="'+escapeAttr(category)+'">';
+    html+='<div class="subsection-title">'+escapeHtml(meta.icon+' '+meta.label)+'</div>';
+    html+='<div class="organization-grid">';
+
+    items.forEach(function(item){
+      var visibility=item.visibility==='spoiler'?'spoiler':'public';
+      html+='<article class="organization-card" data-organization-id="'+escapeAttr(item.id||'')+'" data-organization-name="'+escapeAttr(item.name||'')+'" data-visibility="'+visibility+'">';
+      html+='<div class="organization-card-head"><div class="organization-icon">'+escapeHtml(item.icon||'◆')+'</div><div><span>'+escapeHtml(item.categoryLabel||meta.label)+'</span><h4>'+escapeHtml(item.name||'Organização')+'</h4></div></div>';
+      html+='<div class="organization-meta">';
+      if(item.base) html+='<div><span>Base</span><strong>'+escapeHtml(item.base)+'</strong></div>';
+      if(item.leader) html+='<div><span>Liderança</span><strong>'+escapeHtml(item.leader)+'</strong></div>';
+      html+='</div>';
+      html+='<p>'+escapeHtml(item.description||'')+'</p>';
+
+      if(Array.isArray(item.activities) && item.activities.length){
+        html+='<div class="organization-activities">';
+        item.activities.forEach(function(activity){ html+='<span>'+escapeHtml(activity)+'</span>'; });
+        html+='</div>';
+      }
+
+      if(Array.isArray(item.subunits) && item.subunits.length){
+        html+='<div class="organization-subunits"><span>Estruturas relacionadas</span><strong>'+escapeHtml(item.subunits.join(' · '))+'</strong></div>';
+      }
+
+      if(Array.isArray(item.rivals) && item.rivals.length){
+        html+='<div class="organization-subunits"><span>Rivalidade</span><strong>'+escapeHtml(item.rivals.join(' · '))+'</strong></div>';
+      }
+
+      html+=renderOrganizationLinks('Personagens',item.relatedCharacters,'character');
+      html+=renderOrganizationLinks('Locais',item.relatedLocations,'location');
+
+      if(item.spoiler){
+        html+='<div class="organization-spoiler" data-visibility="spoiler"><span>⚠ Informação restrita</span>'+escapeHtml(item.spoiler)+'</div>';
+      }
+
+      html+='</article>';
+    });
+
+    html+='</div></section>';
+  });
+
+  root.innerHTML=html;
+  bindOrganizationLinks(root);
+  if(window.TerraZApp && window.TerraZApp.visibility) window.TerraZApp.visibility.apply({closeSensitive:false});
+}
+
 function renderCanonicalData(){
   renderDistrictData();
   renderAnnualEventsData();
   renderTimelineData();
   renderExternalCitiesData();
   renderTeamsData();
+  renderOrganizationsData();
 }
 
 // Scripts são carregados com defer; neste ponto o HTML já foi analisado.
