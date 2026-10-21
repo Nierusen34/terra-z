@@ -576,7 +576,8 @@ function checkGraph(data){
     fail("Backend não anuncia Biblioteca de Mídia e imagens independentes do grafo.");
   }
   for(const id of [
-    "graphEntityFilter","graphRelationFilter","graphNucleusMenuBtn","graphNucleusMenu","graphNucleusOptions","graphInspector","graphEditorList","graphEditorDetail",
+    "graphEntityFilter","graphRelationFilter","graphNucleusMenuBtn","graphNucleusMenu","graphNucleusOptions",
+    "graphCanvasTitle","graphCanvasHint","graphNucleusBadge","graphInspector","graphEditorList","graphEditorDetail",
     "graphZoomOut","graphZoomRange","graphZoomLabel","graphZoomIn","graphFitBtn","graphFocusBtn",
     "graphViewResetBtn","graphInspectorToggleBtn","graphFullscreenBtn",
     "graphAutoArrangeBtn","graphUndoBtn","graphRestoreBtn",
@@ -603,7 +604,8 @@ function checkGraph(data){
   if(!graphRuntime.includes("GRAPH_SCALE_KEY") ||
      !graphRuntime.includes("setGraphScale") ||
      !graphRuntime.includes("graphViewportBox") ||
-     !graphRuntime.includes("fitGraphView")){
+     !graphRuntime.includes("fitGraphView") ||
+     !graphRuntime.includes("nodeVisualBox")){
     fail("Viewport persistente e controles de zoom do grafo não foram encontrados.");
   }
   if(!graphRuntime.includes("toggleGraphFullscreen") ||
@@ -624,11 +626,18 @@ function checkGraph(data){
      !mobilePolish.includes("graph-wrap-v2")){
     fail("Composição compacta mobile/PWA do grafo não foi identificada.");
   }
+  if(!css.includes("GRAFO · ENQUADRAMENTO ADAPTATIVO POR NÚCLEO") ||
+     !css.includes(".graph-nucleus-badge") ||
+     !css.includes(".graph-nucleus-active .graph-wrap-v2")){
+    fail("Apresentação visual centralizada por núcleo não foi identificada.");
+  }
   if(!html.includes('data-ge-tab="layout"') ||
      !html.includes('data-ge-tab="nuclei"') ||
      !graphRuntime.includes("renderLayoutEditor") ||
      !graphRuntime.includes("setGraphNucleus") ||
      !graphRuntime.includes("setGraphNucleusMode") ||
+     !graphRuntime.includes("graphViewportAspect") ||
+     !graphRuntime.includes("enquadramento automático centralizado") ||
      !graphRuntime.includes("nucleusChecklist") ||
      !graphRuntime.includes('addEventListener("pointerdown"') ||
      !graphRuntime.includes("smartArrangeGraph")){
