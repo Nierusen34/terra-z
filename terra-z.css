@@ -3336,6 +3336,12 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
 }
 .graph-wrap-v2.is-node-dragging .graph-node-v2{cursor:grabbing}
 .graph-node-v2.search-context{opacity:.35}
+.graph-node-v2.nucleus-external{opacity:.48}
+.graph-node-v2.nucleus-external:hover,
+.graph-node-v2.nucleus-external:focus,
+.graph-node-v2.nucleus-external.selected{opacity:.86}
+.graph-node-v2.nucleus-primary{opacity:1}
+
 .graph-node-v2.search-match{opacity:1}
 .graph-node-v2:hover .graph-node-label,
 .graph-node-v2:focus .graph-node-label,
