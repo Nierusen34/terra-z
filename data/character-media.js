@@ -365,7 +365,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Lila Marlowe": {
-    "src": "",
+    "src": "images/characters/lila-marlowe.jpg",
     "alt": "Lila Marlowe",
     "source": "local",
     "credit": ""
