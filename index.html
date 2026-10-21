@@ -147,6 +147,7 @@
         <button type="button" data-admin-action="table-mode">🎲 Modo Mesa</button>
         <button type="button" data-admin-action="new-character">＋ Personagem</button>
         <button type="button" data-admin-action="new-session">＋ Sessão</button>
+        <button type="button" data-admin-action="organizations">🏢 Organizações</button>
         <button type="button" data-admin-action="graph">🔗 Grafo</button>
         <button type="button" data-admin-action="publish">🚀 Publicar</button>
       </div>
@@ -257,6 +258,11 @@
             <span class="admin-action-icon">📓</span>
             <strong>Registrar sessão</strong>
             <small>Adicionar uma nova entrada ao Diário da Campanha.</small>
+          </button>
+          <button class="admin-action" data-admin-action="organizations">
+            <span class="admin-action-icon">🏢</span>
+            <strong>Organizações</strong>
+            <small>Criar, editar e excluir facções, empresas, instituições e veículos de mídia.</small>
           </button>
           <button class="admin-action" data-admin-action="graph">
             <span class="admin-action-icon">🔗</span>
@@ -1638,6 +1644,90 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0 · Jan 2027
 </div>
 </div>
 
+<div id="organizationEditorModal" class="organization-editor-panel" role="dialog" aria-modal="true" aria-labelledby="organizationEditorTitle">
+  <div class="organization-editor-card">
+    <div class="organization-editor-head">
+      <div>
+        <div id="organizationEditorMode" class="organization-editor-eyebrow">EDITAR ORGANIZAÇÃO</div>
+        <h3 id="organizationEditorTitle">Organização</h3>
+      </div>
+      <button id="organizationEditorClose" type="button" aria-label="Fechar">✕</button>
+    </div>
+
+    <div class="organization-editor-layout">
+      <aside class="organization-editor-sidebar">
+        <button id="organizationEditorNew" type="button" class="primary">＋ Nova organização</button>
+        <div id="organizationEditorList" class="organization-editor-list"></div>
+      </aside>
+
+      <div class="organization-editor-main">
+        <div class="organization-editor-grid">
+          <label class="organization-editor-wide">Nome
+            <input id="organizationEditorName" type="text" maxlength="160" autocomplete="off">
+          </label>
+          <label>Ícone
+            <input id="organizationEditorIcon" type="text" maxlength="24" placeholder="🏢">
+          </label>
+          <label>ID permanente
+            <input id="organizationEditorId" type="text" readonly>
+          </label>
+          <label>Categoria
+            <select id="organizationEditorCategory"></select>
+          </label>
+          <label>Rótulo da categoria
+            <input id="organizationEditorCategoryLabel" type="text" maxlength="100">
+          </label>
+          <label>Base / sede
+            <input id="organizationEditorBase" type="text" maxlength="240">
+          </label>
+          <label>Liderança
+            <input id="organizationEditorLeader" type="text" maxlength="240">
+          </label>
+          <label>Visibilidade
+            <select id="organizationEditorVisibility"></select>
+          </label>
+          <label class="organization-editor-wide">Descrição
+            <textarea id="organizationEditorDescription" rows="4" maxlength="6000"></textarea>
+          </label>
+          <label>Atividades <small>Uma por linha</small>
+            <textarea id="organizationEditorActivities" rows="5"></textarea>
+          </label>
+          <label>Aliases <small>Um por linha</small>
+            <textarea id="organizationEditorAliases" rows="5"></textarea>
+          </label>
+          <label>Rivais <small>Um por linha</small>
+            <textarea id="organizationEditorRivals" rows="5"></textarea>
+          </label>
+          <label>Estruturas relacionadas <small>Uma por linha</small>
+            <textarea id="organizationEditorSubunits" rows="5"></textarea>
+          </label>
+          <label>Personagens relacionados <small>Um por linha</small>
+            <textarea id="organizationEditorCharacters" rows="6"></textarea>
+          </label>
+          <label>Locais relacionados <small>Um por linha</small>
+            <textarea id="organizationEditorLocations" rows="6"></textarea>
+          </label>
+          <label class="organization-editor-wide">Informação restrita / spoiler
+            <textarea id="organizationEditorSpoiler" rows="4" maxlength="6000"></textarea>
+          </label>
+        </div>
+
+        <div class="organization-editor-privacy-note">
+          🔒 Organizações totalmente Mestre não são salvas neste arquivo público. Use <strong>Spoiler</strong> para conteúdo oculto ao Modo Jogador.
+        </div>
+        <div id="organizationEditorStatus" class="organization-editor-status" data-state="idle"></div>
+
+        <div class="organization-editor-actions">
+          <button id="organizationEditorDelete" type="button" class="danger">🗑️ Excluir</button>
+          <span></span>
+          <button id="organizationEditorCancel" type="button">Cancelar</button>
+          <button id="organizationEditorSave" type="button" class="primary">💾 Salvar organização</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="characterEditorPanel" class="character-editor-panel" role="dialog" aria-modal="true" aria-labelledby="characterEditorTitle">
 <div class="character-editor-card">
 <div class="character-editor-head">
@@ -2128,6 +2218,7 @@ O FAROL DE VANGUARD · Dossiê Especial Universo Terra Z · v1.4.0 · Jan 2027
 <script src="data/timeline.js" defer></script>
 <script src="data/cities.js" defer></script>
 <script src="data/teams.js" defer></script>
+<script src="data/organizations.js" defer></script>
 <script src="data/sessions.js" defer></script>
 <script src="data/visibility.js" defer></script>
 <script src="data/content-overrides.js" defer></script>
