@@ -3983,6 +3983,52 @@ button.timeline-chip:hover{border-color:var(--accent);color:var(--accent)}
 }
 
 
+
+.graph-nucleus-mobile-controls{
+  display:none;
+}
+.graph-nucleus-mobile-controls label{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;
+  letter-spacing:.7px;
+  text-transform:uppercase;
+  color:var(--ink3);
+}
+.graph-nucleus-mobile-controls select{
+  width:100%;
+  min-height:42px;
+  padding:9px 10px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:11px;
+}
+@media (max-width:900px) and (display-mode:standalone){
+  .graph-nucleus-picker{display:none!important}
+  .graph-nucleus-mobile-controls{
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    gap:8px;
+    grid-column:1/-1!important;
+    width:100%;
+  }
+}
+@media (max-width:900px){
+  html.pwa-standalone .graph-nucleus-picker{display:none!important}
+  html.pwa-standalone .graph-nucleus-mobile-controls{
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    gap:8px;
+    grid-column:1/-1!important;
+    width:100%;
+  }
+}
+
 /* ===== ENQUADRAMENTO CONFIGURÁVEL DE RETRATOS ===== */
 .graph-node-portrait-fo{pointer-events:none;overflow:visible}
 .graph-node-portrait-frame{
