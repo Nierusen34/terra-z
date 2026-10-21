@@ -44,7 +44,7 @@ window.TerraZData.characterOverrides = {
     "sections": [
       {
         "title": "📋 Ficha Básica",
-        "content": "<p><strong>Nome:</strong> Riot<br><strong>Idade:</strong> Aparência 20 anos (cronológico: 5)<br><strong>Origem:</strong> Clone da Cadmus, resgatado em 2022<br><strong>Mãe adotiva:</strong> Kendra Saunders (Hawkgirl)<br><strong>Pai genético:</strong> Lobo (Czarniano)<br><strong>Status:</strong> Em missão pessoal em Vanguard Bay (sem local fixo)</p>"
+        "content": "<p><strong>Nome:</strong> Riot<br><strong>Idade:</strong> Aparência 35 anos (cronológico: 5)<br><strong>Origem:</strong> Clone da Cadmus, resgatado em 2022<br><strong>Mãe adotiva:</strong> Kendra Saunders (Hawkgirl)<br><strong>Pai genético:</strong> Lobo (Czarniano)<br><strong>Status:</strong> Em missão pessoal em Vanguard Bay (sem local fixo)</p>"
       },
       {
         "title": "📖 História",
