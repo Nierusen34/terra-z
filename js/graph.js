@@ -2034,18 +2034,45 @@ function setupGraphView(){
     renderGraph();renderInspector();
   });
 
+  var nucleusTouchUntil=0;
   var nucleusButton=document.getElementById("graphNucleusMenuBtn");
-  if(nucleusButton) nucleusButton.addEventListener("click",function(event){
-    event.stopPropagation();
-    toggleNucleusMenu();
-  });
+  if(nucleusButton){
+    nucleusButton.addEventListener("pointerup",function(event){
+      if(event.pointerType!=="touch" && event.pointerType!=="pen") return;
+      event.preventDefault();
+      event.stopPropagation();
+      nucleusTouchUntil=Date.now()+700;
+      toggleNucleusMenu();
+    });
+    nucleusButton.addEventListener("click",function(event){
+      if(Date.now()<nucleusTouchUntil) return;
+      event.stopPropagation();
+      toggleNucleusMenu();
+    });
+  }
+
+  function chooseNucleusFromEvent(event){
+    var target=event.target;
+    var button=target && target.closest ? target.closest("[data-graph-nucleus]") : null;
+    if(!button) return false;
+    setGraphNucleus(button.getAttribute("data-graph-nucleus")||"all",{fit:true});
+    return true;
+  }
 
   var nucleusOptions=document.getElementById("graphNucleusOptions");
-  if(nucleusOptions) nucleusOptions.addEventListener("click",function(event){
-    var button=event.target.closest("[data-graph-nucleus]");
-    if(!button) return;
-    setGraphNucleus(button.getAttribute("data-graph-nucleus")||"all",{fit:true});
-  });
+  if(nucleusOptions){
+    nucleusOptions.addEventListener("pointerup",function(event){
+      if(event.pointerType!=="touch" && event.pointerType!=="pen") return;
+      if(!chooseNucleusFromEvent(event)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      nucleusTouchUntil=Date.now()+700;
+    });
+    nucleusOptions.addEventListener("click",function(event){
+      if(Date.now()<nucleusTouchUntil) return;
+      chooseNucleusFromEvent(event);
+    });
+  }
 
   document.querySelectorAll('input[name="graphNucleusMode"]').forEach(function(input){
     input.addEventListener("change",function(){
