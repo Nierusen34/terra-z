@@ -335,7 +335,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Geneviève Lachance": {
-    "src": "",
+    "src": "images/characters/genevieve-lachance.jpg",
     "alt": "Geneviève Lachance",
     "source": "local",
     "credit": ""
