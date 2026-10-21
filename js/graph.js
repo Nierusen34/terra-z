@@ -677,11 +677,6 @@ async function saveQuickRelation(){
 
 function selectQuickTarget(id){
   if(!quickRelationState.picking || !quickRelationState.sourceId) return false;
-  var targetNode=nodeById(id);
-  if(targetNode && targetNode.layer==="vanguard"){
-    showToast("A camada Vanguard Bay é canônica e somente leitura. Edite essas relações na integração, não pelo atalho rápido.","info",4200);
-    return true;
-  }
   if(id===quickRelationState.sourceId){
     showToast("Escolha outra entidade para formar a conexão.","info",3000);
     return true;
@@ -2034,8 +2029,10 @@ function editorGraph(){ return editorDraft || graphData; }
 
 function makeId(prefix,label){
   var base=slugify(label || prefix) || prefix;
-  var used=new Set((editorGraph().nodes || []).map(function(n){ return n.id; })
-    .concat((editorGraph().edges || []).map(function(e){ return e.id; })));
+  var graph=editorGraph();
+  var used=new Set((graph.nodes || []).map(function(n){ return n.id; })
+    .concat((graph.edges || []).map(function(e){ return e.id; }))
+    .concat((graph.nuclei || []).map(function(n){ return n.id; })));
   var candidate=base;
   var i=2;
   while(used.has(candidate)){ candidate=base+"-"+i; i++; }
@@ -2219,7 +2216,10 @@ function undoEditorDraft(){
     return;
   }
   editorDraft=normalizeGraph(editorUndoStack.pop());
-  if(editorSelectedId && !nodeById(editorSelectedId,editorDraft) && !edgeById(editorSelectedId,editorDraft)) editorSelectedId="";
+  if(editorSelectedId &&
+     !nodeById(editorSelectedId,editorDraft) &&
+     !edgeById(editorSelectedId,editorDraft) &&
+     !editorNucleusById(editorSelectedId)) editorSelectedId="";
   renderEditorTabs();renderEditorList();renderEditorDetail();
   showToast("Última alteração de layout desfeita.","info",3000);
 }
@@ -2748,16 +2748,34 @@ function renderEditorDetail(){
 
 function addEditorItem(){
   pushEditorUndo();
+
+  if(editorMode==="nuclei"){
+    var nucleusCount=(editorDraft.nuclei||[]).length;
+    var nucleusId=makeId("nucleo","nucleo-"+(nucleusCount+1));
+    var nucleus={
+      id:nucleusId,
+      label:"Novo núcleo",
+      color:"#6f6862"
+    };
+    editorDraft.nuclei=Array.isArray(editorDraft.nuclei)?editorDraft.nuclei:[];
+    editorDraft.nuclei.push(nucleus);
+    editorSelectedId=nucleusId;
+    renderEditorList();renderEditorDetail();
+    return;
+  }
+
   if(editorMode==="nodes" || editorMode==="layout"){
     var count=editorDraft.nodes.length;
     var id=makeId("entidade","entidade-"+(count+1));
     var angle=(count%12)/12*Math.PI*2;
+    var initialNuclei=[];
+    if(graphActiveNucleus!=="all" && editorNucleusById(graphActiveNucleus)) initialNuclei=[graphActiveNucleus];
     var node={
       id:id,label:"NOVA ENTIDADE",subtitle:"",kind:"custom",ref:"",route:"",icon:"",
       mediaMode:"none",mediaId:"",mediaUrl:"",
       mediaFraming:{fit:"cover",x:50,y:24,zoom:1},
       x:Math.round(500+Math.cos(angle)*230),y:Math.round(360+Math.sin(angle)*220),
-      color:KIND.custom.color,r:38,visibility:"public"
+      color:KIND.custom.color,r:38,visibility:"public",nuclei:initialNuclei
     };
     editorDraft.nodes.push(node);
     editorSelectedId=id;
@@ -2766,30 +2784,42 @@ function addEditorItem(){
       showToast("Crie pelo menos duas entidades antes de adicionar uma relação.","warning");
       return;
     }
-    var id=makeId("relacao","relacao-"+(editorDraft.edges.length+1));
+    var edgeIdValue=makeId("relacao","relacao-"+(editorDraft.edges.length+1));
     var edge={
-      id:id,from:editorDraft.nodes[0].id,to:editorDraft.nodes[1].id,
+      id:edgeIdValue,from:editorDraft.nodes[0].id,to:editorDraft.nodes[1].id,
       type:"ally",label:"",note:"",strength:3,directed:false,visibility:"public"
     };
     editorDraft.edges.push(edge);
-    editorSelectedId=id;
+    editorSelectedId=edgeIdValue;
   }
   renderEditorList();renderEditorDetail();
 }
 
 function deleteEditorCurrent(){
   if(!editorSelectedId) return;
-  var item=editorMode==="edges" ? edgeById(editorSelectedId,editorDraft) : nodeById(editorSelectedId,editorDraft);
+  var item=editorMode==="edges"
+    ? edgeById(editorSelectedId,editorDraft)
+    : (editorMode==="nuclei" ? editorNucleusById(editorSelectedId) : nodeById(editorSelectedId,editorDraft));
   if(!item) return;
 
-  var isNode=editorMode!=="edges";
-  var message=isNode
-    ? 'Excluir "'+item.label+'"? Todas as relações ligadas a esta entidade também serão removidas.'
-    : 'Excluir esta relação do grafo?';
+  var isNucleus=editorMode==="nuclei";
+  var isNode=editorMode!=="edges" && !isNucleus;
+  var message=isNucleus
+    ? 'Excluir o núcleo "'+item.label+'"? As entidades não serão apagadas; apenas deixarão de pertencer a este núcleo.'
+    : (isNode
+      ? 'Excluir "'+item.label+'"? Todas as relações ligadas a esta entidade também serão removidas.'
+      : 'Excluir esta relação do grafo?');
+  var noun=isNucleus?"núcleo":(isNode?"entidade":"relação");
 
-  showConfirm("Excluir "+(isNode?"entidade":"relação"),message,function(){
+  showConfirm("Excluir "+noun,message,function(){
     pushEditorUndo();
-    if(isNode){
+    if(isNucleus){
+      editorDraft.nuclei=(editorDraft.nuclei||[]).filter(function(nucleus){return nucleus.id!==item.id;});
+      editorDraft.nodes.forEach(function(node){
+        node.nuclei=(node.nuclei||[]).filter(function(id){return id!==item.id;});
+      });
+      editorDraft.quadrants=(editorDraft.quadrants||[]).filter(function(q){return q.id!==item.id;});
+    }else if(isNode){
       editorDraft.nodes=editorDraft.nodes.filter(function(node){ return node.id!==item.id; });
       editorDraft.edges=editorDraft.edges.filter(function(edge){ return edge.from!==item.id && edge.to!==item.id; });
     }else{
@@ -2821,7 +2851,9 @@ async function openGraphEditor(mode,id){
   }
 
   editorDraft=normalizeGraph(graphData);
-  editorMode=mode==="edges" ? "edges" : (mode==="layout" ? "layout" : "nodes");
+  editorMode=mode==="edges"
+    ? "edges"
+    : (mode==="layout" ? "layout" : (mode==="nuclei" ? "nuclei" : "nodes"));
   editorSelectedId=id || "";
   editorSearch="";
   editorUndoStack=[];
@@ -2941,7 +2973,8 @@ async function importDcNode(options){
     y:pos.y,
     color:KIND.character.color,
     r:38,
-    visibility:"public"
+    visibility:"public",
+    nuclei:(graphActiveNucleus!=="all" && editorNucleusById(graphActiveNucleus)) ? [graphActiveNucleus] : []
   };
 
   editorDraft.nodes.push(node);
@@ -3017,12 +3050,31 @@ async function saveGraphEditor(){
     return;
   }
 
+  var nucleusIds=new Set();
+  var nucleusLabels=new Set();
+  for(var n=0;n<(editorDraft.nuclei||[]).length;n++){
+    var nucleus=editorDraft.nuclei[n];
+    var nucleusId=String(nucleus&&nucleus.id||"").trim();
+    var nucleusLabel=String(nucleus&&nucleus.label||"").trim();
+    if(!nucleusId||!nucleusLabel){ showToast("Todo núcleo precisa de ID e nome.","warning"); return; }
+    if(nucleusIds.has(nucleusId)){ showToast("Há IDs de núcleos duplicados.","error"); return; }
+    if(nucleusLabels.has(nucleusLabel.toLocaleLowerCase("pt-BR"))){ showToast("Há nomes de núcleos duplicados.","error"); return; }
+    nucleusIds.add(nucleusId);
+    nucleusLabels.add(nucleusLabel.toLocaleLowerCase("pt-BR"));
+  }
+
   var ids=new Set();
   for(var i=0;i<editorDraft.nodes.length;i++){
     var node=editorDraft.nodes[i];
     if(!node.label.trim()){ showToast("Toda entidade precisa de um nome.","warning"); return; }
     if(ids.has(node.id)){ showToast("Há IDs de entidades duplicados.","error"); return; }
     ids.add(node.id);
+    for(var ni=0;ni<(node.nuclei||[]).length;ni++){
+      if(!nucleusIds.has(node.nuclei[ni])){
+        showToast("A entidade "+node.label+" aponta para um núcleo inexistente.","error");
+        return;
+      }
+    }
   }
 
   var save=document.getElementById("graphSaveBtn");
@@ -3044,6 +3096,7 @@ async function saveGraphEditor(){
     saveLocalGraph();
     closeGraphEditor();
     selectedNodeId="";selectedEdgeId="";
+    updateNucleusPickerUi();
     renderGraph();renderInspector();
     showToast("Relações 2.0 salvas com sucesso.","success",4500);
 
@@ -3085,7 +3138,9 @@ function setupGraphEditor(){
   document.querySelectorAll("[data-ge-tab]").forEach(function(button){
     button.addEventListener("click",function(){
       var requested=button.getAttribute("data-ge-tab");
-      editorMode=requested==="edges" ? "edges" : (requested==="layout" ? "layout" : "nodes");
+      editorMode=requested==="edges"
+        ? "edges"
+        : (requested==="layout" ? "layout" : (requested==="nuclei" ? "nuclei" : "nodes"));
       editorSelectedId="";
       renderEditorTabs();renderEditorList();renderEditorDetail();
     });
