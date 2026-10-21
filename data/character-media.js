@@ -455,7 +455,7 @@ window.TerraZData.characterMedia = {
     "credit": ""
   },
   "Lucia Ortega": {
-    "src": "",
+    "src": "images/characters/lucia-ortega.jpg",
     "alt": "Lucia Ortega",
     "source": "local",
     "credit": ""
