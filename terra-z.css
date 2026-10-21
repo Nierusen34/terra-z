@@ -7325,3 +7325,122 @@ body.graph-fullscreen-open{
   border-color:var(--accent2);
   color:var(--accent2);
 }
+
+
+/* ===== GRAFO · ENQUADRAMENTO ADAPTATIVO POR NÚCLEO ===== */
+.graph-wrap-v2{
+  height:clamp(500px,60vh,680px);
+  min-height:500px;
+  background:
+    radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--accent) 4%,transparent),transparent 46%),
+    var(--paper3);
+}
+.graph-wrap-v2 svg{
+  width:100%;
+  height:100%;
+  min-width:0;
+  max-width:none;
+  aspect-ratio:auto!important;
+}
+.graph-nucleus-active .graph-canvas-card{
+  box-shadow:inset 0 3px 0 color-mix(in srgb,var(--graph-nucleus-color,var(--accent)) 72%,transparent);
+}
+.graph-nucleus-active .graph-wrap-v2{
+  background:
+    radial-gradient(circle at 50% 44%,color-mix(in srgb,var(--graph-nucleus-color,var(--accent)) 8%,transparent),transparent 48%),
+    linear-gradient(180deg,color-mix(in srgb,var(--graph-nucleus-color,var(--accent)) 2.5%,var(--paper3)),var(--paper3));
+}
+.graph-nucleus-active .graph-canvas-head strong{
+  color:color-mix(in srgb,var(--graph-nucleus-color,var(--accent)) 78%,var(--ink));
+}
+.graph-nucleus-badge{
+  position:absolute;
+  z-index:3;
+  top:12px;
+  left:12px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  max-width:min(320px,calc(100% - 24px));
+  padding:7px 10px;
+  border:1px solid color-mix(in srgb,var(--graph-nucleus-color,var(--accent)) 34%,var(--line));
+  border-radius:999px;
+  background:color-mix(in srgb,var(--paper) 92%,transparent);
+  box-shadow:0 5px 18px rgba(0,0,0,.08);
+  pointer-events:none;
+  backdrop-filter:blur(6px);
+}
+.graph-nucleus-badge[hidden]{display:none!important}
+.graph-nucleus-badge-dot{
+  width:9px;
+  height:9px;
+  flex:0 0 auto;
+  border-radius:50%;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--graph-nucleus-color,var(--accent)) 10%,transparent);
+}
+.graph-nucleus-badge>span:last-child{
+  min-width:0;
+  display:flex;
+  align-items:baseline;
+  gap:7px;
+}
+.graph-nucleus-badge strong{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-family:var(--font-title);
+  font-size:9px;
+  color:var(--ink);
+}
+.graph-nucleus-badge small{
+  flex:0 0 auto;
+  font-family:'Share Tech Mono',monospace;
+  font-size:6.5px;
+  letter-spacing:.45px;
+  text-transform:uppercase;
+  color:var(--ink3);
+}
+.graph-nucleus-active .graph-grid-bg{opacity:.96}
+.graph-nucleus-active .graph-node-v2{
+  transition:opacity .2s ease,filter .2s ease,transform .16s ease;
+}
+.graph-nucleus-active .graph-node-v2:hover:not(.dragging){
+  filter:saturate(1.05) brightness(1.02);
+}
+.graph-nucleus-active .graph-edge-line{
+  stroke-linecap:round;
+}
+
+@media(max-width:1050px){
+  .graph-wrap-v2{
+    height:clamp(480px,58vh,640px);
+    min-height:480px;
+  }
+}
+@media(max-width:760px){
+  .graph-wrap-v2{
+    height:clamp(410px,56dvh,550px);
+    min-height:410px;
+    max-height:550px;
+  }
+  .graph-nucleus-badge{
+    top:8px;
+    left:8px;
+    max-width:calc(100% - 16px);
+    padding:6px 8px;
+  }
+  .graph-nucleus-badge>span:last-child{
+    display:block;
+  }
+  .graph-nucleus-badge strong,
+  .graph-nucleus-badge small{
+    display:block;
+  }
+  .graph-nucleus-badge small{margin-top:1px}
+}
+@media(max-width:430px){
+  .graph-wrap-v2{
+    height:clamp(390px,54dvh,520px);
+    min-height:390px;
+  }
+}
