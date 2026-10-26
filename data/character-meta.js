@@ -336,7 +336,7 @@ window.TerraZData.characterTaxonomy = {
     "George Gandenzio Toombs": {
       "featured": false,
       "nuclei": [
-        "vanguard"
+        "cidadao"
       ],
       "type": "npc",
       "status": "active",
@@ -366,7 +366,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Leland Shaw": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["ilha-solara"],
@@ -374,7 +374,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Alden Mitchell": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "hero",
       "status": "retired",
       "tags": ["ilha-solara"],
@@ -382,7 +382,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Geneviève Lachance": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["ilha-solara"],
@@ -390,7 +390,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Marcos Jimenez": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "civilian",
       "status": "active",
       "tags": ["ilha-solara"],
@@ -398,7 +398,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Dr. Kenji Tanaka": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["ilha-solara"],
@@ -406,7 +406,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Dr. Ahron Nax": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["ilha-solara"],
@@ -414,7 +414,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Silas": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["ilha-solara"],
@@ -422,7 +422,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Lila Marlowe": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "dead",
       "tags": ["ilha-solara"],
@@ -430,7 +430,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Camila Vargas": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["a-muralha"],
@@ -438,7 +438,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Alia Hazari": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["a-muralha"],
@@ -446,7 +446,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Donovan Mason": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["a-muralha"],
@@ -454,7 +454,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Dra. Zara Kovač": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["a-muralha"],
@@ -462,7 +462,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Dra. Anya Petrova": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["a-muralha"],
@@ -470,7 +470,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Roxana \"Roxy\" Sharpe": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "civilian",
       "status": "active",
       "tags": ["a-muralha"],
@@ -478,7 +478,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Antoine Devereaux": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["a-muralha"],
@@ -486,7 +486,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Matheus Silva": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["coral-gate"],
@@ -494,7 +494,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Oficial Leo Martinez": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["coral-gate"],
@@ -502,7 +502,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Mama Montoya": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "civilian",
       "status": "active",
       "tags": ["coral-gate"],
@@ -510,7 +510,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Hector Ramos": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["coral-gate"],
@@ -518,7 +518,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Lina Ramos": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["coral-gate"],
@@ -526,7 +526,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Dra. Ana Cruz": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "civilian",
       "status": "active",
       "tags": ["coral-gate"],
@@ -534,7 +534,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Pops Carter": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "civilian",
       "status": "active",
       "tags": ["coral-gate"],
@@ -542,7 +542,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Lucia Ortega": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "civilian",
       "status": "active",
       "tags": ["coral-gate"],
@@ -550,7 +550,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Dante Rodrigues": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "civilian",
       "status": "active",
       "tags": ["coral-gate"],
@@ -558,7 +558,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "General Markov": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["downtown"],
@@ -566,7 +566,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Flinch Archer": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["downtown"],
@@ -574,7 +574,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Juíza Mariana Sandoval": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["downtown"],
@@ -582,7 +582,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Julia Reyes": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["downtown"],
@@ -590,7 +590,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Sofia Navarro": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "civilian",
       "status": "active",
       "tags": ["downtown"],
@@ -598,7 +598,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Boris Borkov": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["o-dique"],
@@ -606,7 +606,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Osias \"Osi\" Rivers": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "civilian",
       "status": "active",
       "tags": ["o-dique"],
@@ -614,7 +614,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Dra. Helen Finch": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "npc",
       "status": "active",
       "tags": ["o-dique"],
@@ -622,7 +622,7 @@ window.TerraZData.characterTaxonomy = {
     },
     "Brigitte Oliveira": {
       "featured": false,
-      "nuclei": ["vanguard"],
+      "nuclei": ["cidadao"],
       "type": "civilian",
       "status": "active",
       "tags": ["o-dique"],
