@@ -134,12 +134,12 @@ window.TerraZData.characterTaxonomy = {
     "Riot": {
       "featured": true,
       "nuclei": [
-        "vanguard",
         "lobo-cadmus"
       ],
       "type": "protagonist",
       "status": "active",
-      "tags": []
+      "tags": [],
+      "visibility": "public"
     },
     "M'ark": {
       "featured": true,
