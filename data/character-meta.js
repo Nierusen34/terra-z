@@ -37,14 +37,6 @@ window.TerraZData.characterTaxonomy = {
       "id": "novos-titas",
       "label": "Novos Titãs"
     },
-    {
-      "id": "other",
-      "label": "Outros"
-    },
-    {
-      "id": "cidadao",
-      "label": "Cidadão"
-    }
   ],
   "types": [
     {
@@ -335,7 +327,7 @@ window.TerraZData.characterTaxonomy = {
     "George Gandenzio Toombs": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -368,7 +360,7 @@ window.TerraZData.characterTaxonomy = {
     "Leland Shaw": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -380,7 +372,7 @@ window.TerraZData.characterTaxonomy = {
     "Alden Mitchell": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "hero",
       "status": "retired",
@@ -392,7 +384,7 @@ window.TerraZData.characterTaxonomy = {
     "Geneviève Lachance": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -404,7 +396,7 @@ window.TerraZData.characterTaxonomy = {
     "Marcos Jimenez": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "civilian",
       "status": "active",
@@ -416,7 +408,7 @@ window.TerraZData.characterTaxonomy = {
     "Dr. Kenji Tanaka": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -428,7 +420,7 @@ window.TerraZData.characterTaxonomy = {
     "Dr. Ahron Nax": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -440,7 +432,7 @@ window.TerraZData.characterTaxonomy = {
     "Silas": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -452,7 +444,7 @@ window.TerraZData.characterTaxonomy = {
     "Lila Marlowe": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "dead",
@@ -464,7 +456,7 @@ window.TerraZData.characterTaxonomy = {
     "Camila Vargas": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -476,7 +468,7 @@ window.TerraZData.characterTaxonomy = {
     "Alia Hazari": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -488,7 +480,7 @@ window.TerraZData.characterTaxonomy = {
     "Donovan Mason": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -500,7 +492,7 @@ window.TerraZData.characterTaxonomy = {
     "Dra. Zara Kovač": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -512,7 +504,7 @@ window.TerraZData.characterTaxonomy = {
     "Dra. Anya Petrova": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -524,7 +516,7 @@ window.TerraZData.characterTaxonomy = {
     "Roxana \"Roxy\" Sharpe": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "civilian",
       "status": "active",
@@ -536,7 +528,7 @@ window.TerraZData.characterTaxonomy = {
     "Antoine Devereaux": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -548,7 +540,7 @@ window.TerraZData.characterTaxonomy = {
     "Matheus Silva": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -560,7 +552,7 @@ window.TerraZData.characterTaxonomy = {
     "Oficial Leo Martinez": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -572,7 +564,7 @@ window.TerraZData.characterTaxonomy = {
     "Mama Montoya": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "civilian",
       "status": "active",
@@ -584,7 +576,7 @@ window.TerraZData.characterTaxonomy = {
     "Hector Ramos": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -596,7 +588,7 @@ window.TerraZData.characterTaxonomy = {
     "Lina Ramos": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -608,7 +600,7 @@ window.TerraZData.characterTaxonomy = {
     "Dra. Ana Cruz": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "civilian",
       "status": "active",
@@ -620,7 +612,7 @@ window.TerraZData.characterTaxonomy = {
     "Pops Carter": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "civilian",
       "status": "active",
@@ -632,7 +624,7 @@ window.TerraZData.characterTaxonomy = {
     "Lucia Ortega": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "civilian",
       "status": "active",
@@ -644,7 +636,7 @@ window.TerraZData.characterTaxonomy = {
     "Dante Rodrigues": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "civilian",
       "status": "active",
@@ -656,7 +648,7 @@ window.TerraZData.characterTaxonomy = {
     "General Markov": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -668,7 +660,7 @@ window.TerraZData.characterTaxonomy = {
     "Flinch Archer": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -680,7 +672,7 @@ window.TerraZData.characterTaxonomy = {
     "Juíza Mariana Sandoval": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -692,7 +684,7 @@ window.TerraZData.characterTaxonomy = {
     "Julia Reyes": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -704,7 +696,7 @@ window.TerraZData.characterTaxonomy = {
     "Sofia Navarro": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "civilian",
       "status": "active",
@@ -716,7 +708,7 @@ window.TerraZData.characterTaxonomy = {
     "Boris Borkov": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -728,7 +720,7 @@ window.TerraZData.characterTaxonomy = {
     "Osias \"Osi\" Rivers": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "civilian",
       "status": "active",
@@ -740,7 +732,7 @@ window.TerraZData.characterTaxonomy = {
     "Dra. Helen Finch": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "npc",
       "status": "active",
@@ -752,7 +744,7 @@ window.TerraZData.characterTaxonomy = {
     "Brigitte Oliveira": {
       "featured": false,
       "nuclei": [
-        "cidadao"
+        "vanguard"
       ],
       "type": "civilian",
       "status": "active",
