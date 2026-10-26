@@ -16,7 +16,7 @@ var draft={nuclei:[],types:[],statuses:[],tags:[]};
 var capability=null;
 
 var DEFINITIONS={
-  nuclei:{label:"Núcleos",singular:"núcleo",icon:"🧭",required:"other",help:"Agrupamentos narrativos usados nos chips e filtros de personagens."},
+  nuclei:{label:"Núcleos",singular:"núcleo",icon:"🧭",required:"",help:"Agrupamentos narrativos usados nos chips e filtros de personagens. Você pode criar, renomear, reordenar e excluir núcleos livremente."},
   types:{label:"Tipos",singular:"tipo",icon:"🎭",required:"other",help:"Classificação geral do personagem, como herói, vilão, NPC ou protagonista."},
   statuses:{label:"Status",singular:"status",icon:"📌",required:"unknown",help:"Estado atual do personagem na campanha."},
   tags:{label:"Tags",singular:"tag",icon:"🏷️",required:"",help:"Etiquetas livres para organização, busca e edição em lote."}
