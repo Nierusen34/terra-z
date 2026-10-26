@@ -99,26 +99,26 @@ window.TerraZData.characterTaxonomy = {
     }
   ],
   "tags": [
-      {
-          "id": "ilha-solara",
-          "label": "Ilha Solara"
-      },
-      {
-          "id": "a-muralha",
-          "label": "A Muralha"
-      },
-      {
-          "id": "coral-gate",
-          "label": "Coral Gate"
-      },
-      {
-          "id": "downtown",
-          "label": "Downtown"
-      },
-      {
-          "id": "o-dique",
-          "label": "O Dique"
-      }
+    {
+      "id": "ilha-solara",
+      "label": "Ilha Solara"
+    },
+    {
+      "id": "a-muralha",
+      "label": "A Muralha"
+    },
+    {
+      "id": "coral-gate",
+      "label": "Coral Gate"
+    },
+    {
+      "id": "downtown",
+      "label": "Downtown"
+    },
+    {
+      "id": "o-dique",
+      "label": "O Dique"
+    }
   ],
   "characters": {
     "Tristan Queen": {
@@ -340,7 +340,9 @@ window.TerraZData.characterTaxonomy = {
       ],
       "type": "npc",
       "status": "active",
-      "tags": ["downtown"],
+      "tags": [
+        "downtown"
+      ],
       "visibility": "public"
     },
     "Michael Carter": {
@@ -357,7 +359,7 @@ window.TerraZData.characterTaxonomy = {
     "Rex Mason": {
       "featured": false,
       "nuclei": [
-        "other"
+        "jlu"
       ],
       "type": "npc",
       "status": "active",
@@ -366,269 +368,400 @@ window.TerraZData.characterTaxonomy = {
     },
     "Leland Shaw": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["ilha-solara"],
+      "tags": [
+        "ilha-solara"
+      ],
       "visibility": "public"
     },
     "Alden Mitchell": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "hero",
       "status": "retired",
-      "tags": ["ilha-solara"],
+      "tags": [
+        "ilha-solara"
+      ],
       "visibility": "public"
     },
     "Geneviève Lachance": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["ilha-solara"],
+      "tags": [
+        "ilha-solara"
+      ],
       "visibility": "public"
     },
     "Marcos Jimenez": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "civilian",
       "status": "active",
-      "tags": ["ilha-solara"],
+      "tags": [
+        "ilha-solara"
+      ],
       "visibility": "public"
     },
     "Dr. Kenji Tanaka": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["ilha-solara"],
+      "tags": [
+        "ilha-solara"
+      ],
       "visibility": "public"
     },
     "Dr. Ahron Nax": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["ilha-solara"],
+      "tags": [
+        "ilha-solara"
+      ],
       "visibility": "public"
     },
     "Silas": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["ilha-solara"],
+      "tags": [
+        "ilha-solara"
+      ],
       "visibility": "public"
     },
     "Lila Marlowe": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "dead",
-      "tags": ["ilha-solara"],
+      "tags": [
+        "ilha-solara"
+      ],
       "visibility": "public"
     },
     "Camila Vargas": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["a-muralha"],
+      "tags": [
+        "a-muralha"
+      ],
       "visibility": "public"
     },
     "Alia Hazari": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["a-muralha"],
+      "tags": [
+        "a-muralha"
+      ],
       "visibility": "public"
     },
     "Donovan Mason": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["a-muralha"],
+      "tags": [
+        "a-muralha"
+      ],
       "visibility": "public"
     },
     "Dra. Zara Kovač": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["a-muralha"],
+      "tags": [
+        "a-muralha"
+      ],
       "visibility": "public"
     },
     "Dra. Anya Petrova": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["a-muralha"],
+      "tags": [
+        "a-muralha"
+      ],
       "visibility": "public"
     },
     "Roxana \"Roxy\" Sharpe": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "civilian",
       "status": "active",
-      "tags": ["a-muralha"],
+      "tags": [
+        "a-muralha"
+      ],
       "visibility": "public"
     },
     "Antoine Devereaux": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["a-muralha"],
+      "tags": [
+        "a-muralha"
+      ],
       "visibility": "public"
     },
     "Matheus Silva": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["coral-gate"],
+      "tags": [
+        "coral-gate"
+      ],
       "visibility": "public"
     },
     "Oficial Leo Martinez": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["coral-gate"],
+      "tags": [
+        "coral-gate"
+      ],
       "visibility": "public"
     },
     "Mama Montoya": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "civilian",
       "status": "active",
-      "tags": ["coral-gate"],
+      "tags": [
+        "coral-gate"
+      ],
       "visibility": "public"
     },
     "Hector Ramos": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["coral-gate"],
+      "tags": [
+        "coral-gate"
+      ],
       "visibility": "public"
     },
     "Lina Ramos": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["coral-gate"],
+      "tags": [
+        "coral-gate"
+      ],
       "visibility": "public"
     },
     "Dra. Ana Cruz": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "civilian",
       "status": "active",
-      "tags": ["coral-gate"],
+      "tags": [
+        "coral-gate"
+      ],
       "visibility": "public"
     },
     "Pops Carter": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "civilian",
       "status": "active",
-      "tags": ["coral-gate"],
+      "tags": [
+        "coral-gate"
+      ],
       "visibility": "public"
     },
     "Lucia Ortega": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "civilian",
       "status": "active",
-      "tags": ["coral-gate"],
+      "tags": [
+        "coral-gate"
+      ],
       "visibility": "public"
     },
     "Dante Rodrigues": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "civilian",
       "status": "active",
-      "tags": ["coral-gate"],
+      "tags": [
+        "coral-gate"
+      ],
       "visibility": "public"
     },
     "General Markov": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["downtown"],
+      "tags": [
+        "downtown"
+      ],
       "visibility": "public"
     },
     "Flinch Archer": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["downtown"],
+      "tags": [
+        "downtown"
+      ],
       "visibility": "public"
     },
     "Juíza Mariana Sandoval": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["downtown"],
+      "tags": [
+        "downtown"
+      ],
       "visibility": "public"
     },
     "Julia Reyes": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["downtown"],
+      "tags": [
+        "downtown"
+      ],
       "visibility": "public"
     },
     "Sofia Navarro": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "civilian",
       "status": "active",
-      "tags": ["downtown"],
+      "tags": [
+        "downtown"
+      ],
       "visibility": "public"
     },
     "Boris Borkov": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["o-dique"],
+      "tags": [
+        "o-dique"
+      ],
       "visibility": "public"
     },
     "Osias \"Osi\" Rivers": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "civilian",
       "status": "active",
-      "tags": ["o-dique"],
+      "tags": [
+        "o-dique"
+      ],
       "visibility": "public"
     },
     "Dra. Helen Finch": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "npc",
       "status": "active",
-      "tags": ["o-dique"],
+      "tags": [
+        "o-dique"
+      ],
       "visibility": "public"
     },
     "Brigitte Oliveira": {
       "featured": false,
-      "nuclei": ["cidadao"],
+      "nuclei": [
+        "cidadao"
+      ],
       "type": "civilian",
       "status": "active",
-      "tags": ["o-dique"],
+      "tags": [
+        "o-dique"
+      ],
       "visibility": "public"
     }
-
   }
 };
 

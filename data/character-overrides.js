@@ -853,334 +853,1026 @@ window.TerraZData.characterOverrides = {
   "Leland Shaw": {
     "eyebrow": "🏢 CEO da Shaw Innovations",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Leland Shaw<br><strong>Idade:</strong> 52 anos<br><strong>Função:</strong> CEO da Shaw Innovations<br><strong>Local:</strong> Vanguard Bay – Ilha Solara</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Elegante, magro e de postura ereta. Cabelos grisalhos perfeitamente penteados para trás. Usa ternos minimalistas, caros e de cores neutras (cinza, preto ou azul-marinho). Seus olhos são frios e analíticos, como se estivesse constantemente processando dados. Tem um sorriso contido e monótono.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Se enxerga como um &quot;rei-filósofo&quot;. Busca a imortalidade através de experimentos (Projeto Ascensão). Seus funcionários o idolatram como um líder de culto.</p>","visibility":"spoiler","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Leland Shaw<br><strong>Idade:</strong> 52 anos<br><strong>Função:</strong> CEO da Shaw Innovations<br><strong>Local:</strong> Vanguard Bay – Ilha Solara</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Elegante, magro e de postura ereta. Cabelos grisalhos perfeitamente penteados para trás. Usa ternos minimalistas, caros e de cores neutras (cinza, preto ou azul-marinho). Seus olhos são frios e analíticos, como se estivesse constantemente processando dados. Tem um sorriso contido e monótono.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Se enxerga como um &quot;rei-filósofo&quot;. Busca a imortalidade através de experimentos (Projeto Ascensão). Seus funcionários o idolatram como um líder de culto.</p>",
+        "visibility": "spoiler",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🏢","codename":"Nenhum","age":"52 anos","origin":"Humano","status":"Ativo"}
+    "card": {
+      "icon": "🏢",
+      "codename": "Nenhum",
+      "age": "52 anos",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "Alden Mitchell": {
     "eyebrow": "☀️ Zenit · Ex-herói de Vanguard Bay",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Alden Mitchell<br><strong>Idade:</strong> 90+ anos<br><strong>Função:</strong> Zenit · Ex-herói de Vanguard Bay<br><strong>Local:</strong> Vanguard Bay – Ilha Solara</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Idoso franzino, encurvado, com cabelos brancos ralos e pele enrugada. Usa roupas velhas e surradas. Apesar da fragilidade, mantém uma postura rígida e olhos amargurados, cheios de ressentimento. Quando ativa seus poderes, emana uma luz dourada ofuscante.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>O primeiro herói da cidade. Agora, recluso e aposentado.</p>","visibility":"public","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Alden Mitchell<br><strong>Idade:</strong> 90+ anos<br><strong>Função:</strong> Zenit · Ex-herói de Vanguard Bay<br><strong>Local:</strong> Vanguard Bay – Ilha Solara</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Idoso franzino, encurvado, com cabelos brancos ralos e pele enrugada. Usa roupas velhas e surradas. Apesar da fragilidade, mantém uma postura rígida e olhos amargurados, cheios de ressentimento. Quando ativa seus poderes, emana uma luz dourada ofuscante.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>O primeiro herói da cidade. Agora, recluso e aposentado.</p>",
+        "visibility": "public",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"☀️","codename":"Zenit","age":"90+ anos","origin":"Meta-humano","status":"Aposentado"}
+    "card": {
+      "icon": "☀️",
+      "codename": "Zenit",
+      "age": "90+ anos",
+      "origin": "Meta-humano",
+      "status": "Aposentado"
+    }
   },
   "Geneviève Lachance": {
     "eyebrow": "🎨 Curadora da Galerie Vanguard",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Geneviève Lachance<br><strong>Idade:</strong> 45 anos<br><strong>Função:</strong> Curadora da Galerie Vanguard<br><strong>Local:</strong> Vanguard Bay – Ilha Solara</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Francesa típica, elegante e impecável. Cabelos loiros platinados, curtos ou em um chignon. Usa vestidos de grife, lenços de seda no pescoço e joias discretas, mas caríssimas. Tem um ar de superioridade e um sorriso irônico permanente.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Comanda uma fachada de bom gosto que, na verdade, é um mercado negro de arte roubada e artefatos místicos. Atende clientes como Maxwell Lord.</p>","visibility":"spoiler","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Geneviève Lachance<br><strong>Idade:</strong> 45 anos<br><strong>Função:</strong> Curadora da Galerie Vanguard<br><strong>Local:</strong> Vanguard Bay – Ilha Solara</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Francesa típica, elegante e impecável. Cabelos loiros platinados, curtos ou em um chignon. Usa vestidos de grife, lenços de seda no pescoço e joias discretas, mas caríssimas. Tem um ar de superioridade e um sorriso irônico permanente.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Comanda uma fachada de bom gosto que, na verdade, é um mercado negro de arte roubada e artefatos místicos. Atende clientes como Maxwell Lord.</p>",
+        "visibility": "spoiler",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🎨","codename":"Nenhum","age":"45 anos","origin":"Humana","status":"Ativa"}
+    "card": {
+      "icon": "🎨",
+      "codename": "Nenhum",
+      "age": "45 anos",
+      "origin": "Humana",
+      "status": "Ativa"
+    }
   },
   "Marcos Jimenez": {
     "eyebrow": "📺 Âncora do VBN Nightly News",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Marcos Jimenez<br><strong>Idade:</strong> 47 anos<br><strong>Função:</strong> Âncora do VBN Nightly News<br><strong>Local:</strong> Vanguard Bay – Ilha Solara</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Apresentador clássico, de terno escuro, gravata e cabelos grisalhos perfeitamente penteados. Rosto confiável, sorriso profissional e voz grave e aveludada.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Âncora confiável. Fonte de notícias mais assistida da cidade.</p>","visibility":"public","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Marcos Jimenez<br><strong>Idade:</strong> 47 anos<br><strong>Função:</strong> Âncora do VBN Nightly News<br><strong>Local:</strong> Vanguard Bay – Ilha Solara</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Apresentador clássico, de terno escuro, gravata e cabelos grisalhos perfeitamente penteados. Rosto confiável, sorriso profissional e voz grave e aveludada.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Âncora confiável. Fonte de notícias mais assistida da cidade.</p>",
+        "visibility": "public",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"📺","codename":"Nenhum","age":"47 anos","origin":"Humano","status":"Ativo"}
+    "card": {
+      "icon": "📺",
+      "codename": "Nenhum",
+      "age": "47 anos",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "Dr. Kenji Tanaka": {
     "eyebrow": "🌊 Oceanógrafo",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Dr. Kenji Tanaka<br><strong>Idade:</strong> 61 anos<br><strong>Função:</strong> Oceanógrafo<br><strong>Local:</strong> Vanguard Bay – Ilha Solara</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Cientista excêntrico, com cabelos bagunçados e grisalhos, óculos grossos de fundo de garrafa e jaleco cheio de manchas de produtos químicos. Tem olhos brilhantes e obsessivos, fala rápido e gesticula muito.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Defende teorias sobre ecossistemas inteligentes. É tratado como pária, mas pode ser uma fonte valiosa de informações submarinas.</p>","visibility":"public","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Dr. Kenji Tanaka<br><strong>Idade:</strong> 61 anos<br><strong>Função:</strong> Oceanógrafo<br><strong>Local:</strong> Vanguard Bay – Ilha Solara</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Cientista excêntrico, com cabelos bagunçados e grisalhos, óculos grossos de fundo de garrafa e jaleco cheio de manchas de produtos químicos. Tem olhos brilhantes e obsessivos, fala rápido e gesticula muito.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Defende teorias sobre ecossistemas inteligentes. É tratado como pária, mas pode ser uma fonte valiosa de informações submarinas.</p>",
+        "visibility": "public",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🌊","codename":"Nenhum","age":"61 anos","origin":"Humano","status":"Ativo"}
+    "card": {
+      "icon": "🌊",
+      "codename": "Nenhum",
+      "age": "61 anos",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "Dr. Ahron Nax": {
     "eyebrow": "🔬 Diretor do Instituto de Oceanografia",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Dr. Ahron Nax<br><strong>Idade:</strong> 68 anos<br><strong>Função:</strong> Diretor do Instituto de Oceanografia<br><strong>Local:</strong> Vanguard Bay – Ilha Solara</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Cientista respeitável, com barba branca bem aparada, óculos de leitura e roupas formais. Mantém postura de autoridade acadêmica.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Lidera o melhor instituto de oceanografia da cidade e recebe dados secretos de Atlantes.</p>","visibility":"spoiler","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Dr. Ahron Nax<br><strong>Idade:</strong> 68 anos<br><strong>Função:</strong> Diretor do Instituto de Oceanografia<br><strong>Local:</strong> Vanguard Bay – Ilha Solara</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Cientista respeitável, com barba branca bem aparada, óculos de leitura e roupas formais. Mantém postura de autoridade acadêmica.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Lidera o melhor instituto de oceanografia da cidade e recebe dados secretos de Atlantes.</p>",
+        "visibility": "spoiler",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🔬","codename":"Nenhum","age":"68 anos","origin":"Humano","status":"Ativo"}
+    "card": {
+      "icon": "🔬",
+      "codename": "Nenhum",
+      "age": "68 anos",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "Silas": {
     "eyebrow": "🛎️ Concierge do The Starlight Grand Hotel",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Silas<br><strong>Idade:</strong> 48 anos<br><strong>Função:</strong> Concierge do The Starlight Grand Hotel<br><strong>Local:</strong> Vanguard Bay – Ilha Solara</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Impecável, de terno cinza ou preto, cabelos engraxados para trás. Movimentos suaves e silenciosos. Tem um sorriso enigmático e olhos que parecem saber de tudo, mas não contam nada.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Sabe os podres de todos e opera uma rede de informações valiosíssima.</p>","visibility":"spoiler","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Silas<br><strong>Idade:</strong> 48 anos<br><strong>Função:</strong> Concierge do The Starlight Grand Hotel<br><strong>Local:</strong> Vanguard Bay – Ilha Solara</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Impecável, de terno cinza ou preto, cabelos engraxados para trás. Movimentos suaves e silenciosos. Tem um sorriso enigmático e olhos que parecem saber de tudo, mas não contam nada.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Sabe os podres de todos e opera uma rede de informações valiosíssima.</p>",
+        "visibility": "spoiler",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🛎️","codename":"Nenhum","age":"48 anos","origin":"Humano","status":"Ativo"}
+    "card": {
+      "icon": "🛎️",
+      "codename": "Nenhum",
+      "age": "48 anos",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "Lila Marlowe": {
     "eyebrow": "👻 Fantasma do Starlight Grand Hotel",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Lila Marlowe<br><strong>Idade:</strong> 20–30 anos quando faleceu, em 1930<br><strong>Função:</strong> Fantasma do Starlight Grand Hotel<br><strong>Local:</strong> Vanguard Bay – Ilha Solara</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Aparição bela e melancólica, de pele pálida e translúcida. Usa um vestido de gala da Era de Ouro, com lantejoulas e plumas. Tem cabelos ondulados e um olhar triste e perdido. Emite uma luz suave e fria.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Assombra a suíte presidencial, causando melancolia e desespero nos hóspedes, associados a &quot;suicídios&quot; inexplicáveis.</p>","visibility":"spoiler","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Lila Marlowe<br><strong>Idade:</strong> 20–30 anos quando faleceu, em 1930<br><strong>Função:</strong> Fantasma do Starlight Grand Hotel<br><strong>Local:</strong> Vanguard Bay – Ilha Solara</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Aparição bela e melancólica, de pele pálida e translúcida. Usa um vestido de gala da Era de Ouro, com lantejoulas e plumas. Tem cabelos ondulados e um olhar triste e perdido. Emite uma luz suave e fria.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Assombra a suíte presidencial, causando melancolia e desespero nos hóspedes, associados a &quot;suicídios&quot; inexplicáveis.</p>",
+        "visibility": "spoiler",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"👻","codename":"Nenhum","age":"20–30 anos quando faleceu, em 1930","origin":"Aparição","status":"Morta — aparição ativa"}
+    "card": {
+      "icon": "👻",
+      "codename": "Nenhum",
+      "age": "20–30 anos quando faleceu, em 1930",
+      "origin": "Aparição",
+      "status": "Morta — aparição ativa"
+    }
   },
   "Camila Vargas": {
     "eyebrow": "💼 Braço direito de Leland Shaw",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Camila Vargas<br><strong>Idade:</strong> 32 anos<br><strong>Função:</strong> Braço direito de Leland Shaw<br><strong>Local:</strong> Vanguard Bay – A Muralha</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Executiva de postura rígida. Cabelos escuros sempre presos em um coque impecável. Usa terninhos sob medida, de corte reto, sem adornos. Tem olhar de precisão cirúrgica, raramente esboça emoções e anda com passos firmes e decididos.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>A &quot;ação direta&quot; de Shaw. Leal à empresa, não necessariamente a ele.</p>","visibility":"public","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Camila Vargas<br><strong>Idade:</strong> 32 anos<br><strong>Função:</strong> Braço direito de Leland Shaw<br><strong>Local:</strong> Vanguard Bay – A Muralha</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Executiva de postura rígida. Cabelos escuros sempre presos em um coque impecável. Usa terninhos sob medida, de corte reto, sem adornos. Tem olhar de precisão cirúrgica, raramente esboça emoções e anda com passos firmes e decididos.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>A &quot;ação direta&quot; de Shaw. Leal à empresa, não necessariamente a ele.</p>",
+        "visibility": "public",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"💼","codename":"Nenhum","age":"32 anos","origin":"Humana","status":"Ativa"}
+    "card": {
+      "icon": "💼",
+      "codename": "Nenhum",
+      "age": "32 anos",
+      "origin": "Humana",
+      "status": "Ativa"
+    }
   },
   "Alia Hazari": {
     "eyebrow": "💾 Payload · Mercenária",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Alia Hazari<br><strong>Idade:</strong> 25 anos<br><strong>Função:</strong> Payload · Mercenária<br><strong>Local:</strong> Vanguard Bay – A Muralha</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Magra, de movimentos felinos. Cabelos escuros raspados de um lado ou presos. Veste roupas táticas, com couro, lycra e cintos de ferramentas. Seus olhos são atentos e frios. Quando em forma de dados, é descrita como um rastro de luz e código binário.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Espiã corporativa que se transforma em dados vivos. Rouba informações para quem pagar melhor e opera pelo ciberespaço.</p>","visibility":"spoiler","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Alia Hazari<br><strong>Idade:</strong> 25 anos<br><strong>Função:</strong> Payload · Mercenária<br><strong>Local:</strong> Vanguard Bay – A Muralha</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Magra, de movimentos felinos. Cabelos escuros raspados de um lado ou presos. Veste roupas táticas, com couro, lycra e cintos de ferramentas. Seus olhos são atentos e frios. Quando em forma de dados, é descrita como um rastro de luz e código binário.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Espiã corporativa que se transforma em dados vivos. Rouba informações para quem pagar melhor e opera pelo ciberespaço.</p>",
+        "visibility": "spoiler",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"💾","codename":"Payload","age":"25 anos","origin":"Meta-humana","status":"Ativa"}
+    "card": {
+      "icon": "💾",
+      "codename": "Payload",
+      "age": "25 anos",
+      "origin": "Meta-humana",
+      "status": "Ativa"
+    }
   },
   "Donovan Mason": {
     "eyebrow": "🏭 Diretor da Vanguard-Stagg Industries",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Donovan Mason<br><strong>Idade:</strong> 65 anos<br><strong>Função:</strong> Diretor da Vanguard-Stagg Industries<br><strong>Local:</strong> Vanguard Bay – A Muralha</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Corpulento, com ombros largos e rosto permanentemente avermelhado. Tem um &quot;sorriso de caçador&quot; que não esconde os dentes. Usa ternos caros que parecem sempre apertados demais e mantém olhos inquietos que nunca param de calcular.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Agressivo e nada sutil. Despreza Leland Shaw e resolve problemas com brutalidade através da Stagg Security.</p>","visibility":"public","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Donovan Mason<br><strong>Idade:</strong> 65 anos<br><strong>Função:</strong> Diretor da Vanguard-Stagg Industries<br><strong>Local:</strong> Vanguard Bay – A Muralha</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Corpulento, com ombros largos e rosto permanentemente avermelhado. Tem um &quot;sorriso de caçador&quot; que não esconde os dentes. Usa ternos caros que parecem sempre apertados demais e mantém olhos inquietos que nunca param de calcular.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Agressivo e nada sutil. Despreza Leland Shaw e resolve problemas com brutalidade através da Stagg Security.</p>",
+        "visibility": "public",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🏭","codename":"Nenhum","age":"65 anos","origin":"Humano","status":"Ativo"}
+    "card": {
+      "icon": "🏭",
+      "codename": "Nenhum",
+      "age": "65 anos",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "Dra. Zara Kovač": {
     "eyebrow": "🧬 Geneticista da Vanguard-Stagg",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Dra. Zara Kovač<br><strong>Idade:</strong> 40 anos<br><strong>Função:</strong> Geneticista da Vanguard-Stagg<br><strong>Local:</strong> Vanguard Bay – A Muralha</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Magra, com olheiras profundas e permanentes. Cabelos castanhos com fios brancos, normalmente presos de forma desleixada. Veste jaleco amarrotado sobre roupas escuras, mantém os ombros tensos e evita contato visual prolongado.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Brilhante e assombrada. Lidera o antiético Projeto Meta-Quimera. Sua consciência pesa, mas a pressão de Donovan Mason a mantém na linha.</p>","visibility":"spoiler","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Dra. Zara Kovač<br><strong>Idade:</strong> 40 anos<br><strong>Função:</strong> Geneticista da Vanguard-Stagg<br><strong>Local:</strong> Vanguard Bay – A Muralha</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Magra, com olheiras profundas e permanentes. Cabelos castanhos com fios brancos, normalmente presos de forma desleixada. Veste jaleco amarrotado sobre roupas escuras, mantém os ombros tensos e evita contato visual prolongado.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Brilhante e assombrada. Lidera o antiético Projeto Meta-Quimera. Sua consciência pesa, mas a pressão de Donovan Mason a mantém na linha.</p>",
+        "visibility": "spoiler",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🧬","codename":"Nenhum","age":"40 anos","origin":"Humana","status":"Ativa"}
+    "card": {
+      "icon": "🧬",
+      "codename": "Nenhum",
+      "age": "40 anos",
+      "origin": "Humana",
+      "status": "Ativa"
+    }
   },
   "Dra. Anya Petrova": {
     "eyebrow": "🧪 Cientista governamental · A.R.G.U.S./D.E.O.",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Dra. Anya Petrova<br><strong>Idade:</strong> 55 anos<br><strong>Função:</strong> Cientista governamental · A.R.G.U.S./D.E.O.<br><strong>Local:</strong> Vanguard Bay – A Muralha</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Rosto severo e anguloso, cabelos grisalhos presos de forma prática e funcional. Usa jaleco branco impecável sobre roupas sóbrias. Carrega um silêncio mortal ao entrar em um ambiente e mantém olhos clínicos, sem calor humano.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Lidera uma inquisição contra meta-humanos, tratando-os como dados em vez de pessoas. Sua única superior respeitada era Amanda Waller.</p>","visibility":"spoiler","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Dra. Anya Petrova<br><strong>Idade:</strong> 55 anos<br><strong>Função:</strong> Cientista governamental · A.R.G.U.S./D.E.O.<br><strong>Local:</strong> Vanguard Bay – A Muralha</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Rosto severo e anguloso, cabelos grisalhos presos de forma prática e funcional. Usa jaleco branco impecável sobre roupas sóbrias. Carrega um silêncio mortal ao entrar em um ambiente e mantém olhos clínicos, sem calor humano.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Lidera uma inquisição contra meta-humanos, tratando-os como dados em vez de pessoas. Sua única superior respeitada era Amanda Waller.</p>",
+        "visibility": "spoiler",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🧪","codename":"Nenhum","age":"55 anos","origin":"Humana","status":"Ativa"}
+    "card": {
+      "icon": "🧪",
+      "codename": "Nenhum",
+      "age": "55 anos",
+      "origin": "Humana",
+      "status": "Ativa"
+    }
   },
   "Roxana \"Roxy\" Sharpe": {
     "eyebrow": "📱 Colunista do Sentinela Dourada",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Roxana &quot;Roxy&quot; Sharpe<br><strong>Idade:</strong> 31 anos<br><strong>Função:</strong> Colunista do Sentinela Dourada<br><strong>Local:</strong> Vanguard Bay – A Muralha</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Estilosa e moderna, com cabelos de mechas coloridas, unhas longas e impecáveis. Usa roupas da moda, óculos de sol de grife e está sempre com um smartphone na mão. Tem sorriso presunçoso e olhar de caçadora de cliques.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Amoral. Usa chantagem e drones para conseguir furos e trata meta-humanos como &quot;conteúdo&quot;.</p>","visibility":"public","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Roxana &quot;Roxy&quot; Sharpe<br><strong>Idade:</strong> 31 anos<br><strong>Função:</strong> Colunista do Sentinela Dourada<br><strong>Local:</strong> Vanguard Bay – A Muralha</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Estilosa e moderna, com cabelos de mechas coloridas, unhas longas e impecáveis. Usa roupas da moda, óculos de sol de grife e está sempre com um smartphone na mão. Tem sorriso presunçoso e olhar de caçadora de cliques.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Amoral. Usa chantagem e drones para conseguir furos e trata meta-humanos como &quot;conteúdo&quot;.</p>",
+        "visibility": "public",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"📱","codename":"Roxy","age":"31 anos","origin":"Humana","status":"Ativa"}
+    "card": {
+      "icon": "📱",
+      "codename": "Roxy",
+      "age": "31 anos",
+      "origin": "Humana",
+      "status": "Ativa"
+    }
   },
   "Antoine Devereaux": {
     "eyebrow": "🍷 Maître do The Ledger",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Antoine Devereaux<br><strong>Idade:</strong> 64 anos<br><strong>Função:</strong> Maître do The Ledger<br><strong>Local:</strong> Vanguard Bay – A Muralha</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Magro, elegante, com bigode e costeletas bem aparados. Olhos cansados de quem já viu de tudo. Veste sempre smoking ou terno impecável, com gravata borboleta, sotaque francês suave e maneirismos refinados.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Ex-MI6. Vende segredos valiosos com a mesma discrição de um sommelier servindo vinho.</p>","visibility":"spoiler","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Antoine Devereaux<br><strong>Idade:</strong> 64 anos<br><strong>Função:</strong> Maître do The Ledger<br><strong>Local:</strong> Vanguard Bay – A Muralha</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Magro, elegante, com bigode e costeletas bem aparados. Olhos cansados de quem já viu de tudo. Veste sempre smoking ou terno impecável, com gravata borboleta, sotaque francês suave e maneirismos refinados.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Ex-MI6. Vende segredos valiosos com a mesma discrição de um sommelier servindo vinho.</p>",
+        "visibility": "spoiler",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🍷","codename":"Nenhum","age":"64 anos","origin":"Humano","status":"Ativo"}
+    "card": {
+      "icon": "🍷",
+      "codename": "Nenhum",
+      "age": "64 anos",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "Matheus Silva": {
     "eyebrow": "👻 O Fantasma · Líder dos Espectros",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Matheus Silva<br><strong>Idade:</strong> 30 anos<br><strong>Função:</strong> O Fantasma · Líder dos Espectros<br><strong>Local:</strong> Vanguard Bay – Coral Gate</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Matheus Solis Silva é latino, com porte atlético de ex-soldado de operações especiais. Usa cabelo raspado ou muito curto, barba por fazer e olhar de sobrevivente. Veste roupas casuais, mas funcionais, como jaqueta de couro e botas.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Se considera o nobre protetor do bairro. Controla o contrabando em Coral Gate, mas mantém um código de honra rígido.</p>","visibility":"spoiler","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Matheus Silva<br><strong>Idade:</strong> 30 anos<br><strong>Função:</strong> O Fantasma · Líder dos Espectros<br><strong>Local:</strong> Vanguard Bay – Coral Gate</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Matheus Solis Silva é latino, com porte atlético de ex-soldado de operações especiais. Usa cabelo raspado ou muito curto, barba por fazer e olhar de sobrevivente. Veste roupas casuais, mas funcionais, como jaqueta de couro e botas.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Se considera o nobre protetor do bairro. Controla o contrabando em Coral Gate, mas mantém um código de honra rígido.</p>",
+        "visibility": "spoiler",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"👻","codename":"O Fantasma","age":"30 anos","origin":"Humano","status":"Ativo"}
+    "card": {
+      "icon": "👻",
+      "codename": "O Fantasma",
+      "age": "30 anos",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "Oficial Leo Martinez": {
     "eyebrow": "🚓 Policial do 5º Distrito",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Oficial Leo Martinez<br><strong>Idade:</strong> 28 anos<br><strong>Função:</strong> Policial do 5º Distrito<br><strong>Local:</strong> Vanguard Bay – Coral Gate</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Jovem e atlético, com rosto limpo e olhar ainda esperançoso e idealista. Mantém o uniforme sempre impecável, embora pareça um pouco deslocado em meio ao colorido de Coral Gate. Tem um sorriso fácil.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Patrulha o bairro onde cresceu. Vê meta-humanos como a &quot;cavalaria&quot; de que a polícia precisa e admira heróis abertamente.</p>","visibility":"public","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Oficial Leo Martinez<br><strong>Idade:</strong> 28 anos<br><strong>Função:</strong> Policial do 5º Distrito<br><strong>Local:</strong> Vanguard Bay – Coral Gate</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Jovem e atlético, com rosto limpo e olhar ainda esperançoso e idealista. Mantém o uniforme sempre impecável, embora pareça um pouco deslocado em meio ao colorido de Coral Gate. Tem um sorriso fácil.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Patrulha o bairro onde cresceu. Vê meta-humanos como a &quot;cavalaria&quot; de que a polícia precisa e admira heróis abertamente.</p>",
+        "visibility": "public",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🚓","codename":"Nenhum","age":"28 anos","origin":"Humano","status":"Ativo"}
+    "card": {
+      "icon": "🚓",
+      "codename": "Nenhum",
+      "age": "28 anos",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "Mama Montoya": {
     "eyebrow": "☕ Proprietária do café La Ventanita",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Mama Montoya<br><strong>Idade:</strong> 70 anos<br><strong>Função:</strong> Proprietária do café La Ventanita<br><strong>Local:</strong> Vanguard Bay – Coral Gate</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Senhora baixinha, de cabelos grisalhos em coque e avental sobre vestido florido. Tem olhos vivos e atentos, rosto marcado por rugas de expressão e quase sempre um sorriso cúmplice ou uma xícara de café na mão.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Matriarca não oficial de Coral Gate. Sabe exatamente em quem confiar.</p>","visibility":"public","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Mama Montoya<br><strong>Idade:</strong> 70 anos<br><strong>Função:</strong> Proprietária do café La Ventanita<br><strong>Local:</strong> Vanguard Bay – Coral Gate</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Senhora baixinha, de cabelos grisalhos em coque e avental sobre vestido florido. Tem olhos vivos e atentos, rosto marcado por rugas de expressão e quase sempre um sorriso cúmplice ou uma xícara de café na mão.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Matriarca não oficial de Coral Gate. Sabe exatamente em quem confiar.</p>",
+        "visibility": "public",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"☕","codename":"Nenhum","age":"70 anos","origin":"Humana","status":"Ativa"}
+    "card": {
+      "icon": "☕",
+      "codename": "Nenhum",
+      "age": "70 anos",
+      "origin": "Humana",
+      "status": "Ativa"
+    }
   },
   "Hector Ramos": {
     "eyebrow": "🌿 Proprietário da Botânica Raízes & Ramos",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Hector Ramos<br><strong>Idade:</strong> 70 anos<br><strong>Função:</strong> Proprietário da Botânica Raízes &amp; Ramos<br><strong>Local:</strong> Vanguard Bay – Coral Gate</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Sereno, de pele morena e cabelos brancos. Tem olhar observador e profundo, como se lesse a alma das pessoas. Veste roupas simples, geralmente uma guayabera branca ou de linho, e costuma mexer em ervas.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Vende artigos místicos. Dizem que contacta o outro mundo. Seu passado em Santa Prisca guarda mistérios.</p>","visibility":"spoiler","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Hector Ramos<br><strong>Idade:</strong> 70 anos<br><strong>Função:</strong> Proprietário da Botânica Raízes &amp; Ramos<br><strong>Local:</strong> Vanguard Bay – Coral Gate</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Sereno, de pele morena e cabelos brancos. Tem olhar observador e profundo, como se lesse a alma das pessoas. Veste roupas simples, geralmente uma guayabera branca ou de linho, e costuma mexer em ervas.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Vende artigos místicos. Dizem que contacta o outro mundo. Seu passado em Santa Prisca guarda mistérios.</p>",
+        "visibility": "spoiler",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🌿","codename":"Nenhum","age":"70 anos","origin":"Humano","status":"Ativo"}
+    "card": {
+      "icon": "🌿",
+      "codename": "Nenhum",
+      "age": "70 anos",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "Lina Ramos": {
     "eyebrow": "🌿 Sobrinha de Hector Ramos",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Lina Ramos<br><strong>Idade:</strong> 21 anos<br><strong>Função:</strong> Sobrinha de Hector Ramos<br><strong>Local:</strong> Vanguard Bay – Coral Gate</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Jovem, de cabelos escuros e rebeldes, com estilo despojado, jaqueta jeans e camiseta de banda. Tem um olhar confiante e pronto para briga. É recém-chegada de Metrópolis.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Ajuda na loja do tio e já se meteu em várias confusões no bairro.</p>","visibility":"public","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Lina Ramos<br><strong>Idade:</strong> 21 anos<br><strong>Função:</strong> Sobrinha de Hector Ramos<br><strong>Local:</strong> Vanguard Bay – Coral Gate</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Jovem, de cabelos escuros e rebeldes, com estilo despojado, jaqueta jeans e camiseta de banda. Tem um olhar confiante e pronto para briga. É recém-chegada de Metrópolis.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Ajuda na loja do tio e já se meteu em várias confusões no bairro.</p>",
+        "visibility": "public",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🌿","codename":"Nenhum","age":"21 anos","origin":"Humana","status":"Ativa"}
+    "card": {
+      "icon": "🌿",
+      "codename": "Nenhum",
+      "age": "21 anos",
+      "origin": "Humana",
+      "status": "Ativa"
+    }
   },
   "Dra. Ana Cruz": {
     "eyebrow": "🩺 Médica da Clínica da Comunidade",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Dra. Ana Cruz<br><strong>Idade:</strong> 34 anos<br><strong>Função:</strong> Médica da Clínica da Comunidade<br><strong>Local:</strong> Vanguard Bay – Coral Gate</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Rosto cansado, mas gentil. Cabelos escuros presos em um rabo de cavalo prático. Veste jaleco branco sobre roupas casuais. Tem olheiras de quem trabalha horas extras, mas um sorriso acolhedor.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Voluntária na clínica gratuita e principal fonte de cuidados para moradores sem seguro.</p>","visibility":"public","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Dra. Ana Cruz<br><strong>Idade:</strong> 34 anos<br><strong>Função:</strong> Médica da Clínica da Comunidade<br><strong>Local:</strong> Vanguard Bay – Coral Gate</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Rosto cansado, mas gentil. Cabelos escuros presos em um rabo de cavalo prático. Veste jaleco branco sobre roupas casuais. Tem olheiras de quem trabalha horas extras, mas um sorriso acolhedor.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Voluntária na clínica gratuita e principal fonte de cuidados para moradores sem seguro.</p>",
+        "visibility": "public",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🩺","codename":"Nenhum","age":"34 anos","origin":"Humana","status":"Ativa"}
+    "card": {
+      "icon": "🩺",
+      "codename": "Nenhum",
+      "age": "34 anos",
+      "origin": "Humana",
+      "status": "Ativa"
+    }
   },
   "Pops Carter": {
     "eyebrow": "🎣 Velho pescador",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Pops Carter<br><strong>Idade:</strong> 73 anos<br><strong>Função:</strong> Velho pescador<br><strong>Local:</strong> Vanguard Bay – Coral Gate</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Idoso, com pele enrugada e queimada de sol, barba e cabelos brancos e bagunçados. Usa roupas de pescador, boné, colete e botas de borracha. Tem olhos miúdos e costuma carregar um cachimbo ou cigarro.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Jura ter visto &quot;algo&quot; se movendo sob a areia da Praia da Concha.</p>","visibility":"public","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Pops Carter<br><strong>Idade:</strong> 73 anos<br><strong>Função:</strong> Velho pescador<br><strong>Local:</strong> Vanguard Bay – Coral Gate</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Idoso, com pele enrugada e queimada de sol, barba e cabelos brancos e bagunçados. Usa roupas de pescador, boné, colete e botas de borracha. Tem olhos miúdos e costuma carregar um cachimbo ou cigarro.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Jura ter visto &quot;algo&quot; se movendo sob a areia da Praia da Concha.</p>",
+        "visibility": "public",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🎣","codename":"Pops","age":"73 anos","origin":"Humano","status":"Ativo"}
+    "card": {
+      "icon": "🎣",
+      "codename": "Pops",
+      "age": "73 anos",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "Lucia Ortega": {
     "eyebrow": "📣 Ativista comunitária",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Lucia Ortega<br><strong>Idade:</strong> 26 anos<br><strong>Função:</strong> Ativista comunitária<br><strong>Local:</strong> Vanguard Bay – Coral Gate</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Latina, de cabelos crespos ou ondulados, presos ou soltos. Rosto determinado e pele morena. Usa roupas confortáveis para protesto e frequentemente carrega cartazes e um megafone.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Lidera protestos contra a privatização da Praia da Concha.</p>","visibility":"public","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Lucia Ortega<br><strong>Idade:</strong> 26 anos<br><strong>Função:</strong> Ativista comunitária<br><strong>Local:</strong> Vanguard Bay – Coral Gate</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Latina, de cabelos crespos ou ondulados, presos ou soltos. Rosto determinado e pele morena. Usa roupas confortáveis para protesto e frequentemente carrega cartazes e um megafone.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Lidera protestos contra a privatização da Praia da Concha.</p>",
+        "visibility": "public",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"📣","codename":"Nenhum","age":"26 anos","origin":"Humana","status":"Ativa"}
+    "card": {
+      "icon": "📣",
+      "codename": "Nenhum",
+      "age": "26 anos",
+      "origin": "Humana",
+      "status": "Ativa"
+    }
   },
   "Dante Rodrigues": {
     "eyebrow": "🏀 Astro do basquete · Vanguard Vipers",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Dante Rodrigues<br><strong>Idade:</strong> 20 anos<br><strong>Função:</strong> Astro do basquete · Vanguard Vipers<br><strong>Local:</strong> Vanguard Bay – Coral Gate</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Atleta alto, acima de 1,90 m, com porte físico definido, pele morena, sorriso carismático e genuíno. Usa cabelo black power ou trançado, roupas esportivas ou ternos despojados.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Humilde e carismático. Usa a fama para ajudar crianças pobres.</p>","visibility":"public","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Dante Rodrigues<br><strong>Idade:</strong> 20 anos<br><strong>Função:</strong> Astro do basquete · Vanguard Vipers<br><strong>Local:</strong> Vanguard Bay – Coral Gate</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Atleta alto, acima de 1,90 m, com porte físico definido, pele morena, sorriso carismático e genuíno. Usa cabelo black power ou trançado, roupas esportivas ou ternos despojados.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Humilde e carismático. Usa a fama para ajudar crianças pobres.</p>",
+        "visibility": "public",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🏀","codename":"Inferno","age":"20 anos","origin":"Humano","status":"Ativo"}
+    "card": {
+      "icon": "🏀",
+      "codename": "Inferno",
+      "age": "20 anos",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "General Markov": {
     "eyebrow": "🎖️ Líder da Irmandade Markoviana",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> General Markov<br><strong>Idade:</strong> 54 anos<br><strong>Função:</strong> Líder da Irmandade Markoviana<br><strong>Local:</strong> Vanguard Bay – Downtown</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Figura enigmática, nunca descrita em detalhes. Provavelmente veste ternos militares ou sóbrios, com condecorações. Tem postura rígida e olhar calculista, mantendo-se sempre nos bastidores.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Lidera a célula do Leste Europeu em Downtown, focada em espionagem e contrabando de tecnologia da Intergangue.</p>","visibility":"spoiler","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> General Markov<br><strong>Idade:</strong> 54 anos<br><strong>Função:</strong> Líder da Irmandade Markoviana<br><strong>Local:</strong> Vanguard Bay – Downtown</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Figura enigmática, nunca descrita em detalhes. Provavelmente veste ternos militares ou sóbrios, com condecorações. Tem postura rígida e olhar calculista, mantendo-se sempre nos bastidores.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Lidera a célula do Leste Europeu em Downtown, focada em espionagem e contrabando de tecnologia da Intergangue.</p>",
+        "visibility": "spoiler",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🎖️","codename":"General","age":"54 anos","origin":"Humano","status":"Ativo"}
+    "card": {
+      "icon": "🎖️",
+      "codename": "General",
+      "age": "54 anos",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "Flinch Archer": {
     "eyebrow": "🚓 Chefe de Polícia da V-BPD",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Flinch Archer<br><strong>Idade:</strong> 55–65 anos<br><strong>Função:</strong> Chefe de Polícia da V-BPD<br><strong>Local:</strong> Vanguard Bay – Downtown</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Corpulento, com ombros cansados e postura que revela o peso do cargo. Rosto marcado por rugas profundas, bigode grisalho e olhos de desconfiança. Veste o uniforme com o paletó desabotoado e a gravata frouxa.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Velha guarda. Tem código de honra inabalável, mas odeia heróis que ignoram a lei. Pode ignorá-los ou caçá-los ativamente.</p>","visibility":"public","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Flinch Archer<br><strong>Idade:</strong> 55–65 anos<br><strong>Função:</strong> Chefe de Polícia da V-BPD<br><strong>Local:</strong> Vanguard Bay – Downtown</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Corpulento, com ombros cansados e postura que revela o peso do cargo. Rosto marcado por rugas profundas, bigode grisalho e olhos de desconfiança. Veste o uniforme com o paletó desabotoado e a gravata frouxa.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Velha guarda. Tem código de honra inabalável, mas odeia heróis que ignoram a lei. Pode ignorá-los ou caçá-los ativamente.</p>",
+        "visibility": "public",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🚓","codename":"Nenhum","age":"55–65 anos","origin":"Humano","status":"Ativo"}
+    "card": {
+      "icon": "🚓",
+      "codename": "Nenhum",
+      "age": "55–65 anos",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "Juíza Mariana Sandoval": {
     "eyebrow": "⚖️ Magistrada de Vanguard Bay",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Juíza Mariana Sandoval<br><strong>Idade:</strong> 50–60 anos<br><strong>Função:</strong> Magistrada de Vanguard Bay<br><strong>Local:</strong> Vanguard Bay – Downtown</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Imponente, de estatura média para alta. Cabelos grisalhos presos em um coque severo, voz grave carregada de ordem e comando. Veste togas impecáveis ou ternos sociais de corte clássico e mantém olhos sérios e penetrantes.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Bastião de empatia em meio à corrupção judicial. Tem relação conturbada com meta-humanos, especialmente após descobrir que seu sobrinho Isaac, o Inerte, pode ser um deles.</p>","visibility":"spoiler","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Juíza Mariana Sandoval<br><strong>Idade:</strong> 50–60 anos<br><strong>Função:</strong> Magistrada de Vanguard Bay<br><strong>Local:</strong> Vanguard Bay – Downtown</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Imponente, de estatura média para alta. Cabelos grisalhos presos em um coque severo, voz grave carregada de ordem e comando. Veste togas impecáveis ou ternos sociais de corte clássico e mantém olhos sérios e penetrantes.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Bastião de empatia em meio à corrupção judicial. Tem relação conturbada com meta-humanos, especialmente após descobrir que seu sobrinho Isaac, o Inerte, pode ser um deles.</p>",
+        "visibility": "spoiler",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"⚖️","codename":"Nenhum","age":"50–60 anos","origin":"Humana","status":"Ativa"}
+    "card": {
+      "icon": "⚖️",
+      "codename": "Nenhum",
+      "age": "50–60 anos",
+      "origin": "Humana",
+      "status": "Ativa"
+    }
   },
   "Julia Reyes": {
     "eyebrow": "🏛️ Prefeita de Vanguard Bay",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Julia Reyes<br><strong>Idade:</strong> 29 anos<br><strong>Função:</strong> Prefeita de Vanguard Bay<br><strong>Local:</strong> Vanguard Bay – Downtown</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Gentil, de estatura média para baixa. Cabelos castanhos e longos presos em um rabo de cavalo. Tem voz doce e triste de alguém sobrecarregada, veste ternos sociais nem sempre bem passados e mantém olhar cansado.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Começou a carreira determinada a enfrentar a corrupção da cidade, mas se viu sobrecarregada pelas verdades e conexões escondidas da Cidade Dourada. É bastante precavida quando meta-humanos começam a aparecer por considerá-los um tipo de ameaça difícil de administrar.</p>","visibility":"public","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Julia Reyes<br><strong>Idade:</strong> 29 anos<br><strong>Função:</strong> Prefeita de Vanguard Bay<br><strong>Local:</strong> Vanguard Bay – Downtown</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Gentil, de estatura média para baixa. Cabelos castanhos e longos presos em um rabo de cavalo. Tem voz doce e triste de alguém sobrecarregada, veste ternos sociais nem sempre bem passados e mantém olhar cansado.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Começou a carreira determinada a enfrentar a corrupção da cidade, mas se viu sobrecarregada pelas verdades e conexões escondidas da Cidade Dourada. É bastante precavida quando meta-humanos começam a aparecer por considerá-los um tipo de ameaça difícil de administrar.</p>",
+        "visibility": "public",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🏛️","codename":"Nenhum","age":"29 anos","origin":"Humana","status":"Ativa"}
+    "card": {
+      "icon": "🏛️",
+      "codename": "Nenhum",
+      "age": "29 anos",
+      "origin": "Humana",
+      "status": "Ativa"
+    }
   },
   "Sofia Navarro": {
     "eyebrow": "🎤 Repórter de campo da VBN",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Sofia Navarro<br><strong>Idade:</strong> 33 anos<br><strong>Função:</strong> Repórter de campo da VBN<br><strong>Local:</strong> Vanguard Bay – Downtown</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Latina, de cabelos escuros e lisos, frequentemente presos ou ao vento. Tem postura determinada e olhar curioso. Veste blazer e calça social, mas sempre pronta para correr, usando tênis confortáveis. Carrega o microfone como extensão do corpo.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Serva da verdade, inspirada em Lois Lane. Não tem medo de batalhas.</p>","visibility":"public","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Sofia Navarro<br><strong>Idade:</strong> 33 anos<br><strong>Função:</strong> Repórter de campo da VBN<br><strong>Local:</strong> Vanguard Bay – Downtown</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Latina, de cabelos escuros e lisos, frequentemente presos ou ao vento. Tem postura determinada e olhar curioso. Veste blazer e calça social, mas sempre pronta para correr, usando tênis confortáveis. Carrega o microfone como extensão do corpo.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Serva da verdade, inspirada em Lois Lane. Não tem medo de batalhas.</p>",
+        "visibility": "public",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🎤","codename":"Nenhum","age":"33 anos","origin":"Humana","status":"Ativa"}
+    "card": {
+      "icon": "🎤",
+      "codename": "Nenhum",
+      "age": "33 anos",
+      "origin": "Humana",
+      "status": "Ativa"
+    }
   },
   "Boris Borkov": {
     "eyebrow": "🐻 O Urso · Líder da Bratva Volkov",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Boris Borkov<br><strong>Idade:</strong> 45–55 anos<br><strong>Função:</strong> O Urso · Líder da Bratva Volkov<br><strong>Local:</strong> Vanguard Bay – O Dique</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Uma autêntica montanha de músculos. Pescoço grosso, cabeça raspada e corpo coberto por tatuagens de prisão russas, incluindo estrelas e cúpulas de igreja. Rosto largo, com cicatrizes e olhos gelados de uma paciência assustadora.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Controla o Dique com mão de ferro. Especializado em contrabando de armas de alta tecnologia e tráfico de meta-humanos.</p>","visibility":"spoiler","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Boris Borkov<br><strong>Idade:</strong> 45–55 anos<br><strong>Função:</strong> O Urso · Líder da Bratva Volkov<br><strong>Local:</strong> Vanguard Bay – O Dique</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Uma autêntica montanha de músculos. Pescoço grosso, cabeça raspada e corpo coberto por tatuagens de prisão russas, incluindo estrelas e cúpulas de igreja. Rosto largo, com cicatrizes e olhos gelados de uma paciência assustadora.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Controla o Dique com mão de ferro. Especializado em contrabando de armas de alta tecnologia e tráfico de meta-humanos.</p>",
+        "visibility": "spoiler",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🐻","codename":"O Urso","age":"45–55 anos","origin":"Humano","status":"Ativo"}
+    "card": {
+      "icon": "🐻",
+      "codename": "O Urso",
+      "age": "45–55 anos",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "Osias \"Osi\" Rivers": {
     "eyebrow": "📰 Repórter investigativo do Farol de Vanguard",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Osias &quot;Osi&quot; Rivers<br><strong>Idade:</strong> 40–50 anos<br><strong>Função:</strong> Repórter investigativo do Farol de Vanguard<br><strong>Local:</strong> Vanguard Bay – O Dique</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Homem de aparência cansada, mas obstinada. Usa roupas simples, possivelmente um sobretudo surrado, com caderno e caneta sempre à mão. Tem olhos inquisitivos e cabelos bagunçados.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Jornalista tradicional. Obcecado em provar que Leland Shaw é uma fraude.</p>","visibility":"public","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Osias &quot;Osi&quot; Rivers<br><strong>Idade:</strong> 40–50 anos<br><strong>Função:</strong> Repórter investigativo do Farol de Vanguard<br><strong>Local:</strong> Vanguard Bay – O Dique</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Homem de aparência cansada, mas obstinada. Usa roupas simples, possivelmente um sobretudo surrado, com caderno e caneta sempre à mão. Tem olhos inquisitivos e cabelos bagunçados.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Jornalista tradicional. Obcecado em provar que Leland Shaw é uma fraude.</p>",
+        "visibility": "public",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"📰","codename":"Osi","age":"40–50 anos","origin":"Humano","status":"Ativo"}
+    "card": {
+      "icon": "📰",
+      "codename": "Osi",
+      "age": "40–50 anos",
+      "origin": "Humano",
+      "status": "Ativo"
+    }
   },
   "Dra. Helen Finch": {
     "eyebrow": "🔬 Chefe de Criminologia Forense do VBPI",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Dra. Helen Finch<br><strong>Idade:</strong> 34 anos<br><strong>Função:</strong> Chefe de Criminologia Forense do VBPI<br><strong>Local:</strong> Vanguard Bay – O Dique</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Mulher séria, de cabelos curtos e óculos de grau. Veste sempre um jaleco branco sobre roupas práticas e tem olhar analítico de cientista forense.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Desenvolveu o programa &quot;Análise de Resíduos Meta-humanos&quot;.</p>","visibility":"public","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Dra. Helen Finch<br><strong>Idade:</strong> 34 anos<br><strong>Função:</strong> Chefe de Criminologia Forense do VBPI<br><strong>Local:</strong> Vanguard Bay – O Dique</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Mulher séria, de cabelos curtos e óculos de grau. Veste sempre um jaleco branco sobre roupas práticas e tem olhar analítico de cientista forense.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Desenvolveu o programa &quot;Análise de Resíduos Meta-humanos&quot;.</p>",
+        "visibility": "public",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"🔬","codename":"Nenhum","age":"34 anos","origin":"Humana","status":"Ativa"}
+    "card": {
+      "icon": "🔬",
+      "codename": "Nenhum",
+      "age": "34 anos",
+      "origin": "Humana",
+      "status": "Ativa"
+    }
   },
   "Brigitte Oliveira": {
     "eyebrow": "⛵ Campeã de regatas",
     "sections": [
-      {"title":"📋 Ficha Básica","content":"<p><strong>Nome:</strong> Brigitte Oliveira<br><strong>Idade:</strong> 22 anos<br><strong>Função:</strong> Campeã de regatas<br><strong>Local:</strong> Vanguard Bay – O Dique</p>","visibility":"public","position":0},
-      {"title":"👁️ Aparência","content":"<p>Brasileira, de cabelos longos ao vento, corpo atlético e bronzeado pelo sol da Flórida. Rosto expressivo e sincero, sem muitos rodeios. Veste roupas de esporte náutico, como regata, bermuda e tênis de barco.</p>","visibility":"public","position":1},
-      {"title":"📖 Perfil","content":"<p>Perfeccionista e dedicada. Alvo de boatos de ser atlante, que ela nega.</p>","visibility":"public","position":2}
+      {
+        "title": "📋 Ficha Básica",
+        "content": "<p><strong>Nome:</strong> Brigitte Oliveira<br><strong>Idade:</strong> 22 anos<br><strong>Função:</strong> Campeã de regatas<br><strong>Local:</strong> Vanguard Bay – O Dique</p>",
+        "visibility": "public",
+        "position": 0
+      },
+      {
+        "title": "👁️ Aparência",
+        "content": "<p>Brasileira, de cabelos longos ao vento, corpo atlético e bronzeado pelo sol da Flórida. Rosto expressivo e sincero, sem muitos rodeios. Veste roupas de esporte náutico, como regata, bermuda e tênis de barco.</p>",
+        "visibility": "public",
+        "position": 1
+      },
+      {
+        "title": "📖 Perfil",
+        "content": "<p>Perfeccionista e dedicada. Alvo de boatos de ser atlante, que ela nega.</p>",
+        "visibility": "public",
+        "position": 2
+      }
     ],
     "created": true,
-    "card": {"icon":"⛵","codename":"Nenhum","age":"22 anos","origin":"Humana","status":"Ativa"}
+    "card": {
+      "icon": "⛵",
+      "codename": "Nenhum",
+      "age": "22 anos",
+      "origin": "Humana",
+      "status": "Ativa"
+    }
   }
-
 };
 
 })();
