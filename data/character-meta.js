@@ -36,7 +36,7 @@ window.TerraZData.characterTaxonomy = {
     {
       "id": "novos-titas",
       "label": "Novos Titãs"
-    },
+    }
   ],
   "types": [
     {
@@ -350,7 +350,8 @@ window.TerraZData.characterTaxonomy = {
     "Rex Mason": {
       "featured": false,
       "nuclei": [
-        "jlu"
+        "jlu",
+        "lobo-cadmus"
       ],
       "type": "npc",
       "status": "active",
