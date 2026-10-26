@@ -821,7 +821,7 @@ function openCreate(prefill){
   refreshPortraitRemoval('');
   fillMediaSource('');
   fillMediaFraming('');
-  fillOrganization({featured:false,nuclei:['other'],type:'npc',status:'active',visibility:'public'});
+  fillOrganization({featured:false,nuclei:[],type:'npc',status:'active',visibility:'public'});
 
   var title = el('characterEditorTitle');
   if(title) title.textContent = createImportContext ? '＋ Importar personagem da DC' : '＋ Novo personagem';
