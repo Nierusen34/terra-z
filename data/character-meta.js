@@ -124,12 +124,12 @@ window.TerraZData.characterTaxonomy = {
     "Tristan Queen": {
       "featured": true,
       "nuclei": [
-        "vanguard",
         "queen"
       ],
       "type": "protagonist",
       "status": "active",
-      "tags": []
+      "tags": [],
+      "visibility": "public"
     },
     "Riot": {
       "featured": true,
