@@ -333,7 +333,7 @@ function normalizeTaxonomyId(value){
 }
 
 const TAXONOMY_RULES = {
-  nuclei:{max:40,required:"other",reserved:new Set(["all","featured"])},
+  nuclei:{max:40,required:"",reserved:new Set(["all","featured"])},
   types:{max:30,required:"other",reserved:new Set()},
   statuses:{max:30,required:"unknown",reserved:new Set()},
   tags:{max:80,required:"",reserved:new Set()}
